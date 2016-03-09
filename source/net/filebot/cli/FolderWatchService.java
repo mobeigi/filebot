@@ -2,6 +2,7 @@ package net.filebot.cli;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 import static java.util.Collections.*;
+import static net.filebot.Logging.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.Closeable;
@@ -22,7 +23,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.filebot.util.DefaultThreadFactory;
 import net.filebot.util.Timer;
@@ -148,7 +148,7 @@ public abstract class FolderWatchService implements Closeable {
 							commitSet.addAll(listFiles(file));
 							watchFolder(file);
 						} catch (IOException e) {
-							Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+							debug.log(Level.SEVERE, e.getMessage(), e);
 						}
 					}
 				}
@@ -197,7 +197,7 @@ public abstract class FolderWatchService implements Closeable {
 			} catch (InterruptedException e) {
 				// ignore, part of an orderly shutdown
 			} catch (Exception e) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+				debug.log(Level.WARNING, e.getMessage(), e);
 			}
 		}
 

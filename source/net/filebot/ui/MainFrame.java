@@ -21,7 +21,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
@@ -143,7 +142,7 @@ public class MainFrame extends JFrame {
 					pad.setLocationByPlatform(true);
 					pad.setVisible(true);
 				} catch (IOException e) {
-					Logger.getLogger(GroovyPad.class.getName()).log(Level.WARNING, e.getMessage(), e);
+					debug.log(Level.WARNING, e.getMessage(), e);
 				} finally {
 					setCursor(Cursor.getDefaultCursor());
 				}

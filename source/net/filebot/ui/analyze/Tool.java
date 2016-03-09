@@ -1,12 +1,13 @@
 package net.filebot.ui.analyze;
 
+import static net.filebot.Logging.*;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JComponent;
 import javax.swing.SwingWorker;
@@ -79,7 +80,7 @@ abstract class Tool<M> extends JComponent {
 						// if it happens, it is supposed to
 					} else {
 						// should not happen
-						Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+						debug.log(Level.WARNING, e.getMessage(), e);
 					}
 				}
 			}

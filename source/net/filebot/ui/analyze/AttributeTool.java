@@ -1,13 +1,12 @@
 package net.filebot.ui.analyze;
 
+import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
@@ -78,7 +77,7 @@ class AttributeTool extends Tool<TableModel> {
 
 					model.addRow(metaId, metaObject, originalName, file);
 				} catch (Exception e) {
-					Logger.getLogger(AttributeTool.class.getName()).log(Level.WARNING, e.getMessage());
+					debug.warning("Failed to read xattr: " + e);
 				}
 			}
 		}

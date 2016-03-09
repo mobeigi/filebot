@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.filebot.media.MediaDetection;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
@@ -83,7 +82,7 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 						queue.addAll(0, paths); // add paths from text file
 					}
 				} catch (Exception e) {
-					Logger.getLogger(FilesListTransferablePolicy.class.getName()).log(Level.WARNING, e.getMessage());
+					debug.log(Level.WARNING, e.getMessage(), e);
 				}
 			} else if (!recursive || f.isFile() || MediaDetection.isDiskFolder(f)) {
 				entries.add(f);

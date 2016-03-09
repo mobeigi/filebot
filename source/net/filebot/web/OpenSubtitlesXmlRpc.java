@@ -1,6 +1,7 @@
 package net.filebot.web;
 
 import static java.util.Collections.*;
+import static net.filebot.Logging.*;
 import static net.filebot.util.StringUtilities.*;
 
 import java.io.ByteArrayInputStream;
@@ -20,7 +21,6 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.DeflaterInputStream;
@@ -134,7 +134,7 @@ public class OpenSubtitlesXmlRpc {
 
 					movies.add(new SubtitleSearchResult(Integer.parseInt(imdbid), name, year, null, -1));
 				} catch (Exception e) {
-					Logger.getLogger(OpenSubtitlesXmlRpc.class.getName()).log(Level.FINE, String.format("Ignore movie [%s]: %s", movie, e.getMessage()));
+					debug.log(Level.FINE, String.format("Ignore movie [%s]: %s", movie, e.getMessage()));
 				}
 			}
 
@@ -157,7 +157,7 @@ public class OpenSubtitlesXmlRpc {
 			return new Movie(name, year, imdbid, -1);
 		} catch (RuntimeException e) {
 			// ignore, invalid response
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Failed to lookup movie by imdbid %s: %s", imdbid, e.getMessage()));
+			debug.log(Level.WARNING, String.format("Failed to lookup movie by imdbid %s: %s", imdbid, e.getMessage()));
 		}
 
 		return null;
@@ -296,7 +296,7 @@ public class OpenSubtitlesXmlRpc {
 						movieHashMap.put(hash, matches.get(0));
 					} else if (matches.size() > 1) {
 						// multiple hash matches => ignore all
-						Logger.getLogger(getClass().getName()).log(Level.WARNING, "Ignore hash match due to hash collision: " + matches);
+						debug.log(Level.WARNING, "Ignore hash match due to hash collision: " + matches);
 					}
 				}
 			}

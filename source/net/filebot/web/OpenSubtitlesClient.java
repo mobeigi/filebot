@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
@@ -368,7 +367,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			try {
 				sublanguageid = getSubLanguageID(languageName, true);
 			} catch (Exception e) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+				debug.log(Level.WARNING, e.getMessage(), e);
 			}
 		}
 

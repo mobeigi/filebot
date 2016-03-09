@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.TreeSet;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -96,7 +95,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 								searchHistory.clear();
 								searchHistory.addAll(get());
 							} catch (Exception e) {
-								Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+								debug.log(Level.WARNING, e.getMessage(), e);
 							}
 						}
 
@@ -110,7 +109,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 			searchTextField.getSelectButton().setSelectedIndex(Integer.parseInt(getSettings().get("engine.selected", "0")));
 		} catch (Exception e) {
 			// log and ignore
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+			debug.log(Level.WARNING, e.getMessage(), e);
 		}
 
 		// save selected client on change

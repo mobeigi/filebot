@@ -1,11 +1,10 @@
 package net.filebot.format;
 
+import static net.filebot.Logging.*;
 import static net.filebot.media.MediaDetection.*;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ExpressionFileFilter implements FileFilter {
 
@@ -26,7 +25,7 @@ public class ExpressionFileFilter implements FileFilter {
 		try {
 			return filter.matches(new MediaBindingBean(readMetaInfo(f), f, null));
 		} catch (Exception e) {
-			Logger.getLogger(ExpressionFileFilter.class.getName()).log(Level.WARNING, e.toString());
+			debug.warning(format("Expression failed: %s", e));
 			return error;
 		}
 	}

@@ -31,7 +31,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -131,7 +130,7 @@ class RenameAction extends AbstractAction {
 						}
 					}
 				} catch (Throwable e) {
-					Logger.getLogger(RenameAction.class.getName()).warning("Failed to write xattr: " + e.getMessage());
+					debug.warning("Failed to write xattr: " + e.getMessage());
 				}
 			}
 		} catch (ExecutionException e) {
@@ -343,7 +342,7 @@ class RenameAction extends AbstractAction {
 				if (!isCancelled()) {
 					log.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
 				} else {
-					Logger.getLogger(RenameAction.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+					debug.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
 

@@ -1,5 +1,7 @@
 package net.filebot.mediainfo;
 
+import static net.filebot.Logging.*;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -10,8 +12,6 @@ import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
@@ -41,7 +41,7 @@ public class MediaInfo implements Closeable {
 			try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
 				return openViaBuffer(raf);
 			} catch (IOException e) {
-				Logger.getLogger(MediaInfo.class.getName()).log(Level.WARNING, e.toString());
+				debug.warning("Failed to open random access file: " + e.getMessage());
 				return false;
 			}
 		}

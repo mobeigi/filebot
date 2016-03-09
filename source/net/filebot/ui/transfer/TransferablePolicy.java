@@ -2,10 +2,11 @@
 package net.filebot.ui.transfer;
 
 
+import static net.filebot.Logging.*;
+
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.InvalidDnDOperationException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.TransferHandler;
 import javax.swing.TransferHandler.TransferSupport;
@@ -33,7 +34,7 @@ public abstract class TransferablePolicy {
 			// just assume that the transferable will be accepted, accept will be called in importData again anyway
 			return true;
 		} catch (Exception e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.toString(), e);
+			debug.log(Level.WARNING, e.toString(), e);
 			return false;
 		}
 	}
@@ -48,7 +49,7 @@ public abstract class TransferablePolicy {
 				return true;
 			}
 		} catch (Exception e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.toString(), e);
+			debug.log(Level.WARNING, e.toString(), e);
 		}
 
 		// transferable was not accepted, or transfer failed

@@ -2,6 +2,7 @@ package net.filebot.subtitle;
 
 import static java.lang.Math.*;
 import static java.util.Collections.*;
+import static net.filebot.Logging.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.similarity.EpisodeMetrics.*;
 import static net.filebot.util.FileUtilities.*;
@@ -11,8 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -182,7 +181,7 @@ public enum SubtitleMetrics implements SimilarityMetric {
 				}
 				return props;
 			} catch (Exception e) {
-				Logger.getLogger(SubtitleMetrics.class.getName()).log(Level.WARNING, e.toString());
+				debug.warning("Failed to read subtitle properties: " + e);
 			}
 			return emptyMap();
 		}
@@ -207,7 +206,7 @@ public enum SubtitleMetrics implements SimilarityMetric {
 							return props;
 						}
 					} catch (Exception e) {
-						Logger.getLogger(SubtitleMetrics.class.getName()).log(Level.WARNING, e.toString());
+						debug.warning("Failed to read video properties: " + e);
 					}
 					return emptyMap();
 				});

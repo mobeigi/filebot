@@ -1,6 +1,7 @@
 package net.filebot.web;
 
 import static java.nio.charset.StandardCharsets.*;
+import static net.filebot.Logging.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.ByteArrayOutputStream;
@@ -28,7 +29,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Supplier;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -279,7 +279,7 @@ public final class WebRequest {
 				try {
 					return Charset.forName(matcher.group(1));
 				} catch (IllegalArgumentException e) {
-					Logger.getLogger(WebRequest.class.getName()).log(Level.WARNING, "Illegal charset: " + contentType);
+					debug.log(Level.WARNING, "Illegal charset: " + contentType);
 				}
 			}
 

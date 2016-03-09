@@ -3,6 +3,7 @@ package net.filebot.similarity;
 import static java.lang.Math.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
+import static net.filebot.Logging.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.FileUtilities.*;
@@ -20,8 +21,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -348,12 +347,12 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 				// check direct mappings first
 				try {
-					List<String> directMapping = matchSeriesByDirectMapping(singleton(file));
+					List<String> directMapping = matchSeriesByMapping(singleton(file));
 					if (directMapping.size() > 0) {
 						return directMapping;
 					}
 				} catch (Exception e) {
-					Logger.getLogger(EpisodeMetrics.class.getName()).log(Level.WARNING, e.getMessage());
+					debug.warning("Failed to retrieve series mappings: " + e.getMessage());
 				}
 
 				// guess potential series names from path
@@ -371,7 +370,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				try {
 					return stripReleaseInfo(names, true);
 				} catch (Exception e) {
-					Logger.getLogger(EpisodeMetrics.class.getName()).log(Level.WARNING, e.getMessage());
+					debug.warning("Failed to strip release info: " + e.toString());
 				}
 			}
 

@@ -1,5 +1,6 @@
 package net.filebot.ui.subtitle.upload;
 
+import static net.filebot.Logging.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.ui.SwingUI.*;
 
@@ -18,7 +19,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -154,7 +154,7 @@ public class SubtitleUploadDialog extends JDialog {
 					Locale locale = database.detectLanguage(FileUtilities.readFile(mapping.getSubtitle()));
 					mapping.setLanguage(Language.getLanguage(locale));
 				} catch (Exception e) {
-					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to auto-detect language: " + e.getMessage());
+					debug.log(Level.WARNING, "Failed to auto-detect language: " + e.getMessage());
 				}
 			}
 
@@ -187,7 +187,7 @@ public class SubtitleUploadDialog extends JDialog {
 						}
 					}
 				} catch (Exception e) {
-					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to auto-detect movie: " + e.getMessage());
+					debug.log(Level.WARNING, "Failed to auto-detect movie: " + e.getMessage());
 				}
 			}
 
@@ -199,7 +199,7 @@ public class SubtitleUploadDialog extends JDialog {
 				mapping.setState(Status.UploadReady);
 			}
 		} catch (Exception e) {
-			Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+			debug.log(Level.SEVERE, e.getMessage(), e);
 			mapping.setState(Status.CheckFailed);
 		}
 	}
@@ -210,7 +210,7 @@ public class SubtitleUploadDialog extends JDialog {
 			database.uploadSubtitle(group.getIdentity(), group.getLanguage().getLocale(), group.getVideoFiles(), group.getSubtitleFiles());
 			group.setState(Status.UploadComplete);
 		} catch (Exception e) {
-			Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+			debug.log(Level.SEVERE, e.getMessage(), e);
 			group.setState(Status.UploadFailed);
 		}
 	}

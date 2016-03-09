@@ -2,6 +2,8 @@
 package net.filebot.hash;
 
 
+import static net.filebot.Logging.*;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -10,8 +12,6 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class VerificationFileReader implements Iterator<Entry<File, String>>, Closeable {
@@ -71,7 +71,7 @@ public class VerificationFileReader implements Iterator<Entry<File, String>>, Cl
 					entry = format.parseObject(line);
 				} catch (ParseException e) {
 					// log and ignore
-					Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Illegal format on line %d: %s", lineNumber, line));
+					debug.warning(format("Illegal format on line %d: %s", lineNumber, line));
 				}
 			}
 

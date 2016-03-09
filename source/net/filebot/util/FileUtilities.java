@@ -3,6 +3,7 @@ package net.filebot.util;
 import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static net.filebot.Logging.*;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -42,7 +43,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,7 +67,7 @@ public final class FileUtilities {
 			try {
 				return Files.move(source.toPath(), destination.toPath(), StandardCopyOption.ATOMIC_MOVE).toFile();
 			} catch (AtomicMoveNotSupportedException e) {
-				Logger.getLogger(FileUtilities.class.getName()).log(Level.WARNING, e.toString());
+				debug.log(Level.WARNING, e.toString());
 			}
 		}
 

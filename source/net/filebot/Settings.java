@@ -1,5 +1,6 @@
 package net.filebot;
 
+import static net.filebot.Logging.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.awt.GraphicsEnvironment;
@@ -10,7 +11,6 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -129,7 +129,7 @@ public final class Settings {
 				return Integer.parseInt(threadPool);
 			}
 		} catch (Exception e) {
-			Logger.getLogger(Settings.class.getName()).log(Level.WARNING, e.toString());
+			debug.log(Level.WARNING, e.getMessage(), e);
 		}
 
 		return Runtime.getRuntime().availableProcessors();

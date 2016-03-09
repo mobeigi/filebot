@@ -3,6 +3,7 @@ package net.filebot.subtitle;
 import static java.lang.Math.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.similarity.Normalization.*;
@@ -29,8 +30,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -154,7 +153,7 @@ public final class SubtitleUtilities {
 						try {
 							selection.addAll(service.guess(getName(f)));
 						} catch (Exception e) {
-							Logger.getLogger(SubtitleUtilities.class.getName()).log(Level.WARNING, String.format("Failed to identify file [%s]: %s", f.getName(), e.getMessage()));
+							debug.warning(format("Failed to identify file [%s]: %s", f.getName(), e.getMessage()));
 						}
 					}
 				}

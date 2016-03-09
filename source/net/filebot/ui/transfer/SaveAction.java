@@ -1,5 +1,6 @@
 package net.filebot.ui.transfer;
 
+import static net.filebot.Logging.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.util.FileUtilities.*;
 
@@ -7,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -56,7 +56,7 @@ public class SaveAction extends AbstractAction {
 				}
 			}
 		} catch (Exception e) {
-			Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
+			debug.log(Level.SEVERE, e.toString(), e);
 		}
 	}
 }

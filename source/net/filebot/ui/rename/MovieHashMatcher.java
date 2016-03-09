@@ -1,6 +1,7 @@
 package net.filebot.ui.rename;
 
 import static java.util.Collections.*;
+import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.Settings.*;
 import static net.filebot.media.MediaDetection.*;
@@ -35,7 +36,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
@@ -145,7 +145,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 					}
 				}
 			} catch (NoSuchElementException e) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to grep IMDbID: " + nfo.getName());
+				debug.log(Level.WARNING, "Failed to grep IMDbID: " + nfo.getName());
 			}
 		}
 

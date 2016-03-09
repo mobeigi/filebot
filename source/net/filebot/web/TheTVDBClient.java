@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
@@ -107,7 +106,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			String seriesName = getTextContent("SeriesName", node);
 
 			if (seriesName.startsWith("**") && seriesName.endsWith("**")) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Invalid series: %s [%d]", seriesName, sid));
+				debug.log(Level.WARNING, String.format("Invalid series: %s [%d]", seriesName, sid));
 				continue;
 			}
 

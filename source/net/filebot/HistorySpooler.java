@@ -1,5 +1,6 @@
 package net.filebot;
 
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 
 import java.io.File;
@@ -13,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.filebot.History.Element;
 
@@ -75,7 +75,7 @@ public final class HistorySpooler {
 							channel.position(0);
 							history = History.importHistory(new CloseShieldInputStream(Channels.newInputStream(channel))); // keep JAXB from closing the stream
 						} catch (Exception e) {
-							Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to load rename history.", e);
+							debug.log(Level.SEVERE, "Failed to load rename history", e);
 						}
 					}
 
@@ -90,7 +90,7 @@ public final class HistorySpooler {
 				}
 			}
 		} catch (Exception e) {
-			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to write rename history.", e);
+			debug.log(Level.SEVERE, "Failed to write rename history", e);
 		}
 	}
 

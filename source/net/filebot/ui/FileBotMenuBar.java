@@ -1,11 +1,11 @@
 package net.filebot.ui;
 
+import static net.filebot.Logging.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Desktop;
 import java.net.URI;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.Action;
 import javax.swing.JMenu;
@@ -31,7 +31,7 @@ public class FileBotMenuBar {
 			try {
 				Desktop.getDesktop().browse(uri);
 			} catch (Exception e) {
-				Logger.getLogger(FileBotMenuBar.class.getName()).log(Level.SEVERE, "Failed to open URI: " + uri, e);
+				debug.log(Level.SEVERE, "Failed to open URI: " + uri, e);
 			}
 		});
 	}

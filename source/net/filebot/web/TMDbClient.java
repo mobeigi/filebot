@@ -26,7 +26,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -163,7 +162,7 @@ public class TMDbClient implements MovieIdentificationService {
 				return getMovieInfo(String.format("tt%07d", movie.getImdbId()), locale, extendedInfo);
 			}
 		} catch (FileNotFoundException | NullPointerException e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Movie data not found: %s [%d / %d]", movie, movie.getTmdbId(), movie.getImdbId()));
+			debug.log(Level.WARNING, String.format("Movie data not found: %s [%d / %d]", movie, movie.getTmdbId(), movie.getImdbId()));
 		}
 		return null;
 	}

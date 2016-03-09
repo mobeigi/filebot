@@ -1,5 +1,7 @@
 package net.filebot.util.ui;
 
+import static net.filebot.Logging.*;
+
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
@@ -9,7 +11,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.net.URI;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -107,7 +108,7 @@ public class LinkButton extends JButton {
 				}
 			} catch (Exception e) {
 				// should not happen
-				Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
+				debug.log(Level.SEVERE, e.toString(), e);
 			}
 		}
 	}

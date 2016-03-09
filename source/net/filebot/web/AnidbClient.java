@@ -1,6 +1,7 @@
 package net.filebot.web;
 
 import static java.util.Collections.*;
+import static net.filebot.Logging.*;
 import static net.filebot.util.StringUtilities.*;
 import static net.filebot.util.XPathUtilities.*;
 import static net.filebot.web.EpisodeUtilities.*;
@@ -23,7 +24,6 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -175,7 +175,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		// sanity check
 		if (episodes.isEmpty()) {
 			// anime page xml doesn't work sometimes
-			Logger.getLogger(AnidbClient.class.getName()).log(Level.WARNING, String.format("Unable to parse episode data: %s (%d): %s", anime, anime.getAnimeId(), getXmlString(dom, false).split("\n", 2)[0].trim()));
+			debug.log(Level.WARNING, String.format("Unable to parse episode data: %s (%d): %s", anime, anime.getAnimeId(), getXmlString(dom, false).split("\n", 2)[0].trim()));
 		}
 
 		return new SeriesData(seriesInfo, episodes);

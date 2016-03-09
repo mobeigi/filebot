@@ -2,6 +2,7 @@ package net.filebot.ui.subtitle;
 
 import static javax.swing.BorderFactory.*;
 import static javax.swing.JOptionPane.*;
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.subtitle.SubtitleUtilities.*;
 import static net.filebot.util.FileUtilities.*;
@@ -32,7 +33,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -291,7 +291,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 							try {
 								mapping.setSubtitleFile(get());
 							} catch (Exception e) {
-								Logger.getLogger(SubtitleAutoMatchDialog.class.getName()).log(Level.WARNING, e.getMessage(), e);
+								debug.log(Level.WARNING, e.getMessage(), e);
 							}
 						}
 					});
@@ -785,7 +785,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 					throw e;
 				} catch (Exception e) {
 					// log and ignore
-					Logger.getLogger(SubtitleAutoMatchDialog.class.getName()).log(Level.WARNING, e.getMessage());
+					debug.log(Level.WARNING, e.getMessage());
 				}
 			}
 
@@ -833,7 +833,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 				return destination;
 			} catch (Exception e) {
-				Logger.getLogger(SubtitleAutoMatchDialog.class.getName()).log(Level.WARNING, e.getMessage(), e);
+				debug.log(Level.WARNING, e.getMessage(), e);
 			}
 
 			return null;

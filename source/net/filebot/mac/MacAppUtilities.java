@@ -1,6 +1,7 @@
 package net.filebot.mac;
 
 import static ca.weblite.objc.util.CocoaUtils.*;
+import static net.filebot.Logging.*;
 
 import java.awt.EventQueue;
 import java.awt.SecondaryLoop;
@@ -11,8 +12,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JMenuBar;
 import javax.swing.UIManager;
@@ -98,7 +97,7 @@ public class MacAppUtilities {
 			Method setWindowCanFullScreen = fullScreenUtilities.getMethod("setWindowCanFullScreen", new Class<?>[] { Window.class, boolean.class });
 			setWindowCanFullScreen.invoke(null, window, true);
 		} catch (Throwable t) {
-			Logger.getLogger(MacAppUtilities.class.getName()).log(Level.WARNING, "setWindowCanFullScreen not supported: " + t);
+			debug.warning("setWindowCanFullScreen not supported: " + t);
 		}
 	}
 
@@ -109,7 +108,7 @@ public class MacAppUtilities {
 			Method requestForeground = application.getMethod("requestForeground", new Class<?>[] { boolean.class });
 			requestForeground.invoke(instance, true);
 		} catch (Throwable t) {
-			Logger.getLogger(MacAppUtilities.class.getName()).log(Level.WARNING, "requestForeground not supported: " + t);
+			debug.warning("requestForeground not supported: " + t);
 		}
 	}
 
@@ -119,7 +118,7 @@ public class MacAppUtilities {
 			Method revealInFinder = fileManager.getMethod("revealInFinder", new Class<?>[] { File.class });
 			revealInFinder.invoke(null, file);
 		} catch (Throwable t) {
-			Logger.getLogger(MacAppUtilities.class.getName()).log(Level.WARNING, "revealInFinder not supported: " + t);
+			debug.warning("revealInFinder not supported: " + t);
 		}
 	}
 
@@ -130,7 +129,7 @@ public class MacAppUtilities {
 			Method setDefaultMenuBar = application.getMethod("setDefaultMenuBar", new Class<?>[] { JMenuBar.class });
 			setDefaultMenuBar.invoke(instance, menu);
 		} catch (Throwable t) {
-			Logger.getLogger(MacAppUtilities.class.getName()).log(Level.WARNING, "setDefaultMenuBar not supported: " + t);
+			debug.warning("setDefaultMenuBar not supported: " + t);
 		}
 	}
 
@@ -143,7 +142,7 @@ public class MacAppUtilities {
 			Object closeAllWindows = quitStrategy.getField(field).get(null);
 			setQuitStrategy.invoke(instance, closeAllWindows);
 		} catch (Throwable t) {
-			Logger.getLogger(MacAppUtilities.class.getName()).log(Level.WARNING, "setQuitStrategy not supported: " + t);
+			debug.warning("setQuitStrategy not supported: " + t);
 		}
 	}
 

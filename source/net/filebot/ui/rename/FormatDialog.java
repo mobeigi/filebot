@@ -39,7 +39,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.script.ScriptException;
 import javax.swing.AbstractAction;
@@ -418,7 +417,7 @@ public class FormatDialog extends JDialog {
 							try {
 								formatExample.setText(get());
 							} catch (Exception e) {
-								Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+								debug.log(Level.SEVERE, e.getMessage(), e);
 							}
 						}
 					}.execute();
@@ -451,7 +450,7 @@ public class FormatDialog extends JDialog {
 				String sample = bundle.getString(mode.key() + ".sample");
 				info = JsonReader.jsonToJava(sample);
 			} catch (Exception illegalSample) {
-				Logger.getLogger(RenamePanel.class.getName()).log(Level.SEVERE, "Illegal Sample", e);
+				debug.log(Level.SEVERE, "Illegal Sample", e);
 			}
 		}
 
@@ -482,10 +481,10 @@ public class FormatDialog extends JDialog {
 						threadGroup.stop();
 
 						// log access of potentially unsafe method
-						Logger.getLogger(getClass().getName()).warning("Thread was forcibly terminated");
+						debug.warning("Thread was forcibly terminated");
 					}
 				} catch (Exception e) {
-					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Thread was not terminated", e);
+					debug.log(Level.WARNING, "Thread was not terminated", e);
 				}
 
 				return remaining;
@@ -680,7 +679,7 @@ public class FormatDialog extends JDialog {
 					mode.persistentSample().setValue(info == null ? "" : JsonWriter.objectToJson(info));
 					persistentSampleFile.setValue(file == null ? "" : sample.getFileObject().getAbsolutePath());
 				} catch (Exception e) {
-					Logger.getLogger(FormatDialog.class.getName()).log(Level.WARNING, e.getMessage(), e);
+					debug.log(Level.WARNING, e.getMessage(), e);
 				}
 
 				// reevaluate everything

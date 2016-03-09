@@ -1,5 +1,6 @@
 package net.filebot.ui.transfer;
 
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.util.FileUtilities.*;
 
@@ -17,7 +18,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.filebot.gio.GVFS;
 
@@ -127,7 +127,7 @@ public class FileTransferable implements Transferable {
 								file = GVFS.getPathForURI(uri);
 							}
 						} catch (LinkageError error) {
-							Logger.getLogger(FileTransferable.class.getName()).log(Level.WARNING, "Unable to resolve GVFS URI", error);
+							debug.log(Level.WARNING, "Unable to resolve GVFS URI", error);
 						}
 					}
 
@@ -138,7 +138,7 @@ public class FileTransferable implements Transferable {
 					files.add(file);
 				} catch (Throwable e) {
 					// URISyntaxException, IllegalArgumentException, FileNotFoundException, LinkageError, etc
-					Logger.getLogger(FileTransferable.class.getName()).log(Level.WARNING, "Invalid file URI: " + line);
+					debug.log(Level.WARNING, "Invalid file URI: " + line);
 				}
 			}
 

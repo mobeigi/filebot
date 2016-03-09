@@ -1,8 +1,9 @@
 package net.filebot.util;
 
+import static net.filebot.Logging.*;
+
 import java.util.function.Function;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class SystemProperty<T> {
 
@@ -31,7 +32,7 @@ public class SystemProperty<T> {
 			try {
 				return valueFunction.apply(prop);
 			} catch (Exception e) {
-				Logger.getLogger(SystemProperty.class.getName()).logp(Level.WARNING, SystemProperty.class.getName(), key, e.toString());
+				debug.logp(Level.WARNING, SystemProperty.class.getName(), key, e.toString());
 			}
 		}
 

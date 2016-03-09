@@ -2,6 +2,7 @@ package net.filebot;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.ui.SwingUI.*;
@@ -17,7 +18,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JFileChooser;
 
@@ -37,7 +37,7 @@ public class UserFiles {
 				try {
 					Desktop.getDesktop().open(it);
 				} catch (Exception e) {
-					Logger.getLogger(UserFiles.class.getName()).log(Level.WARNING, e.toString());
+					debug.log(Level.SEVERE, e.getMessage(), e);
 				}
 			});
 		}

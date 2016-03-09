@@ -5,6 +5,7 @@ import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static javax.swing.JOptionPane.*;
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.util.FileUtilities.*;
@@ -34,7 +35,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -554,7 +554,7 @@ class HistoryDialog extends JDialog {
 						new MetaAttributes(destination).clear();
 					}
 				} catch (Exception e) {
-					Logger.getLogger(HistoryDialog.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+					debug.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
 

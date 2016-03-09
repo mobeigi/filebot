@@ -10,7 +10,6 @@ import java.io.File;
 import java.util.EventObject;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JTable;
 import javax.swing.event.CellEditorListener;
@@ -87,7 +86,7 @@ class MovieEditor implements TableCellEditor {
 
 		// print error message
 		if (error != null) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, error.toString());
+			debug.log(Level.WARNING, error.toString());
 		}
 	}
 

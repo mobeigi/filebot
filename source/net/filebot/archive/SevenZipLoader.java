@@ -1,7 +1,6 @@
 package net.filebot.archive;
 
-import java.util.logging.Logger;
-
+import static net.filebot.Logging.*;
 import net.sf.sevenzipjbinding.IArchiveOpenCallback;
 import net.sf.sevenzipjbinding.IInArchive;
 import net.sf.sevenzipjbinding.IInStream;
@@ -27,7 +26,7 @@ public class SevenZipLoader {
 					System.loadLibrary("libgcc_s_seh-1");
 				}
 			} catch (Throwable e) {
-				Logger.getLogger(SevenZipLoader.class.getName()).warning("Failed to preload library: " + e);
+				debug.warning("Failed to preload library: " + e);
 			}
 
 			System.loadLibrary("7-Zip-JBinding");

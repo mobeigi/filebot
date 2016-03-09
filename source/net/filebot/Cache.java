@@ -159,6 +159,7 @@ public class Cache {
 			return (V) super.computeIf(key, condition, compute);
 		}
 
+		@Override
 		public V computeIfAbsent(Object key, Compute<?> compute) throws Exception {
 			return (V) super.computeIfAbsent(key, compute);
 		}

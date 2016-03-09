@@ -22,7 +22,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -377,7 +376,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 									// logout from test session
 									osdb.logout();
 								} catch (Exception e) {
-									Logger.getLogger(SubtitlePanel.class.getName()).log(Level.WARNING, e.toString());
+									debug.log(Level.WARNING, e.toString());
 								}
 							});
 						} else if (osdbUser.getText().isEmpty()) {

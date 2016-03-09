@@ -1,6 +1,7 @@
 package net.filebot;
 
 import static java.util.Collections.*;
+import static net.filebot.Logging.*;
 
 import java.io.File;
 import java.io.InputStream;
@@ -13,7 +14,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -200,7 +200,7 @@ public class History {
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			marshaller.marshal(history, output);
 		} catch (Exception e) {
-			Logger.getLogger(History.class.getName()).log(Level.SEVERE, "Failed to write history", e);
+			debug.log(Level.SEVERE, "Failed to write history", e);
 		}
 	}
 
@@ -209,7 +209,7 @@ public class History {
 			Unmarshaller unmarshaller = JAXBContext.newInstance(History.class).createUnmarshaller();
 			return ((History) unmarshaller.unmarshal(stream));
 		} catch (Exception e) {
-			Logger.getLogger(History.class.getName()).log(Level.SEVERE, "Failed to read history", e);
+			debug.log(Level.SEVERE, "Failed to read history", e);
 
 			// fail-safe => default to empty history
 			return new History();

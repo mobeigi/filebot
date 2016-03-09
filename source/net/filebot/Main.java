@@ -31,7 +31,6 @@ import java.security.ProtectionDomain;
 import java.util.Map;
 import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -161,7 +160,7 @@ public class Main {
 				try {
 					checkUpdate();
 				} catch (Exception e) {
-					Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Failed to check for updates", e);
+					debug.log(Level.WARNING, "Failed to check for updates", e);
 				}
 			}
 
@@ -170,7 +169,7 @@ public class Main {
 				try {
 					checkGettingStarted();
 				} catch (Exception e) {
-					Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Failed to show Getting Started help", e);
+					debug.log(Level.WARNING, "Failed to show Getting Started help", e);
 				}
 			}
 		} catch (CmdLineException e) {
@@ -179,7 +178,7 @@ public class Main {
 			System.exit(-1);
 		} catch (Throwable e) {
 			// unexpected error => dump stack
-			Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Unexpected error during startup", e);
+			debug.log(Level.SEVERE, "Unexpected error during startup", e);
 			System.exit(-1);
 		}
 	}
@@ -197,7 +196,7 @@ public class Main {
 			// use native LaF an all platforms
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
-			debug.log(Level.WARNING, e.getMessage(), e);
+			debug.log(Level.SEVERE, e.getMessage(), e);
 		}
 
 		// default frame
@@ -379,7 +378,7 @@ public class Main {
 		try {
 			Desktop.getDesktop().browse(URI.create(uri));
 		} catch (Exception e) {
-			Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Failed to open URI: " + uri, e);
+			debug.log(Level.SEVERE, "Failed to open URI: " + uri, e);
 		}
 	}
 
@@ -434,7 +433,7 @@ public class Main {
 			System.setSecurityManager(new SecurityManager());
 		} catch (Exception e) {
 			// security manager was probably set via system property
-			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.toString(), e);
+			debug.log(Level.WARNING, e.getMessage(), e);
 		}
 	}
 

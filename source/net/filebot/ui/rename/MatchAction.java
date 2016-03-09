@@ -1,5 +1,6 @@
 package net.filebot.ui.rename;
 
+import static net.filebot.Logging.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Cursor;
@@ -11,7 +12,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -65,7 +65,7 @@ class MatchAction extends AbstractAction {
 			// display progress dialog and stop blocking EDT
 			dialog.setVisible(true);
 		} catch (Exception e) {
-			Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
+			debug.log(Level.SEVERE, e.toString(), e);
 		} finally {
 			window.setCursor(Cursor.getDefaultCursor());
 		}
@@ -121,7 +121,7 @@ class MatchAction extends AbstractAction {
 				// insert objects that could not be matched at the end of the model
 				model.addAll(matcher.remainingValues(), matcher.remainingCandidates());
 			} catch (Exception e) {
-				Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
+				debug.log(Level.SEVERE, e.toString(), e);
 			}
 		}
 

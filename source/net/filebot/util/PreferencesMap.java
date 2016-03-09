@@ -1,5 +1,7 @@
 package net.filebot.util;
 
+import static net.filebot.Logging.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -306,7 +307,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 			try {
 				prefs.flush();
 			} catch (Exception e) {
-				Logger.getLogger(PreferencesMap.class.getName()).log(Level.WARNING, e.toString());
+				debug.log(Level.WARNING, e.toString());
 			}
 		}
 

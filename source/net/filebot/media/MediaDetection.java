@@ -39,7 +39,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,7 +80,7 @@ public class MediaDetection {
 		try {
 			return releaseInfo.getClutterFileFilter();
 		} catch (Exception e) {
-			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Unable to access clutter file filter: " + e.getMessage(), e);
+			debug.log(Level.SEVERE, "Unable to access clutter file filter: " + e.getMessage(), e);
 		}
 		return ((File f) -> false);
 	}
@@ -319,14 +318,14 @@ public class MediaDetection {
 				unids.add(it.getName());
 			}
 		} catch (Exception e) {
-			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to lookup info by id: " + e);
+			debug.warning("Failed to lookup info by id: " + e);
 		}
 
 		// try to detect series name via known patterns
 		try {
-			unids.addAll(matchSeriesByDirectMapping(files));
+			unids.addAll(matchSeriesByMapping(files));
 		} catch (Exception e) {
-			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to match direct mappings: " + e);
+			debug.warning("Failed to match direct mappings: " + e);
 		}
 
 		// guessed queries
@@ -389,7 +388,7 @@ public class MediaDetection {
 				names.addAll(matches);
 			}
 		} catch (Exception e) {
-			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to match folder structure: " + e);
+			debug.warning("Failed to match folder structure: " + e);
 		}
 
 		// match common word sequence and clean detected word sequence from unwanted elements
@@ -437,7 +436,7 @@ public class MediaDetection {
 			priorityMatchSet.addAll(stripReleaseInfo(matches, false));
 			matches = stripBlacklistedTerms(priorityMatchSet);
 		} catch (Exception e) {
-			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to clean matches: " + e);
+			debug.warning("Failed to clean matches: " + e);
 		}
 		names.addAll(matches);
 
@@ -445,7 +444,7 @@ public class MediaDetection {
 		return getUniqueQuerySet(unids, names);
 	}
 
-	public static List<String> matchSeriesByDirectMapping(Collection<File> files) throws Exception {
+	public static List<String> matchSeriesByMapping(Collection<File> files) throws Exception {
 		Map<Pattern, String> patterns = releaseInfo.getSeriesMappings();
 		List<String> matches = new ArrayList<String>();
 
@@ -472,7 +471,7 @@ public class MediaDetection {
 					}
 				} catch (Exception e) {
 					// can't load movie index, just try again next time
-					Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Failed to load series index: " + e);
+					debug.severe("Failed to load series index: " + e);
 
 					// rely on online search
 					return emptyList();
@@ -494,7 +493,7 @@ public class MediaDetection {
 					}
 				} catch (Exception e) {
 					// can't load movie index, just try again next time
-					Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Failed to load anime index: " + e);
+					debug.severe("Failed to load anime index: " + e);
 
 					// rely on online search
 					return emptyList();
@@ -853,7 +852,7 @@ public class MediaDetection {
 					}
 				} catch (Exception e) {
 					// can't load movie index, just try again next time
-					Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Failed to load movie index: " + e);
+					debug.severe("Failed to load movie index: " + e);
 
 					// if we can't use internal index we can only rely on online search
 					return emptyList();
@@ -1188,7 +1187,7 @@ public class MediaDetection {
 				String text = new String(readFile(nfo), "UTF-8");
 				collection.addAll(grepImdbId(text));
 			} catch (Exception e) {
-				Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to read nfo: " + e.getMessage());
+				debug.warning("Failed to read nfo: " + e.getMessage());
 			}
 		}
 
@@ -1466,7 +1465,7 @@ public class MediaDetection {
 				}
 			} catch (Exception e) {
 				// negative values for invalid files
-				Logger.getLogger(MediaDetection.class.getClass().getName()).warning(String.format("Unable to read media info: %s [%s]", e.getMessage(), f.getName()));
+				debug.warning(format("Unable to read media info: %s [%s]", e.getMessage(), f.getName()));
 
 				Arrays.fill(v, -1);
 				return v;
@@ -1500,7 +1499,7 @@ public class MediaDetection {
 					return metaObject;
 				}
 			} catch (Throwable e) {
-				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Unable to read xattr: " + e.getMessage());
+				debug.warning("Unable to read xattr: " + e.getMessage());
 			}
 		}
 		return null;
@@ -1533,7 +1532,7 @@ public class MediaDetection {
 						if (e instanceof RuntimeException && e.getCause() instanceof IOException) {
 							e = (IOException) e.getCause();
 						}
-						Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set creation date: " + e.getMessage());
+						debug.warning("Failed to set creation date: " + e.getMessage());
 					}
 				}
 
@@ -1550,11 +1549,11 @@ public class MediaDetection {
 						if (e instanceof RuntimeException && e.getCause() instanceof IOException) {
 							e = (IOException) e.getCause();
 						}
-						Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set xattr: " + e.getMessage());
+						debug.warning("Failed to set xattr: " + e.getMessage());
 					}
 				}
 			} catch (Throwable t) {
-				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Unable to store xattr: " + t.getMessage());
+				debug.warning("Unable to store xattr: " + t.getMessage());
 			}
 		}
 	}
@@ -1563,7 +1562,7 @@ public class MediaDetection {
 		// load filter data
 		MediaDetection.getClutterFileFilter();
 		MediaDetection.getDiskFolderFilter();
-		MediaDetection.matchSeriesByDirectMapping(emptyList());
+		MediaDetection.matchSeriesByMapping(emptyList());
 
 		// load movie/series index
 		MediaDetection.stripReleaseInfo(singleton(""), true);

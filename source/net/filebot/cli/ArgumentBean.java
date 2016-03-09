@@ -1,6 +1,7 @@
 package net.filebot.cli;
 
 import static java.util.Collections.*;
+import static net.filebot.Logging.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
@@ -11,7 +12,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.filebot.Language;
 
@@ -152,7 +152,7 @@ public class ArgumentBean {
 			try {
 				file = file.getCanonicalFile();
 			} catch (Exception e) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Illegal Argument: %s (%s)", e, argument));
+				debug.warning(format("Illegal Argument: %s (%s)", e, argument));
 			}
 
 			if (resolveFolders && file.isDirectory()) {

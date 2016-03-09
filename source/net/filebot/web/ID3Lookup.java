@@ -1,5 +1,6 @@
 package net.filebot.web;
 
+import static net.filebot.Logging.*;
 import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
@@ -8,7 +9,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
@@ -63,7 +63,7 @@ public class ID3Lookup implements MusicIdentificationService {
 					info.put(f, new AudioTrack(artist, title, album, albumArtist, trackTitle, albumReleaseDate, mediumIndex, mediumCount, trackIndex, trackCount, mbid));
 				}
 			} catch (Throwable e) {
-				Logger.getLogger(ID3Lookup.class.getName()).log(Level.WARNING, e.toString());
+				debug.log(Level.WARNING, e.toString());
 			} finally {
 				mediaInfo.close();
 			}

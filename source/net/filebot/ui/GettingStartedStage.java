@@ -1,5 +1,6 @@
 package net.filebot.ui;
 
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 
 import java.awt.Desktop;
@@ -7,7 +8,6 @@ import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.Locale;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javafx.animation.Interpolator;
@@ -109,18 +109,18 @@ public class GettingStartedStage {
 			com.sun.webkit.WebPage page = (com.sun.webkit.WebPage) f.get(engine);
 			page.setBackgroundColor(color);
 		} catch (Exception e) {
-			Logger.getLogger(GettingStartedStage.class.getName()).log(Level.WARNING, "Failed to set background", e);
+			debug.log(Level.WARNING, "Failed to set background", e);
 		}
 	}
 
 	protected WebEngine onPopup(WebView webview) {
 		// get currently select image via Galleria API
-		Object link = webview.getEngine().executeScript("$('.galleria').data('galleria').getData().link");
+		Object uri = webview.getEngine().executeScript("$('.galleria').data('galleria').getData().link");
 
 		try {
-			Desktop.getDesktop().browse(new URI(link.toString()));
+			Desktop.getDesktop().browse(new URI(uri.toString()));
 		} catch (Exception e) {
-			Logger.getLogger(GettingStartedStage.class.getName()).log(Level.WARNING, "Failed to browse URI", e);
+			debug.log(Level.SEVERE, "Failed to open URI: " + uri, e);
 		}
 
 		// prevent current web view from opening the link

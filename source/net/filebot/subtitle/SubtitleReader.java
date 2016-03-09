@@ -1,29 +1,23 @@
-
 package net.filebot.subtitle;
 
+import static net.filebot.Logging.*;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 
 public abstract class SubtitleReader implements Iterator<SubtitleElement>, Closeable {
 
 	protected final Scanner scanner;
 	protected SubtitleElement current;
 
-
 	public SubtitleReader(Readable source) {
 		this.scanner = new Scanner(source);
 	}
 
-
 	protected abstract SubtitleElement readNext() throws Exception;
-
 
 	@Override
 	public boolean hasNext() {
@@ -33,13 +27,12 @@ public abstract class SubtitleReader implements Iterator<SubtitleElement>, Close
 				current = readNext();
 			} catch (Exception e) {
 				// log and ignore
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal input: " + e.getMessage());
+				debug.warning("Illegal input: " + e.getMessage());
 			}
 		}
 
 		return current != null;
 	}
-
 
 	@Override
 	public SubtitleElement next() {
@@ -54,12 +47,10 @@ public abstract class SubtitleReader implements Iterator<SubtitleElement>, Close
 		}
 	}
 
-
 	@Override
 	public void close() throws IOException {
 		scanner.close();
 	}
-
 
 	@Override
 	public void remove() {

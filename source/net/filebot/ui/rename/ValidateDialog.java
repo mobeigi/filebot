@@ -3,6 +3,7 @@ package net.filebot.ui.rename;
 
 
 import static java.util.Collections.*;
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
@@ -20,7 +21,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 
 import javax.swing.AbstractAction;
@@ -74,7 +74,7 @@ class ValidateDialog extends JDialog {
 							textComponent.getHighlighter().addHighlight(matcher.start(0), matcher.end(0), highlightPainter);
 						} catch (BadLocationException e) {
 							//should not happen
-							Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
+							debug.log(Level.SEVERE, e.toString(), e);
 						}
 					}
 				}

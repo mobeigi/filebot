@@ -1,6 +1,7 @@
 package net.filebot.web;
 
 import static java.nio.charset.StandardCharsets.*;
+import static net.filebot.Logging.*;
 import static net.filebot.util.JsonUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
@@ -22,7 +23,6 @@ import java.util.Objects;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
@@ -171,7 +171,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 						return null;
 					}).filter(Objects::nonNull).findFirst().orElse(audioTrack); // default to simple music info if extended info is not available
 				} catch (Exception e) {
-					Logger.getLogger(AcoustIDClient.class.getName()).log(Level.WARNING, e.getMessage(), e);
+					debug.log(Level.WARNING, e.getMessage(), e);
 					return null;
 				}
 			}).filter(Objects::nonNull).sorted(new MostFieldsNotNull()).findFirst().get();
@@ -241,7 +241,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 					}
 				}
 			} catch (Exception e) {
-				Logger.getLogger(AcoustIDClient.class.getName()).log(Level.WARNING, e.toString(), e);
+				debug.log(Level.WARNING, e.toString(), e);
 			}
 			return n;
 		}

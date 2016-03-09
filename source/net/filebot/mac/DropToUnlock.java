@@ -38,8 +38,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -75,7 +73,7 @@ public class DropToUnlock extends JList<File> {
 					try {
 						NSURL_URLByResolvingBookmarkData_startAccessingSecurityScopedResource(persistentSecurityScopedBookmarks.get(bookmarkForFolder.get().getPath()));
 					} catch (Throwable e) {
-						Logger.getLogger(DropToUnlock.class.getName()).log(Level.WARNING, "NSURL.URLByResolvingBookmarkData.startAccessingSecurityScopedResource: " + e.toString());
+						debug.severe("NSURL.URLByResolvingBookmarkData.startAccessingSecurityScopedResource: " + e);
 					}
 				}
 			}
@@ -92,7 +90,7 @@ public class DropToUnlock extends JList<File> {
 						String bookmarkData = NSURL_bookmarkDataWithOptions(folder.getPath());
 						persistentSecurityScopedBookmarks.put(folder.getPath(), bookmarkData);
 					} catch (Throwable e) {
-						Logger.getLogger(DropToUnlock.class.getName()).log(Level.WARNING, "NSURL.bookmarkDataWithOptions: " + e.toString());
+						debug.severe("NSURL.bookmarkDataWithOptions: " + e);
 					}
 				}
 			}

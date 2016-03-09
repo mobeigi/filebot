@@ -29,7 +29,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -273,7 +272,7 @@ public class RenamePanel extends JComponent {
 							UserFiles.revealFiles(list.getSelectedValuesList());
 						}
 					} catch (Exception e) {
-						Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage());
+						debug.log(Level.WARNING, e.getMessage());
 					} finally {
 						getWindow(evt.getSource()).setCursor(Cursor.getDefaultCursor());
 					}
@@ -298,7 +297,7 @@ public class RenamePanel extends JComponent {
 							showFormatEditor(sample);
 						}
 					} catch (Exception e) {
-						Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage(), e);
+						debug.log(Level.WARNING, e.getMessage(), e);
 					} finally {
 						getWindow(evt.getSource()).setCursor(Cursor.getDefaultCursor());
 					}
@@ -369,7 +368,7 @@ public class RenamePanel extends JComponent {
 						}
 					}
 				} catch (Exception e) {
-					Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage());
+					debug.log(Level.WARNING, e.getMessage());
 				}
 			}
 		});
@@ -389,7 +388,7 @@ public class RenamePanel extends JComponent {
 					Preset p = (Preset) JsonReader.jsonToJava(it);
 					actionPopup.add(new ApplyPresetAction(p));
 				} catch (Exception e) {
-					Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.toString());
+					debug.log(Level.WARNING, e.toString());
 				}
 			}
 			actionPopup.addSeparator();
@@ -436,7 +435,7 @@ public class RenamePanel extends JComponent {
 						break;
 					}
 				} catch (Exception e) {
-					Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.toString());
+					debug.log(Level.WARNING, e.toString());
 				}
 			}
 		});
@@ -516,7 +515,7 @@ public class RenamePanel extends JComponent {
 					}
 					orderCombo.setSelectedItem(SortOrder.forName(persistentPreferredEpisodeOrder.getValue()));
 				} catch (Exception e) {
-					Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage(), e);
+					debug.log(Level.WARNING, e.getMessage(), e);
 				}
 
 				JScrollPane spModeCombo = new JScrollPane(modeCombo, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -591,7 +590,7 @@ public class RenamePanel extends JComponent {
 			try {
 				initMode = Mode.valueOf(persistentLastFormatState.getValue());
 			} catch (Exception e) {
-				Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage());
+				debug.log(Level.WARNING, e.getMessage());
 			}
 		}
 
@@ -890,7 +889,7 @@ public class RenamePanel extends JComponent {
 						renameModel.files().addAll(remainingFiles);
 					} catch (Exception e) {
 						if (findCause(e, CancellationException.class) != null) {
-							Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, getRootCause(e).toString());
+							debug.log(Level.WARNING, getRootCause(e).toString());
 						} else {
 							log.log(Level.WARNING, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
 						}

@@ -3,6 +3,7 @@ package net.filebot;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.FileUtilities.*;
@@ -15,7 +16,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.filebot.media.XattrMetaInfoProvider;
 import net.filebot.similarity.MetricAvg;
@@ -231,7 +231,7 @@ public final class WebServices {
 				return values;
 			}
 		} catch (Exception e) {
-			Logger.getLogger(WebServices.class.getName()).log(Level.WARNING, e.getMessage(), e);
+			debug.log(Level.SEVERE, e.getMessage(), e);
 		}
 		return new String[] { "", "" };
 	}

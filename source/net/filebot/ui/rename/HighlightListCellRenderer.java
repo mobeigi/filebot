@@ -2,11 +2,12 @@
 package net.filebot.ui.rename;
 
 
+import static net.filebot.Logging.*;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Insets;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,7 +69,7 @@ class HighlightListCellRenderer extends AbstractFancyListCellRenderer {
 				textComponent.getHighlighter().addHighlight(matcher.start(0), matcher.end(0), highlightPainter);
 			} catch (BadLocationException e) {
 				//should not happen
-				Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
+				debug.log(Level.SEVERE, e.toString(), e);
 			}
 		}
 	}
