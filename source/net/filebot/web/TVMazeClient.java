@@ -50,11 +50,6 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
-	public ResultCache getCache() {
-		return new ResultCache(getName(), Cache.getCache(getName(), CacheType.Daily));
-	}
-
-	@Override
 	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception {
 		// e.g. http://api.tvmaze.com/search/shows?q=girls
 		Object response = request("search/shows?q=" + encode(query, true));

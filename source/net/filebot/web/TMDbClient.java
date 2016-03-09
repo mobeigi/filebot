@@ -171,7 +171,7 @@ public class TMDbClient implements MovieIdentificationService {
 	public MovieInfo getMovieInfo(String id, Locale locale, boolean extendedInfo) throws Exception {
 		Object response = request("movie/" + id, extendedInfo ? singletonMap("append_to_response", "alternative_titles,releases,casts,trailers") : null, locale, REQUEST_LIMIT);
 
-		Map<MovieProperty, String> fields = mapStringValues(response, MovieProperty.class);
+		Map<MovieProperty, String> fields = getEnumMap(response, MovieProperty.class);
 
 		try {
 			Map<?, ?> collection = getMap(response, "belongs_to_collection");
@@ -241,7 +241,7 @@ public class TMDbClient implements MovieIdentificationService {
 		List<Person> cast = new ArrayList<Person>();
 		try {
 			Stream.of("cast", "crew").flatMap(section -> streamJsonObjects(getMap(response, "casts"), section)).map(it -> {
-				return mapStringValues(it, PersonProperty.class);
+				return getEnumMap(it, PersonProperty.class);
 			}).map(Person::new).forEach(cast::add);
 		} catch (Exception e) {
 			debug.warning(format("Bad data: casts => %s", response));

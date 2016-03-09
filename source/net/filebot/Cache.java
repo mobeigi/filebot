@@ -1,6 +1,8 @@
 package net.filebot;
 
 import static java.nio.charset.StandardCharsets.*;
+import static java.util.Arrays.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.CachedResource.*;
 import static net.filebot.Logging.*;
 
@@ -8,6 +10,8 @@ import java.io.Serializable;
 import java.net.URL;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.filebot.CachedResource.Transform;
@@ -49,12 +53,8 @@ public class Cache {
 
 	public Object get(Object key) {
 		try {
-			Element element = cache.get(key);
-			if (element != null) {
-				return element.getObjectValue();
-			}
+			return getElementValue(cache.get(key));
 		} catch (Exception e) {
-			e.printStackTrace();
 			debug.warning(format("Cache get: %s => %s", key, e));
 		}
 		return null;
@@ -65,45 +65,33 @@ public class Cache {
 		Element element = null;
 		try {
 			element = cache.get(key);
-			if (element != null && condition.test(element)) {
-				return element.getObjectValue();
+			if (condition.test(element)) {
+				return getElementValue(element);
 			}
 		} catch (Exception e) {
-			debug.warning(format("Cache get: %s => %s", key, e));
+			debug.warning(format("Cache computeIf: %s => %s", key, e));
 		}
 
 		// compute if absent
 		Object value = compute.apply(element);
-		try {
-			cache.put(new Element(key, value));
-		} catch (Exception e) {
-			debug.warning(format("Cache put: %s => %s", key, e));
-		}
+		put(key, value);
 		return value;
-	}
-
-	public Object computeIfAbsent(Object key, Compute<?> compute) throws Exception {
-		return computeIf(key, isAbsent(), compute);
-	}
-
-	public Object computeIfStale(Object key, Duration expirationTime, Compute<?> compute) throws Exception {
-		return computeIf(key, isStale(expirationTime), compute);
-	}
-
-	public Predicate<Element> isAbsent() {
-		return (element) -> element.getObjectValue() == null;
-	}
-
-	public Predicate<Element> isStale(Duration expirationTime) {
-		return (element) -> System.currentTimeMillis() - element.getLatestOfCreationAndUpdateTime() < expirationTime.toMillis();
 	}
 
 	public void put(Object key, Object value) {
 		try {
-			cache.put(new Element(key, value));
+			cache.put(createElement(key, value));
 		} catch (Exception e) {
 			debug.warning(format("Cache put: %s => %s", key, e));
 		}
+	}
+
+	protected Object getElementValue(Element element) {
+		return element == null ? null : element.getObjectValue();
+	}
+
+	protected Element createElement(Object key, Object value) {
+		return new Element(key, value);
 	}
 
 	public void remove(Object key) {
@@ -122,9 +110,62 @@ public class Cache {
 		}
 	}
 
+	public static Predicate<Element> isAbsent() {
+		return (element) -> element == null;
+	}
+
+	public static Predicate<Element> isStale(Duration expirationTime) {
+		return (element) -> element == null || element.getObjectValue() == null || System.currentTimeMillis() - element.getLatestOfCreationAndUpdateTime() < expirationTime.toMillis();
+	}
+
 	@FunctionalInterface
 	public interface Compute<R> {
 		R apply(Element element) throws Exception;
+	}
+
+	public <V> TypedCache<V> typed(Function<Object, V> read, Function<V, Object> write) {
+		return new TypedCache<V>(cache, read, write);
+	}
+
+	public <V> TypedCache<V> cast(Class<V> cls) {
+		return new TypedCache<V>(cache, it -> cls.cast(it), it -> it);
+	}
+
+	public <V> TypedCache<List<V>> castList(Class<V> cls) {
+		return new TypedCache<List<V>>(cache, it -> it == null ? null : stream((Object[]) it).map(cls::cast).collect(toList()), it -> it == null ? null : it.toArray());
+	}
+
+	@SuppressWarnings("unchecked")
+	public static class TypedCache<V> extends Cache {
+
+		private final Function<Object, V> read;
+		private final Function<V, Object> write;
+
+		public TypedCache(net.sf.ehcache.Cache cache, Function<Object, V> read, Function<V, Object> write) {
+			super(cache);
+			this.read = read;
+			this.write = write;
+		}
+
+		@Override
+		public V get(Object key) {
+			return (V) super.get(key);
+		}
+
+		@Override
+		public V computeIf(Object key, Predicate<Element> condition, Compute<?> compute) throws Exception {
+			return (V) super.computeIf(key, condition, compute);
+		}
+
+		@Override
+		protected Object getElementValue(Element element) {
+			return read.apply(super.getElementValue(element));
+		}
+
+		@Override
+		protected Element createElement(Object key, Object value) {
+			return super.createElement(key, write.apply((V) value));
+		}
 	}
 
 	@Deprecated

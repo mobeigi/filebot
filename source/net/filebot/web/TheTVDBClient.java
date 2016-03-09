@@ -1,15 +1,14 @@
 package net.filebot.web;
 
-import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.Logging.*;
 import static net.filebot.util.StringUtilities.*;
 import static net.filebot.util.XPathUtilities.*;
 import static net.filebot.web.EpisodeUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -27,6 +26,7 @@ import java.util.logging.Logger;
 import javax.swing.Icon;
 
 import net.filebot.Cache;
+import net.filebot.Cache.TypedCache;
 import net.filebot.CacheType;
 import net.filebot.ResourceManager;
 import net.filebot.util.FileUtilities;
@@ -71,11 +71,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	@Override
 	protected Locale vetoRequestParameter(Locale language) {
 		return language != null ? language : Locale.ENGLISH;
-	}
-
-	@Override
-	public ResultCache getCache() {
-		return new ResultCache(getName(), Cache.getCache(getName(), CacheType.Daily));
 	}
 
 	public String getLanguageCode(Locale locale) {
@@ -225,41 +220,35 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		return new SeriesData(seriesInfo, episodes);
 	}
 
-	public TheTVDBSearchResult lookupByID(int id, Locale locale) throws Exception {
-		TheTVDBSearchResult cachedItem = getCache().getData("lookupByID", id, locale, TheTVDBSearchResult.class);
-		if (cachedItem != null) {
-			return cachedItem;
+	public TheTVDBSearchResult lookupByID(int id, Locale language) throws Exception {
+		if (id <= 0) {
+			throw new IllegalArgumentException("Illegal TheTVDB ID: " + id);
 		}
 
-		Document dom = getXmlResource(MirrorType.XML, "series/" + id + "/all/" + getLanguageCode(locale) + ".xml");
-		String name = selectString("//SeriesName", dom);
+		return getLookupCache("id", language).computeIf(id, Cache.isAbsent(), it -> {
+			Document dom = getXmlResource(MirrorType.XML, "series/" + id + "/all/" + getLanguageCode(language) + ".xml");
+			String name = selectString("//SeriesName", dom);
 
-		TheTVDBSearchResult series = new TheTVDBSearchResult(name, id);
-		getCache().putData("lookupByID", id, locale, series);
-		return series;
+			return new TheTVDBSearchResult(name, id);
+		});
 	}
 
 	public TheTVDBSearchResult lookupByIMDbID(int imdbid, Locale locale) throws Exception {
 		if (imdbid <= 0) {
-			throw new IllegalArgumentException("id must not be " + imdbid);
+			throw new IllegalArgumentException("Illegal IMDbID ID: " + imdbid);
 		}
 
-		TheTVDBSearchResult cachedItem = getCache().getData("lookupByIMDbID", imdbid, locale, TheTVDBSearchResult.class);
-		if (cachedItem != null) {
-			return cachedItem;
-		}
+		return getLookupCache("imdbid", locale).computeIf(imdbid, Cache.isAbsent(), it -> {
+			Document dom = getXmlResource(MirrorType.SEARCH, "GetSeriesByRemoteID.php?imdbid=" + imdbid + "&language=" + getLanguageCode(locale));
 
-		Document dom = getXmlResource(MirrorType.SEARCH, "GetSeriesByRemoteID.php?imdbid=" + imdbid + "&language=" + getLanguageCode(locale));
+			String id = selectString("//seriesid", dom);
+			String name = selectString("//SeriesName", dom);
 
-		String id = selectString("//seriesid", dom);
-		String name = selectString("//SeriesName", dom);
+			if (id.isEmpty() || name.isEmpty())
+				return null;
 
-		if (id == null || id.isEmpty() || name == null || name.isEmpty())
-			return null;
-
-		TheTVDBSearchResult series = new TheTVDBSearchResult(name, Integer.parseInt(id));
-		getCache().putData("lookupByIMDbID", imdbid, locale, series);
-		return series;
+			return new TheTVDBSearchResult(name, Integer.parseInt(id));
+		});
 	}
 
 	protected String getMirror(MirrorType mirrorType) throws Exception {
@@ -381,40 +370,28 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 
 	public List<BannerDescriptor> getBannerList(TheTVDBSearchResult series) throws Exception {
-		// check cache first
-		BannerDescriptor[] cachedList = getCache().getData("banners", series.getId(), null, BannerDescriptor[].class);
-		if (cachedList != null) {
-			return asList(cachedList);
-		}
+		return getBannerCache().computeIf(series.getId(), Cache.isAbsent(), it -> {
+			Document dom = getXmlResource(MirrorType.XML, "series/" + series.getId() + "/banners.xml");
 
-		Document dom = getXmlResource(MirrorType.XML, "series/" + series.getId() + "/banners.xml");
+			String bannerMirror = getResource(MirrorType.BANNER, "").toString();
 
-		List<BannerDescriptor> banners = new ArrayList<BannerDescriptor>();
+			return streamNodes("//Banner", dom).map(n -> {
+				Map<BannerProperty, String> map = getEnumMap(n, BannerProperty.class);
+				map.put(BannerProperty.BannerMirror, bannerMirror);
 
-		for (Node node : selectNodes("//Banner", dom)) {
-			try {
-				Map<BannerProperty, String> item = new EnumMap<BannerProperty, String>(BannerProperty.class);
+				return new BannerDescriptor(map);
+			}).filter(m -> m.getUrl() != null).collect(toList());
+		});
+	}
 
-				// insert banner mirror
-				item.put(BannerProperty.BannerMirror, getResource(MirrorType.BANNER, "").toString());
+	protected TypedCache<TheTVDBSearchResult> getLookupCache(String type, Locale language) {
+		// lookup should always yield the same results so we can cache it for longer
+		return Cache.getCache(getName() + "_" + "lookup" + "_" + type + "_" + language, CacheType.Monthly).cast(TheTVDBSearchResult.class);
+	}
 
-				// copy values from xml
-				for (BannerProperty key : BannerProperty.values()) {
-					String value = getTextContent(key.name(), node);
-					if (value != null && value.length() > 0) {
-						item.put(key, value);
-					}
-				}
-
-				banners.add(new BannerDescriptor(item));
-			} catch (Exception e) {
-				// log and ignore
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid banner descriptor", e);
-			}
-		}
-
-		getCache().putData("banners", series.getId(), null, banners.toArray(new BannerDescriptor[0]));
-		return banners;
+	protected TypedCache<List<BannerDescriptor>> getBannerCache() {
+		// banners do not change that often so we can cache them for longer
+		return Cache.getCache(getName() + "_" + "banner", CacheType.Weekly).castList(BannerDescriptor.class);
 	}
 
 	public static class BannerDescriptor implements Serializable {
@@ -441,20 +418,17 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			return fields.get(key);
 		}
 
-		public URL getBannerMirrorUrl() throws MalformedURLException {
+		public URL getBannerMirrorUrl(String path) {
 			try {
-				return new URL(get(BannerProperty.BannerMirror));
+				return new URL(new URL(get(BannerProperty.BannerMirror)), path);
 			} catch (Exception e) {
+				debug.finest(format("Bad banner url: %s", e));
 				return null;
 			}
 		}
 
-		public URL getUrl() throws MalformedURLException {
-			try {
-				return new URL(getBannerMirrorUrl(), get(BannerProperty.BannerPath));
-			} catch (Exception e) {
-				return null;
-			}
+		public URL getUrl() {
+			return getBannerMirrorUrl(get(BannerProperty.BannerPath));
 		}
 
 		public String getExtension() {
@@ -480,7 +454,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		public Integer getSeason() {
 			try {
 				return new Integer(get(BannerProperty.Season));
-			} catch (NumberFormatException e) {
+			} catch (Exception e) {
 				return null;
 			}
 		}
@@ -517,26 +491,19 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			return Boolean.parseBoolean(get(BannerProperty.SeriesName));
 		}
 
-		public URL getThumbnailUrl() throws MalformedURLException {
-			try {
-				return new URL(getBannerMirrorUrl(), get(BannerProperty.ThumbnailPath));
-			} catch (Exception e) {
-				return null;
-			}
+		public URL getThumbnailUrl() {
+			return getBannerMirrorUrl(get(BannerProperty.ThumbnailPath));
 		}
 
-		public URL getVignetteUrl() throws MalformedURLException {
-			try {
-				return new URL(getBannerMirrorUrl(), get(BannerProperty.VignettePath));
-			} catch (Exception e) {
-				return null;
-			}
+		public URL getVignetteUrl() {
+			return getBannerMirrorUrl(get(BannerProperty.VignettePath));
 		}
 
 		@Override
 		public String toString() {
 			return fields.toString();
 		}
+
 	}
 
 }

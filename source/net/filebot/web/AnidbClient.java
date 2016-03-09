@@ -6,6 +6,7 @@ import static net.filebot.util.XPathUtilities.*;
 import static net.filebot.web.EpisodeUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
+import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -42,8 +43,6 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 
 	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(2, 5, TimeUnit.SECONDS); // no more than 2 requests within a 5 second window
 
-	private final String host = "anidb.net";
-
 	private final String client;
 	private final int clientver;
 
@@ -78,8 +77,8 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
-	public ResultCache getCache() {
-		return new ResultCache(getName(), Cache.getCache(getName(), CacheType.Weekly));
+	protected Cache getCache(String section) {
+		return Cache.getCache(getName() + "_" + section, CacheType.Weekly);
 	}
 
 	@Override
@@ -105,7 +104,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		AnidbSearchResult anime = (AnidbSearchResult) searchResult;
 
 		// e.g. http://api.anidb.net:9001/httpapi?request=anime&client=filebot&clientver=1&protover=1&aid=4521
-		URL url = new URL("http", "api." + host, 9001, "/httpapi?request=anime&client=" + client + "&clientver=" + clientver + "&protover=1&aid=" + anime.getAnimeId());
+		URL url = new URL("http://api.anidb.net:9001/httpapi?request=anime&client=" + client + "&clientver=" + clientver + "&protover=1&aid=" + anime.getAnimeId());
 
 		// respect flood protection limits
 		REQUEST_LIMIT.acquirePermit();
@@ -190,7 +189,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
 		try {
-			return new URI("http", host, "/a" + ((AnidbSearchResult) searchResult).getAnimeId(), null);
+			return new URI("http://anidb.net/a" + searchResult.getId());
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
@@ -200,14 +199,8 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	 * This method is (and must be!) overridden by WebServices.AnidbClientWithLocalSearch to use our own anime index from sourceforge (as to not abuse anidb servers)
 	 */
 	public synchronized List<AnidbSearchResult> getAnimeTitles() throws Exception {
-		URL url = new URL("http", host, "/api/anime-titles.dat.gz");
-		ResultCache cache = getCache();
-
-		@SuppressWarnings("unchecked")
-		List<AnidbSearchResult> anime = (List) cache.getSearchResult(null, Locale.ROOT);
-		if (anime != null) {
-			return anime;
-		}
+		// get data file (cached)
+		byte[] bytes = getCache("root").bytes("anime-titles.dat.gz", n -> new URL("http://anidb.net/api/" + n)).get();
 
 		// <aid>|<type>|<language>|<title>
 		// type: 1=primary title (one per anime), 2=synonyms (multiple per anime), 3=shorttitles (multiple per anime), 4=official title (one per language)
@@ -227,7 +220,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		// fetch data
 		Map<Integer, List<Object[]>> entriesByAnime = new HashMap<Integer, List<Object[]>>(65536);
 
-		Scanner scanner = new Scanner(new GZIPInputStream(url.openStream()), "UTF-8");
+		Scanner scanner = new Scanner(new GZIPInputStream(new ByteArrayInputStream(bytes)), "UTF-8");
 		try {
 			while (scanner.hasNextLine()) {
 				Matcher matcher = pattern.matcher(scanner.nextLine());
@@ -260,7 +253,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		}
 
 		// build up a list of all possible AniDB search results
-		anime = new ArrayList<AnidbSearchResult>(entriesByAnime.size());
+		List<AnidbSearchResult> anime = new ArrayList<AnidbSearchResult>(entriesByAnime.size());
 
 		for (Entry<Integer, List<Object[]>> entry : entriesByAnime.entrySet()) {
 			int aid = entry.getKey();
@@ -289,7 +282,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 			anime.add(new AnidbSearchResult(aid, primaryTitle, aliasNames));
 		}
 
-		// populate cache
-		return cache.putSearchResult(null, Locale.ROOT, anime);
+		return anime;
 	}
+
 }

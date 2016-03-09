@@ -70,7 +70,7 @@ public class CachedResource<K, R> implements Resource<R> {
 
 	@Override
 	public synchronized R get() throws Exception {
-		Object value = cache.computeIfStale(key, expirationTime, element -> {
+		Object value = cache.computeIf(key, Cache.isStale(expirationTime), element -> {
 			URL url = resource.transform(key);
 			long lastModified = element == null ? 0 : element.getLatestOfCreationAndUpdateTime();
 
