@@ -1,7 +1,6 @@
 package net.filebot.web;
 
 import static java.nio.charset.StandardCharsets.*;
-import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.util.FileUtilities.*;
@@ -51,6 +50,10 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 		return ResourceManager.getIcon("search.shooter");
 	}
 
+	public Cache getCache() {
+		return Cache.getCache(getName(), CacheType.Daily);
+	}
+
 	@Override
 	public Map<File, List<SubtitleDescriptor>> getSubtitleList(File[] videoFiles, String languageName) throws Exception {
 		Map<File, List<SubtitleDescriptor>> result = new HashMap<File, List<SubtitleDescriptor>>();
@@ -86,24 +89,19 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 		param.put("format", "json");
 		param.put("lang", LANGUAGE_CHINESE.equals(languageName) ? "Chn" : "Eng");
 
-		Cache cache = Cache.getCache(getName(), CacheType.Daily);
-		String key = endpoint.toString() + param.toString();
-		SubtitleDescriptor[] value = cache.get(key, SubtitleDescriptor[].class);
-		if (value != null) {
-			return asList(value);
-		}
-
-		ByteBuffer post = WebRequest.post(endpoint, param, null);
-		Object response = readJson(UTF_8.decode(post));
-
-		String name = getNameWithoutExtension(file.getName());
-
 		// use the first best option and ignore the rest
-		return streamJsonObjects(response).flatMap(it -> streamJsonObjects(it, "Files")).map(f -> {
-			String type = getString(f, "Ext");
-			String link = getString(f, "Link");
-			return new ShooterSubtitleDescriptor(name, type, link, languageName);
-		}).limit(1).collect(toList());
+		return getCache().castList(SubtitleDescriptor.class).computeIf(param.toString(), Cache.isAbsent(), it -> {
+			ByteBuffer post = WebRequest.post(endpoint, param, null);
+			Object response = readJson(UTF_8.decode(post));
+
+			String name = getNameWithoutExtension(file.getName());
+
+			return streamJsonObjects(response).flatMap(n -> streamJsonObjects(n, "Files")).map(f -> {
+				String type = getString(f, "Ext");
+				String link = getString(f, "Link");
+				return new ShooterSubtitleDescriptor(name, type, link, languageName);
+			}).limit(1).collect(toList());
+		});
 	}
 
 	@Override

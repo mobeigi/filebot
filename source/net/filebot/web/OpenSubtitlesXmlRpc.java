@@ -90,10 +90,6 @@ public class OpenSubtitlesXmlRpc {
 		return (Map<String, String>) invoke("ServerInfo", token);
 	}
 
-	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(int imdbid, int season, int episode, String... sublanguageids) throws XmlRpcFault {
-		return searchSubtitles(singleton(Query.forImdbId(imdbid, season, episode, sublanguageids)));
-	}
-
 	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(Collection<Query> queryList) throws XmlRpcFault {
 		List<OpenSubtitlesSubtitleDescriptor> subtitles = new ArrayList<OpenSubtitlesSubtitleDescriptor>();
 		Map<?, ?> response = invoke("SearchSubtitles", token, queryList);
@@ -112,35 +108,41 @@ public class OpenSubtitlesXmlRpc {
 	}
 
 	public List<SubtitleSearchResult> searchMoviesOnIMDB(String query) throws XmlRpcFault {
-		Map<?, ?> response = invoke("SearchMoviesOnIMDB", token, query);
+		try {
+			// search for movies / series
+			Map<?, ?> response = invoke("SearchMoviesOnIMDB", token, query);
 
-		List<Map<String, String>> movieData = (List<Map<String, String>>) response.get("data");
-		List<SubtitleSearchResult> movies = new ArrayList<SubtitleSearchResult>();
+			List<Map<String, String>> movieData = (List<Map<String, String>>) response.get("data");
+			List<SubtitleSearchResult> movies = new ArrayList<SubtitleSearchResult>();
 
-		// title pattern
-		Pattern pattern = Pattern.compile("(.+)[(](\\d{4})([/]I+)?[)]");
+			// title pattern
+			Pattern pattern = Pattern.compile("(.+)[(](\\d{4})([/]I+)?[)]");
 
-		for (Map<String, String> movie : movieData) {
-			try {
-				String imdbid = movie.get("id");
-				if (!imdbid.matches("\\d{1,7}"))
-					throw new IllegalArgumentException("Illegal IMDb movie ID: Must be a 7-digit number");
+			for (Map<String, String> movie : movieData) {
+				try {
+					String imdbid = movie.get("id");
+					if (!imdbid.matches("\\d{1,7}"))
+						throw new IllegalArgumentException("Illegal IMDb movie ID: Must be a 7-digit number");
 
-				// match movie name and movie year from search result
-				Matcher matcher = pattern.matcher(movie.get("title"));
-				if (!matcher.find())
-					throw new IllegalArgumentException("Illegal title: Must be in 'name (year)' format");
+					// match movie name and movie year from search result
+					Matcher matcher = pattern.matcher(movie.get("title"));
+					if (!matcher.find())
+						throw new IllegalArgumentException("Illegal title: Must be in 'name (year)' format");
 
-				String name = matcher.group(1).replaceAll("\"", "").trim();
-				int year = Integer.parseInt(matcher.group(2));
+					String name = matcher.group(1).replaceAll("\"", "").trim();
+					int year = Integer.parseInt(matcher.group(2));
 
-				movies.add(new SubtitleSearchResult(Integer.parseInt(imdbid), name, year, null, -1));
-			} catch (Exception e) {
-				Logger.getLogger(OpenSubtitlesXmlRpc.class.getName()).log(Level.FINE, String.format("Ignore movie [%s]: %s", movie, e.getMessage()));
+					movies.add(new SubtitleSearchResult(Integer.parseInt(imdbid), name, year, null, -1));
+				} catch (Exception e) {
+					Logger.getLogger(OpenSubtitlesXmlRpc.class.getName()).log(Level.FINE, String.format("Ignore movie [%s]: %s", movie, e.getMessage()));
+				}
 			}
-		}
 
-		return movies;
+			return movies;
+		} catch (ClassCastException e) {
+			// unexpected xmlrpc responses (e.g. error messages instead of results) will trigger this
+			throw new XmlRpcException("Illegal XMLRPC response on searchMoviesOnIMDB");
+		}
 	}
 
 	public Movie getIMDBMovieDetails(int imdbid) throws XmlRpcFault {

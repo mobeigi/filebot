@@ -6,10 +6,8 @@ import static java.util.stream.Collectors.*;
 import static net.filebot.CachedResource.*;
 import static net.filebot.Logging.*;
 
-import java.io.Serializable;
 import java.net.URL;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -165,40 +163,6 @@ public class Cache {
 		@Override
 		protected Element createElement(Object key, Object value) {
 			return super.createElement(key, write.apply((V) value));
-		}
-	}
-
-	@Deprecated
-	public <T> T get(Object key, Class<T> type) {
-		return type.cast(get(key));
-	}
-
-	@Deprecated
-	public static class Key implements Serializable {
-
-		protected Object[] fields;
-
-		public Key(Object... fields) {
-			this.fields = fields;
-		}
-
-		@Override
-		public int hashCode() {
-			return Arrays.hashCode(fields);
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (other instanceof Key) {
-				return Arrays.equals(this.fields, ((Key) other).fields);
-			}
-
-			return false;
-		}
-
-		@Override
-		public String toString() {
-			return Arrays.toString(fields);
 		}
 	}
 
