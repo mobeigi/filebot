@@ -526,7 +526,7 @@ public class FormatDialog extends JDialog {
 				@Override
 				protected void done() {
 					try {
-						preview.setText(get());
+						String value = get().trim();
 
 						// check internal script exception
 						if (format.caughtScriptException() != null) {
@@ -534,11 +534,12 @@ public class FormatDialog extends JDialog {
 						}
 
 						// check empty output
-						if (get().trim().isEmpty()) {
+						if (value.isEmpty()) {
 							throw new Exception("Formatted value is empty");
 						}
 
 						// no warning or error
+						preview.setText(value);
 						status.setVisible(false);
 					} catch (CancellationException e) {
 						// ignore, cancelled tasks are obsolete anyway
