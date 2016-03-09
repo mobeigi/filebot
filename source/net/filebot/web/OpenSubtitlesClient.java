@@ -95,7 +95,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	@Override
 	public synchronized List<SubtitleSearchResult> guess(String tag) throws Exception {
 		// require login
-		return getSearchCache("tag").computeIf(tag, Cache.isAbsent(), it -> {
+		return getSearchCache("tag").computeIfAbsent(tag, it -> {
 			login();
 			return xmlrpc.guessMovie(singleton(tag)).getOrDefault(tag, emptyList());
 		});
@@ -103,7 +103,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 	public synchronized List<SubtitleSearchResult> searchIMDB(String query) throws Exception {
 		// require login
-		return getSearchCache("query").computeIf(query, Cache.isAbsent(), it -> {
+		return getSearchCache("query").computeIfAbsent(query, it -> {
 			login();
 			return xmlrpc.searchMoviesOnIMDB(query);
 		});
@@ -111,7 +111,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 	public synchronized List<SubtitleDescriptor> getSubtitleList(Query query) throws Exception {
 		// require login
-		return getSubtitlesCache().computeIf(query, Cache.isAbsent(), it -> {
+		return getSubtitlesCache().computeIfAbsent(query, it -> {
 			login();
 			return xmlrpc.searchSubtitles(singleton(query));
 		});
@@ -166,7 +166,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		Query query = Query.forImdbId(searchResult.getImdbId(), season, episode, getLanguageFilter(languageName));
 
 		// require login
-		return getSubtitlesCache().computeIf(query, Cache.isAbsent(), it -> {
+		return getSubtitlesCache().computeIfAbsent(query, it -> {
 			login();
 			return xmlrpc.searchSubtitles(singleton(query));
 		});
@@ -326,7 +326,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		}
 
 		// require login
-		return getLookupCache(locale).computeIf(id.getImdbId(), Cache.isAbsent(), it -> {
+		return getLookupCache(locale).computeIfAbsent(id.getImdbId(), it -> {
 			login();
 			return xmlrpc.getIMDBMovieDetails(id.getImdbId());
 		});
@@ -348,7 +348,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			if (f.length() > HASH_CHUNK_SIZE) {
 				String hash = computeHash(f);
 
-				Movie match = getLookupCache(locale).computeIf(hash, Cache.isAbsent(), it -> {
+				Movie match = getLookupCache(locale).computeIfAbsent(hash, it -> {
 					return xmlrpc.checkMovieHash(singleton(hash), minSeenCount).get(hash);
 				});
 
@@ -381,7 +381,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		}
 
 		// require login
-		List<String> languages = getCache("detect").castList(String.class).computeIf(md5(data), Cache.isAbsent(), it -> {
+		List<String> languages = getCache("detect").castList(String.class).computeIfAbsent(md5(data), it -> {
 			login();
 			return xmlrpc.detectLanguage(data);
 		});
@@ -435,7 +435,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 		// try to get language map from cache
 		Cache cache = Cache.getCache(getName() + "_languages", CacheType.Persistent);
-		Map<?, ?> m = (Map<?, ?>) cache.computeIf("subLanguageMap", Cache.isAbsent(), it -> {
+		Map<?, ?> m = (Map<?, ?>) cache.computeIfAbsent("subLanguageMap", it -> {
 			try {
 				return xmlrpc.getSubLanguages();
 			} catch (Exception e) {

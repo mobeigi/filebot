@@ -24,7 +24,7 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 
 	@Override
 	public List<SearchResult> search(String query, Locale language) throws Exception {
-		return getSearchCache(language).computeIf(query, Cache.isAbsent(), it -> {
+		return getSearchCache(language).computeIfAbsent(query, it -> {
 			return fetchSearchResult(query, language);
 		});
 	}
@@ -54,7 +54,7 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 		SortOrder requestOrder = vetoRequestParameter(order);
 		Locale requestLanguage = vetoRequestParameter(language);
 
-		return getDataCache(requestOrder, requestLanguage).computeIf(searchResult.getId(), Cache.isAbsent(), it -> {
+		return getDataCache(requestOrder, requestLanguage).computeIfAbsent(searchResult.getId(), it -> {
 			return fetchSeriesData(searchResult, requestOrder, requestLanguage);
 		});
 	}

@@ -76,6 +76,10 @@ public class Cache {
 		return value;
 	}
 
+	public Object computeIfAbsent(Object key, Compute<?> compute) throws Exception {
+		return computeIf(key, isAbsent(), compute);
+	}
+
 	public void put(Object key, Object value) {
 		try {
 			cache.put(createElement(key, value));
@@ -153,6 +157,10 @@ public class Cache {
 		@Override
 		public V computeIf(Object key, Predicate<Element> condition, Compute<?> compute) throws Exception {
 			return (V) super.computeIf(key, condition, compute);
+		}
+
+		public V computeIfAbsent(Object key, Compute<?> compute) throws Exception {
+			return (V) super.computeIfAbsent(key, compute);
 		}
 
 		@Override

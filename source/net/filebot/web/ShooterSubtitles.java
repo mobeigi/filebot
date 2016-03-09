@@ -90,7 +90,7 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 		param.put("lang", LANGUAGE_CHINESE.equals(languageName) ? "Chn" : "Eng");
 
 		// use the first best option and ignore the rest
-		return getCache().castList(SubtitleDescriptor.class).computeIf(param.toString(), Cache.isAbsent(), it -> {
+		return getCache().castList(SubtitleDescriptor.class).computeIfAbsent(param.toString(), it -> {
 			ByteBuffer post = WebRequest.post(endpoint, param, null);
 			Object response = readJson(UTF_8.decode(post));
 

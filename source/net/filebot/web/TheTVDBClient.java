@@ -225,7 +225,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			throw new IllegalArgumentException("Illegal TheTVDB ID: " + id);
 		}
 
-		return getLookupCache("id", language).computeIf(id, Cache.isAbsent(), it -> {
+		return getLookupCache("id", language).computeIfAbsent(id, it -> {
 			Document dom = getXmlResource(MirrorType.XML, "series/" + id + "/all/" + getLanguageCode(language) + ".xml");
 			String name = selectString("//SeriesName", dom);
 
@@ -238,7 +238,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			throw new IllegalArgumentException("Illegal IMDbID ID: " + imdbid);
 		}
 
-		return getLookupCache("imdbid", locale).computeIf(imdbid, Cache.isAbsent(), it -> {
+		return getLookupCache("imdbid", locale).computeIfAbsent(imdbid, it -> {
 			Document dom = getXmlResource(MirrorType.SEARCH, "GetSeriesByRemoteID.php?imdbid=" + imdbid + "&language=" + getLanguageCode(locale));
 
 			String id = selectString("//seriesid", dom);
@@ -370,7 +370,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 
 	public List<BannerDescriptor> getBannerList(TheTVDBSearchResult series) throws Exception {
-		return getBannerCache().computeIf(series.getId(), Cache.isAbsent(), it -> {
+		return getBannerCache().computeIfAbsent(series.getId(), it -> {
 			Document dom = getXmlResource(MirrorType.XML, "series/" + series.getId() + "/banners.xml");
 
 			String bannerMirror = getResource(MirrorType.BANNER, "").toString();
