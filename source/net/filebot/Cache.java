@@ -65,7 +65,7 @@ public class Cache {
 		Element element = null;
 		try {
 			element = cache.get(key);
-			if (condition.test(element)) {
+			if (!condition.test(element)) {
 				return getElementValue(element);
 			}
 		} catch (Exception e) {
