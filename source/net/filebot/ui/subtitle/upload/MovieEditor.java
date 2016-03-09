@@ -1,7 +1,7 @@
 package net.filebot.ui.subtitle.upload;
 
+import static net.filebot.Logging.*;
 import static net.filebot.media.MediaDetection.*;
-import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Component;
@@ -65,7 +65,7 @@ class MovieEditor implements TableCellEditor {
 			return;
 		}
 		if (options.isEmpty()) {
-			UILogger.warning(String.format("%s: No results", database.getName()));
+			log.warning(String.format("%s: No results", database.getName()));
 			return;
 		}
 

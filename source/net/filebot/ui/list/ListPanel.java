@@ -2,8 +2,8 @@ package net.filebot.ui.list;
 
 import static java.awt.Font.*;
 import static java.lang.Math.*;
+import static net.filebot.Logging.*;
 import static net.filebot.media.MediaDetection.*;
-import static net.filebot.ui.NotificationLogging.*;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -135,7 +135,7 @@ public class ListPanel extends JComponent {
 				list.getModel().clear();
 				list.getModel().addAll(names);
 			} catch (Exception e) {
-				UILogger.log(Level.WARNING, ExceptionUtilities.getMessage(e), e);
+				log.log(Level.WARNING, ExceptionUtilities.getMessage(e), e);
 			}
 		}
 	};

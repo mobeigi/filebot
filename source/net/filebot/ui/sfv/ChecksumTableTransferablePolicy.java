@@ -2,10 +2,10 @@ package net.filebot.ui.sfv;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.Settings.*;
 import static net.filebot.hash.VerificationUtilities.*;
-import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
@@ -65,7 +65,7 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 
 	@Override
 	protected void process(Exception e) {
-		UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
+		log.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 	}
 
 	private final ThreadLocal<ExecutorService> executor = new ThreadLocal<ExecutorService>();

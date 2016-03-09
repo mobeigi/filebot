@@ -1,9 +1,9 @@
 package net.filebot.ui.subtitle;
 
+import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.Settings.*;
 import static net.filebot.UserFiles.*;
-import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.ui.transfer.FileTransferable.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
@@ -128,7 +128,7 @@ abstract class SubtitleDropTarget extends JButton {
 					SwingUtilities.invokeLater(() -> handleDrop(files));
 				}
 			} catch (Exception e) {
-				UILogger.log(Level.WARNING, e.getMessage(), e);
+				log.log(Level.WARNING, e.getMessage(), e);
 			}
 
 			dtde.dropComplete(accept);
@@ -167,12 +167,12 @@ abstract class SubtitleDropTarget extends JButton {
 		@Override
 		protected boolean handleDrop(List<File> input) {
 			if (getQueryLanguage() == null) {
-				UILogger.info("Please select your preferred subtitle language.");
+				log.info("Please select your preferred subtitle language.");
 				return false;
 			}
 
 			if (getSubtitleService().isAnonymous() && !Settings.isAppStore()) {
-				UILogger.info(String.format("%s: Please enter your login details.", getSubtitleService().getName()));
+				log.info(String.format("%s: Please enter your login details.", getSubtitleService().getName()));
 				return false;
 			}
 
@@ -242,7 +242,7 @@ abstract class SubtitleDropTarget extends JButton {
 		@Override
 		protected boolean handleDrop(List<File> input) {
 			if (getSubtitleService().isAnonymous()) {
-				UILogger.info(String.format("%s: You must be logged in to upload subtitles.", getSubtitleService().getName()));
+				log.info(String.format("%s: You must be logged in to upload subtitles.", getSubtitleService().getName()));
 				return false;
 			}
 

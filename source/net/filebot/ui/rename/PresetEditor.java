@@ -2,7 +2,7 @@ package net.filebot.ui.rename;
 
 import static java.awt.Font.*;
 import static javax.swing.BorderFactory.*;
-import static net.filebot.ui.NotificationLogging.*;
+import static net.filebot.Logging.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Component;
@@ -409,7 +409,7 @@ public class PresetEditor extends JDialog {
 				JComponent source = (JComponent) evt.getSource();
 				popup.show(source, -3, source.getHeight() + 4);
 			} catch (Exception e) {
-				UILogger.log(Level.WARNING, "Invalid preset settings: " + e.getMessage(), e);
+				log.log(Level.WARNING, "Invalid preset settings: " + e.getMessage(), e);
 			}
 		}
 	};
@@ -425,7 +425,7 @@ public class PresetEditor extends JDialog {
 					setVisible(false);
 				}
 			} catch (Exception e) {
-				UILogger.log(Level.WARNING, "Invalid preset settings: " + e.getMessage(), e);
+				log.log(Level.WARNING, "Invalid preset settings: " + e.getMessage(), e);
 			}
 		}
 	};

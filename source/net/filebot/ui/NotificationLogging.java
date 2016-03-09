@@ -1,62 +1,39 @@
-
 package net.filebot.ui;
 
-
-import static net.filebot.Settings.*;
 import static net.filebot.util.ui.notification.Direction.*;
 
 import java.awt.GraphicsEnvironment;
-import java.util.logging.ConsoleHandler;
+import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import java.util.logging.Logger;
 
 import javax.swing.Icon;
 import javax.swing.SwingUtilities;
 
 import net.filebot.ResourceManager;
-import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.ui.notification.MessageNotification;
 import net.filebot.util.ui.notification.NotificationManager;
 import net.filebot.util.ui.notification.QueueNotificationLayout;
 
-
 public class NotificationLogging extends Handler {
 
-	public static final Logger UILogger = createNotificationLogger("net.filebot.logger.ui");
+	private final String title;
+	private final int timeout;
+	private final NotificationManager manager;
 
-
-	private static Logger createNotificationLogger(String name) {
-		Logger log = Logger.getLogger(name);
-
-		// don't use parent handlers
-		log.setUseParentHandlers(false);
-
-		// ui handler
-		log.addHandler(new NotificationLogging());
-
-		// console handler (for warnings and errors only)
-		ConsoleHandler console = new ConsoleHandler();
-		console.setLevel(Level.WARNING);
-		log.addHandler(console);
-
-		return log;
+	public NotificationLogging(String title) {
+		this(title, 2500, new NotificationManager(new QueueNotificationLayout(NORTH, SOUTH)));
 	}
 
-	public final NotificationManager notificationManager;
-	public final int timeout = 2500;
+	public NotificationLogging(String title, int timeout, NotificationManager manager) {
+		this.title = title;
+		this.timeout = timeout;
+		this.manager = manager;
 
-
-	public NotificationLogging() {
-		this(new NotificationManager(new QueueNotificationLayout(NORTH, SOUTH)));
+		setFormatter(new NotificationFormatter());
+		setLevel(Level.INFO);
 	}
-
-
-	public NotificationLogging(NotificationManager notificationManager) {
-		this.notificationManager = notificationManager;
-	}
-
 
 	@Override
 	public void publish(LogRecord record) {
@@ -64,51 +41,40 @@ public class NotificationLogging extends Handler {
 		if (GraphicsEnvironment.isHeadless())
 			return;
 
-		final Level level = record.getLevel();
-		final String message = getMessage(record);
+		String message = getFormatter().format(record);
+		Level level = record.getLevel();
 
-		SwingUtilities.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				if (level == Level.INFO) {
-					show(message, ResourceManager.getIcon("message.info"), timeout * 1);
-				} else if (level == Level.WARNING) {
-					show(message, ResourceManager.getIcon("message.warning"), timeout * 2);
-				} else if (level == Level.SEVERE) {
-					show(message, ResourceManager.getIcon("message.error"), timeout * 3);
-				}
+		SwingUtilities.invokeLater(() -> {
+			if (level == Level.INFO) {
+				show(message, ResourceManager.getIcon("message.info"), timeout * 1);
+			} else if (level == Level.WARNING) {
+				show(message, ResourceManager.getIcon("message.warning"), timeout * 2);
+			} else if (level == Level.SEVERE) {
+				show(message, ResourceManager.getIcon("message.error"), timeout * 3);
 			}
 		});
 	}
 
-
-	protected String getMessage(LogRecord record) {
-		String message = record.getMessage();
-
-		if ((message == null || message.isEmpty()) && record.getThrown() != null) {
-			// if message is empty, display exception string
-			return ExceptionUtilities.getMessage(record.getThrown());
-		}
-
-		return message;
-	}
-
-
 	protected void show(String message, Icon icon, int timeout) {
-		notificationManager.show(new MessageNotification(getApplicationName(), message, icon, timeout));
+		manager.show(new MessageNotification(title, message, icon, timeout));
 	}
-
 
 	@Override
 	public void close() throws SecurityException {
 
 	}
 
-
 	@Override
 	public void flush() {
 
+	}
+
+	public static class NotificationFormatter extends Formatter {
+
+		@Override
+		public String format(LogRecord record) {
+			return record.getMessage();
+		}
 	}
 
 }

@@ -1,6 +1,7 @@
 package net.filebot;
 
 import static java.awt.GraphicsEnvironment.*;
+import static java.util.Arrays.*;
 import static java.util.stream.Collectors.*;
 import static javax.swing.JOptionPane.*;
 import static net.filebot.Logging.*;
@@ -14,6 +15,7 @@ import java.awt.Dialog.ModalityType;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -30,7 +32,8 @@ import java.security.ProtectionDomain;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
+import java.util.logging.StreamHandler;
+import java.util.logging.XMLFormatter;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -48,6 +51,7 @@ import net.filebot.mac.MacAppUtilities;
 import net.filebot.ui.FileBotMenuBar;
 import net.filebot.ui.GettingStartedStage;
 import net.filebot.ui.MainFrame;
+import net.filebot.ui.NotificationLogging;
 import net.filebot.ui.PanelBuilder;
 import net.filebot.ui.SinglePanelFrame;
 import net.filebot.ui.transfer.FileTransferable;
@@ -86,7 +90,7 @@ public class Main {
 				if (args.clearCache()) {
 					log.info("Clear cache and temporary files");
 					for (File folder : getChildren(getApplicationFolder().getCanonicalFile(), FOLDERS)) {
-						log.config("* Delete " + folder);
+						log.info("* Delete " + folder);
 						delete(folder);
 					}
 					CacheManager.getInstance().clearAll();
@@ -149,15 +153,7 @@ public class Main {
 			}
 
 			// GUI mode => start user interface
-			SwingUtilities.invokeAndWait(() -> {
-				try {
-					// use native laf an all platforms
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-				} catch (Exception e) {
-					Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
-				}
-				startUserInterface(args);
-			});
+			SwingUtilities.invokeAndWait(() -> startUserInterface(args));
 
 			// preload media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
 			MediaTypes.getDefault();
@@ -191,14 +187,23 @@ public class Main {
 	}
 
 	private static void startUserInterface(ArgumentBean args) {
-		JFrame frame = null;
+		try {
+			// GUI logging settings
+			log.addHandler(new NotificationLogging(getApplicationName()));
+			log.addHandler(new StreamHandler(new FileOutputStream(new File(getApplicationFolder(), "error.log.xml"), true), new XMLFormatter()));
 
-		if (args.mode == null) {
-			// default frame
-			frame = new MainFrame(MainFrame.createPanelBuilders());
-		} else {
-			// single panel frame
-			PanelBuilder[] selection = Stream.of(MainFrame.createPanelBuilders()).filter(p -> p.getName().matches(args.mode)).toArray(PanelBuilder[]::new);
+			// use native LaF an all platforms
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			debug.log(Level.WARNING, e.getMessage(), e);
+		}
+
+		// default frame
+		JFrame frame = new MainFrame(MainFrame.createPanelBuilders());
+
+		// single panel frame
+		if (args.mode != null) {
+			PanelBuilder[] selection = stream(MainFrame.createPanelBuilders()).filter(p -> p.getName().matches(args.mode)).toArray(PanelBuilder[]::new);
 			if (selection.length == 1) {
 				frame = new SinglePanelFrame(selection[0]).publish(new FileTransferable(args.getFiles(false)));
 			} else if (selection.length > 1) {
@@ -222,7 +227,7 @@ public class Main {
 			public void windowClosing(WindowEvent e) {
 				e.getWindow().setVisible(false);
 
-				// make sure any long running operations are done now and not later on the shutdownhook thread
+				// make sure any long running operations are done now and not later on the shutdown hook thread
 				HistorySpooler.getInstance().commit();
 
 				// show donation / review reminders to power users (more than 2000 renames)
@@ -250,7 +255,8 @@ public class Main {
 			// Ubuntu specific configuration
 			String options = System.getenv("JAVA_TOOL_OPTIONS");
 			if (options != null && options.contains("jayatanaag.jar")) {
-				frame.setJMenuBar(FileBotMenuBar.createHelp()); // menu should be rendered via JAyatana on Ubuntu 15.04 and higher
+				// menu should be rendered via JAyatana on Ubuntu 15.04 and higher
+				frame.setJMenuBar(FileBotMenuBar.createHelp());
 			}
 			frame.setIconImages(ResourceManager.getApplicationIcons());
 		} else {

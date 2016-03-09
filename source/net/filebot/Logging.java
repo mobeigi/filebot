@@ -48,9 +48,9 @@ public final class Logging {
 			// print messages
 			out.print(getFormatter().format(record));
 
-			Throwable t = record.getThrown();
-			if (t != null) {
-				StackTraceUtils.deepSanitize(t).printStackTrace(out);
+			Throwable thrown = record.getThrown();
+			if (thrown != null) {
+				StackTraceUtils.deepSanitize(thrown).printStackTrace(out);
 			}
 
 			// flush every message immediately

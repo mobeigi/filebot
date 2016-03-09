@@ -1,7 +1,7 @@
 package net.filebot.ui.analyze;
 
+import static net.filebot.Logging.*;
 import static net.filebot.UserFiles.*;
-import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
@@ -102,7 +102,7 @@ class ExtractTool extends Tool<TableModel> {
 			if (findCause(e, InterruptedException.class) != null) {
 				throw findCause(e, InterruptedException.class);
 			}
-			UILogger.log(Level.WARNING, e.getMessage(), e);
+			log.log(Level.WARNING, e.getMessage(), e);
 		}
 
 		return new ArchiveEntryModel(entries);
@@ -297,7 +297,7 @@ class ExtractTool extends Tool<TableModel> {
 						archive.close();
 					}
 				} catch (Exception e) {
-					UILogger.log(Level.WARNING, "Failed to extract archive: " + file.getName(), e);
+					log.log(Level.WARNING, "Failed to extract archive: " + file.getName(), e);
 				}
 
 				if (isCancelled()) {

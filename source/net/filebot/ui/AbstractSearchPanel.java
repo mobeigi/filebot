@@ -1,7 +1,7 @@
 package net.filebot.ui;
 
 import static javax.swing.ScrollPaneConstants.*;
-import static net.filebot.ui.NotificationLogging.*;
+import static net.filebot.Logging.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Dimension;
@@ -207,7 +207,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 
 				switch (results.size()) {
 				case 0:
-					UILogger.log(Level.WARNING, String.format("'%s' has not been found.", requestProcessor.request.getSearchText()));
+					log.log(Level.WARNING, String.format("'%s' has not been found.", requestProcessor.request.getSearchText()));
 					break;
 				case 1:
 					selectedSearchResult = results.iterator().next();
@@ -231,7 +231,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 				new FetchTask(requestProcessor).execute();
 			} catch (Exception e) {
 				tab.close();
-				UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
+				log.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 			}
 
 		}
@@ -277,12 +277,12 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 
 				// close tab if no elements were fetched
 				if (get().size() <= 0) {
-					UILogger.warning(statusMessage);
+					log.warning(statusMessage);
 					tab.close();
 				}
 			} catch (Exception e) {
 				tab.close();
-				UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
+				log.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 			} finally {
 				tab.setLoading(false);
 			}

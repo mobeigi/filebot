@@ -4,8 +4,8 @@ import static java.awt.event.InputEvent.*;
 import static java.awt.event.KeyEvent.*;
 import static javax.swing.KeyStroke.*;
 import static javax.swing.ScrollPaneConstants.*;
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
-import static net.filebot.ui.NotificationLogging.*;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -114,7 +114,7 @@ public class MainFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				CacheManager.getInstance().clearAll();
-				UILogger.info("Cache has been cleared");
+				log.info("Cache has been cleared");
 			}
 		});
 

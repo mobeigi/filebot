@@ -2,9 +2,9 @@ package net.filebot.mac;
 
 import static java.util.Collections.*;
 import static javax.swing.BorderFactory.*;
+import static net.filebot.Logging.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.mac.MacAppUtilities.*;
-import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
@@ -242,9 +242,9 @@ public class DropToUnlock extends JList<File> {
 			try {
 				String owner = Files.getOwner(f.toPath()).getName();
 				String permissions = PosixFilePermissions.toString(Files.getPosixFilePermissions(f.toPath()));
-				UILogger.severe(String.format("Permission denied: %s (%s %s)", f, permissions, owner));
+				log.severe(String.format("Permission denied: %s (%s %s)", f, permissions, owner));
 			} catch (Exception e) {
-				UILogger.severe(String.format("Permission denied: %s", f));
+				log.severe(String.format("Permission denied: %s", f));
 			}
 		});
 	}

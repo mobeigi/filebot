@@ -1,10 +1,10 @@
 package net.filebot.ui.subtitle;
 
 import static java.nio.charset.StandardCharsets.*;
+import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.subtitle.SubtitleUtilities.*;
-import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
@@ -234,7 +234,7 @@ class SubtitleDownloadComponent extends JComponent {
 					} catch (CancellationException e) {
 						// ignore cancellation
 					} catch (Exception e) {
-						UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
+						log.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 
 						// reset download
 						subtitle.reset();
@@ -261,7 +261,7 @@ class SubtitleDownloadComponent extends JComponent {
 				}
 			}
 		} catch (Exception e) {
-			UILogger.log(Level.WARNING, e.getMessage(), e);
+			log.log(Level.WARNING, e.getMessage(), e);
 		}
 	}
 
@@ -284,7 +284,7 @@ class SubtitleDownloadComponent extends JComponent {
 				}
 			}
 		} catch (Exception e) {
-			UILogger.log(Level.WARNING, e.getMessage(), e);
+			log.log(Level.WARNING, e.getMessage(), e);
 		}
 	}
 
@@ -326,7 +326,7 @@ class SubtitleDownloadComponent extends JComponent {
 				}
 			}
 		} catch (Exception e) {
-			UILogger.log(Level.WARNING, e.getMessage(), e);
+			log.log(Level.WARNING, e.getMessage(), e);
 		}
 	}
 

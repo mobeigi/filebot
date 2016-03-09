@@ -1,7 +1,7 @@
 package net.filebot.ui.analyze;
 
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
-import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
@@ -48,7 +48,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<TreeNo
 
 	@Override
 	protected void process(Exception e) {
-		UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
+		log.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 	}
 
 	@Override

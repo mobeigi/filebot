@@ -3,8 +3,8 @@ package net.filebot.ui.rename;
 import static java.awt.Font.*;
 import static java.util.Collections.*;
 import static javax.swing.BorderFactory.*;
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
-import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
@@ -778,7 +778,7 @@ public class FormatDialog extends JDialog {
 
 				finish(true);
 			} catch (ScriptException e) {
-				UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e));
+				log.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e));
 			}
 		}
 	};

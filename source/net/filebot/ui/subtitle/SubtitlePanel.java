@@ -1,8 +1,8 @@
 package net.filebot.ui.subtitle;
 
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.ui.LanguageComboBoxModel.*;
-import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
@@ -185,7 +185,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		SubtitleProvider provider = searchTextField.getSelectButton().getSelectedValue();
 
 		if (provider instanceof OpenSubtitlesClient && ((OpenSubtitlesClient) provider).isAnonymous() && !Settings.isAppStore()) {
-			UILogger.info(String.format("%s: Please enter your login details first.", ((OpenSubtitlesClient) provider).getName()));
+			log.info(String.format("%s: Please enter your login details first.", ((OpenSubtitlesClient) provider).getName()));
 
 			// automatically open login dialog
 			SwingUtilities.invokeLater(() -> setUserAction.actionPerformed(new ActionEvent(searchTextField, 0, "login")));
@@ -372,7 +372,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 								try {
 									// check download quota for the current user
 									Map<?, ?> limits = (Map<?, ?>) osdb.getServerInfo().get("download_limits");
-									UILogger.log(Level.INFO, String.format("Your daily download quota is at %s of %s.", limits.get("client_24h_download_count"), limits.get("client_24h_download_limit")));
+									log.log(Level.INFO, String.format("Your daily download quota is at %s of %s.", limits.get("client_24h_download_count"), limits.get("client_24h_download_limit")));
 
 									// logout from test session
 									osdb.logout();
@@ -384,7 +384,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 							WebServices.setLogin(WebServices.LOGIN_OPENSUBTITLES, null, null); // delete login details
 						}
 					} catch (Exception e) {
-						UILogger.log(Level.WARNING, "OpenSubtitles: " + e.getMessage());
+						log.log(Level.WARNING, "OpenSubtitles: " + e.getMessage());
 						approved = false;
 					}
 

@@ -1,8 +1,8 @@
 package net.filebot.ui.rename;
 
+import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.UserFiles.*;
-import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
@@ -262,10 +262,10 @@ class BindingDialog extends JDialog {
 			// check episode and media file
 			if (getInfoObject() == null) {
 				// illegal episode string
-				UILogger.warning(String.format("Failed to parse episode: '%s'", infoTextField.getText()));
+				log.warning(String.format("Failed to parse episode: '%s'", infoTextField.getText()));
 			} else if (getMediaFile() == null && !mediaFileTextField.getText().isEmpty()) {
 				// illegal file path
-				UILogger.warning(String.format("Invalid media file: '%s'", mediaFileTextField.getText()));
+				log.warning(String.format("Invalid media file: '%s'", mediaFileTextField.getText()));
 			} else {
 				// everything seems to be in order
 				finish(true);
@@ -304,7 +304,7 @@ class BindingDialog extends JDialog {
 					}
 				}
 			} catch (MediaInfoException e) {
-				UILogger.log(Level.SEVERE, e.getMessage(), e);
+				log.log(Level.SEVERE, e.getMessage(), e);
 			}
 
 			// could not retrieve media info

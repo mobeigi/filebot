@@ -1,7 +1,7 @@
 package net.filebot.ui.transfer;
 
+import static net.filebot.Logging.*;
 import static net.filebot.UserFiles.*;
-import static net.filebot.ui.NotificationLogging.*;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -58,7 +58,7 @@ public class LoadAction extends AbstractAction {
 				transferablePolicy.handleTransferable(transferable, getTransferAction(evt));
 			}
 		} catch (Exception e) {
-			UILogger.log(Level.WARNING, e.toString(), e);
+			log.log(Level.WARNING, e.toString(), e);
 		}
 	}
 

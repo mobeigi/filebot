@@ -4,8 +4,8 @@ import static java.awt.event.KeyEvent.*;
 import static javax.swing.JOptionPane.*;
 import static javax.swing.KeyStroke.*;
 import static javax.swing.SwingUtilities.*;
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
-import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.ui.LoadingOverlayPane.*;
 import static net.filebot.util.ui.SwingUI.*;
@@ -651,7 +651,7 @@ public class RenamePanel extends JComponent {
 				// show and block
 				dialog.setVisible(true);
 			} catch (Exception e) {
-				UILogger.log(Level.WARNING, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
+				log.log(Level.WARNING, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
 			}
 		}
 	};
@@ -754,7 +754,7 @@ public class RenamePanel extends JComponent {
 
 				super.actionPerformed(evt);
 			} catch (Exception e) {
-				UILogger.info(e.getMessage());
+				log.info(e.getMessage());
 			} finally {
 				window.setCursor(Cursor.getDefaultCursor());
 			}
@@ -892,7 +892,7 @@ public class RenamePanel extends JComponent {
 						if (findCause(e, CancellationException.class) != null) {
 							Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, getRootCause(e).toString());
 						} else {
-							UILogger.log(Level.WARNING, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
+							log.log(Level.WARNING, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
 						}
 					} finally {
 						// auto-match finished

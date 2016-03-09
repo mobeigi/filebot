@@ -1,7 +1,7 @@
 package net.filebot.ui.rename;
 
+import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
-import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.awt.datatransfer.Transferable;
@@ -112,7 +112,7 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 
 	@Override
 	protected void process(Exception e) {
-		UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
+		log.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 	}
 
 }

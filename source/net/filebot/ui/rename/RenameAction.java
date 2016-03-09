@@ -2,8 +2,8 @@ package net.filebot.ui.rename;
 
 import static java.util.Collections.*;
 import static javax.swing.JOptionPane.*;
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
-import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
@@ -75,7 +75,7 @@ class RenameAction extends AbstractAction {
 		Window window = getWindow(evt.getSource());
 		try {
 			if (model.files().isEmpty() || model.values().isEmpty()) {
-				UILogger.info("Nothing to rename. Please add some files and fetch naming data first.");
+				log.info("Nothing to rename. Please add some files and fetch naming data first.");
 				return;
 			}
 
@@ -137,7 +137,7 @@ class RenameAction extends AbstractAction {
 		} catch (ExecutionException e) {
 			// ignore, handled in rename worker
 		} catch (Throwable e) {
-			UILogger.log(Level.WARNING, e.getMessage(), e);
+			log.log(Level.WARNING, e.getMessage(), e);
 		}
 
 		window.setCursor(Cursor.getDefaultCursor());
@@ -341,7 +341,7 @@ class RenameAction extends AbstractAction {
 				this.get(); // grab exception if any
 			} catch (Exception e) {
 				if (!isCancelled()) {
-					UILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
+					log.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
 				} else {
 					Logger.getLogger(RenameAction.class.getName()).log(Level.SEVERE, e.getMessage(), e);
 				}
@@ -361,7 +361,7 @@ class RenameAction extends AbstractAction {
 			}
 
 			if (renameLog.size() > 0) {
-				UILogger.info(String.format("%d files renamed.", renameLog.size()));
+				log.info(String.format("%d files renamed.", renameLog.size()));
 				HistorySpooler.getInstance().append(renameLog.entrySet());
 			}
 		}
