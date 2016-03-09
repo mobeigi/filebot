@@ -785,7 +785,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 					throw e;
 				} catch (Exception e) {
 					// log and ignore
-					debug.log(Level.WARNING, e.getMessage());
+					debug.warning(e.getMessage());
 				}
 			}
 

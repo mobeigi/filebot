@@ -307,7 +307,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 			try {
 				prefs.flush();
 			} catch (Exception e) {
-				debug.log(Level.WARNING, e.toString());
+				debug.log(Level.WARNING, e.getMessage(), e);
 			}
 		}
 

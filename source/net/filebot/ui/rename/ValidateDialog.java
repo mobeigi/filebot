@@ -1,6 +1,4 @@
-
 package net.filebot.ui.rename;
-
 
 import static java.util.Collections.*;
 import static net.filebot.Logging.*;
@@ -37,7 +35,6 @@ import javax.swing.text.BadLocationException;
 import net.filebot.ResourceManager;
 import net.miginfocom.swing.MigLayout;
 
-
 class ValidateDialog extends JDialog {
 
 	private final JList list;
@@ -45,7 +42,6 @@ class ValidateDialog extends JDialog {
 	private File[] model;
 
 	private boolean cancelled = true;
-
 
 	public ValidateDialog(Window owner, Collection<File> source) {
 		super(owner, "Invalid Names", ModalityType.DOCUMENT_MODAL);
@@ -73,8 +69,8 @@ class ValidateDialog extends JDialog {
 						try {
 							textComponent.getHighlighter().addHighlight(matcher.start(0), matcher.end(0), highlightPainter);
 						} catch (BadLocationException e) {
-							//should not happen
-							debug.log(Level.SEVERE, e.toString(), e);
+							// should not happen
+							debug.log(Level.SEVERE, e.getMessage(), e);
 						}
 					}
 				}
@@ -101,16 +97,13 @@ class ValidateDialog extends JDialog {
 		pack();
 	}
 
-
 	public List<File> getModel() {
 		return unmodifiableList(Arrays.asList(model));
 	}
 
-
 	public boolean isCancelled() {
 		return cancelled;
 	}
-
 
 	private void finish(boolean cancelled) {
 		this.cancelled = cancelled;
@@ -156,7 +149,6 @@ class ValidateDialog extends JDialog {
 		}
 	};
 
-
 	public static boolean validate(Component parent, List<File> source) {
 		IndexView<File> invalidFilePaths = new IndexView<File>(source);
 
@@ -193,23 +185,19 @@ class ValidateDialog extends JDialog {
 		return true;
 	}
 
-
 	private static class IndexView<E> extends AbstractList<E> {
 
 		private final List<Integer> mapping = new ArrayList<Integer>();
 
 		private final List<E> source;
 
-
 		public IndexView(List<E> source) {
 			this.source = source;
 		}
 
-
 		public boolean addIndex(int index) {
 			return mapping.add(index);
 		}
-
 
 		@Override
 		public E get(int index) {
@@ -221,12 +209,10 @@ class ValidateDialog extends JDialog {
 			return null;
 		}
 
-
 		@Override
 		public E set(int index, E element) {
 			return source.set(mapping.get(index), element);
 		}
-
 
 		@Override
 		public int size() {

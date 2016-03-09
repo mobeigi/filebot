@@ -376,7 +376,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 									// logout from test session
 									osdb.logout();
 								} catch (Exception e) {
-									debug.log(Level.WARNING, e.toString());
+									debug.warning(e.getMessage());
 								}
 							});
 						} else if (osdbUser.getText().isEmpty()) {

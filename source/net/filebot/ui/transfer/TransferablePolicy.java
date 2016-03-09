@@ -1,6 +1,4 @@
-
 package net.filebot.ui.transfer;
-
 
 import static net.filebot.Logging.*;
 
@@ -11,14 +9,11 @@ import java.util.logging.Level;
 import javax.swing.TransferHandler;
 import javax.swing.TransferHandler.TransferSupport;
 
-
 public abstract class TransferablePolicy {
 
 	public abstract boolean accept(Transferable tr) throws Exception;
 
-
 	public abstract void handleTransferable(Transferable tr, TransferAction action) throws Exception;
-
 
 	public boolean canImport(TransferSupport support) {
 		if (support.isDrop()) {
@@ -34,11 +29,10 @@ public abstract class TransferablePolicy {
 			// just assume that the transferable will be accepted, accept will be called in importData again anyway
 			return true;
 		} catch (Exception e) {
-			debug.log(Level.WARNING, e.toString(), e);
+			debug.log(Level.WARNING, e.getMessage(), e);
 			return false;
 		}
 	}
-
 
 	public boolean importData(TransferSupport support) {
 		Transferable transferable = support.getTransferable();
@@ -49,13 +43,12 @@ public abstract class TransferablePolicy {
 				return true;
 			}
 		} catch (Exception e) {
-			debug.log(Level.WARNING, e.toString(), e);
+			debug.log(Level.WARNING, e.getMessage(), e);
 		}
 
 		// transferable was not accepted, or transfer failed
 		return false;
 	}
-
 
 	protected TransferAction getTransferAction(TransferSupport support) {
 		if (support.isDrop()) {
@@ -66,24 +59,18 @@ public abstract class TransferablePolicy {
 		return TransferAction.PUT;
 	}
 
-
 	public static enum TransferAction {
-		PUT(TransferHandler.MOVE),
-		ADD(TransferHandler.COPY),
-		LINK(TransferHandler.LINK);
+		PUT(TransferHandler.MOVE), ADD(TransferHandler.COPY), LINK(TransferHandler.LINK);
 
 		private final int dndConstant;
-
 
 		private TransferAction(int dndConstant) {
 			this.dndConstant = dndConstant;
 		}
 
-
 		public int getDnDConstant() {
 			return dndConstant;
 		}
-
 
 		public static TransferAction fromDnDConstant(int dndConstant) {
 			for (TransferAction action : values()) {

@@ -138,7 +138,7 @@ public class FileTransferable implements Transferable {
 					files.add(file);
 				} catch (Throwable e) {
 					// URISyntaxException, IllegalArgumentException, FileNotFoundException, LinkageError, etc
-					debug.log(Level.WARNING, "Invalid file URI: " + line);
+					debug.warning("Invalid file URI: " + line);
 				}
 			}
 

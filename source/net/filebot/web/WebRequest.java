@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -279,7 +278,7 @@ public final class WebRequest {
 				try {
 					return Charset.forName(matcher.group(1));
 				} catch (IllegalArgumentException e) {
-					debug.log(Level.WARNING, "Illegal charset: " + contentType);
+					debug.warning("Illegal charset: " + contentType);
 				}
 			}
 

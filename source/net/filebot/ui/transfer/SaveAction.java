@@ -56,7 +56,7 @@ public class SaveAction extends AbstractAction {
 				}
 			}
 		} catch (Exception e) {
-			debug.log(Level.SEVERE, e.toString(), e);
+			debug.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 }

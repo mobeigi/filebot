@@ -241,7 +241,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 					}
 				}
 			} catch (Exception e) {
-				debug.log(Level.WARNING, e.toString(), e);
+				debug.log(Level.WARNING, e.getMessage(), e);
 			}
 			return n;
 		}

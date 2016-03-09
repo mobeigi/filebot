@@ -1,6 +1,4 @@
-
 package net.filebot.ui.rename;
-
 
 import static net.filebot.Logging.*;
 
@@ -23,14 +21,12 @@ import javax.swing.text.JTextComponent;
 import net.filebot.util.ui.AbstractFancyListCellRenderer;
 import net.filebot.util.ui.SwingUI;
 
-
 class HighlightListCellRenderer extends AbstractFancyListCellRenderer {
 
 	protected final JTextComponent textComponent = new JTextField();
 
 	protected final Pattern pattern;
 	protected final Highlighter.HighlightPainter highlightPainter;
-
 
 	public HighlightListCellRenderer(Pattern pattern, Highlighter.HighlightPainter highlightPainter, int padding) {
 		super(new Insets(0, 0, 0, 0));
@@ -50,14 +46,12 @@ class HighlightListCellRenderer extends AbstractFancyListCellRenderer {
 		textComponent.getDocument().addDocumentListener(new HighlightUpdateListener());
 	}
 
-
 	@Override
 	protected void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		super.configureListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
 		textComponent.setText(value.toString());
 	}
-
 
 	protected void updateHighlighter() {
 		textComponent.getHighlighter().removeAllHighlights();
@@ -68,12 +62,11 @@ class HighlightListCellRenderer extends AbstractFancyListCellRenderer {
 			try {
 				textComponent.getHighlighter().addHighlight(matcher.start(0), matcher.end(0), highlightPainter);
 			} catch (BadLocationException e) {
-				//should not happen
-				debug.log(Level.SEVERE, e.toString(), e);
+				// should not happen
+				debug.log(Level.SEVERE, e.getMessage(), e);
 			}
 		}
 	}
-
 
 	@Override
 	public void setForeground(Color fg) {
@@ -85,7 +78,6 @@ class HighlightListCellRenderer extends AbstractFancyListCellRenderer {
 		}
 	}
 
-
 	private class HighlightUpdateListener implements DocumentListener {
 
 		@Override
@@ -93,12 +85,10 @@ class HighlightListCellRenderer extends AbstractFancyListCellRenderer {
 			updateHighlighter();
 		}
 
-
 		@Override
 		public void insertUpdate(DocumentEvent e) {
 			updateHighlighter();
 		}
-
 
 		@Override
 		public void removeUpdate(DocumentEvent e) {

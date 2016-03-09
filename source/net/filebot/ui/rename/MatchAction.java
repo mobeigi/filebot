@@ -65,7 +65,7 @@ class MatchAction extends AbstractAction {
 			// display progress dialog and stop blocking EDT
 			dialog.setVisible(true);
 		} catch (Exception e) {
-			debug.log(Level.SEVERE, e.toString(), e);
+			debug.log(Level.SEVERE, e.getMessage(), e);
 		} finally {
 			window.setCursor(Cursor.getDefaultCursor());
 		}
@@ -121,7 +121,7 @@ class MatchAction extends AbstractAction {
 				// insert objects that could not be matched at the end of the model
 				model.addAll(matcher.remainingValues(), matcher.remainingCandidates());
 			} catch (Exception e) {
-				debug.log(Level.SEVERE, e.toString(), e);
+				debug.log(Level.SEVERE, e.getMessage(), e);
 			}
 		}
 

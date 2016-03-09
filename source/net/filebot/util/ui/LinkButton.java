@@ -108,7 +108,7 @@ public class LinkButton extends JButton {
 				}
 			} catch (Exception e) {
 				// should not happen
-				debug.log(Level.SEVERE, e.toString(), e);
+				debug.log(Level.SEVERE, e.getMessage(), e);
 			}
 		}
 	}

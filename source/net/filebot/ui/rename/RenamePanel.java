@@ -272,7 +272,7 @@ public class RenamePanel extends JComponent {
 							UserFiles.revealFiles(list.getSelectedValuesList());
 						}
 					} catch (Exception e) {
-						debug.log(Level.WARNING, e.getMessage());
+						debug.log(Level.WARNING, e.getMessage(), e);
 					} finally {
 						getWindow(evt.getSource()).setCursor(Cursor.getDefaultCursor());
 					}
@@ -368,7 +368,7 @@ public class RenamePanel extends JComponent {
 						}
 					}
 				} catch (Exception e) {
-					debug.log(Level.WARNING, e.getMessage());
+					debug.log(Level.WARNING, e.getMessage(), e);
 				}
 			}
 		});
@@ -388,7 +388,7 @@ public class RenamePanel extends JComponent {
 					Preset p = (Preset) JsonReader.jsonToJava(it);
 					actionPopup.add(new ApplyPresetAction(p));
 				} catch (Exception e) {
-					debug.log(Level.WARNING, e.toString());
+					debug.log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
 			actionPopup.addSeparator();
@@ -590,7 +590,7 @@ public class RenamePanel extends JComponent {
 			try {
 				initMode = Mode.valueOf(persistentLastFormatState.getValue());
 			} catch (Exception e) {
-				debug.log(Level.WARNING, e.getMessage());
+				debug.log(Level.WARNING, e.getMessage(), e);
 			}
 		}
 

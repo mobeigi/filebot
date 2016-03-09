@@ -34,19 +34,15 @@ public abstract class Timer implements Runnable {
 				addShutdownHook();
 			} catch (Exception e) {
 				// may fail if running with restricted permissions
-				debug.log(Level.WARNING, e.getClass().getName() + ": " + e.getMessage());
+				debug.log(Level.WARNING, e.getMessage(), e);
 			}
 
 			// remove shutdown hook after execution
-			runnable = new Runnable() {
-
-				@Override
-				public void run() {
-					try {
-						Timer.this.run();
-					} finally {
-						cancel();
-					}
+			runnable = () -> {
+				try {
+					Timer.this.run();
+				} finally {
+					cancel();
 				}
 			};
 		} else {
@@ -55,7 +51,7 @@ public abstract class Timer implements Runnable {
 				removeShutdownHook();
 			} catch (Exception e) {
 				// may fail if running with restricted permissions
-				debug.log(Level.WARNING, e.getClass().getName() + ": " + e.getMessage());
+				debug.log(Level.WARNING, e.getMessage(), e);
 			}
 		}
 
