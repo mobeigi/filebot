@@ -1,6 +1,7 @@
 package net.filebot.format;
 
 import static java.util.regex.Pattern.*;
+import groovy.lang.Closure;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,12 +9,20 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.filebot.similarity.Normalization;
 import net.filebot.util.FileUtilities;
+import net.filebot.util.StringUtilities;
+
+import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 
 import com.ibm.icu.text.Transliterator;
 
@@ -303,19 +312,47 @@ public class ExpressionFormatMethods {
 	/**
 	 * Replace multiple replacement pairs
 	 *
-	 * e.g. replace('ä', 'ae', 'ö', 'oe', 'ü', 'ue')
+	 * e.g. replace(ä:'ae', ö:'oe', ü:'ue')
 	 */
-	public static String replace(String self, String tr0, String tr1, String... tr) {
+	public static String replace(String self, Map<?, ?> replace) {
 		// the first two parameters are required, the rest of the parameter sequence is optional
-		self = self.replace(tr0, tr1);
-
-		for (int i = 0; i < tr.length - 1; i += 2) {
-			String t = tr[i];
-			String r = tr[i + 1];
-			self = self.replace(t, r);
+		for (Entry<?, ?> it : replace.entrySet()) {
+			if (it.getKey() instanceof Pattern) {
+				self = ((Pattern) it.getKey()).matcher(self).replaceAll(it.getValue().toString());
+			} else {
+				self = self.replace(it.getKey().toString(), it.getValue().toString());
+			}
 		}
-
 		return self;
+	}
+
+	/**
+	 * Join non-empty String values and prepend prefix / append suffix values
+	 * 
+	 * e.g. (1..3).join('-', '[', ']')
+	 * 
+	 * Unwind if list is empty
+	 * 
+	 * e.g. [].join('-', '[', ']') => Exception: List is empty
+	 */
+	public static String join(Collection<?> self, String delimiter, String prefix, String suffix) throws Exception {
+		String[] values = self.stream().map(StringUtilities::asNonEmptyString).filter(Objects::nonNull).toArray(String[]::new);
+		if (values.length > 0) {
+			return prefix + String.join(delimiter, values) + suffix;
+		}
+		throw new Exception("List is empty");
+	}
+
+	/**
+	 * Unwind if an object does not satisfy the given predicate
+	 *
+	 * e.g. (0..9)*.check{it < 10}.sum()
+	 */
+	public static Object check(Object self, Closure<?> c) throws Exception {
+		if (DefaultTypeTransformation.castToBoolean(c.call(self))) {
+			return self;
+		}
+		throw new Exception("Check failed");
 	}
 
 	/**
