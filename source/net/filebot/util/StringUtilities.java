@@ -78,10 +78,6 @@ public final class StringUtilities {
 		return join(values.stream(), delimiter, "", "");
 	}
 
-	public static String join(CharSequence delimiter, Object... values) {
-		return join(stream(values), delimiter, "", "");
-	}
-
 	public static String join(Object[] values, CharSequence delimiter) {
 		return join(stream(values), delimiter, "", "");
 	}

@@ -1,7 +1,6 @@
 package net.filebot;
 
 import static net.filebot.util.FileUtilities.*;
-import static net.filebot.util.StringUtilities.*;
 
 import java.awt.GraphicsEnvironment;
 import java.io.File;
@@ -297,14 +296,11 @@ public final class Settings {
 	}
 
 	public static String getApplicationIdentifier() {
-		return join(" ", getApplicationName(), getApplicationVersion(), String.format("(r%s)", getApplicationRevisionNumber()));
+		return String.format("%s %s (r%d)", getApplicationName(), getApplicationVersion(), getApplicationRevisionNumber());
 	}
 
 	public static String getJavaRuntimeIdentifier() {
-		String name = System.getProperty("java.runtime.name");
-		String version = System.getProperty("java.version");
-		String headless = GraphicsEnvironment.isHeadless() ? "(headless)" : null;
-		return join(" ", name, version, headless);
+		return String.format("%s %s %s", System.getProperty("java.runtime.name"), System.getProperty("java.version"), GraphicsEnvironment.isHeadless() ? "(headless)" : "").trim();
 	}
 
 	private static String[] applicationArgumentArray;

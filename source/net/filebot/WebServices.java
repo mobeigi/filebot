@@ -6,7 +6,6 @@ import static java.util.stream.Collectors.*;
 import static net.filebot.Settings.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.FileUtilities.*;
-import static net.filebot.util.StringUtilities.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -255,7 +254,7 @@ public final class WebServices {
 			if (LOGIN_OPENSUBTITLES.equals(id)) {
 				String password_md5 = md5(password);
 				OpenSubtitles.setUser(user, password_md5);
-				Settings.forPackage(WebServices.class).put(id, join(LOGIN_SEPARATOR, user, password_md5));
+				Settings.forPackage(WebServices.class).put(id, user + LOGIN_SEPARATOR + password_md5);
 			} else {
 				throw new IllegalArgumentException();
 			}
