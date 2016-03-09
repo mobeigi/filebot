@@ -271,7 +271,11 @@ public class Main {
 		Document dom = cache.xml("update.url", s -> new URL(getApplicationProperty(s))).expire(Cache.ONE_WEEK).retry(0).get();
 
 		// parse update xml
-		final Map<String, String> update = streamChildren(dom.getFirstChild()).collect(toMap(n -> n.getNodeName(), n -> n.getTextContent().trim()));
+		final Map<String, String> update = streamElements(dom.getFirstChild()).collect(toMap(n -> {
+			return n.getNodeName();
+		}, n -> {
+			return n.getTextContent().trim();
+		}));
 
 		// check if update is required
 		int latestRev = Integer.parseInt(update.get("revision"));
