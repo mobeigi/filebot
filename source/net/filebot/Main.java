@@ -29,6 +29,7 @@ import java.security.Permissions;
 import java.security.Policy;
 import java.security.ProtectionDomain;
 import java.util.Map;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -187,7 +188,11 @@ public class Main {
 		try {
 			// GUI logging settings
 			log.addHandler(new NotificationHandler(getApplicationName()));
-			log.addHandler(createSimpleFileHandler(new File(getApplicationFolder(), "error.log"), Level.WARNING)); // only log errors to file
+
+			// log errors to file
+			Handler error = createSimpleFileHandler(new File(getApplicationFolder(), "error.log"), Level.WARNING);
+			log.addHandler(error);
+			debug.addHandler(error);
 
 			// use native LaF an all platforms
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

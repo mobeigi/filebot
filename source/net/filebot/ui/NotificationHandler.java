@@ -31,7 +31,7 @@ public class NotificationHandler extends Handler {
 		this.timeout = timeout;
 		this.manager = manager;
 
-		setFormatter(new NotificationFormatter());
+		setFormatter(new SimpleMessageFormatter());
 		setLevel(Level.INFO);
 	}
 
@@ -69,11 +69,15 @@ public class NotificationHandler extends Handler {
 
 	}
 
-	public static class NotificationFormatter extends Formatter {
+	public static class SimpleMessageFormatter extends Formatter {
 
 		@Override
 		public String format(LogRecord record) {
-			return record.getMessage();
+			String message = record.getMessage();
+			if (message == null && record.getThrown() != null) {
+				message = record.getThrown().toString();
+			}
+			return message;
 		}
 	}
 
