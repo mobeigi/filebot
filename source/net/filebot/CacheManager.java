@@ -36,12 +36,11 @@ public class CacheManager {
 	}
 
 	public synchronized Cache getCache(String name, CacheType type) {
-		String cacheName = name.toLowerCase() + "_" + type.ordinal();
-		if (!manager.cacheExists(cacheName)) {
-			debug.config("Create cache: " + cacheName);
-			manager.addCache(new net.sf.ehcache.Cache(type.getConfiguration(cacheName)));
+		if (!manager.cacheExists(name)) {
+			debug.config("Create cache: " + name);
+			manager.addCache(new net.sf.ehcache.Cache(type.getConfiguration(name)));
 		}
-		return new Cache(manager.getCache(cacheName));
+		return new Cache(manager.getCache(name));
 	}
 
 	public synchronized void clearAll() {

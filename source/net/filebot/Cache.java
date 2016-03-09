@@ -22,7 +22,7 @@ public class Cache {
 	public static final Duration ONE_MONTH = Duration.ofDays(30);
 
 	public static Cache getCache(String name, CacheType type) {
-		return CacheManager.getInstance().getCache(name, type);
+		return CacheManager.getInstance().getCache(name.toLowerCase() + "_" + type.ordinal(), type);
 	}
 
 	public <T> CachedResource<T, byte[]> bytes(T key, Transform<T, URL> resource) {

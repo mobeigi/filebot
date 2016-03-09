@@ -447,7 +447,7 @@ public class MediaBindingBean {
 
 		// calculate checksum from file
 		Cache cache = Cache.getCache("crc32", CacheType.Ephemeral);
-		return (String) cache.computeIfAbsent(inferredMediaFile, element -> crc32(inferredMediaFile));
+		return (String) cache.computeIfAbsent(inferredMediaFile.getCanonicalPath(), it -> crc32(inferredMediaFile));
 	}
 
 	@Define("fn")
