@@ -535,7 +535,7 @@ public class FormatDialog extends JDialog {
 
 						// check empty output
 						if (get().trim().isEmpty()) {
-							throw new RuntimeException("Formatted value is empty");
+							throw new Exception("Formatted value is empty");
 						}
 
 						// no warning or error
