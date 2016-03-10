@@ -26,10 +26,9 @@ def dir_data    = "${dir_website}/data"
 		lines += Pattern.compile(it).pattern()
 	}
 
+	println input
+	lines.each{ println it }
 	pack(output, lines)
-
-	println lines.join('\n')
-	lines.join('\n').saveAs(output)
 }
 
 
@@ -59,6 +58,11 @@ def osdb_out    = new File("${dir_data}/osdb.txt")
 
 
 def pack(file, lines) {
+	file.withOutputStream{ out ->
+		out.withWriter('UTF-8'){ writer ->
+			lines.each{ writer.append(it).append('\n') }
+		}
+	}
 	new File(file.parentFile, file.name + '.xz').withOutputStream{ out ->
 		new XZOutputStream(out, new LZMA2Options(LZMA2Options.PRESET_DEFAULT)).withWriter('UTF-8'){ writer ->
 			lines.each{ writer.append(it).append('\n') }
