@@ -27,7 +27,7 @@ public class ArgumentBean {
 	@Option(name = "--mode", usage = "Open GUI in single panel mode", metaVar = "[Rename, Subtitles, SFV]")
 	public String mode = null;
 
-	@Option(name = "-rename", usage = "Rename media files", metaVar = "fileset")
+	@Option(name = "-rename", usage = "Rename media files")
 	public boolean rename = false;
 
 	@Option(name = "--db", usage = "Database", metaVar = "[TheTVDB, AniDB] or [TheMovieDB] or [AcoustID, ID3 Tags] or [xattr]")
@@ -36,7 +36,7 @@ public class ArgumentBean {
 	@Option(name = "--order", usage = "Episode order", metaVar = "[Airdate, Absolute, DVD]")
 	public String order = "Airdate";
 
-	@Option(name = "--action", usage = "Rename action", metaVar = "[Move, Copy, Keeplink, Symlink, Hardlink, Test]")
+	@Option(name = "--action", usage = "Rename action", metaVar = "[move, copy, keeplink, symlink, hardlink, test]")
 	public String action = "move";
 
 	@Option(name = "--conflict", usage = "Conflict resolution", metaVar = "[skip, override, auto, index, fail]")
@@ -48,22 +48,22 @@ public class ArgumentBean {
 	@Option(name = "--format", usage = "Format expression", metaVar = "expression")
 	public String format;
 
-	@Option(name = "-non-strict", usage = "Enable advanced matching and more aggressive guess work")
+	@Option(name = "-non-strict", usage = "Enable advanced matching and more aggressive guessing")
 	public boolean nonStrict = false;
 
-	@Option(name = "-get-subtitles", usage = "Fetch subtitles", metaVar = "fileset")
+	@Option(name = "-get-subtitles", usage = "Fetch subtitles")
 	public boolean getSubtitles;
 
 	@Option(name = "--q", usage = "Force lookup query", metaVar = "series/movie title")
 	public String query;
 
-	@Option(name = "--lang", usage = "Language", metaVar = "2-letter language code")
+	@Option(name = "--lang", usage = "Language", metaVar = "3-letter language code")
 	public String lang = "en";
 
-	@Option(name = "-check", usage = "Create/Check verification files", metaVar = "fileset")
+	@Option(name = "-check", usage = "Create/Check verification files")
 	public boolean check;
 
-	@Option(name = "--output", usage = "Output path", metaVar = "folder")
+	@Option(name = "--output", usage = "Output path", metaVar = "/path")
 	public String output;
 
 	@Option(name = "--encoding", usage = "Output character encoding", metaVar = "[UTF-8, Windows-1252]")
@@ -81,13 +81,13 @@ public class ArgumentBean {
 	@Option(name = "-extract", usage = "Extract archives")
 	public boolean extract = false;
 
-	@Option(name = "-script", usage = "Run Groovy script", metaVar = "path/to/script.groovy")
+	@Option(name = "-script", usage = "Run Groovy script", metaVar = "[fn:name] or [dev:name] or [/path/to/script.groovy]")
 	public String script = null;
 
 	@Option(name = "--log", usage = "Log level", metaVar = "[all, fine, info, warning, off]")
 	public String log = "all";
 
-	@Option(name = "--log-file", usage = "Log file", metaVar = "path/to/log.txt")
+	@Option(name = "--log-file", usage = "Log file", metaVar = "/path/to/log.txt")
 	public String logFile = null;
 
 	@Option(name = "--log-lock", usage = "Lock log file", metaVar = "[yes, no]", handler = ExplicitBooleanOptionHandler.class)

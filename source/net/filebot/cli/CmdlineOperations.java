@@ -1086,14 +1086,17 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	@Override
 	public List<File> revert(Collection<File> files, String filter, boolean test) throws Exception {
-		FileFilter fileFilter = filter == null || filter.isEmpty() ? f -> true : new ExpressionFileFilter(new ExpressionFilter(filter), false);
+		if (files.isEmpty()) {
+			throw new CmdlineException("Expecting at least one input path");
+		}
 
+		FileFilter fileFilter = filter == null || filter.isEmpty() ? f -> true : new ExpressionFileFilter(new ExpressionFilter(filter), false);
 		Set<File> whitelist = new HashSet<File>(files);
 		Map<File, File> history = HistorySpooler.getInstance().getCompleteHistory().getRenameMap();
 
 		return history.entrySet().stream().filter(it -> {
 			File current = it.getValue();
-			return current.exists() && listPath(current).stream().anyMatch(whitelist::contains) && fileFilter.accept(current);
+			return listPath(current).stream().anyMatch(whitelist::contains) && current.exists() && fileFilter.accept(current);
 		}).map(it -> {
 			File original = it.getKey();
 			File current = it.getValue();
