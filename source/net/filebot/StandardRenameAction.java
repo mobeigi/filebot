@@ -3,6 +3,8 @@ package net.filebot;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.attribute.BasicFileAttributes;
 
 import net.filebot.util.FileUtilities;
 
@@ -128,8 +130,43 @@ public enum StandardRenameAction implements RenameAction {
 			if (it.name().equalsIgnoreCase(action))
 				return it;
 		}
-
 		throw new IllegalArgumentException("Illegal rename action: " + action);
+	}
+
+	public static File revert(File current, File original) throws IOException {
+		// reverse move
+		if (current.exists() && !original.exists()) {
+			return FileUtilities.moveRename(current, original);
+		}
+
+		BasicFileAttributes currentAttr = Files.readAttributes(current.toPath(), BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+		BasicFileAttributes originalAttr = Files.readAttributes(original.toPath(), BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+
+		// reverse symlink
+		if (currentAttr.isSymbolicLink() && !originalAttr.isSymbolicLink()) {
+			Files.delete(current.toPath());
+			return original;
+		}
+
+		// reverse keeplink
+		if (!currentAttr.isSymbolicLink() && originalAttr.isSymbolicLink()) {
+			Files.delete(original.toPath());
+			return FileUtilities.moveRename(current, original);
+		}
+
+		// reverse copy / hardlink
+		if (currentAttr.isRegularFile() && originalAttr.isRegularFile()) {
+			Files.delete(current.toPath());
+			return original;
+		}
+
+		// reverse folder copy
+		if (currentAttr.isDirectory() && originalAttr.isDirectory()) {
+			FileUtilities.delete(original);
+			return FileUtilities.moveRename(current, original);
+		}
+
+		throw new IllegalArgumentException(String.format("Cannot revert files: %s => %s", current, original));
 	}
 
 }

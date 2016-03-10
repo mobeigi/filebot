@@ -17,7 +17,7 @@
 	<classpathentry kind="lib" path="lib/ivy/jar/rsyntaxtextarea.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/xz.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/slf4j-api.jar"/>
-	<classpathentry kind="lib" path="lib/ivy/jar/commons-io.jar"/>
+	<classpathentry kind="lib" path="lib/ivy/jar/commons-io.jar" sourcepath="lib/ivy/source/commons-io.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/jsoup.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/groovy-all.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/slf4j-jdk14.jar"/>

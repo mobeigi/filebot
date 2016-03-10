@@ -8,7 +8,6 @@ import static javax.swing.JOptionPane.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.UserFiles.*;
-import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
@@ -72,7 +71,7 @@ import net.filebot.History;
 import net.filebot.History.Element;
 import net.filebot.History.Sequence;
 import net.filebot.ResourceManager;
-import net.filebot.Settings;
+import net.filebot.StandardRenameAction;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.media.MetaAttributes;
 import net.filebot.ui.transfer.FileExportHandler;
@@ -445,25 +444,15 @@ class HistoryDialog extends JDialog {
 		}
 
 		private enum Option {
-			Rename {
+			Revert, ChangeDirectory, Cancel;
 
-				@Override
-				public String toString() {
-					return "Rename";
-				}
-			},
-			ChangeDirectory {
-
-				@Override
-				public String toString() {
+			@Override
+			public String toString() {
+				switch (this) {
+				case ChangeDirectory:
 					return "Change Directory";
-				}
-			},
-			Cancel {
-
-				@Override
-				public String toString() {
-					return "Cancel";
+				default:
+					return name();
 				}
 			}
 		}
@@ -488,9 +477,9 @@ class HistoryDialog extends JDialog {
 				Set<Option> options;
 
 				if (missingFiles.isEmpty()) {
-					message = String.format("Are you sure you want to rename %d file(s)?", elements.size());
+					message = String.format("Are you sure you want to revert %d file(s)?", elements.size());
 					type = QUESTION_MESSAGE;
-					options = EnumSet.of(Option.Rename, Option.ChangeDirectory, Option.Cancel);
+					options = EnumSet.of(Option.Revert, Option.ChangeDirectory, Option.Cancel);
 				} else {
 					String text = "Some files are missing. Please select a different directory.";
 					JList missingFilesComponent = new JList(missingFiles.toArray()) {
@@ -530,12 +519,12 @@ class HistoryDialog extends JDialog {
 			}
 
 			// rename files
-			if (selectedOption == Option.Rename) {
-				rename(directory, elements);
+			if (selectedOption == Option.Revert) {
+				revert(directory, elements);
 			}
 		}
 
-		private void rename(File directory, List<Element> elements) {
+		private void revert(File directory, List<Element> elements) {
 			Map<File, File> renamePlan = getRenameMap(directory);
 			if (isMacSandbox()) {
 				if (!MacAppUtilities.askUnlockFolders(parent(), Stream.of(renamePlan.keySet(), renamePlan.values()).flatMap(c -> c.stream()).collect(Collectors.toList()))) {
@@ -544,26 +533,25 @@ class HistoryDialog extends JDialog {
 			}
 
 			int count = 0;
-			for (Entry<File, File> entry : renamePlan.entrySet()) {
-				try {
-					File destination = moveRename(entry.getKey(), entry.getValue());
+			try {
+				for (Entry<File, File> entry : renamePlan.entrySet()) {
+					File original = StandardRenameAction.revert(entry.getKey(), entry.getValue());
 					count++;
 
-					// remove xattr that may have been set
-					if (Settings.useExtendedFileAttributes()) {
-						new MetaAttributes(destination).clear();
+					if (original.isFile() && useExtendedFileAttributes()) {
+						new MetaAttributes(original).clear();
 					}
-				} catch (Exception e) {
-					debug.log(Level.SEVERE, e.getMessage(), e);
 				}
+			} catch (Exception e) {
+				log.log(Level.WARNING, "Failed to revert files: " + e.getMessage(), e);
 			}
 
 			JLabel status = parent().getInfoLabel();
 			if (count == elements.size()) {
-				status.setText(String.format("%d file(s) have been renamed.", count));
+				status.setText(String.format("%d file(s) have been reverted.", count));
 				status.setIcon(ResourceManager.getIcon("status.ok"));
 			} else {
-				status.setText(String.format("Failed to revert %d file(s).", elements.size() - count, elements.size()));
+				status.setText(String.format("%d of %d file(s) have been reverted.", count, elements.size()));
 				status.setIcon(ResourceManager.getIcon("status.error"));
 			}
 
