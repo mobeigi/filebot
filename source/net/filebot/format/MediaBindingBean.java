@@ -27,9 +27,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -301,7 +301,7 @@ public class MediaBindingBean {
 		String codec = getMediaInfo(StreamKind.Video, 0, "Encoded_Library_Name", "Encoded_Library/Name", "CodecID/Hint", "Format");
 
 		// get first token (e.g. DivX 5 => DivX)
-		return new Scanner(codec).next();
+		return new StringTokenizer(codec).nextToken();
 	}
 
 	@Define("ac")

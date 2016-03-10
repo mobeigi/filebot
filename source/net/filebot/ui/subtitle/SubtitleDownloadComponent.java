@@ -135,7 +135,7 @@ class SubtitleDownloadComponent extends JComponent {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				fetch(packageList.getSelectedValues());
+				fetch(packageList.getSelectedValuesList().toArray());
 			}
 		});
 
@@ -144,7 +144,7 @@ class SubtitleDownloadComponent extends JComponent {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				open(fileList.getSelectedValues());
+				open(fileList.getSelectedValuesList().toArray());
 			}
 		});
 	}
@@ -345,8 +345,7 @@ class SubtitleDownloadComponent extends JComponent {
 			// fetch on double click
 			if (SwingUtilities.isLeftMouseButton(e) && (e.getClickCount() == 2)) {
 				JList list = (JList) e.getSource();
-
-				fetch(list.getSelectedValues());
+				fetch(list.getSelectedValuesList().toArray());
 			}
 		}
 
@@ -371,7 +370,7 @@ class SubtitleDownloadComponent extends JComponent {
 					list.setSelectedIndex(index);
 				}
 
-				final Object[] selection = list.getSelectedValues();
+				final Object[] selection = list.getSelectedValuesList().toArray();
 
 				if (selection.length > 0) {
 					JPopupMenu contextMenu = new JPopupMenu();
@@ -415,7 +414,7 @@ class SubtitleDownloadComponent extends JComponent {
 				JList list = (JList) e.getSource();
 
 				// open selection
-				open(list.getSelectedValues());
+				open(list.getSelectedValuesList().toArray());
 			}
 		}
 
@@ -440,7 +439,7 @@ class SubtitleDownloadComponent extends JComponent {
 					list.setSelectedIndex(index);
 				}
 
-				final Object[] selection = list.getSelectedValues();
+				final Object[] selection = list.getSelectedValuesList().toArray();
 
 				if (selection.length > 0) {
 					JPopupMenu contextMenu = new JPopupMenu();

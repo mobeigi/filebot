@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -306,11 +305,10 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 
 		@Override
 		public void exportToClipboard(JComponent c, Clipboard clipboard, int action) throws IllegalStateException {
-			Object[] selection = list.getListComponent().getSelectedValues();
-			Episode[] episodes = Arrays.copyOf(selection, selection.length, Episode[].class);
+			Episode[] selection = ((List<?>) list.getListComponent().getSelectedValuesList()).stream().map(Episode.class::cast).toArray(Episode[]::new);
 
-			Transferable episodeArray = new ArrayTransferable<Episode>(episodes);
-			Transferable stringSelection = new StringSelection(StringUtilities.join(episodes, "\n"));
+			Transferable episodeArray = new ArrayTransferable<Episode>(selection);
+			Transferable stringSelection = new StringSelection(StringUtilities.join(selection, "\n"));
 
 			clipboard.setContents(new CompositeTranserable(episodeArray, stringSelection), null);
 		}

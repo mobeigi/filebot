@@ -24,6 +24,7 @@ public enum CacheType {
 		this.diskPersistent = diskPersistent;
 	}
 
+	@SuppressWarnings("deprecation")
 	CacheConfiguration getConfiguration(String name) {
 		// Strategy.LOCALTEMPSWAP is not restartable so we can't but use the deprecated disk persistent code (see http://stackoverflow.com/a/24623527/1514467)
 		return new CacheConfiguration().name(name).maxEntriesLocalHeap(diskPersistent ? 200 : 0).maxEntriesLocalDisk(0).eternal(false).timeToLiveSeconds(timeToLiveSeconds).timeToIdleSeconds(timeToLiveSeconds).overflowToDisk(diskPersistent).diskPersistent(diskPersistent);

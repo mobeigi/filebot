@@ -40,7 +40,7 @@ public class SelectButtonTextField<T> extends JComponent {
 
 	private SelectButton<T> selectButton = new SelectButton<T>();
 
-	private JComboBox editor = new JComboBox();
+	private JComboBox<Object> editor = new JComboBox<Object>();
 
 	public SelectButtonTextField() {
 		selectButton.addActionListener(textFieldFocusOnClick);
@@ -53,7 +53,7 @@ public class SelectButtonTextField<T> extends JComponent {
 
 		editor.setPrototypeDisplayValue("X");
 		editor.setRenderer(new CompletionCellRenderer());
-		editor.setUI(new TextFieldComboBoxUI());
+		editor.setUI(new TextFieldComboBoxUI(selectButton));
 		editor.setMaximumRowCount(10);
 
 		SwingUI.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.CTRL_MASK), new SpinClientAction(-1));
@@ -102,6 +102,7 @@ public class SelectButtonTextField<T> extends JComponent {
 		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 			setBorder(new EmptyBorder(1, 4, 1, 4));
+
 			String highlightText = SelectButtonTextField.this.getText().substring(0, ((TextFieldComboBoxUI) editor.getUI()).getEditor().getSelectionStart());
 
 			// highlight the matching sequence
@@ -124,7 +125,13 @@ public class SelectButtonTextField<T> extends JComponent {
 		}
 	}
 
-	private class TextFieldComboBoxUI extends BasicComboBoxUI {
+	private static class TextFieldComboBoxUI extends BasicComboBoxUI {
+
+		private SelectButton<?> button;
+
+		public TextFieldComboBoxUI(SelectButton<?> button) {
+			this.button = button;
+		}
 
 		@Override
 		protected JButton createArrowButton() {
@@ -192,13 +199,13 @@ public class SelectButtonTextField<T> extends JComponent {
 
 				@Override
 				public void show(Component invoker, int x, int y) {
-					super.show(invoker, x - selectButton.getWidth(), y);
+					super.show(invoker, x - button.getWidth(), y);
 				}
 
 				@Override
 				protected Rectangle computePopupBounds(int px, int py, int pw, int ph) {
 					Rectangle bounds = super.computePopupBounds(px, py, pw, ph);
-					bounds.width += selectButton.getWidth();
+					bounds.width += button.getWidth();
 
 					return bounds;
 				}

@@ -41,7 +41,7 @@ public class CommonSequenceMatcher {
 		return synth(matchFirstCommonSequence(words));
 	}
 
-	public <E extends Comparable<E>> E[] matchFirstCommonSequence(E[]... names) {
+	public <E extends Comparable<E>> E[] matchFirstCommonSequence(E[][] names) {
 		E[] common = null;
 
 		for (E[] words : names) {

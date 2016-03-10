@@ -72,7 +72,8 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<TreeNo
 			FastFile root = FastFile.create(filter(files, FOLDERS))[0];
 
 			// publish on EDT
-			publish(getTreeNode(root));
+			TreeNode[] node = { getTreeNode(root) };
+			publish(node);
 		} catch (InterruptedException e) {
 			// supposed to happen if background execution was aborted
 		}

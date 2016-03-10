@@ -64,7 +64,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 
 	protected abstract void process(Exception exception);
 
-	protected final void publish(V... chunks) {
+	protected final void publish(V[] chunks) {
 		BackgroundWorker worker = threadLocalWorker.get();
 
 		if (worker == null) {
@@ -116,7 +116,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 			return null;
 		}
 
-		public void offer(V... chunks) {
+		public void offer(V[] chunks) {
 			if (!isCancelled()) {
 				publish(chunks);
 			}

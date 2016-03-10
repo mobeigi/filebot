@@ -1,6 +1,4 @@
-
 package net.filebot.archive;
-
 
 import java.io.Closeable;
 import java.io.FileNotFoundException;
@@ -16,7 +14,6 @@ import net.sf.sevenzipjbinding.PropID;
 import net.sf.sevenzipjbinding.SevenZipException;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 
-
 class ArchiveOpenVolumeCallback implements IArchiveOpenVolumeCallback, IArchiveOpenCallback, Closeable {
 
 	/**
@@ -29,10 +26,8 @@ class ArchiveOpenVolumeCallback implements IArchiveOpenVolumeCallback, IArchiveO
 	 */
 	private String name;
 
-
 	/**
-	 * This method should at least provide the name of the last
-	 * opened volume (propID=PropID.NAME).
+	 * This method should at least provide the name of the last opened volume (propID=PropID.NAME).
 	 *
 	 * @see IArchiveOpenVolumeCallback#getProperty(PropID)
 	 */
@@ -41,16 +36,13 @@ class ArchiveOpenVolumeCallback implements IArchiveOpenVolumeCallback, IArchiveO
 		switch (propID) {
 		case NAME:
 			return name;
+		default:
+			return null;
 		}
-		return null;
 	}
 
-
 	/**
-	 * The name of the required volume will be calculated out of the
-	 * name of the first volume and a volume index. In case of RAR file,
-	 * the substring ".partNN." in the name of the volume file will
-	 * indicate a volume with id NN. For example:
+	 * The name of the required volume will be calculated out of the name of the first volume and a volume index. In case of RAR file, the substring ".partNN." in the name of the volume file will indicate a volume with id NN. For example:
 	 * <ul>
 	 * <li>test.rar - single part archive or multi-part archive with a single volume</li>
 	 * <li>test.part23.rar - 23-th part of a multi-part archive</li>
@@ -85,7 +77,7 @@ class ArchiveOpenVolumeCallback implements IArchiveOpenVolumeCallback, IArchiveO
 		} catch (FileNotFoundException fileNotFoundException) {
 			// Required volume doesn't exist. This happens if the volume:
 			// 1. never exists. 7-Zip doesn't know how many volumes should
-			//    exist, so it have to try each volume.
+			// exist, so it have to try each volume.
 			// 2. should be there, but doesn't. This is an error case.
 
 			// Since normal and error cases are possible,
@@ -95,7 +87,6 @@ class ArchiveOpenVolumeCallback implements IArchiveOpenVolumeCallback, IArchiveO
 			throw new RuntimeException(e);
 		}
 	}
-
 
 	/**
 	 * Close all opened streams
@@ -107,11 +98,9 @@ class ArchiveOpenVolumeCallback implements IArchiveOpenVolumeCallback, IArchiveO
 		}
 	}
 
-
 	@Override
 	public void setCompleted(Long files, Long bytes) throws SevenZipException {
 	}
-
 
 	@Override
 	public void setTotal(Long files, Long bytes) throws SevenZipException {

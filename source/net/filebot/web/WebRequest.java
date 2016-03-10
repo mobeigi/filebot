@@ -153,6 +153,7 @@ public final class WebRequest {
 		}
 
 		ByteBufferOutputStream buffer = new ByteBufferOutputStream(contentLength >= 0 ? contentLength : 4 * 1024);
+
 		try {
 			// read all
 			buffer.transferFully(in);

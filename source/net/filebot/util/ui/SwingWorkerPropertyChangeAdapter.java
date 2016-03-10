@@ -1,12 +1,9 @@
-
 package net.filebot.util.ui;
-
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.SwingWorker.StateValue;
-
 
 public abstract class SwingWorkerPropertyChangeAdapter implements PropertyChangeListener {
 
@@ -21,7 +18,6 @@ public abstract class SwingWorkerPropertyChangeAdapter implements PropertyChange
 		}
 	}
 
-
 	protected void state(PropertyChangeEvent evt) {
 		switch ((StateValue) evt.getNewValue()) {
 		case STARTED:
@@ -30,21 +26,19 @@ public abstract class SwingWorkerPropertyChangeAdapter implements PropertyChange
 		case DONE:
 			done(evt);
 			break;
+		default:
+			break;
 		}
 	}
-
 
 	protected void progress(PropertyChangeEvent evt) {
 	}
 
-
 	protected void started(PropertyChangeEvent evt) {
 	}
 
-
 	protected void done(PropertyChangeEvent evt) {
 	}
-
 
 	protected void event(String name, Object oldValue, Object newValue) {
 	}

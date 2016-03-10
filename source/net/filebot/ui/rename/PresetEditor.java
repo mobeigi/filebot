@@ -252,7 +252,7 @@ public class PresetEditor extends JDialog {
 		JComboBox<Datasource> combo = new JComboBox<Datasource>(providers);
 		combo.setRenderer(new ListCellRenderer<Object>() {
 
-			private final ListCellRenderer<Object> parent = (ListCellRenderer<Object>) combo.getRenderer();
+			private final ListCellRenderer<Object> parent = (ListCellRenderer) combo.getRenderer();
 
 			@Override
 			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -289,7 +289,7 @@ public class PresetEditor extends JDialog {
 		JComboBox<Language> combo = new JComboBox<Language>(languages);
 		combo.setRenderer(new ListCellRenderer<Language>() {
 
-			private final ListCellRenderer<Language> parent = (ListCellRenderer<Language>) combo.getRenderer();
+			private final ListCellRenderer<Language> parent = (ListCellRenderer) combo.getRenderer();
 
 			@Override
 			public Component getListCellRendererComponent(JList<? extends Language> list, Language value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -318,7 +318,7 @@ public class PresetEditor extends JDialog {
 		JComboBox<RenameAction> combo = new JComboBox<RenameAction>(actions);
 		combo.setRenderer(new ListCellRenderer<RenameAction>() {
 
-			private final ListCellRenderer<RenameAction> parent = (ListCellRenderer<RenameAction>) combo.getRenderer();
+			private final ListCellRenderer<RenameAction> parent = (ListCellRenderer) combo.getRenderer();
 
 			@Override
 			public Component getListCellRendererComponent(JList<? extends RenameAction> list, RenameAction value, int index, boolean isSelected, boolean cellHasFocus) {

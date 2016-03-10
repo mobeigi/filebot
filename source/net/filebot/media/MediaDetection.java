@@ -512,7 +512,7 @@ public class MediaDetection {
 		for (CollationKey[] name : names) {
 			IndexEntry<SearchResult> bestMatch = null;
 			for (IndexEntry<SearchResult> it : index) {
-				CollationKey[] commonName = nameMatcher.matchFirstCommonSequence(name, it.getLenientKey());
+				CollationKey[] commonName = nameMatcher.matchFirstCommonSequence(new CollationKey[][] { name, it.getLenientKey() });
 				if (commonName != null && commonName.length >= it.getLenientKey().length && (bestMatch == null || commonName.length > bestMatch.getLenientKey().length)) {
 					bestMatch = it;
 				}
@@ -871,9 +871,9 @@ public class MediaDetection {
 
 		for (IndexEntry<Movie> movie : getMovieIndex()) {
 			for (CollationKey[] name : names) {
-				CollationKey[] commonName = nameMatcher.matchFirstCommonSequence(name, movie.getLenientKey());
+				CollationKey[] commonName = nameMatcher.matchFirstCommonSequence(new CollationKey[][] { name, movie.getLenientKey() });
 				if (commonName != null && commonName.length >= movie.getLenientKey().length) {
-					CollationKey[] strictCommonName = nameMatcher.matchFirstCommonSequence(name, movie.getStrictKey());
+					CollationKey[] strictCommonName = nameMatcher.matchFirstCommonSequence(new CollationKey[][] { name, movie.getStrictKey() });
 					if (strictCommonName != null && strictCommonName.length >= movie.getStrictKey().length) {
 						// prefer strict match
 						matchMap.put(movie.getObject(), movie.getStrictName());
@@ -998,7 +998,7 @@ public class MediaDetection {
 		for (Movie movie : options) {
 			for (String alias : movie.getEffectiveNames()) {
 				CollationKey[] movieSeq = HighPerformanceMatcher.prepare(normalizePunctuation(alias));
-				CollationKey[] commonSeq = nameMatcher.matchFirstCommonSequence(nameSeq, movieSeq);
+				CollationKey[] commonSeq = nameMatcher.matchFirstCommonSequence(new CollationKey[][] { nameSeq, movieSeq });
 
 				if (commonSeq != null && commonSeq.length >= movieSeq.length) {
 					movies.add(movie);

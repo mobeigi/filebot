@@ -116,7 +116,7 @@ public class FileTree extends JTree {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				UserFiles.revealFiles((Collection<File>) getValue("files"));
+				UserFiles.revealFiles((Collection) getValue("files"));
 			}
 		}
 

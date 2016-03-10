@@ -1,6 +1,8 @@
 package net.filebot.archive;
 
 import static java.nio.charset.StandardCharsets.*;
+import static java.util.Arrays.*;
+import static net.filebot.Logging.*;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -40,21 +42,20 @@ public class SevenZipExecutable implements ArchiveExtractor {
 	protected CharSequence execute(String... command) throws IOException {
 		Process process = new ProcessBuilder(command).redirectError(Redirect.INHERIT).start();
 
-		ByteBufferOutputStream bb = new ByteBufferOutputStream(8 * 1024);
-		bb.transferFully(process.getInputStream());
+		try (ByteBufferOutputStream bb = new ByteBufferOutputStream(8 * 1024)) {
+			bb.transferFully(process.getInputStream());
 
-		try {
 			int returnCode = process.waitFor();
-			CharSequence output = UTF_8.decode(bb.getByteBuffer());
+			String output = UTF_8.decode(bb.getByteBuffer()).toString();
 
 			// DEBUG
-			// System.out.println("Execute: " + Arrays.asList(command));
-			// System.out.println(output);
+			debug.fine(format("Execute: %s", asList(command)));
+			debug.finest(output);
 
 			if (returnCode == 0) {
 				return output;
 			} else {
-				throw new IOException(String.format("%s failed with exit code %d: %s", get7zCommand(), returnCode, output.toString().replaceAll("\\s+", " ").trim()));
+				throw new IOException(String.format("%s failed with exit code %d: %s", get7zCommand(), returnCode, output.replaceAll("\\s+", " ").trim()));
 			}
 		} catch (InterruptedException e) {
 			throw new IOException(String.format("%s timed out", get7zCommand()), e);

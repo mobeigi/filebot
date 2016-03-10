@@ -16,12 +16,10 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 import javax.script.Bindings;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JFrame;

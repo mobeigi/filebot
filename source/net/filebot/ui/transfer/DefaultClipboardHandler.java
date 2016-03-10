@@ -1,9 +1,13 @@
-
 package net.filebot.ui.transfer;
 
+import static java.util.Arrays.*;
+import static java.util.stream.Collectors.*;
 
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.util.Objects;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.swing.JComponent;
 import javax.swing.JList;
@@ -11,70 +15,45 @@ import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 
+import net.filebot.util.StringUtilities;
 
 public class DefaultClipboardHandler implements ClipboardHandler {
 
-	protected final String newLine = System.getProperty("line.separator");
-
-
 	@Override
 	public void exportToClipboard(JComponent component, Clipboard clip, int action) throws IllegalStateException {
-		StringBuilder sb = new StringBuilder();
+		clip.setContents(new StringSelection(export(component)), null);
+	}
 
+	protected String export(JComponent component) {
 		if (component instanceof JList) {
-			export(sb, (JList) component);
-		} else if (component instanceof JTree) {
-			export(sb, (JTree) component);
-		} else if (component instanceof JTable) {
-			export(sb, (JTable) component);
+			return export((JList) component);
 		}
-
-		clip.setContents(new StringSelection(sb.toString()), null);
+		if (component instanceof JTree) {
+			return export((JTree) component);
+		}
+		if (component instanceof JTable) {
+			return export((JTable) component);
+		}
+		throw new IllegalArgumentException("JComponent not supported: " + component);
 	}
 
-
-	protected void export(StringBuilder sb, JList list) {
-		for (Object value : list.getSelectedValues()) {
-			sb.append(value == null ? "" : value).append(newLine);
-		}
-
-		// delete last newline
-		sb.delete(sb.length() - newLine.length(), sb.length());
+	protected String export(Stream<?> values) {
+		return StringUtilities.join(values, System.lineSeparator());
 	}
 
-
-	protected void export(StringBuilder sb, JTree tree) {
-		for (TreePath path : tree.getSelectionPaths()) {
-			Object value = path.getLastPathComponent();
-
-			sb.append(value == null ? "" : value).append(newLine);
-		}
-
-		// delete last newline
-		sb.delete(sb.length() - newLine.length(), sb.length());
+	protected String export(JList list) {
+		return export(list.getSelectedValuesList().stream());
 	}
 
+	protected String export(JTree tree) {
+		return export(stream(tree.getSelectionPaths()).map(TreePath::getLastPathComponent));
+	}
 
-	protected void export(StringBuilder sb, JTable table) {
-		for (int row : table.getSelectedRows()) {
-			int modelRow = table.getRowSorter().convertRowIndexToModel(row);
-
-			for (int column = 0; column < table.getColumnCount(); column++) {
-				Object value = table.getModel().getValueAt(modelRow, column);
-
-				if (value != null) {
-					sb.append(value);
-				}
-
-				if (column < table.getColumnCount() - 1) {
-					sb.append("\t");
-				}
-			}
-
-			sb.append(newLine);
-		}
-
-		// delete last newline
-		sb.delete(sb.length() - newLine.length(), sb.length());
+	protected String export(JTable table) {
+		return export(stream(table.getSelectedRows()).map(row -> table.getRowSorter().convertRowIndexToModel(row)).mapToObj(row -> {
+			return IntStream.range(0, table.getColumnCount()).mapToObj(column -> {
+				return table.getModel().getValueAt(row, column);
+			}).map(v -> Objects.toString(v, "")).collect(joining("\t"));
+		}));
 	}
 }

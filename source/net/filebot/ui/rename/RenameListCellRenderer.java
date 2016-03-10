@@ -132,6 +132,8 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 			case STARTED:
 				setIcon(ResourceManager.getIcon("worker.started"));
 				break;
+			default:
+				break;
 			}
 
 			if (renameModel.hasComplement(index)) {

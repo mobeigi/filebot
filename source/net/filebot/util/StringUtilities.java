@@ -75,11 +75,15 @@ public final class StringUtilities {
 	}
 
 	public static String join(Collection<?> values, CharSequence delimiter) {
-		return join(values.stream(), delimiter, "", "");
+		return join(values.stream(), delimiter);
 	}
 
 	public static String join(Object[] values, CharSequence delimiter) {
-		return join(stream(values), delimiter, "", "");
+		return join(stream(values), delimiter);
+	}
+
+	public static String join(Stream<?> values, CharSequence delimiter) {
+		return join(values, delimiter, "", "");
 	}
 
 	public static String join(Stream<?> values, CharSequence delimiter, CharSequence prefix, CharSequence suffix) {

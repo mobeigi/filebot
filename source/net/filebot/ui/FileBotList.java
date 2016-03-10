@@ -55,7 +55,7 @@ public class FileBotList<E> extends JComponent {
 
 	public void setModel(EventList<E> model) {
 		this.model = model;
-		list.setModel(new EventListModel<E>(model));
+		list.setModel(new EventListModel(model));
 	}
 
 	public JList getListComponent() {
@@ -110,15 +110,16 @@ public class FileBotList<E> extends JComponent {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			int index = list.getSelectedIndex();
-			Object values[] = list.getSelectedValues();
 
-			for (Object value : values)
+			for (Object value : list.getSelectedValuesList()) {
 				getModel().remove(value);
+			}
 
 			int maxIndex = list.getModel().getSize() - 1;
 
-			if (index > maxIndex)
+			if (index > maxIndex) {
 				index = maxIndex;
+			}
 
 			list.setSelectedIndex(index);
 		}

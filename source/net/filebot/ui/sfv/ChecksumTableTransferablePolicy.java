@@ -131,7 +131,8 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 				ChecksumCell correct = new ChecksumCell(name, file, singletonMap(type, hash));
 				ChecksumCell current = createComputationCell(name, baseFolder, type);
 
-				publish(correct, current);
+				ChecksumCell[] columns = { correct, current };
+				publish(columns);
 			}
 		} finally {
 			parser.close();
@@ -158,14 +159,17 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 			String name = normalizePathSeparators(relativeFile.getPath());
 
 			// publish computation cell first
-			publish(createComputationCell(name, root, model.getHashType()));
+			ChecksumCell[] computeCell = { createComputationCell(name, root, model.getHashType()) };
+			publish(computeCell);
 
 			// publish verification cell, if we can
 			Map<File, String> hashByVerificationFile = verificationTracker.get().getHashByVerificationFile(absoluteFile);
 
 			for (Entry<File, String> entry : hashByVerificationFile.entrySet()) {
 				HashType hashType = verificationTracker.get().getVerificationFileType(entry.getKey());
-				publish(new ChecksumCell(name, entry.getKey(), singletonMap(hashType, entry.getValue())));
+
+				ChecksumCell[] verifyCell = { new ChecksumCell(name, entry.getKey(), singletonMap(hashType, entry.getValue())) };
+				publish(verifyCell);
 			}
 		}
 	}
