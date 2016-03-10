@@ -49,16 +49,22 @@ public class ID3Lookup implements MusicIdentificationService {
 						String album = getString(mediaInfo, "Album");
 						String albumArtist = getString(mediaInfo, "Album/Performer");
 						String trackTitle = getString(mediaInfo, "Track");
-						SimpleDate albumReleaseDate = null;
 						Integer mediumIndex = null;
 						Integer mediumCount = null;
 						Integer trackIndex = getInteger(mediaInfo, "Track/Position");
 						Integer trackCount = getInteger(mediaInfo, "Track/Position_Total");
 						String mbid = null;
 
-						Integer year = getInteger(mediaInfo, "Recorded_Date");
-						if (year != null) {
-							albumReleaseDate = new SimpleDate(year, 1, 1);
+						// try to parse 2016-03-10
+						String dateString = getString(mediaInfo, "Recorded_Date");
+						SimpleDate albumReleaseDate = SimpleDate.parse(dateString);
+
+						// try to parse 2016
+						if (albumReleaseDate == null) {
+							Integer year = matchInteger(dateString);
+							if (year != null) {
+								albumReleaseDate = new SimpleDate(year, 1, 1);
+							}
 						}
 
 						info.put(f, new AudioTrack(artist, title, album, albumArtist, trackTitle, albumReleaseDate, mediumIndex, mediumCount, trackIndex, trackCount, mbid));
