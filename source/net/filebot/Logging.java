@@ -14,23 +14,23 @@ import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
 import java.util.regex.Pattern;
 
-import net.filebot.util.SystemProperty;
-
 import org.codehaus.groovy.runtime.StackTraceUtils;
+
+import net.filebot.util.SystemProperty;
 
 public final class Logging {
 
 	private static final SystemProperty<Pattern> anonymizePattern = SystemProperty.of("net.filebot.logging.anonymize", Pattern::compile);
 	private static final SystemProperty<Level> debugLevel = SystemProperty.of("net.filebot.logging.debug", Level::parse, Level.CONFIG);
 
-	public static final Logger log = getConsoleLogger("net.filebot.console", Level.ALL, new ConsoleFormatter(anonymizePattern.get()));
-	public static final Logger debug = getConsoleLogger("net.filebot.debug", debugLevel.get(), new ConsoleFormatter(anonymizePattern.get()));
+	public static final Logger log = createConsoleLogger("net.filebot.console", Level.ALL);
+	public static final Logger debug = createConsoleLogger("net.filebot.debug", debugLevel.get());
 
-	public static Logger getConsoleLogger(String name, Level level, Formatter formatter) {
+	public static Logger createConsoleLogger(String name, Level level) {
 		Logger log = Logger.getLogger(name);
-		log.setLevel(level);
 		log.setUseParentHandlers(false);
-		log.addHandler(new ConsoleHandler(level, formatter));
+		log.setLevel(level);
+		log.addHandler(createConsoleHandler(level));
 		return log;
 	}
 
@@ -40,16 +40,18 @@ public final class Logging {
 		return handler;
 	}
 
+	public static ConsoleHandler createConsoleHandler(Level level) {
+		ConsoleHandler handler = new ConsoleHandler();
+		handler.setLevel(level);
+		handler.setFormatter(new ConsoleFormatter(anonymizePattern.get()));
+		return handler;
+	}
+
 	public static Supplier<String> format(String format, Object... args) {
 		return () -> String.format(format, args);
 	}
 
 	public static class ConsoleHandler extends Handler {
-
-		public ConsoleHandler(Level level, Formatter formatter) {
-			setLevel(level);
-			setFormatter(formatter);
-		}
 
 		@Override
 		public void publish(LogRecord record) {
