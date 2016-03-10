@@ -76,6 +76,7 @@ public class CachedResource<K, R> implements Resource<R> {
 
 			try {
 				ByteBuffer data = retry(() -> fetch.fetch(url, lastModified), retryLimit, retryWait);
+				debug.finest(format("Received %,d bytes", data == null ? 0 : data.remaining()));
 
 				// 304 Not Modified
 				if (data == null && element != null && element.getObjectValue() != null) {
@@ -84,7 +85,7 @@ public class CachedResource<K, R> implements Resource<R> {
 
 				return parse.transform(data);
 			} catch (IOException e) {
-				debug.fine(format("Fetch failed => %s", e));
+				debug.warning(format("Fetch failed: %s => %s", url, e));
 
 				// use previously cached data if possible
 				if (element == null || element.getObjectValue() == null) {
@@ -108,6 +109,8 @@ public class CachedResource<K, R> implements Resource<R> {
 			if (retryCount > 0) {
 				throw e;
 			}
+
+			debug.fine(format("Fetch failed: Retry %d => %s", retryCount, e.getMessage()));
 			Thread.sleep(retryWaitTime.toMillis());
 			return retry(callable, retryCount - 1, retryWaitTime.multipliedBy(2));
 		}
