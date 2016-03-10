@@ -46,7 +46,7 @@ public final class HistorySpooler {
 	private History sessionHistory = new History();
 
 	public synchronized History getCompleteHistory() throws IOException {
-		if (!persistentHistoryEnabled || persistentHistoryFile.length() <= 0) {
+		if (persistentHistoryFile.length() <= 0) {
 			return new History(sessionHistory.sequences());
 		}
 

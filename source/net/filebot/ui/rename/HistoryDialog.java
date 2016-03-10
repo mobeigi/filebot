@@ -102,7 +102,7 @@ class HistoryDialog extends JDialog {
 	private final JTable elementTable = createTable(elementModel);
 
 	public HistoryDialog(Window owner) {
-		super(owner, "Rename History", ModalityType.DOCUMENT_MODAL);
+		super(owner, "History", ModalityType.DOCUMENT_MODAL);
 
 		// bold title label in header
 		JLabel title = new JLabel(this.getTitle());
