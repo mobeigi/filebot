@@ -63,7 +63,7 @@ public class Cache {
 		Element element = null;
 		try {
 			element = cache.get(key);
-			if (!condition.test(element)) {
+			if (element != null && !condition.test(element)) {
 				return getElementValue(element);
 			}
 		} catch (Exception e) {
@@ -77,7 +77,7 @@ public class Cache {
 	}
 
 	public Object computeIfAbsent(Object key, Compute<?> compute) throws Exception {
-		return computeIf(key, isAbsent(), compute);
+		return computeIf(key, it -> it == null, compute);
 	}
 
 	public void put(Object key, Object value) {
@@ -112,12 +112,8 @@ public class Cache {
 		}
 	}
 
-	public static Predicate<Element> isAbsent() {
-		return (element) -> element == null;
-	}
-
 	public static Predicate<Element> isStale(Duration expirationTime) {
-		return (element) -> element == null || element.getObjectValue() == null || System.currentTimeMillis() - element.getLatestOfCreationAndUpdateTime() < expirationTime.toMillis();
+		return (element) -> System.currentTimeMillis() - element.getLatestOfCreationAndUpdateTime() > expirationTime.toMillis();
 	}
 
 	@FunctionalInterface
