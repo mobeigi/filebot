@@ -1,6 +1,7 @@
 package net.filebot.ui.rename;
 
 import static java.util.Collections.*;
+import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.beans.PropertyChangeEvent;
@@ -20,9 +21,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.script.ScriptException;
 import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 
+import net.filebot.ResourceManager;
+import net.filebot.format.BindingException;
+import net.filebot.format.MediaBindingBean;
 import net.filebot.similarity.Match;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.SwingUI;
@@ -341,8 +346,12 @@ public class RenameModel extends MatchModel<Object, File> {
 			if (isDone()) {
 				try {
 					return get(0, TimeUnit.SECONDS);
-				} catch (Exception e) {
-					return String.format("[%s] %s", e instanceof ExecutionException ? e.getCause().getMessage() : e, preview());
+				} catch (Throwable e) {
+					// find the original exception
+					while (e instanceof ExecutionException || e instanceof ScriptException) {
+						e = e.getCause();
+					}
+					return String.format("[%s: %s] %s", e.getClass().getSimpleName(), e.getMessage(), preview());
 				}
 			}
 
