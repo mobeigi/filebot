@@ -1,7 +1,6 @@
 package net.filebot.ui.rename;
 
 import static java.util.Collections.*;
-import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.beans.PropertyChangeEvent;
@@ -25,15 +24,12 @@ import javax.script.ScriptException;
 import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 
-import net.filebot.ResourceManager;
-import net.filebot.format.BindingException;
-import net.filebot.format.MediaBindingBean;
-import net.filebot.similarity.Match;
-import net.filebot.util.FileUtilities;
-import net.filebot.util.ui.SwingUI;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.TransformedList;
 import ca.odell.glazedlists.event.ListEvent;
+import net.filebot.similarity.Match;
+import net.filebot.util.FileUtilities;
+import net.filebot.util.ui.SwingUI;
 
 public class RenameModel extends MatchModel<Object, File> {
 

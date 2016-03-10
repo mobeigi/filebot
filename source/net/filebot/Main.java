@@ -40,9 +40,11 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.kohsuke.args4j.CmdLineException;
+import org.w3c.dom.Document;
+
 import net.filebot.cli.ArgumentBean;
 import net.filebot.cli.ArgumentProcessor;
-import net.filebot.cli.CmdlineOperations;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.ui.FileBotMenuBar;
@@ -55,9 +57,6 @@ import net.filebot.ui.transfer.FileTransferable;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.TeePrintStream;
 import net.miginfocom.swing.MigLayout;
-
-import org.kohsuke.args4j.CmdLineException;
-import org.w3c.dom.Document;
 
 public class Main {
 
