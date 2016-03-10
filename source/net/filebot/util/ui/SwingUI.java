@@ -143,24 +143,18 @@ public final class SwingUI {
 		component.getDocument().addUndoableEditListener(undoSupport);
 
 		// install undo action
-		installAction(component, KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_MASK), new AbstractAction("Undo") {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (undoSupport.canUndo())
-					undoSupport.undo();
+		installAction(component, KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_MASK), newAction("Undo", evt -> {
+			if (undoSupport.canUndo()) {
+				undoSupport.undo();
 			}
-		});
+		}));
 
 		// install redo action
-		installAction(component, KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_MASK), new AbstractAction("Redo") {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (undoSupport.canRedo())
-					undoSupport.redo();
+		installAction(component, KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_MASK), newAction("Redo", evt -> {
+			if (undoSupport.canRedo()) {
+				undoSupport.redo();
 			}
-		});
+		}));
 
 		return undoSupport;
 	}
@@ -269,6 +263,10 @@ public final class SwingUI {
 
 	public static JButton newButton(String name, Icon icon, Consumer<ActionEvent> action) {
 		return new JButton(new LambdaAction(name, icon, action));
+	}
+
+	public static Action newAction(String name, Consumer<ActionEvent> action) {
+		return new LambdaAction(name, null, action);
 	}
 
 	public static Action newAction(String name, Icon icon, Consumer<ActionEvent> action) {

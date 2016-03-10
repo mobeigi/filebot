@@ -1,10 +1,11 @@
 package net.filebot.util.ui;
 
+import static net.filebot.util.ui.SwingUI.*;
+
 import java.awt.Cursor;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -42,7 +43,7 @@ public class ProgressDialog extends JDialog {
 		c.add(headerLabel, "gap 3mm, wrap paragraph");
 		c.add(progressBar, "hmin 25px, grow, wrap paragraph");
 
-		c.add(new JButton(cancelAction), "align center");
+		c.add(new JButton(cancel), "align center");
 
 		setSize(350, 155);
 	}
@@ -81,14 +82,12 @@ public class ProgressDialog extends JDialog {
 		dispose();
 	}
 
-	protected final Action cancelAction = new AbstractAction("Cancel") {
+	public void cancel(ActionEvent evt) {
+		cancel.setEnabled(false);
+		cancellable.cancel();
+	}
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			cancelAction.setEnabled(false);
-			cancellable.cancel();
-		}
-	};
+	protected final Action cancel = newAction("Cancel", this::cancel);
 
 	public static interface Cancellable {
 

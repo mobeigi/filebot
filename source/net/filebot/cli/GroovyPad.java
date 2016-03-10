@@ -57,21 +57,21 @@ public class GroovyPad extends JFrame {
 
 		JToolBar tools = new JToolBar("Run", JToolBar.HORIZONTAL);
 		tools.setFloatable(true);
-		tools.add(action_run);
-		tools.add(action_cancel);
+		tools.add(run);
+		tools.add(cancel);
 		c.add(tools, BorderLayout.NORTH);
 
-		action_run.setEnabled(true);
-		action_cancel.setEnabled(false);
+		run.setEnabled(true);
+		cancel.setEnabled(false);
 
-		installAction(c, KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), action_run);
-		installAction(c, KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK), action_run);
+		installAction(c, KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), run);
+		installAction(c, KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK), run);
 
 		addWindowListener(new WindowAdapter() {
 
 			@Override
 			public void windowClosed(WindowEvent evt) {
-				action_cancel.actionPerformed(null);
+				cancel.actionPerformed(null);
 				console.unhook();
 
 				try {
@@ -165,53 +165,60 @@ public class GroovyPad extends JFrame {
 		}
 	}
 
-	protected final Action action_run = new AbstractAction("Run", ResourceManager.getIcon("script.go")) {
-
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			// persist script file and clear output
-			try {
-				editor.save();
-			} catch (IOException e) {
-				// won't happen
-			}
-			output.setText("");
-
-			if (currentRunner == null || currentRunner.isDone()) {
-				currentRunner = new Runner(editor.getText()) {
-
-					@Override
-					protected void done() {
-						action_run.setEnabled(true);
-						action_cancel.setEnabled(false);
-					}
-				};
-
-				action_run.setEnabled(false);
-				action_cancel.setEnabled(true);
-				currentRunner.execute();
-			}
-		}
-	};
-
-	protected final Action action_cancel = new AbstractAction("Cancel", ResourceManager.getIcon("script.cancel")) {
-
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			if (currentRunner != null && !currentRunner.isDone()) {
-				currentRunner.cancel(true);
-				currentRunner.getExecutionThread().stop();
-
-				try {
-					currentRunner.get(2, TimeUnit.SECONDS);
-				} catch (Exception e) {
-					// ignore
-				}
-			}
-		}
-	};
+	protected final Action run = newAction("Run", ResourceManager.getIcon("script.go"), this::runScript);
+	protected final Action cancel = newAction("Cancel", ResourceManager.getIcon("script.cancel"), this::cancelScript);
 
 	private Runner currentRunner = null;
+
+	protected void runScript(ActionEvent evt) {
+		// persist script file and clear output
+		try {
+			editor.save();
+		} catch (IOException e) {
+			// won't happen
+		}
+		output.setText("");
+
+		if (currentRunner == null || currentRunner.isDone()) {
+			currentRunner = new Runner(editor.getText()) {
+
+				@Override
+				protected void done() {
+					run.setEnabled(true);
+					cancel.setEnabled(false);
+				}
+			};
+
+			run.setEnabled(false);
+			cancel.setEnabled(true);
+			currentRunner.execute();
+		}
+	}
+
+	protected void cancelScript(ActionEvent evt) {
+		// persist script file and clear output
+		try {
+			editor.save();
+		} catch (IOException e) {
+			// won't happen
+		}
+		output.setText("");
+
+		if (currentRunner == null || currentRunner.isDone()) {
+			currentRunner = new Runner(editor.getText()) {
+
+				@Override
+				protected void done() {
+					run.setEnabled(true);
+					cancel.setEnabled(false);
+				}
+			};
+
+			run.setEnabled(false);
+			cancel.setEnabled(true);
+			currentRunner.execute();
+		}
+	}
 
 	protected class Runner extends SwingWorker<Object, Object> {
 
