@@ -4,6 +4,10 @@ import com.sun.jna.Platform;
 
 public class MediaInfoException extends RuntimeException {
 
+	public MediaInfoException(String message) {
+		super(message);
+	}
+
 	public MediaInfoException(LinkageError e) {
 		super(getLinkageErrorMessage(e), e);
 	}
