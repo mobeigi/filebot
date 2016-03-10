@@ -11,8 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,13 +32,11 @@ import net.filebot.similarity.Normalization;
 import net.filebot.ui.AbstractSearchPanel;
 import net.filebot.ui.FileBotList;
 import net.filebot.ui.FileBotListExportHandler;
-import net.filebot.ui.FileBotTab;
 import net.filebot.ui.LanguageComboBox;
 import net.filebot.ui.SelectDialog;
 import net.filebot.ui.transfer.ArrayTransferable;
 import net.filebot.ui.transfer.ClipboardHandler;
 import net.filebot.ui.transfer.CompositeTranserable;
-import net.filebot.ui.transfer.FileExportHandler;
 import net.filebot.util.StringUtilities;
 import net.filebot.util.ui.LabelProvider;
 import net.filebot.util.ui.SelectButton;
@@ -145,44 +141,6 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		public void actionPerformed(ActionEvent e) {
 			seasonSpinnerModel.spin((Integer) getValue("spin"));
 		}
-	}
-
-	private class SelectedTabExportHandler implements FileExportHandler {
-
-		/**
-		 * @return the <code>FileExportHandler</code> of the currently selected tab
-		 */
-		@SuppressWarnings("unchecked")
-		private FileExportHandler getExportHandler() {
-			try {
-				EpisodeListTab list = ((FileBotTab<EpisodeListTab>) tabbedPane.getSelectedComponent()).getComponent();
-				return list.getExportHandler();
-			} catch (ClassCastException e) {
-				// selected component is the history panel
-				return null;
-			}
-		}
-
-		@Override
-		public boolean canExport() {
-			FileExportHandler handler = getExportHandler();
-
-			if (handler == null)
-				return false;
-
-			return handler.canExport();
-		}
-
-		@Override
-		public void export(File file) throws IOException {
-			getExportHandler().export(file);
-		}
-
-		@Override
-		public String getDefaultFileName() {
-			return getExportHandler().getDefaultFileName();
-		}
-
 	}
 
 	protected static class EpisodeListRequest extends Request {
