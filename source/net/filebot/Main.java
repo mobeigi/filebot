@@ -79,15 +79,15 @@ public class Main {
 
 			if (args.clearCache() || args.clearUserData()) {
 				if (args.clearUserData()) {
-					log.info("Reset preferences");
+					System.out.println("Reset preferences");
 					Settings.forPackage(Main.class).clear();
 				}
 
 				// clear preferences and cache
 				if (args.clearCache()) {
-					log.info("Clear cache and temporary files");
+					System.out.println("Clear cache and temporary files");
 					for (File folder : getChildren(getApplicationFolder().getCanonicalFile(), FOLDERS)) {
-						log.info("* Delete " + folder);
+						System.out.println("* Delete " + folder);
 						delete(folder);
 					}
 					CacheManager.getInstance().clearAll();
@@ -99,36 +99,7 @@ public class Main {
 
 			// update system properties
 			initializeSystemProperties(args);
-
-			// update logging level
-			log.setLevel(args.getLogLevel());
-			if (debug.getLevel().intValue() < log.getLevel().intValue()) {
-				debug.setLevel(log.getLevel());
-			}
-
-			// tee stdout and stderr to log file if set
-			if (args.logFile != null) {
-				File logFile = new File(args.logFile);
-				if (!logFile.isAbsolute()) {
-					logFile = new File(new File(getApplicationFolder(), "logs"), logFile.getPath()).getAbsoluteFile(); // by default resolve relative paths against {applicationFolder}/logs/{logFile}
-				}
-				if (!logFile.exists() && !logFile.getParentFile().mkdirs() && !logFile.createNewFile()) {
-					throw new IOException("Failed to create log file: " + logFile);
-				}
-
-				// open file channel and lock
-				FileChannel logChannel = FileChannel.open(logFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
-				if (args.logLock) {
-					if (args.getLogLevel() == Level.ALL) {
-						log.config("Locking " + logFile);
-					}
-					logChannel.lock();
-				}
-
-				OutputStream out = Channels.newOutputStream(logChannel);
-				System.setOut(new TeePrintStream(out, true, "UTF-8", System.out));
-				System.setErr(new TeePrintStream(out, true, "UTF-8", System.err));
-			}
+			initializeLogging(args);
 
 			// make sure java.io.tmpdir exists
 			createFolders(getApplicationTempFolder());
@@ -184,16 +155,8 @@ public class Main {
 	}
 
 	private static void startUserInterface(ArgumentBean args) {
+		// use native LaF an all platforms
 		try {
-			// GUI logging settings
-			log.addHandler(new NotificationHandler(getApplicationName()));
-
-			// log errors to file
-			Handler error = createSimpleFileHandler(new File(getApplicationFolder(), "error.log"), Level.WARNING);
-			log.addHandler(error);
-			debug.addHandler(error);
-
-			// use native LaF an all platforms
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
 			debug.log(Level.SEVERE, e.getMessage(), e);
@@ -450,6 +413,55 @@ public class Main {
 		System.setProperty("useExtendedFileAttributes", Boolean.toString(!args.disableExtendedAttributes));
 		System.setProperty("useCreationDate", Boolean.toString(!args.disableExtendedAttributes));
 		System.setProperty("application.rename.history", Boolean.toString(!args.action.equalsIgnoreCase("test"))); // do not keep history of --action test rename operations
+	}
+
+	public static void initializeLogging(ArgumentBean args) throws IOException {
+		// tee stdout and stderr to log file if set
+		if (args.logFile != null) {
+			File logFile = new File(args.logFile);
+			if (!logFile.isAbsolute()) {
+				logFile = new File(new File(getApplicationFolder(), "logs"), logFile.getPath()).getAbsoluteFile(); // by default resolve relative paths against {applicationFolder}/logs/{logFile}
+			}
+			if (!logFile.exists() && !logFile.getParentFile().mkdirs() && !logFile.createNewFile()) {
+				throw new IOException("Failed to create log file: " + logFile);
+			}
+
+			// open file channel and lock
+			FileChannel logChannel = FileChannel.open(logFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
+			if (args.logLock) {
+				if (args.getLogLevel() == Level.ALL) {
+					debug.config("Locking " + logFile);
+				}
+				logChannel.lock();
+			}
+
+			OutputStream out = Channels.newOutputStream(logChannel);
+			System.setOut(new TeePrintStream(out, true, "UTF-8", System.out));
+			System.setErr(new TeePrintStream(out, true, "UTF-8", System.err));
+		}
+
+		if (args.runCLI()) {
+			// CLI logging settings
+			log.setLevel(args.getLogLevel());
+
+			// set debug log level standard log level if lower
+			if (debug.getLevel().intValue() < log.getLevel().intValue()) {
+				debug.setLevel(log.getLevel());
+			}
+		} else {
+			// GUI logging settings
+			log.setLevel(Level.INFO);
+			log.addHandler(new NotificationHandler(getApplicationName()));
+
+			// log errors to file
+			try {
+				Handler error = createSimpleFileHandler(new File(getApplicationFolder(), "error.log"), Level.WARNING);
+				log.addHandler(error);
+				debug.addHandler(error);
+			} catch (Exception e) {
+				debug.log(Level.WARNING, "Failed to initialize error log", e);
+			}
+		}
 	}
 
 }

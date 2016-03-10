@@ -240,9 +240,9 @@ public class DropToUnlock extends JList<File> {
 			try {
 				String owner = Files.getOwner(f.toPath()).getName();
 				String permissions = PosixFilePermissions.toString(Files.getPosixFilePermissions(f.toPath()));
-				log.severe(String.format("Permission denied: %s (%s %s)", f, permissions, owner));
+				log.severe(format("Permission denied: %s (%s %s)", f, permissions, owner));
 			} catch (Exception e) {
-				log.severe(String.format("Permission denied: %s", f));
+				log.severe(format("Permission denied: %s", f));
 			}
 		});
 	}

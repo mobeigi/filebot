@@ -262,10 +262,10 @@ class BindingDialog extends JDialog {
 			// check episode and media file
 			if (getInfoObject() == null) {
 				// illegal episode string
-				log.warning(String.format("Failed to parse episode: '%s'", infoTextField.getText()));
+				log.warning(format("Failed to parse episode: '%s'", infoTextField.getText()));
 			} else if (getMediaFile() == null && !mediaFileTextField.getText().isEmpty()) {
 				// illegal file path
-				log.warning(String.format("Invalid media file: '%s'", mediaFileTextField.getText()));
+				log.warning(format("Invalid media file: '%s'", mediaFileTextField.getText()));
 			} else {
 				// everything seems to be in order
 				finish(true);
