@@ -20,13 +20,13 @@ import net.filebot.util.ui.DefaultFancyListCellRenderer;
 import net.filebot.util.ui.SwingUI;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.swing.EventListModel;
+import ca.odell.glazedlists.swing.DefaultEventListModel;
 
 public class FileBotList<E> extends JComponent {
 
 	protected EventList<E> model = new BasicEventList<E>();
 
-	protected JList list = new JList(new EventListModel<E>(model));
+	protected JList list = new JList(new DefaultEventListModel<E>(model));
 
 	protected JScrollPane listScrollPane = new JScrollPane(list);
 
@@ -55,7 +55,7 @@ public class FileBotList<E> extends JComponent {
 
 	public void setModel(EventList<E> model) {
 		this.model = model;
-		list.setModel(new EventListModel(model));
+		list.setModel(new DefaultEventListModel(model));
 	}
 
 	public JList getListComponent() {

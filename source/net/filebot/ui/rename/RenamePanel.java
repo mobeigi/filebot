@@ -79,7 +79,7 @@ import net.filebot.web.SortOrder;
 import net.miginfocom.swing.MigLayout;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.ListSelection;
-import ca.odell.glazedlists.swing.EventSelectionModel;
+import ca.odell.glazedlists.swing.DefaultEventSelectionModel;
 
 import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
@@ -157,7 +157,7 @@ public class RenamePanel extends JComponent {
 		namesList.getListComponent().setCellRenderer(cellrenderer);
 		filesList.getListComponent().setCellRenderer(cellrenderer);
 
-		EventSelectionModel<Match<Object, File>> selectionModel = new EventSelectionModel<Match<Object, File>>(renameModel.matches());
+		DefaultEventSelectionModel<Match<Object, File>> selectionModel = new DefaultEventSelectionModel<Match<Object, File>>(renameModel.matches());
 		selectionModel.setSelectionMode(ListSelection.SINGLE_SELECTION);
 
 		// use the same selection model for both lists to synchronize selection

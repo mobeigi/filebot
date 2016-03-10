@@ -59,8 +59,8 @@ import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.TextFilterator;
 import ca.odell.glazedlists.matchers.MatcherEditor;
-import ca.odell.glazedlists.swing.EventListModel;
-import ca.odell.glazedlists.swing.EventSelectionModel;
+import ca.odell.glazedlists.swing.DefaultEventListModel;
+import ca.odell.glazedlists.swing.DefaultEventSelectionModel;
 import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 
 class SubtitleDownloadComponent extends JComponent {
@@ -79,7 +79,7 @@ class SubtitleDownloadComponent extends JComponent {
 		packageList.setCellRenderer(renderer);
 
 		// better selection behaviour
-		EventSelectionModel<SubtitlePackage> packageSelection = new EventSelectionModel<SubtitlePackage>(packages);
+		DefaultEventSelectionModel<SubtitlePackage> packageSelection = new DefaultEventSelectionModel<SubtitlePackage>(packages);
 		packageSelection.setSelectionMode(ListSelection.MULTIPLE_INTERVAL_SELECTION_DEFENSIVE);
 		packageList.setSelectionModel(packageSelection);
 
@@ -105,7 +105,7 @@ class SubtitleDownloadComponent extends JComponent {
 		};
 
 		// better selection behaviour
-		EventSelectionModel<MemoryFile> fileSelection = new EventSelectionModel<MemoryFile>(files);
+		DefaultEventSelectionModel<MemoryFile> fileSelection = new DefaultEventSelectionModel<MemoryFile>(files);
 		fileSelection.setSelectionMode(ListSelection.MULTIPLE_INTERVAL_SELECTION_DEFENSIVE);
 		fileList.setSelectionModel(fileSelection);
 
@@ -170,7 +170,7 @@ class SubtitleDownloadComponent extends JComponent {
 		source = new ObservableElementList<SubtitlePackage>(source, GlazedLists.beanConnector(SubtitlePackage.class));
 
 		// as list model
-		return new EventListModel<SubtitlePackage>(source);
+		return new DefaultEventListModel<SubtitlePackage>(source);
 	}
 
 	protected ListModel createFileListModel() {
@@ -187,7 +187,7 @@ class SubtitleDownloadComponent extends JComponent {
 		});
 
 		// as list model
-		return new EventListModel<MemoryFile>(source);
+		return new DefaultEventListModel<MemoryFile>(source);
 	}
 
 	public void reset() {
