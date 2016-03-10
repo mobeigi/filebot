@@ -732,7 +732,7 @@ public class MediaDetection {
 		List<T> ranking = options.stream().sorted(comparator).distinct().collect(toList());
 
 		// DEBUG
-		debug.finest(format("%s => %s", terms, ranking));
+		debug.finest(format("Rank %s => %s", terms, ranking));
 
 		// sort by ranking and remove duplicate entries
 		return ranking;
@@ -942,7 +942,7 @@ public class MediaDetection {
 		querySet = getUniqueQuerySet(emptySet(), stripBlacklistedTerms(querySet));
 
 		// DEBUG
-		debug.finest(format("%s => %s", queryLookupService.getName(), querySet));
+		debug.finest(format("Query %s => %s", queryLookupService.getName(), querySet));
 
 		final Map<Movie, Float> probabilityMap = new LinkedHashMap<Movie, Float>();
 		final SimilarityMetric metric = getMovieMatchMetric();

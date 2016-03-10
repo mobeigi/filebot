@@ -37,7 +37,6 @@ public class CacheManager {
 
 	public synchronized Cache getCache(String name, CacheType type) {
 		if (!manager.cacheExists(name)) {
-			debug.config("Create cache: " + name);
 			manager.addCache(new net.sf.ehcache.Cache(type.getConfiguration(name)));
 		}
 		return new Cache(manager.getCache(name));
