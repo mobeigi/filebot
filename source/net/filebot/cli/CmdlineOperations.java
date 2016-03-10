@@ -3,6 +3,7 @@ package net.filebot.cli;
 import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.Settings.*;
@@ -22,6 +23,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -29,6 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -1070,22 +1073,43 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	@Override
 	public List<String> getMediaInfo(Collection<File> files, String format, String filter) throws Exception {
-		if (filter != null && filter.length() > 0) {
-			ExpressionFileFilter includes = new ExpressionFileFilter(new ExpressionFilter(filter), false);
-			files = filter(files, includes);
-
-			if (files.isEmpty()) {
-				throw new CmdlineException("No files: " + files);
-			}
-		}
-
 		ExpressionFormat formatter = new ExpressionFormat(format != null && format.length() > 0 ? format : "{fn} [{resolution} {vc} {channels} {ac} {minutes+'m'}]");
+		FileFilter fileFilter = filter == null || filter.isEmpty() ? f -> true : new ExpressionFileFilter(new ExpressionFilter(filter), false);
+
 		List<String> output = new ArrayList<String>();
-		for (File file : files) {
+		for (File file : filter(files, fileFilter)) {
 			String line = formatter.format(new MediaBindingBean(readMetaInfo(file), file, null));
 			output.add(line);
 		}
 		return output;
+	}
+
+	@Override
+	public List<File> revert(Collection<File> files, String filter, boolean test) throws Exception {
+		FileFilter fileFilter = filter == null || filter.isEmpty() ? f -> true : new ExpressionFileFilter(new ExpressionFilter(filter), false);
+
+		Set<File> whitelist = new HashSet<File>(files);
+		Map<File, File> history = HistorySpooler.getInstance().getCompleteHistory().getRenameMap();
+
+		return history.entrySet().stream().filter(it -> {
+			File current = it.getValue();
+			return current.exists() && listPath(current).stream().anyMatch(whitelist::contains) && fileFilter.accept(current);
+		}).map(it -> {
+			File original = it.getKey();
+			File current = it.getValue();
+
+			log.info(format("Revert [%s] to [%s]", current, original));
+			if (test) {
+				return original;
+			}
+
+			try {
+				return StandardRenameAction.revert(current, original);
+			} catch (Exception e) {
+				log.warning(format("Failed to revert file: %s", e.getMessage()));
+				return null;
+			}
+		}).filter(Objects::nonNull).collect(toList());
 	}
 
 	@Override
@@ -1170,4 +1194,5 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		return extractedFiles;
 	}
+
 }

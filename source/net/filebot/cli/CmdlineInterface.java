@@ -14,6 +14,8 @@ public interface CmdlineInterface {
 
 	List<File> rename(Map<File, File> renameMap, RenameAction renameAction, String conflict) throws Exception;
 
+	List<File> revert(Collection<File> files, String filter, boolean test) throws Exception;
+
 	List<File> getSubtitles(Collection<File> files, String db, String query, String lang, String output, String encoding, String format, boolean strict) throws Exception;
 
 	List<File> getMissingSubtitles(Collection<File> files, String db, String query, String lang, String output, String encoding, String format, boolean strict) throws Exception;

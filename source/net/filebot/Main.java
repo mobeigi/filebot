@@ -116,7 +116,7 @@ public class Main {
 
 			// CLI mode => run command-line interface and then exit
 			if (args.runCLI()) {
-				int status = new ArgumentProcessor().process(args, new CmdlineOperations());
+				int status = new ArgumentProcessor().run(args);
 				System.exit(status);
 			}
 

@@ -75,6 +75,9 @@ public class ArgumentBean {
 	@Option(name = "-mediainfo", usage = "Get media info")
 	public boolean mediaInfo = false;
 
+	@Option(name = "-revert", usage = "Revert files")
+	public boolean revert = false;
+
 	@Option(name = "-extract", usage = "Extract archives")
 	public boolean extract = false;
 
@@ -118,7 +121,7 @@ public class ArgumentBean {
 	public List<String> arguments = new ArrayList<String>();
 
 	public boolean runCLI() {
-		return rename || getSubtitles || check || list || mediaInfo || extract || script != null;
+		return rename || getSubtitles || check || list || mediaInfo || revert || extract || script != null;
 	}
 
 	public boolean printVersion() {
