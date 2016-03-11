@@ -20,6 +20,7 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
+import net.filebot.Settings.ApplicationFolder;
 import net.filebot.util.ExceptionUtilities;
 
 public class SecureCompiledScript extends CompiledScript {
@@ -46,12 +47,9 @@ public class SecureCompiledScript extends CompiledScript {
 		permissions.add(new ReflectPermission("suppressAccessChecks"));
 		permissions.add(new ReflectPermission("newProxyInPackage.*"));
 
-		// write permissions for temp and cache folders
-		try {
-			permissions.add(new FilePermission(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + File.separator + "-", "write, delete"));
-			permissions.add(new FilePermission(new File(System.getProperty("ehcache.disk.store.dir")).getAbsolutePath() + File.separator + "-", "write, delete"));
-		} catch (Exception e) {
-			// ignore
+		// write permissions for cache and temp folders
+		for (ApplicationFolder it : ApplicationFolder.values()) {
+			permissions.add(new FilePermission(it.getCanonicalFile() + File.separator + "-", "read, write, delete"));
 		}
 
 		return permissions;

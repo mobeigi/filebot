@@ -39,7 +39,7 @@ public final class HistorySpooler {
 		});
 	}
 
-	private File persistentHistoryFile = new File(getApplicationFolder(), "history.xml");
+	private File persistentHistoryFile = ApplicationFolder.AppData.resolve("history.xml");
 	private int persistentHistoryTotalSize = -1;
 	private boolean persistentHistoryEnabled = true;
 

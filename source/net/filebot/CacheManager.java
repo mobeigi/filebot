@@ -26,10 +26,12 @@ public class CacheManager {
 	}
 
 	private final net.sf.ehcache.CacheManager manager;
+	private final File diskStore;
 
 	public CacheManager() {
 		try {
-			this.manager = net.sf.ehcache.CacheManager.create(getConfiguration());
+			this.diskStore = acquireDiskStore();
+			this.manager = net.sf.ehcache.CacheManager.create(new Configuration().diskStore(new DiskStoreConfiguration().path(diskStore.getPath())));
 		} catch (IOException e) {
 			throw new CacheException(e);
 		}
@@ -47,17 +49,11 @@ public class CacheManager {
 		manager.removeAllCaches();
 
 		// clear all caches that have not been added yet
-		clearDiskStore(new File(manager.getConfiguration().getDiskStoreConfiguration().getPath()));
+		clearDiskStore(diskStore);
 	}
 
 	public synchronized void shutdown() {
 		manager.shutdown();
-	}
-
-	private Configuration getConfiguration() throws IOException {
-		Configuration config = new Configuration();
-		config.addDiskStore(getDiskStoreConfiguration());
-		return config;
 	}
 
 	private void clearDiskStore(File cache) {
@@ -68,9 +64,9 @@ public class CacheManager {
 		});
 	}
 
-	private DiskStoreConfiguration getDiskStoreConfiguration() throws IOException {
+	private File acquireDiskStore() throws IOException {
 		// prepare cache folder for this application instance
-		File cacheRoot = getApplicationCache().getCanonicalFile();
+		File cacheRoot = ApplicationFolder.Cache.getCanonicalFile();
 
 		for (int i = 0; i < 10; i++) {
 			File cache = new File(cacheRoot, Integer.toString(i));
@@ -116,7 +112,7 @@ public class CacheManager {
 				Runtime.getRuntime().addShutdownHook(new ShutdownHook(this, channel, lock));
 
 				// cache for this application instance is successfully set up and locked
-				return new DiskStoreConfiguration().path(cache.getPath());
+				return cache;
 			}
 
 			// try next lock file
@@ -130,7 +126,6 @@ public class CacheManager {
 	private static class ShutdownHook extends Thread {
 
 		private final CacheManager manager;
-
 		private final FileChannel channel;
 		private final FileLock lock;
 

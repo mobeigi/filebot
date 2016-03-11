@@ -43,6 +43,7 @@ import javax.swing.UIManager;
 import org.kohsuke.args4j.CmdLineException;
 import org.w3c.dom.Document;
 
+import net.filebot.Settings.ApplicationFolder;
 import net.filebot.cli.ArgumentBean;
 import net.filebot.cli.ArgumentProcessor;
 import net.filebot.format.ExpressionFormat;
@@ -85,7 +86,7 @@ public class Main {
 				// clear preferences and cache
 				if (args.clearCache()) {
 					System.out.println("Clear cache and temporary files");
-					for (File folder : getChildren(getApplicationFolder().getCanonicalFile(), FOLDERS)) {
+					for (File folder : getChildren(ApplicationFolder.AppData.getCanonicalFile(), FOLDERS)) {
 						System.out.println("* Delete " + folder);
 						delete(folder);
 					}
@@ -104,7 +105,7 @@ public class Main {
 			initializeLogging(args);
 
 			// make sure java.io.tmpdir exists
-			createFolders(getApplicationTempFolder());
+			createFolders(ApplicationFolder.Temp.get());
 
 			// initialize this stuff before anything else
 			CacheManager.getInstance();
@@ -410,7 +411,7 @@ public class Main {
 		System.setProperty("sun.net.client.defaultReadTimeout", "60000");
 
 		System.setProperty("swing.crossplatformlaf", "javax.swing.plaf.nimbus.NimbusLookAndFeel");
-		System.setProperty("grape.root", new File(getApplicationFolder(), "grape").getAbsolutePath());
+		System.setProperty("grape.root", ApplicationFolder.AppData.resolve("grape").getAbsolutePath());
 		System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 
 		System.setProperty("unixfs", Boolean.toString(args.unixfs));
@@ -424,7 +425,7 @@ public class Main {
 		if (args.logFile != null) {
 			File logFile = new File(args.logFile);
 			if (!logFile.isAbsolute()) {
-				logFile = new File(new File(getApplicationFolder(), "logs"), logFile.getPath()).getAbsoluteFile(); // by default resolve relative paths against {applicationFolder}/logs/{logFile}
+				logFile = new File(ApplicationFolder.AppData.resolve("logs"), logFile.getPath()).getAbsoluteFile(); // by default resolve relative paths against {applicationFolder}/logs/{logFile}
 			}
 			if (!logFile.exists() && !logFile.getParentFile().mkdirs() && !logFile.createNewFile()) {
 				throw new IOException("Failed to create log file: " + logFile);
@@ -459,7 +460,7 @@ public class Main {
 
 			// log errors to file
 			try {
-				Handler error = createSimpleFileHandler(new File(getApplicationFolder(), "error.log"), Level.WARNING);
+				Handler error = createSimpleFileHandler(ApplicationFolder.AppData.resolve("error.log"), Level.WARNING);
 				log.addHandler(error);
 				debug.addHandler(error);
 			} catch (Exception e) {

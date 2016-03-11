@@ -33,6 +33,7 @@ import javax.swing.text.JTextComponent;
 
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
+import net.filebot.Settings.ApplicationFolder;
 import net.filebot.cli.ArgumentProcessor.DefaultScriptProvider;
 import net.filebot.util.TeePrintStream;
 
@@ -142,7 +143,7 @@ public class GroovyPad extends JFrame {
 	}
 
 	protected FileLocation getFileLocation(String name) throws IOException {
-		File pad = new File(Settings.getApplicationFolder(), name);
+		File pad = ApplicationFolder.AppData.resolve(name);
 		if (!pad.exists()) {
 			// use this default value so people can easily submit bug reports with fn:sysinfo logs
 			ScriptShellMethods.saveAs("runScript 'fn:sysinfo'", pad);

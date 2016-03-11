@@ -135,58 +135,6 @@ public final class Settings {
 		return Runtime.getRuntime().availableProcessors();
 	}
 
-	public static File getApplicationFolder() {
-		String applicationFolderPath = System.getProperty("application.dir");
-		File applicationFolder = null;
-
-		if (applicationFolderPath != null && !applicationFolderPath.isEmpty()) {
-			// use given path
-			applicationFolder = new File(applicationFolderPath);
-		} else {
-			// create folder in user home (can't use working directory for web start applications)
-			applicationFolder = new File(System.getProperty("user.home"), ".filebot");
-		}
-
-		// create folder if necessary
-		try {
-			createFolders(applicationFolder);
-		} catch (Exception e) {
-			throw new IllegalStateException("application.dir", e);
-		}
-
-		return applicationFolder;
-	}
-
-	public static File getApplicationCache() {
-		String cacheFolderPath = System.getProperty("application.cache");
-		File cacheFolder = null;
-
-		if (cacheFolderPath != null && !cacheFolderPath.isEmpty()) {
-			cacheFolder = new File(cacheFolderPath);
-		} else {
-			cacheFolder = new File(getApplicationFolder(), "cache");
-		}
-
-		return cacheFolder;
-	}
-
-	public static File getApplicationTempFolder() {
-		return new File(System.getProperty("java.io.tmpdir"));
-	}
-
-	public static File getRealUserHome() {
-		if (isMacSandbox()) {
-			// when running sandboxed applications user.home may point to the application-specific container
-			String username = System.getProperty("user.name");
-			if (username != null && username.length() > 0) {
-				return new File("/Users", username);
-			}
-		}
-
-		// default home
-		return new File(System.getProperty("user.home"));
-	}
-
 	public static String getAppStoreName() {
 		if (isMacApp())
 			return "Mac App Store";
@@ -233,6 +181,104 @@ public final class Settings {
 		links.put("Contact us on Facebook", getApplicationProperty("link.facebook"));
 
 		return links;
+	}
+
+	public static String getApplicationIdentifier() {
+		return String.format("%s %s (r%d)", getApplicationName(), getApplicationVersion(), getApplicationRevisionNumber());
+	}
+
+	public static String getJavaRuntimeIdentifier() {
+		return String.format("%s %s %s", System.getProperty("java.runtime.name"), System.getProperty("java.version"), GraphicsEnvironment.isHeadless() ? "(headless)" : "").trim();
+	}
+
+	private static String[] applicationArgumentArray;
+
+	protected static void setApplicationArgumentArray(String[] args) {
+		applicationArgumentArray = args;
+	}
+
+	public static ArgumentBean getApplicationArguments() {
+		try {
+			return ArgumentBean.parse(applicationArgumentArray);
+		} catch (Exception e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	public static enum ApplicationFolder {
+
+		AppData {
+
+			@Override
+			public File get() {
+				String appdata = System.getProperty("application.dir");
+
+				if (appdata != null) {
+					// use given $APP_DATA folder
+					return new File(appdata);
+				} else {
+					// use $HOME/.filebot as application data folder
+					return new File(System.getProperty("user.home"), ".filebot");
+				}
+			}
+		},
+
+		UserHome {
+
+			@Override
+			public File get() {
+				// The user.home of sandboxed applications will point to the application-specific container
+				if (isMacSandbox()) {
+					return new File("/Users", System.getProperty("user.name", "anonymous"));
+				}
+
+				// default user home
+				return new File(System.getProperty("user.home"));
+			}
+
+		},
+
+		Temp {
+
+			@Override
+			public File get() {
+				return new File(System.getProperty("java.io.tmpdir"));
+			}
+		},
+
+		Cache {
+
+			@Override
+			public File get() {
+				String cache = System.getProperty("application.cache");
+				if (cache != null) {
+					return new File(cache);
+				}
+
+				// default to $APP_DATA/cache
+				return AppData.resolve("cache");
+			}
+		};
+
+		public abstract File get();
+
+		public File resolve(String name) {
+			return new File(getCanonicalFile(), name);
+		}
+
+		public File getCanonicalFile() {
+			File path = get();
+			try {
+				if (!path.isDirectory()) {
+					createFolders(path);
+				}
+				return path.getCanonicalFile();
+			} catch (Exception e) {
+				debug.log(Level.SEVERE, String.format("Failed to create application folder: %s => %s", this, path), e);
+				return path;
+			}
+		}
+
 	}
 
 	public static Settings forPackage(Class<?> type) {
@@ -292,28 +338,6 @@ public final class Settings {
 			prefs.clear();
 		} catch (BackingStoreException e) {
 			throw ExceptionUtilities.asRuntimeException(e);
-		}
-	}
-
-	public static String getApplicationIdentifier() {
-		return String.format("%s %s (r%d)", getApplicationName(), getApplicationVersion(), getApplicationRevisionNumber());
-	}
-
-	public static String getJavaRuntimeIdentifier() {
-		return String.format("%s %s %s", System.getProperty("java.runtime.name"), System.getProperty("java.version"), GraphicsEnvironment.isHeadless() ? "(headless)" : "").trim();
-	}
-
-	private static String[] applicationArgumentArray;
-
-	protected static void setApplicationArgumentArray(String[] args) {
-		applicationArgumentArray = args;
-	}
-
-	public static ArgumentBean getApplicationArguments() {
-		try {
-			return ArgumentBean.parse(applicationArgumentArray);
-		} catch (Exception e) {
-			throw new IllegalStateException(e);
 		}
 	}
 

@@ -42,6 +42,7 @@ import net.filebot.Language;
 import net.filebot.MediaTypes;
 import net.filebot.MetaAttributeView;
 import net.filebot.Settings;
+import net.filebot.Settings.ApplicationFolder;
 import net.filebot.WebServices;
 import net.filebot.hash.HashType;
 import net.filebot.media.MetaAttributes;
@@ -848,8 +849,8 @@ public class MediaBindingBean {
 	}
 
 	@Define("home")
-	public File getUserHome() throws IOException {
-		return Settings.getRealUserHome();
+	public File getUserHome() {
+		return ApplicationFolder.UserHome.getCanonicalFile();
 	}
 
 	@Define("now")
