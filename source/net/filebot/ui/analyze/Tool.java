@@ -78,6 +78,7 @@ abstract class Tool<M> extends JComponent {
 
 					if (cause instanceof ConcurrentModificationException || cause instanceof InterruptedException) {
 						// if it happens, it is supposed to
+						debug.log(Level.FINEST, e.getMessage(), e);
 					} else {
 						// should not happen
 						debug.log(Level.WARNING, e.getMessage(), e);

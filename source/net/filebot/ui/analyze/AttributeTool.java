@@ -2,6 +2,7 @@ package net.filebot.ui.analyze;
 
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.awt.Color;
 import java.io.File;
@@ -43,42 +44,43 @@ class AttributeTool extends Tool<TableModel> {
 
 	@Override
 	protected TableModel createModelInBackground(File root) throws InterruptedException {
-		List<File> files = (root != null) ? FileUtilities.listFiles(root) : new ArrayList<File>();
-
 		FileAttributesTableModel model = new FileAttributesTableModel();
-		for (File file : files) {
-			if (VIDEO_FILES.accept(file)) {
+
+		if (root == null) {
+			return model;
+		}
+
+		for (File file : filter(FileUtilities.listFiles(root), VIDEO_FILES, SUBTITLE_FILES)) {
+			try {
+				MetaAttributes attributes = new MetaAttributes(file);
+				String metaId = null;
+				Object metaObject = null;
+				String originalName = null;
+
 				try {
-					MetaAttributes attributes = new MetaAttributes(file);
-					String metaId = null;
-					Object metaObject = null;
-					String originalName = null;
+					originalName = attributes.getOriginalName();
+					metaObject = attributes.getObject();
 
-					try {
-						originalName = attributes.getOriginalName();
-						metaObject = attributes.getObject();
-
-						if (metaObject instanceof Episode) {
-							SeriesInfo seriesInfo = ((Episode) metaObject).getSeriesInfo();
-							if (seriesInfo != null) {
-								metaId = String.format("%s::%d", seriesInfo.getDatabase(), seriesInfo.getId());
-							}
-						} else if (metaObject instanceof Movie) {
-							Movie movie = (Movie) metaObject;
-							if (movie.getTmdbId() > 0) {
-								metaId = String.format("%s::%d", "TheMovieDB", movie.getTmdbId());
-							} else if (movie.getImdbId() > 0) {
-								metaId = String.format("%s::%d", "OMDb", movie.getImdbId());
-							}
+					if (metaObject instanceof Episode) {
+						SeriesInfo seriesInfo = ((Episode) metaObject).getSeriesInfo();
+						if (seriesInfo != null) {
+							metaId = String.format("%s::%d", seriesInfo.getDatabase(), seriesInfo.getId());
 						}
-					} catch (Exception e) {
-						// ignore
+					} else if (metaObject instanceof Movie) {
+						Movie movie = (Movie) metaObject;
+						if (movie.getTmdbId() > 0) {
+							metaId = String.format("%s::%d", "TheMovieDB", movie.getTmdbId());
+						} else if (movie.getImdbId() > 0) {
+							metaId = String.format("%s::%d", "OMDb", movie.getImdbId());
+						}
 					}
-
-					model.addRow(metaId, metaObject, originalName, file);
 				} catch (Exception e) {
-					debug.warning("Failed to read xattr: " + e);
+					// ignore
 				}
+
+				model.addRow(metaId, metaObject, originalName, file);
+			} catch (Exception e) {
+				debug.warning("Failed to read xattr: " + e);
 			}
 		}
 
