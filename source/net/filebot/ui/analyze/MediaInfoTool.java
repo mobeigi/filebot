@@ -9,7 +9,9 @@ import java.awt.Color;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import javax.swing.BorderFactory;
@@ -86,20 +88,10 @@ class MediaInfoTool extends Tool<TableModel> {
 	@Override
 	protected void setModel(TableModel model) {
 		table.setModel(model);
+		table.setAutoResizeMode(table.getRowCount() > 0 ? JTable.AUTO_RESIZE_OFF : JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 
-		// set column preferences
 		TableColumnModel columnModel = table.getColumnModel();
-		columnModel.getColumn(0).setMaxWidth(20);
-		columnModel.getColumn(1).setMaxWidth(70);
-		columnModel.getColumn(2).setMinWidth(140);
-
-		if (columnModel.getColumnCount() > 4) {
-			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-			IntStream.range(0, columnModel.getColumnCount()).forEach(i -> columnModel.getColumn(i).setMinWidth(140));
-		} else {
-			table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-		}
-
+		IntStream.range(0, columnModel.getColumnCount()).forEach(i -> columnModel.getColumn(i).setMinWidth(150));
 	}
 
 	private static class MediaInfoKey implements Comparable<MediaInfoKey> {
@@ -108,10 +100,12 @@ class MediaInfoTool extends Tool<TableModel> {
 		public final int stream;
 		public final String name;
 
+		private static final Pattern strip = Pattern.compile("[^a-z]", Pattern.CASE_INSENSITIVE);
+
 		public MediaInfoKey(StreamKind kind, int stream, String name) {
 			this.kind = kind;
 			this.stream = stream;
-			this.name = name;
+			this.name = strip.matcher(name).replaceAll("");
 		}
 
 		@Override
@@ -138,71 +132,99 @@ class MediaInfoTool extends Tool<TableModel> {
 				return name.compareTo(other.name);
 		}
 
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			if (kind != StreamKind.General) {
+				sb.append(kind.name());
+				if (stream > 0) {
+					sb.append('[').append(stream).append(']');
+				}
+				sb.append('.');
+			}
+			return sb.append(name).toString();
+		}
+
 	}
 
 	private static class MediaInfoTableModel extends AbstractTableModel {
 
-		private final File[] files;
 		private final MediaInfoKey[] keys;
-		private final String[][] rows;
+		private final String[][] values;
+		private final String[] files;
+		private final Class<?>[] columnClass;
 
 		public MediaInfoTableModel() {
 			this(emptyList(), emptyMap());
 		}
 
 		public MediaInfoTableModel(List<File> files, Map<MediaInfoKey, String[]> values) {
-			this.files = files.toArray(new File[0]);
 			this.keys = values.keySet().toArray(new MediaInfoKey[0]);
-			this.rows = values.values().toArray(new String[0][]);
+			this.values = values.values().toArray(new String[0][]);
+			this.files = files.stream().map(File::getName).toArray(String[]::new);
+			this.columnClass = new Class<?>[getColumnCount()];
+		}
+
+		public int getHeaderColumnCount() {
+			return 1;
 		}
 
 		@Override
 		public int getColumnCount() {
-			return files.length + 3;
+			return keys.length + getHeaderColumnCount();
 		}
 
 		@Override
 		public String getColumnName(int column) {
 			switch (column) {
-			case 1:
-				return "Stream";
 			case 0:
-				return "#";
-			case 2:
-				return "Property";
+				return "File";
 			default:
-				return files[column - 3].getName();
+				return keys[column - getHeaderColumnCount()].toString();
+			}
+		}
+
+		private boolean isNumber(String s) {
+			try {
+				Double.parseDouble(s);
+				return true;
+			} catch (Exception e) {
+				return false;
 			}
 		}
 
 		@Override
 		public Class<?> getColumnClass(int column) {
-			switch (column) {
-			case 1:
-				return StreamKind.class;
-			case 0:
-				return Integer.class;
-			default:
+			int c = column - getHeaderColumnCount();
+			if (c < 0) {
 				return String.class;
 			}
+
+			if (columnClass[c] != null) {
+				return columnClass[c];
+			}
+
+			if (IntStream.range(0, files.length).mapToObj(i -> values[c][i]).filter(Objects::nonNull).allMatch(this::isNumber)) {
+				columnClass[c] = Number.class;
+				return columnClass[c];
+			}
+
+			columnClass[c] = String.class;
+			return columnClass[c];
 		}
 
 		@Override
 		public int getRowCount() {
-			return keys.length;
+			return files.length;
 		}
 
 		@Override
-		public Object getValueAt(int row, int column) {
+		public String getValueAt(int row, int column) {
 			switch (column) {
-			case 1:
-				return keys[row].kind;
 			case 0:
-				return keys[row].stream;
-			case 2:
-				return keys[row].name;
+				return files[row];
 			default:
-				return rows[row][column - 3];
+				return values[column - getHeaderColumnCount()][row];
 			}
 		}
 

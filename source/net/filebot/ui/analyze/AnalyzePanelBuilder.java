@@ -22,11 +22,11 @@ public class AnalyzePanelBuilder implements PanelBuilder {
 	@Override
 	public JComponent create() {
 		AnalyzePanel panel = new AnalyzePanel();
-		panel.addTool(new MediaInfoTool());
+		panel.addTool(new ExtractTool());
 		panel.addTool(new TypeTool());
 		panel.addTool(new SplitTool());
 		panel.addTool(new AttributeTool());
-		panel.addTool(new ExtractTool());
+		panel.addTool(new MediaInfoTool());
 		return panel;
 	}
 
