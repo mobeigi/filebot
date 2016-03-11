@@ -39,6 +39,7 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import net.filebot.HistorySpooler;
 import net.filebot.Language;
@@ -1095,8 +1096,9 @@ public class CmdlineOperations implements CmdlineInterface {
 		Map<File, File> history = HistorySpooler.getInstance().getCompleteHistory().getRenameMap();
 
 		return history.entrySet().stream().filter(it -> {
+			File original = it.getKey();
 			File current = it.getValue();
-			return listPath(current).stream().anyMatch(whitelist::contains) && current.exists() && fileFilter.accept(current);
+			return Stream.of(current, original).flatMap(f -> listPath(f).stream()).anyMatch(whitelist::contains) && current.exists() && fileFilter.accept(current);
 		}).map(it -> {
 			File original = it.getKey();
 			File current = it.getValue();
