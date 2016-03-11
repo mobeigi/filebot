@@ -1,16 +1,22 @@
 package net.filebot.web;
 
+import static net.filebot.CachedResource.*;
 import static org.junit.Assert.*;
 
+import java.net.URL;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import net.filebot.web.TMDbClient.Artwork;
-import net.filebot.web.TMDbClient.MovieInfo;
-
 import org.junit.Ignore;
 import org.junit.Test;
+
+import net.filebot.Cache;
+import net.filebot.CacheType;
+import net.filebot.CachedResource;
+import net.filebot.web.TMDbClient.Artwork;
+import net.filebot.web.TMDbClient.MovieInfo;
 
 public class TMDbClientTest {
 
@@ -95,6 +101,15 @@ public class TMDbClientTest {
 			List<Movie> results = tmdb.searchMovie("Serenity", it);
 			assertEquals(16320, results.get(0).getTmdbId());
 		}
+	}
+
+	@Ignore
+	@Test
+	public void etag() throws Exception {
+		Cache cache = Cache.getCache("test", CacheType.Persistent);
+		Cache etagStorage = Cache.getCache("etag", CacheType.Persistent);
+		CachedResource<String, byte[]> resource = cache.bytes("http://devel.squid-cache.org/old_projects.html#etag", URL::new).fetch(fetchIfNoneMatch(etagStorage)).expire(Duration.ZERO);
+		assertArrayEquals(resource.get(), resource.get());
 	}
 
 }
