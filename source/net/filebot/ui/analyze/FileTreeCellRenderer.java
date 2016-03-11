@@ -9,7 +9,7 @@ import net.filebot.ResourceManager;
 import net.filebot.util.ui.FancyTreeCellRenderer;
 import net.filebot.util.ui.GradientStyle;
 
-public class FileTreeCellRenderer extends FancyTreeCellRenderer {
+class FileTreeCellRenderer extends FancyTreeCellRenderer {
 
 	public FileTreeCellRenderer() {
 		super(GradientStyle.TOP_TO_BOTTOM);

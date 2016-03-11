@@ -1,9 +1,5 @@
 package net.filebot.ui.analyze;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 
@@ -15,36 +11,23 @@ public class AnalyzePanel extends JComponent {
 	private final JTabbedPane toolsPanel = new JTabbedPane();
 
 	public AnalyzePanel() {
-		toolsPanel.setBorder(BorderFactory.createTitledBorder("Tools"));
-
 		setLayout(new MigLayout("insets dialog, gapx 50, fill"));
 		add(fileTreePanel, "grow, sizegroupx column");
 		add(toolsPanel, "grow, sizegroupx column");
 
-		addTool(new ExtractTool());
-		addTool(new TypeTool());
-		addTool(new SplitTool());
-		addTool(new AttributeTool());
-
 		putClientProperty("transferablePolicy", fileTreePanel.getTransferablePolicy());
 
-		fileTreePanel.addPropertyChangeListener("filetree", filetreeListener);
-	}
-
-	private void addTool(Tool<?> tool) {
-		toolsPanel.addTab(tool.getName(), tool);
-	}
-
-	private final PropertyChangeListener filetreeListener = new PropertyChangeListener() {
-
-		@Override
-		public void propertyChange(PropertyChangeEvent evt) {
+		fileTreePanel.addPropertyChangeListener("filetree", evt -> {
 			// stopped loading, refresh tools
 			for (int i = 0; i < toolsPanel.getTabCount(); i++) {
 				Tool<?> tool = (Tool<?>) toolsPanel.getComponentAt(i);
 				tool.updateRoot(fileTreePanel.getFileTree().getRoot().getFile());
 			}
-		}
-	};
+		});
+	}
+
+	public void addTool(Tool<?> tool) {
+		toolsPanel.addTab(tool.getName(), tool);
+	}
 
 }

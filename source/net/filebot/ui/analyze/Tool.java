@@ -13,13 +13,13 @@ import javax.swing.JComponent;
 import javax.swing.SwingWorker;
 import javax.swing.tree.TreeNode;
 
+import org.apache.commons.io.FileUtils;
+
 import net.filebot.ui.analyze.FileTree.FileNode;
 import net.filebot.ui.analyze.FileTree.FolderNode;
 import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.LoadingOverlayPane;
-
-import org.apache.commons.io.FileUtils;
 
 abstract class Tool<M> extends JComponent {
 
