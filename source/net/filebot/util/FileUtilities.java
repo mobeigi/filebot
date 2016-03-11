@@ -45,6 +45,8 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
+
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 
@@ -56,7 +58,7 @@ public final class FileUtilities {
 
 		if (source.isDirectory()) {
 			// move folder
-			org.apache.commons.io.FileUtils.moveDirectory(source, destination);
+			FileUtils.moveDirectory(source, destination);
 			return destination;
 		}
 
@@ -80,7 +82,7 @@ public final class FileUtilities {
 
 		if (source.isDirectory()) {
 			// copy folder
-			org.apache.commons.io.FileUtils.copyDirectory(source, destination);
+			FileUtils.copyDirectory(source, destination);
 			return destination;
 		}
 
@@ -156,13 +158,11 @@ public final class FileUtilities {
 
 	public static boolean delete(File file) {
 		// delete files or files
-		return org.apache.commons.io.FileUtils.deleteQuietly(file);
+		return FileUtils.deleteQuietly(file);
 	}
 
-	public static void createFolders(File folder) throws IOException {
-		if (!folder.isDirectory()) {
-			Files.createDirectories(folder.toPath());
-		}
+	public static File createFolders(File folder) throws IOException {
+		return Files.createDirectories(folder.toPath()).toFile();
 	}
 
 	public static void createFileIfNotExists(File file) throws IOException {

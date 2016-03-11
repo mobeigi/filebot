@@ -269,10 +269,7 @@ public final class Settings {
 		public File getCanonicalFile() {
 			File path = get();
 			try {
-				if (!path.isDirectory()) {
-					createFolders(path);
-				}
-				return path.getCanonicalFile();
+				return createFolders(path.getCanonicalFile());
 			} catch (Exception e) {
 				debug.log(Level.SEVERE, String.format("Failed to create application folder: %s => %s", this, path), e);
 				return path;
