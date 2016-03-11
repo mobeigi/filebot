@@ -27,6 +27,7 @@ import javax.swing.SwingUtilities;
 import net.filebot.ResourceManager;
 import net.filebot.util.ui.DefaultFancyListCellRenderer;
 import net.filebot.util.ui.SwingUI;
+import net.filebot.web.SearchResult;
 import net.miginfocom.swing.MigLayout;
 
 public class SelectDialog<T> extends JDialog {
@@ -58,7 +59,9 @@ public class SelectDialog<T> extends JDialog {
 
 			@Override
 			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-				return super.getListCellRendererComponent(list, convertValueToString(value), index, isSelected, cellHasFocus);
+				super.getListCellRendererComponent(list, convertValueToString(value), index, isSelected, cellHasFocus);
+				configureValue(this, value);
+				return this;
 			}
 		};
 
@@ -97,6 +100,28 @@ public class SelectDialog<T> extends JDialog {
 
 	protected String convertValueToString(Object value) {
 		return value.toString();
+	}
+
+	protected void configureValue(JComponent render, Object value) {
+		if (value instanceof SearchResult) {
+			render.setToolTipText(getSearchResultPopup((SearchResult) value));
+		} else {
+			render.setToolTipText(null);
+		}
+	}
+
+	protected String getSearchResultPopup(SearchResult item) {
+		StringBuilder html = new StringBuilder(64);
+		html.append("<html><b>").append(escapeHTML(item.toString())).append("</b><br>");
+		String[] names = item.getAliasNames();
+		if (names.length > 0) {
+			html.append("<br>AKA:<br>");
+			for (String n : names) {
+				html.append("• ").append(escapeHTML(n)).append("<br>");
+			}
+		}
+		html.append("<br>ID: <br>• <code>").append(escapeHTML(Integer.toString(item.getId()))).append("</code></html>");
+		return html.toString();
 	}
 
 	public JLabel getHeaderLabel() {
