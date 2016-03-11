@@ -30,7 +30,7 @@ import net.miginfocom.swing.MigLayout;
 
 class MediaInfoTool extends Tool<TableModel> {
 
-	private JTable table = new JTable();
+	private JTable table = new JTable(new MediaInfoTableModel());
 
 	public MediaInfoTool() {
 		super("MediaInfo");
@@ -51,8 +51,6 @@ class MediaInfoTool extends Tool<TableModel> {
 
 		setLayout(new MigLayout("insets 0, fill"));
 		add(new LoadingOverlayPane(scrollPane, this), "grow");
-
-		setModel(new MediaInfoTableModel());
 	}
 
 	@Override
