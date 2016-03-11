@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,13 +46,13 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import net.filebot.util.ByteBufferOutputStream;
-
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
+
+import net.filebot.util.ByteBufferOutputStream;
 
 public final class WebRequest {
 
@@ -264,6 +265,15 @@ public final class WebRequest {
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static Optional<String> getETag(Map<String, List<String>> responseHeaders) {
+		List<String> header = responseHeaders.get("ETag");
+		if (header != null && header.size() > 0) {
+			// e.g. W/"ca0072135d8a475a716e6595f577ae8b"
+			return Optional.of(header.get(0));
+		}
+		return Optional.empty();
 	}
 
 	private static Charset getCharset(String contentType) {

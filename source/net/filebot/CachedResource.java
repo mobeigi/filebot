@@ -195,11 +195,10 @@ public class CachedResource<K, R> implements Resource<R> {
 			} catch (FileNotFoundException e) {
 				return fileNotFound(url, e);
 			} finally {
-				List<String> value = responseHeaders.get("ETag");
-				if (value != null && value.size() > 0 && !value.contains(etagValue)) {
-					debug.finest(format("Store ETag: %s", value));
-					etagStorage.put(etagKey, value.get(0));
-				}
+				WebRequest.getETag(responseHeaders).ifPresent(etag -> {
+					debug.finest(format("Store ETag: %s", etag));
+					etagStorage.put(etagKey, etag);
+				});
 			}
 		};
 	}
