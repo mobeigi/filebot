@@ -63,7 +63,7 @@ public class Main {
 	public static void main(String[] argumentArray) {
 		try {
 			// parse arguments
-			final ArgumentBean args = ArgumentBean.parse(argumentArray);
+			ArgumentBean args = ArgumentBean.parse(argumentArray);
 
 			if (args.printHelp() || args.printVersion() || (!(args.runCLI() || args.clearCache() || args.clearUserData()) && isHeadless())) {
 				System.out.format("%s / %s%n%n", getApplicationIdentifier(), getJavaRuntimeIdentifier());
@@ -96,6 +96,9 @@ public class Main {
 				System.exit(0);
 			}
 
+			// make sure we can access application arguments at any time
+			setApplicationArgumentArray(argumentArray);
+
 			// update system properties
 			initializeSystemProperties(args);
 			initializeLogging(args);
@@ -106,9 +109,6 @@ public class Main {
 			// initialize this stuff before anything else
 			CacheManager.getInstance();
 			initializeSecurityManager();
-
-			// make sure we can access application arguments at any time
-			setApplicationArgumentArray(argumentArray);
 
 			// initialize history spooler
 			HistorySpooler.getInstance().setPersistentHistoryEnabled(useRenameHistory());
@@ -147,8 +147,13 @@ public class Main {
 			System.err.println(e.getMessage());
 			System.exit(-1);
 		} catch (Throwable e) {
+			// find root cause
+			while (e.getCause() != null) {
+				e = e.getCause();
+			}
+
 			// unexpected error => dump stack
-			debug.log(Level.SEVERE, "Unexpected error during startup", e);
+			debug.log(Level.SEVERE, String.format("Error during startup: %s", e.getMessage()), e);
 			System.exit(-1);
 		}
 	}
