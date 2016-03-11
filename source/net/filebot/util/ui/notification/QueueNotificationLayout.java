@@ -4,7 +4,6 @@
 
 package net.filebot.util.ui.notification;
 
-
 import static net.filebot.util.ui.notification.Direction.*;
 
 import java.awt.Dimension;
@@ -13,8 +12,8 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-
 
 public class QueueNotificationLayout implements NotificationLayout {
 
@@ -24,11 +23,9 @@ public class QueueNotificationLayout implements NotificationLayout {
 	private final Direction direction;
 	private final Direction growAnchor;
 
-
 	public QueueNotificationLayout() {
 		this(SOUTH_EAST, WEST);
 	}
-
 
 	public QueueNotificationLayout(Direction alignment, Direction direction) {
 		this.alignment = alignment;
@@ -36,13 +33,11 @@ public class QueueNotificationLayout implements NotificationLayout {
 		this.direction = direction;
 	}
 
-
 	public QueueNotificationLayout(Direction orientation, Direction direction, Direction growAnchor) {
 		this.alignment = orientation;
 		this.direction = direction;
 		this.growAnchor = growAnchor;
 	}
-
 
 	private Point getBaseAnchor(Dimension screen, Insets insets) {
 		Point p = new Point();
@@ -59,7 +54,6 @@ public class QueueNotificationLayout implements NotificationLayout {
 		return p;
 	}
 
-
 	private Point getLocation(Point anchor, Dimension size) {
 		Point p = new Point();
 
@@ -68,7 +62,6 @@ public class QueueNotificationLayout implements NotificationLayout {
 
 		return p;
 	}
-
 
 	private Point getNextAnchor(Point anchor, Dimension size) {
 		Point p = new Point();
@@ -79,36 +72,45 @@ public class QueueNotificationLayout implements NotificationLayout {
 		return p;
 	}
 
-
 	@Override
 	public void add(NotificationWindow notification) {
 		notifications.add(notification);
 		align(notification.getGraphicsConfiguration());
 	}
 
-
 	private void align(GraphicsConfiguration gc) {
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
 		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(gc);
 
+		// avoid flickering by moving windows in reverse order
 		Point anchor = getBaseAnchor(screen, insets);
-
-		for (NotificationWindow window : notifications) {
-			Dimension size = window.getSize();
-
-			Point p = getLocation(anchor, size);
-			window.setLocation(p);
-
-			anchor = getNextAnchor(anchor, size);
-		}
+		align(anchor, notifications.iterator());
 	}
 
+	private void align(Point anchor, Iterator<NotificationWindow> seq) {
+		if (!seq.hasNext()) {
+			return;
+		}
+
+		NotificationWindow window = seq.next();
+		Dimension size = window.getSize();
+
+		Point p = getLocation(anchor, size);
+		align(getNextAnchor(anchor, size), seq);
+
+		window.setLocation(p);
+	}
 
 	@Override
 	public void remove(NotificationWindow notification) {
 		if (notifications.remove(notification)) {
 			align(notification.getGraphicsConfiguration());
 		}
+	}
+
+	@Override
+	public int size() {
+		return notifications.size();
 	}
 
 }

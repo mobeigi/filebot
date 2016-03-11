@@ -4,7 +4,6 @@
 
 package net.filebot.util.ui.notification;
 
-
 import static net.filebot.util.ui.notification.Direction.*;
 
 import java.awt.Dimension;
@@ -12,22 +11,18 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 
-
 public class SimpleNotificationLayout implements NotificationLayout {
 
-	private NotificationWindow currentNotification;
+	private NotificationWindow current;
 	private Direction alignment;
-
 
 	public SimpleNotificationLayout() {
 		this(NORTH);
 	}
 
-
 	public SimpleNotificationLayout(Direction alignment) {
 		this.alignment = alignment;
 	}
-
 
 	private Point getBaseAnchor(Dimension screen, Insets insets) {
 		Point p = new Point();
@@ -44,7 +39,6 @@ public class SimpleNotificationLayout implements NotificationLayout {
 		return p;
 	}
 
-
 	private Point getLocation(Point anchor, Dimension size) {
 		Point p = new Point();
 
@@ -53,7 +47,6 @@ public class SimpleNotificationLayout implements NotificationLayout {
 
 		return p;
 	}
-
 
 	@Override
 	public void add(NotificationWindow notification) {
@@ -64,17 +57,23 @@ public class SimpleNotificationLayout implements NotificationLayout {
 		Point anchor = getBaseAnchor(screen, insets);
 		notification.setLocation(getLocation(anchor, size));
 
-		if (currentNotification != null) {
-			currentNotification.close();
+		if (current != null) {
+			current.close();
 		}
-
-		currentNotification = notification;
+		current = notification;
 	}
-
 
 	@Override
 	public void remove(NotificationWindow notification) {
+		if (current != null && current == notification) {
+			current.close();
+		}
+		current = null;
+	}
 
+	@Override
+	public int size() {
+		return current == null ? 0 : 1;
 	}
 
 }

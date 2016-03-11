@@ -23,7 +23,7 @@ public class NotificationHandler extends Handler {
 	private final NotificationManager manager;
 
 	public NotificationHandler(String title) {
-		this(title, 2500, new NotificationManager(new QueueNotificationLayout(NORTH, SOUTH)));
+		this(title, 2500, new NotificationManager(new QueueNotificationLayout(NORTH, SOUTH), 5));
 	}
 
 	public NotificationHandler(String title, int timeout, NotificationManager manager) {
