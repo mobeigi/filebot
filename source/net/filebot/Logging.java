@@ -94,7 +94,7 @@ public final class Logging {
 		@Override
 		public String format(LogRecord record) {
 			String message = record.getMessage();
-			if (anonymize != null) {
+			if (anonymize != null && message != null) {
 				message = anonymize.matcher(message).replaceAll("");
 			}
 			return message + System.lineSeparator();
