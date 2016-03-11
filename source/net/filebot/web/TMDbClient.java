@@ -91,6 +91,13 @@ public class TMDbClient implements MovieIdentificationService {
 		// e.g. {"id":16320,"title":"冲出宁静号","release_date":"2005-09-30","original_title":"Serenity"}
 		return streamJsonObjects(response, "results").map(it -> {
 			int id = -1, year = -1;
+			try {
+				id = getDecimal(it, "id").intValue();
+				year = matchInteger(getString(it, "release_date")); // release date is often missing
+			} catch (Exception e) {
+				debug.warning(format("Missing data: release_date => %s", it));
+				return null;
+			}
 
 			String title = getString(it, "title");
 			String originalTitle = getString(it, "original_title");
@@ -98,34 +105,26 @@ public class TMDbClient implements MovieIdentificationService {
 				title = originalTitle;
 			}
 
-			try {
-				id = getDecimal(it, "id").intValue();
-				year = matchInteger(getString(it, "release_date")); // release date is often missing
-
-				Set<String> alternativeTitles = new LinkedHashSet<String>();
-				if (originalTitle != null) {
-					alternativeTitles.add(originalTitle);
-				}
-
-				if (extendedInfo) {
-					try {
-						Object titles = request("movie/" + id + "/alternative_titles", null, null, REQUEST_LIMIT);
-						streamJsonObjects(titles, "titles").map(n -> {
-							return getString(n, "title");
-						}).filter(t -> t != null && t.length() >= 3).forEach(alternativeTitles::add);
-					} catch (Exception e) {
-						debug.warning(format("Failed to fetch alternative titles for %s [%d] => %s", title, id, e));
-					}
-				}
-
-				// make sure main title is not in the set of alternative titles
-				alternativeTitles.remove(title);
-
-				return new Movie(title, alternativeTitles.toArray(new String[0]), year, -1, id, locale);
-			} catch (Exception e) {
-				debug.warning(format("Bad data: %s", it));
-				return null;
+			Set<String> alternativeTitles = new LinkedHashSet<String>();
+			if (originalTitle != null) {
+				alternativeTitles.add(originalTitle);
 			}
+
+			if (extendedInfo) {
+				try {
+					Object titles = request("movie/" + id + "/alternative_titles", null, null, REQUEST_LIMIT);
+					streamJsonObjects(titles, "titles").map(n -> {
+						return getString(n, "title");
+					}).filter(t -> t != null && t.length() >= 3).forEach(alternativeTitles::add);
+				} catch (Exception e) {
+					debug.warning(format("Failed to fetch alternative titles for %s [%d] => %s", title, id, e));
+				}
+			}
+
+			// make sure main title is not in the set of alternative titles
+			alternativeTitles.remove(title);
+
+			return new Movie(title, alternativeTitles.toArray(new String[0]), year, -1, id, locale);
 		}).filter(Objects::nonNull).collect(toList());
 	}
 
