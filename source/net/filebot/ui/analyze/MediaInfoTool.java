@@ -1,5 +1,6 @@
 package net.filebot.ui.analyze;
 
+import static java.util.Collections.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.util.FileUtilities.*;
@@ -14,6 +15,7 @@ import java.util.stream.IntStream;
 import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
@@ -31,9 +33,15 @@ class MediaInfoTool extends Tool<TableModel> {
 		super("MediaInfo");
 
 		table.setAutoCreateRowSorter(true);
+		table.setAutoCreateColumnsFromModel(true);
 		table.setFillsViewportHeight(true);
+
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
 		table.setBackground(Color.white);
-		table.setRowHeight(20);
+		table.setGridColor(new Color(0xEEEEEE));
+		table.setRowHeight(25);
 
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -69,7 +77,7 @@ class MediaInfoTool extends Tool<TableModel> {
 			});
 		}
 
-		return new MediaInfoTableModel(files.toArray(new File[0]), data.keySet().toArray(new MediaInfoKey[0]), data.values().toArray(new String[0][]));
+		return new MediaInfoTableModel(files, data);
 	}
 
 	@Override
@@ -122,13 +130,13 @@ class MediaInfoTool extends Tool<TableModel> {
 		private final String[][] rows;
 
 		public MediaInfoTableModel() {
-			this(new File[0], new MediaInfoKey[0], new String[0][]);
+			this(emptyList(), emptyMap());
 		}
 
-		public MediaInfoTableModel(File[] files, MediaInfoKey[] keys, String[][] rows) {
-			this.files = files;
-			this.keys = keys;
-			this.rows = rows;
+		public MediaInfoTableModel(List<File> files, Map<MediaInfoKey, String[]> values) {
+			this.files = files.toArray(new File[0]);
+			this.keys = values.keySet().toArray(new MediaInfoKey[0]);
+			this.rows = values.values().toArray(new String[0][]);
 		}
 
 		@Override
@@ -147,6 +155,18 @@ class MediaInfoTool extends Tool<TableModel> {
 				return "Property";
 			default:
 				return files[column - 3].getName();
+			}
+		}
+
+		@Override
+		public Class<?> getColumnClass(int column) {
+			switch (column) {
+			case 0:
+				return StreamKind.class;
+			case 1:
+				return Integer.class;
+			default:
+				return String.class;
 			}
 		}
 

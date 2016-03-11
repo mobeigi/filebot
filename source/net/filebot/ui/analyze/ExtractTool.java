@@ -53,12 +53,16 @@ class ExtractTool extends Tool<TableModel> {
 	public ExtractTool() {
 		super("Archives");
 
-		table.setFillsViewportHeight(true);
 		table.setAutoCreateRowSorter(true);
 		table.setAutoCreateColumnsFromModel(true);
+		table.setFillsViewportHeight(true);
+
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		table.setRowHeight(20);
+
+		table.setBackground(Color.white);
+		table.setGridColor(new Color(0xEEEEEE));
+		table.setRowHeight(25);
 
 		JScrollPane tableScrollPane = new JScrollPane(table);
 		tableScrollPane.setBorder(new SeparatorBorder(2, new Color(0, 0, 0, 90), GradientStyle.TOP_TO_BOTTOM, SeparatorBorder.Position.BOTTOM));

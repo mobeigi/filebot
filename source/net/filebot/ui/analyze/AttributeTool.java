@@ -12,6 +12,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
@@ -31,9 +32,15 @@ class AttributeTool extends Tool<TableModel> {
 		super("Attributes");
 
 		table.setAutoCreateRowSorter(true);
+		table.setAutoCreateColumnsFromModel(true);
 		table.setFillsViewportHeight(true);
+
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
 		table.setBackground(Color.white);
-		table.setRowHeight(20);
+		table.setGridColor(new Color(0xEEEEEE));
+		table.setRowHeight(25);
 
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
