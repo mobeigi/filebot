@@ -193,20 +193,19 @@ public enum SubtitleMetrics implements SimilarityMetric {
 				return mediaInfoCache.computeIfAbsent(file, (f) -> {
 					try {
 						Map<String, Object> props = new HashMap<String, Object>();
-						MediaInfo mediaInfo = new MediaInfo();
-						if (mediaInfo.open(file)) {
-							float fps = round(Float.parseFloat(mediaInfo.get(StreamKind.Video, 0, "FrameRate")));
-							if (fps > 0) {
-								props.put(FPS, fps);
-							}
-							long seconds = (long) floor(Long.parseLong(mediaInfo.get(StreamKind.Video, 0, "Duration")) / (double) 1000);
-							if (seconds > 0) {
-								props.put(SECONDS, seconds);
-							}
-							return props;
+						MediaInfo mediaInfo = new MediaInfo().open(file);
+
+						float fps = round(Float.parseFloat(mediaInfo.get(StreamKind.Video, 0, "FrameRate")));
+						if (fps > 0) {
+							props.put(FPS, fps);
 						}
+						long seconds = (long) floor(Long.parseLong(mediaInfo.get(StreamKind.Video, 0, "Duration")) / (double) 1000);
+						if (seconds > 0) {
+							props.put(SECONDS, seconds);
+						}
+						return props;
 					} catch (Exception e) {
-						debug.warning("Failed to read video properties: " + e);
+						debug.warning("Failed to read video properties: " + e.getMessage());
 					}
 					return emptyMap();
 				});

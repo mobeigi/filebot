@@ -34,6 +34,8 @@ import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import com.cedarsoftware.util.io.JsonWriter;
+
 import net.filebot.Cache;
 import net.filebot.CacheType;
 import net.filebot.Language;
@@ -45,6 +47,7 @@ import net.filebot.hash.HashType;
 import net.filebot.media.MetaAttributes;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
+import net.filebot.mediainfo.MediaInfoException;
 import net.filebot.similarity.SimilarityComparator;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.WeakValueHashMap;
@@ -59,8 +62,6 @@ import net.filebot.web.SimpleDate;
 import net.filebot.web.SortOrder;
 import net.filebot.web.TMDbClient.MovieInfo;
 import net.filebot.web.TheTVDBSeriesInfo;
-
-import com.cedarsoftware.util.io.JsonWriter;
 
 public class MediaBindingBean {
 
@@ -960,15 +961,13 @@ public class MediaBindingBean {
 			File inferredMediaFile = getInferredMediaFile();
 
 			synchronized (sharedMediaInfoObjects) {
-				mediaInfo = sharedMediaInfoObjects.get(inferredMediaFile);
-				if (mediaInfo == null) {
-					MediaInfo mi = new MediaInfo();
-					if (!mi.open(inferredMediaFile)) {
-						throw new RuntimeException("Cannot open media file: " + inferredMediaFile);
+				mediaInfo = sharedMediaInfoObjects.computeIfAbsent(inferredMediaFile, f -> {
+					try {
+						return new MediaInfo().open(f);
+					} catch (Exception e) {
+						throw new MediaInfoException(e.getMessage());
 					}
-					sharedMediaInfoObjects.put(inferredMediaFile, mi);
-					mediaInfo = mi;
-				}
+				});
 			}
 		}
 

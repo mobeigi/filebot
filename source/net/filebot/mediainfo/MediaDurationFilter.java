@@ -1,5 +1,7 @@
 package net.filebot.mediainfo;
 
+import static net.filebot.Logging.*;
+
 import java.io.File;
 import java.io.FileFilter;
 
@@ -25,12 +27,11 @@ public class MediaDurationFilter implements FileFilter {
 
 	public long getDuration(File file) {
 		synchronized (mediaInfo) {
-			if (mediaInfo.open(file)) {
-				try {
-					return Long.parseLong(mediaInfo.get(StreamKind.General, 0, "Duration"));
-				} catch (NumberFormatException e) {
-					// ignore, assume duration couldn't be read
-				}
+			try {
+				String duration = mediaInfo.open(file).get(StreamKind.General, 0, "Duration");
+				return Long.parseLong(duration);
+			} catch (Exception e) {
+				debug.warning("Failed to read video duration: " + e.getMessage());
 			}
 		}
 		return -1;

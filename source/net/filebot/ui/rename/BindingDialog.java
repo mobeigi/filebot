@@ -54,7 +54,6 @@ import net.filebot.format.MediaBindingBean;
 import net.filebot.media.MediaDetection;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
-import net.filebot.mediainfo.MediaInfoException;
 import net.filebot.util.DefaultThreadFactory;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
 import net.filebot.util.ui.LazyDocumentListener;
@@ -293,22 +292,11 @@ class BindingDialog extends JDialog {
 
 		private Map<StreamKind, List<Map<String, String>>> getMediaInfo(File file) {
 			try {
-				MediaInfo mediaInfo = new MediaInfo();
-
-				// read all media info
-				if (mediaInfo.open(file)) {
-					try {
-						return mediaInfo.snapshot();
-					} finally {
-						mediaInfo.close();
-					}
-				}
-			} catch (MediaInfoException e) {
+				return MediaInfo.snapshot(file);
+			} catch (Exception e) {
 				log.log(Level.SEVERE, e.getMessage(), e);
+				return null;
 			}
-
-			// could not retrieve media info
-			return null;
 		}
 
 		@Override

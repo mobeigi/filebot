@@ -1,7 +1,5 @@
 package net.filebot.mediainfo;
 
-import static net.filebot.Logging.*;
-
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -29,31 +27,35 @@ public class MediaInfo implements Closeable {
 		}
 	}
 
-	public synchronized boolean open(File file) {
+	public synchronized MediaInfo open(File file) throws IOException {
 		if (!file.isFile() || file.length() < 64 * 1024) {
-			return false;
+			throw new IllegalArgumentException("Invalid media file: " + file);
 		}
 
-		String path = file.getAbsolutePath();
+		String path = file.getCanonicalPath();
 
 		// on Mac files that contain accents cannot be opened via JNA WString file paths due to encoding differences so we use the buffer interface instead for these files
 		if (Platform.isMac() && !StandardCharsets.US_ASCII.newEncoder().canEncode(path)) {
 			try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-				return openViaBuffer(raf);
-			} catch (IOException e) {
-				debug.warning("Failed to open random access file: " + e.getMessage());
-				return false;
+				if (openViaBuffer(raf)) {
+					throw new IOException("Failed to initialize media info buffer: " + path);
+				}
 			}
 		}
 
-		return MediaInfoLibrary.INSTANCE.Open(handle, new WString(path)) > 0;
+		if (0 == MediaInfoLibrary.INSTANCE.Open(handle, new WString(path))) {
+			// failed to open file
+			throw new IOException("Failed to open media file: " + path);
+		}
+
+		return this;
 	}
 
 	private boolean openViaBuffer(RandomAccessFile f) throws IOException {
 		byte[] buffer = new byte[4 * 1024 * 1024]; // use large buffer to reduce JNA calls
 		int read = -1;
 
-		if (MediaInfoLibrary.INSTANCE.Open_Buffer_Init(handle, f.length(), 0) <= 0) {
+		if (0 == MediaInfoLibrary.INSTANCE.Open_Buffer_Init(handle, f.length(), 0)) {
 			return false;
 		}
 
@@ -249,15 +251,9 @@ public class MediaInfo implements Closeable {
 	 * Helper for easy usage
 	 */
 	public static Map<StreamKind, List<Map<String, String>>> snapshot(File file) throws IOException {
-		MediaInfo mi = new MediaInfo();
-		try {
-			if (mi.open(file)) {
-				return mi.snapshot();
-			} else {
-				throw new IOException("Failed to open file: " + file);
-			}
-		} finally {
-			mi.close();
+		try (MediaInfo mi = new MediaInfo()) {
+			return mi.open(file).snapshot();
 		}
 	}
+
 }

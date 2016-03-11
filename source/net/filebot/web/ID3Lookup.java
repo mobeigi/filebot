@@ -15,7 +15,6 @@ import javax.swing.Icon;
 import net.filebot.ResourceManager;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
-import net.filebot.mediainfo.MediaInfoException;
 
 public class ID3Lookup implements MusicIdentificationService {
 
@@ -36,9 +35,8 @@ public class ID3Lookup implements MusicIdentificationService {
 		try (MediaInfo mediaInfo = new MediaInfo()) {
 			for (File f : filter(files, AUDIO_FILES, VIDEO_FILES)) {
 				try {
-					if (!mediaInfo.open(f)) {
-						throw new MediaInfoException("Failed to read media info: " + f);
-					}
+					// open or throw exception
+					mediaInfo.open(f);
 
 					// artist and song title information is required
 					String artist = getString(mediaInfo, "Performer", "Composer");
