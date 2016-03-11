@@ -17,6 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import net.filebot.mediainfo.MediaInfo;
@@ -27,7 +28,7 @@ import net.miginfocom.swing.MigLayout;
 
 class MediaInfoTool extends Tool<TableModel> {
 
-	private JTable table = new JTable(new MediaInfoTableModel());
+	private JTable table = new JTable();
 
 	public MediaInfoTool() {
 		super("MediaInfo");
@@ -36,7 +37,7 @@ class MediaInfoTool extends Tool<TableModel> {
 		table.setAutoCreateColumnsFromModel(true);
 		table.setFillsViewportHeight(true);
 
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+		table.setCellSelectionEnabled(true);
 		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
 		table.setBackground(Color.white);
@@ -48,6 +49,8 @@ class MediaInfoTool extends Tool<TableModel> {
 
 		setLayout(new MigLayout("insets 0, fill"));
 		add(new LoadingOverlayPane(scrollPane, this), "grow");
+
+		setModel(new MediaInfoTableModel());
 	}
 
 	@Override
@@ -77,12 +80,26 @@ class MediaInfoTool extends Tool<TableModel> {
 			});
 		}
 
-		return new MediaInfoTableModel(files, data);
+		return new MediaInfoTableModel(data.isEmpty() ? emptyList() : files, data);
 	}
 
 	@Override
 	protected void setModel(TableModel model) {
 		table.setModel(model);
+
+		// set column preferences
+		TableColumnModel columnModel = table.getColumnModel();
+		columnModel.getColumn(0).setMaxWidth(20);
+		columnModel.getColumn(1).setMaxWidth(70);
+		columnModel.getColumn(2).setMinWidth(140);
+
+		if (columnModel.getColumnCount() > 4) {
+			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			IntStream.range(0, columnModel.getColumnCount()).forEach(i -> columnModel.getColumn(i).setMinWidth(140));
+		} else {
+			table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+		}
+
 	}
 
 	private static class MediaInfoKey implements Comparable<MediaInfoKey> {
@@ -147,9 +164,9 @@ class MediaInfoTool extends Tool<TableModel> {
 		@Override
 		public String getColumnName(int column) {
 			switch (column) {
-			case 0:
-				return "Stream";
 			case 1:
+				return "Stream";
+			case 0:
 				return "#";
 			case 2:
 				return "Property";
@@ -161,9 +178,9 @@ class MediaInfoTool extends Tool<TableModel> {
 		@Override
 		public Class<?> getColumnClass(int column) {
 			switch (column) {
-			case 0:
-				return StreamKind.class;
 			case 1:
+				return StreamKind.class;
+			case 0:
 				return Integer.class;
 			default:
 				return String.class;
@@ -178,9 +195,9 @@ class MediaInfoTool extends Tool<TableModel> {
 		@Override
 		public Object getValueAt(int row, int column) {
 			switch (column) {
-			case 0:
-				return keys[row].kind;
 			case 1:
+				return keys[row].kind;
+			case 0:
 				return keys[row].stream;
 			case 2:
 				return keys[row].name;
