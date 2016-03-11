@@ -110,10 +110,6 @@ public final class WebRequest {
 		return fetch(resource, ifModifiedSince, null, null, null);
 	}
 
-	public static ByteBuffer fetchIfNoneMatch(URL resource, Object etag) throws IOException {
-		return fetch(resource, 0, etag, null, null);
-	}
-
 	public static ByteBuffer fetch(URL url, long ifModifiedSince, Object etag, Map<String, String> requestParameters, Map<String, List<String>> responseParameters) throws IOException {
 		URLConnection connection = url.openConnection();
 

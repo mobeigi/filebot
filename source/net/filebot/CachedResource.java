@@ -188,15 +188,16 @@ public class CachedResource<K, R> implements Resource<R> {
 			try {
 				debug.fine(WebRequest.log(url, lastModified, etagValue));
 				if (etagValue != null) {
-					return WebRequest.fetchIfNoneMatch(url, etagValue);
+					return WebRequest.fetch(url, 0, etagValue, null, responseHeaders);
 				} else {
-					return WebRequest.fetchIfModified(url, lastModified);
+					return WebRequest.fetch(url, lastModified, null, null, responseHeaders);
 				}
 			} catch (FileNotFoundException e) {
 				return fileNotFound(url, e);
 			} finally {
 				List<String> value = responseHeaders.get("ETag");
 				if (value != null && value.size() > 0 && !value.contains(etagValue)) {
+					debug.finest(format("Store ETag: %s", value));
 					etagStorage.put(etagKey, value.get(0));
 				}
 			}
