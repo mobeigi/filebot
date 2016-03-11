@@ -59,6 +59,14 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 
+import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
+
+import com.cedarsoftware.util.io.JsonReader;
+import com.cedarsoftware.util.io.JsonWriter;
+
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.UserFiles;
@@ -85,14 +93,6 @@ import net.filebot.web.MovieFormat;
 import net.filebot.web.MovieIdentificationService;
 import net.filebot.web.MusicIdentificationService;
 import net.miginfocom.swing.MigLayout;
-
-import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rtextarea.RTextScrollPane;
-
-import com.cedarsoftware.util.io.JsonReader;
-import com.cedarsoftware.util.io.JsonWriter;
 
 public class FormatDialog extends JDialog {
 
@@ -328,7 +328,7 @@ public class FormatDialog extends JDialog {
 		final RSyntaxTextArea editor = new RSyntaxTextArea(new RSyntaxDocument(SyntaxConstants.SYNTAX_STYLE_GROOVY) {
 			@Override
 			public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
-				super.insertString(offs, str.replaceAll("\\s", " "), a); // FORCE SINGLE LINE
+				super.insertString(offs, str.replaceAll("\\R", ""), a); // FORCE SINGLE LINE
 			}
 		}, null, 1, 80);
 
