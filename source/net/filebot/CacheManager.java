@@ -13,6 +13,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Scanner;
 import java.util.logging.Level;
 
+import net.filebot.Settings.ApplicationFolder;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
@@ -25,8 +26,8 @@ public class CacheManager {
 		return instance;
 	}
 
-	private final net.sf.ehcache.CacheManager manager;
 	private final File diskStore;
+	private final net.sf.ehcache.CacheManager manager;
 
 	public CacheManager() {
 		try {
@@ -46,7 +47,6 @@ public class CacheManager {
 
 	public synchronized void clearAll() {
 		manager.clearAll();
-		manager.removeAllCaches();
 
 		// clear all caches that have not been added yet
 		clearDiskStore(diskStore);
