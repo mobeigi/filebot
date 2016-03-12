@@ -1,5 +1,7 @@
 package net.filebot.media;
 
+import static net.filebot.media.MediaDetection.*;
+
 import java.io.File;
 import java.util.List;
 
@@ -12,7 +14,7 @@ public class SmartSeasonEpisodeMatcher extends SeasonEpisodeMatcher {
 	}
 
 	protected String clean(CharSequence name) {
-		return MediaDetection.stripFormatInfo(name);
+		return stripFormatInfo(name);
 	}
 
 	@Override
