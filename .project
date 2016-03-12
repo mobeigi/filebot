@@ -16,6 +16,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>filebot-data</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/filebot-data</locationURI>
+		</link>
+		<link>
 			<name>filebot-plugins</name>
 			<type>2</type>
 			<locationURI>PARENT-1-PROJECT_LOC/filebot-plugins</locationURI>

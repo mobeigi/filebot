@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.Collection;
 
 import javax.swing.AbstractAction;
@@ -104,13 +105,15 @@ public class SelectDialog<T> extends JDialog {
 
 	protected void configureValue(JComponent render, Object value) {
 		if (value instanceof SearchResult) {
-			render.setToolTipText(getSearchResultPopup((SearchResult) value));
+			render.setToolTipText(getTooltipText((SearchResult) value));
+		} else if (value instanceof File) {
+			render.setToolTipText(((File) value).getAbsolutePath());
 		} else {
 			render.setToolTipText(null);
 		}
 	}
 
-	protected String getSearchResultPopup(SearchResult item) {
+	protected String getTooltipText(SearchResult item) {
 		StringBuilder html = new StringBuilder(64);
 		html.append("<html><b>").append(escapeHTML(item.toString())).append("</b><br>");
 		String[] names = item.getAliasNames();

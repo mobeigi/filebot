@@ -5,7 +5,9 @@ import static net.filebot.Logging.*;
 import java.util.function.Function;
 import java.util.logging.Level;
 
-public class SystemProperty<T> {
+import net.filebot.Resource;
+
+public class SystemProperty<T> implements Resource<T> {
 
 	public static <T> SystemProperty<T> of(String key, Function<String, T> valueFunction, T defaultValue) {
 		return new SystemProperty<T>(key, valueFunction, defaultValue);
@@ -37,6 +39,11 @@ public class SystemProperty<T> {
 		}
 
 		return defaultValue;
+	}
+
+	public T orElse(T other) {
+		T value = get();
+		return value != null ? value : other;
 	}
 
 	public void set(T value) {

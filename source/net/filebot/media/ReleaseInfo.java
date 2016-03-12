@@ -38,16 +38,17 @@ import java.util.function.IntFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.tukaani.xz.XZInputStream;
+
 import net.filebot.Cache;
 import net.filebot.CacheType;
 import net.filebot.Resource;
 import net.filebot.util.FileUtilities.RegexFileFilter;
+import net.filebot.util.SystemProperty;
 import net.filebot.web.AnidbSearchResult;
 import net.filebot.web.Movie;
 import net.filebot.web.SubtitleSearchResult;
 import net.filebot.web.TheTVDBSearchResult;
-
-import org.tukaani.xz.XZInputStream;
 
 public class ReleaseInfo {
 
@@ -411,6 +412,8 @@ public class ReleaseInfo {
 	protected final Resource<Movie[]> movieIndex = tsv("url.movie-list", Cache.ONE_MONTH, this::parseMovie, Movie[]::new);
 	protected final Resource<SubtitleSearchResult[]> osdbIndex = tsv("url.osdb-index", Cache.ONE_MONTH, this::parseSubtitle, SubtitleSearchResult[]::new);
 
+	protected final SystemProperty<Duration> refreshDuration = new SystemProperty<Duration>("url.refresh", Duration::parse, null);
+
 	private TheTVDBSearchResult parseSeries(String[] v) {
 		int id = parseInt(v[0]);
 		String name = v[1];
@@ -455,7 +458,7 @@ public class ReleaseInfo {
 	protected <A> Resource<A[]> resource(String name, Duration expirationTime, Function<String, A> parse, IntFunction<A[]> generator) {
 		return () -> {
 			Cache cache = Cache.getCache("data", CacheType.Persistent);
-			byte[] bytes = cache.bytes(name, n -> new URL(getProperty(n))).expire(expirationTime).get();
+			byte[] bytes = cache.bytes(name, n -> new URL(getProperty(n))).expire(refreshDuration.orElse(expirationTime)).get();
 
 			// all data file are xz compressed
 			try (BufferedReader text = new BufferedReader(new InputStreamReader(new XZInputStream(new ByteArrayInputStream(bytes)), UTF_8))) {

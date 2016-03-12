@@ -82,7 +82,7 @@ public class MediaDetection {
 		} catch (Exception e) {
 			debug.log(Level.SEVERE, "Unable to access clutter file filter: " + e.getMessage(), e);
 		}
-		return ((File f) -> false);
+		return f -> false;
 	}
 
 	public static boolean isDiskFolder(File folder) {
@@ -942,7 +942,7 @@ public class MediaDetection {
 		querySet = getUniqueQuerySet(emptySet(), stripBlacklistedTerms(querySet));
 
 		// DEBUG
-		debug.finest(format("Query %s => %s", queryLookupService.getName(), querySet));
+		debug.finest(format("Query [%s] => %s", queryLookupService.getName(), querySet));
 
 		final Map<Movie, Float> probabilityMap = new LinkedHashMap<Movie, Float>();
 		final SimilarityMetric metric = getMovieMatchMetric();
