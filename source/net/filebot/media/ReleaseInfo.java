@@ -6,6 +6,7 @@ import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.ResourceBundle.*;
 import static java.util.regex.Pattern.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
@@ -24,7 +25,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -155,52 +155,35 @@ public class ReleaseInfo {
 	}
 
 	// cached patterns
-	private final Map<Boolean, Pattern[]> stopwords = new HashMap<Boolean, Pattern[]>(2);
-	private final Map<Boolean, Pattern[]> blacklist = new HashMap<Boolean, Pattern[]>(2);
+	private final Pattern[][] stopwords = new Pattern[2][];
+	private final Pattern[][] blacklist = new Pattern[2][];
 
 	public List<String> cleanRelease(Collection<String> items, boolean strict) throws Exception {
-		Pattern[] stopwords;
-		Pattern[] blacklist;
+		int b = strict ? 1 : 0;
 
 		// initialize cached patterns
-		synchronized (this.stopwords) {
-			stopwords = this.stopwords.get(strict);
-			blacklist = this.blacklist.get(strict);
+		if (stopwords[b] == null || blacklist[b] == null) {
+			Set<String> languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault()).keySet();
+			Pattern clutterBracket = getClutterBracketPattern(strict);
+			Pattern releaseGroup = getReleaseGroupPattern(strict);
+			Pattern languageSuffix = getLanguageSuffixPattern(languages, strict);
+			Pattern languageTag = getLanguageTagPattern(languages);
+			Pattern videoSource = getVideoSourcePattern();
+			Pattern videoTags = getVideoTagPattern();
+			Pattern videoFormat = getVideoFormatPattern(strict);
+			Pattern stereoscopic3d = getStereoscopic3DPattern();
+			Pattern resolution = getResolutionPattern();
+			Pattern queryBlacklist = getBlacklistPattern();
 
-			if (stopwords == null || blacklist == null) {
-				Set<String> languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault()).keySet();
-				Pattern clutterBracket = getClutterBracketPattern(strict);
-				Pattern releaseGroup = getReleaseGroupPattern(strict);
-				Pattern languageSuffix = getLanguageSuffixPattern(languages, strict);
-				Pattern languageTag = getLanguageTagPattern(languages);
-				Pattern videoSource = getVideoSourcePattern();
-				Pattern videoTags = getVideoTagPattern();
-				Pattern videoFormat = getVideoFormatPattern(strict);
-				Pattern stereoscopic3d = getStereoscopic3DPattern();
-				Pattern resolution = getResolutionPattern();
-				Pattern queryBlacklist = getBlacklistPattern();
-
-				stopwords = new Pattern[] { languageTag, videoSource, videoTags, videoFormat, resolution, stereoscopic3d, languageSuffix };
-				blacklist = new Pattern[] { queryBlacklist, languageTag, clutterBracket, releaseGroup, videoSource, videoTags, videoFormat, resolution, stereoscopic3d, languageSuffix };
-
-				// cache compiled patterns for common usage
-				this.stopwords.put(strict, stopwords);
-				this.blacklist.put(strict, blacklist);
-			}
+			stopwords[b] = new Pattern[] { languageTag, videoSource, videoTags, videoFormat, resolution, stereoscopic3d, languageSuffix };
+			blacklist[b] = new Pattern[] { queryBlacklist, languageTag, clutterBracket, releaseGroup, videoSource, videoTags, videoFormat, resolution, stereoscopic3d, languageSuffix };
 		}
 
-		List<String> output = new ArrayList<String>(items.size());
-		for (String it : items) {
-			it = strict ? clean(it, stopwords) : substringBefore(it, stopwords);
-			it = normalizePunctuation(clean(it, blacklist));
-
-			// ignore empty values
-			if (it.length() > 0) {
-				output.add(it);
-			}
-		}
-
-		return output;
+		return items.stream().map(it -> {
+			it = strict ? clean(it, stopwords[b]) : substringBefore(it, stopwords[b]);
+			it = normalizePunctuation(clean(it, blacklist[b]));
+			return it;
+		}).filter(s -> s.length() > 0).collect(toList());
 	}
 
 	public String clean(String item, Pattern... blacklisted) {
