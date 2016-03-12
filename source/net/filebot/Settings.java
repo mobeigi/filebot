@@ -205,6 +205,10 @@ public final class Settings {
 		}
 	}
 
+	public File getApplicationFolder() {
+		return ApplicationFolder.AppData.get();
+	}
+
 	public static enum ApplicationFolder {
 
 		AppData {
