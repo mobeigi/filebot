@@ -205,8 +205,8 @@ public final class Settings {
 		}
 	}
 
-	public File getApplicationFolder() {
-		return ApplicationFolder.AppData.get();
+	public static File getApplicationFolder() {
+		return ApplicationFolder.AppData.get(); // added for script compatibility
 	}
 
 	public static enum ApplicationFolder {
