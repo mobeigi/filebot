@@ -83,7 +83,7 @@ def isValidMovieName(s) {
 
 def getNamePermutations(names) {
 	def normalize = { s -> s.toLowerCase().normalizePunctuation() }.memoize()
-	def fn1 = { s -> s.replaceAll(/(?i)(^(The|A)\s)|([,]\s(The|A)$)/, '') }
+	def fn1 = { s -> def n = s.replaceAll(/(?i)(^(The|A)\s)|([,]\s(The|A)$)/, ''); s =~ /^(?i:The|A)/ && n ==~ /\w+/ ? s : n } // e.g. The Walking Dead => Walking Dead, The Voice => The Voice
 	def fn2 = { s -> s.replaceAll(/\s&\s/, ' and ') }
 	def fn3 = { s -> s.replaceAll(/\([^\)]*\)$/, '') }
 
