@@ -412,7 +412,7 @@ public class ReleaseInfo {
 	protected final Resource<Movie[]> movieIndex = tsv("url.movie-list", Cache.ONE_MONTH, this::parseMovie, Movie[]::new);
 	protected final Resource<SubtitleSearchResult[]> osdbIndex = tsv("url.osdb-index", Cache.ONE_MONTH, this::parseSubtitle, SubtitleSearchResult[]::new);
 
-	protected final SystemProperty<Duration> refreshDuration = new SystemProperty<Duration>("url.refresh", Duration::parse, null);
+	protected final SystemProperty<Duration> refreshDuration = SystemProperty.of("url.refresh", Duration::parse, null);
 
 	private TheTVDBSearchResult parseSeries(String[] v) {
 		int id = parseInt(v[0]);

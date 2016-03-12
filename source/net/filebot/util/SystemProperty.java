@@ -5,9 +5,7 @@ import static net.filebot.Logging.*;
 import java.util.function.Function;
 import java.util.logging.Level;
 
-import net.filebot.Resource;
-
-public class SystemProperty<T> implements Resource<T> {
+public class SystemProperty<T> {
 
 	public static <T> SystemProperty<T> of(String key, Function<String, T> valueFunction, T defaultValue) {
 		return new SystemProperty<T>(key, valueFunction, defaultValue);

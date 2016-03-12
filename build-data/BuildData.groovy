@@ -11,6 +11,8 @@ def dir_root    = ".."
 def dir_website = "${dir_root}/website"
 def dir_data    = "${dir_website}/data"
 
+new File(dir_data).mkdirs()
+
 // sort and check shared regex collections
 ['add-series-alias.txt', 
  'exclude-blacklist.txt', 
@@ -118,6 +120,12 @@ def csv(f, delim, keyIndex, valueIndex) {
 	return values
 }
 
+
+/* ------------------------------------------------------------------------- */
+
+if (_args.mode == /no-index/) {
+	return
+}
 
 /* ------------------------------------------------------------------------- */
 
