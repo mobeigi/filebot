@@ -85,14 +85,19 @@ def isValidMovieName(s) {
 
 def getNamePermutations(names) {
 	def normalize = { s -> s.toLowerCase().normalizePunctuation() }.memoize()
-	def fn1 = { s -> def n = s.replaceAll(/(?i)(^(The|A)\s)|([,]\s(The|A)$)/, ''); s =~ /^(?i:The|A)/ && n ==~ /\w+/ ? s : n } // e.g. The Walking Dead => Walking Dead, The Voice => The Voice
-	def fn2 = { s -> s.replaceAll(/\s&\s/, ' and ') }
-	def fn3 = { s -> s.replaceAll(/\([^\)]*\)$/, '') }
 
 	def out = names*.trim().unique().collectMany{ original ->
-		def simplified = original
-		[fn1, fn2, fn3].each{ fn -> simplified = fn(simplified).trim() }
-		return [original, simplified]
+		def s = original.trim()
+		s = s.replaceAll(/([,]\s(The|A)$)/, '').trim()
+		s = s.replaceAll(/\s&\s/, ' and ')
+		s = s.replaceAll(/\s\([^\)]*\)$/, '').trim()
+
+		// e.g. The Walking Dead => Walking Dead, The Voice => The Voice
+		def sn = s.replaceAll(/^(?i:The|A)\s/, '').trim()
+		if (sn ==~ /\w+/) {
+			return [original, s]
+		}
+		return [original, sn]
 	}.unique{ normalize(it) }.findAll{ it.length() > 0 }
 
 	out = out.findAll{ it.length() >= 2 && !(it ==~ /[1][0-9][1-9]/) && !(it =~ /^[a-z]/) && it =~ /^[@.\p{L}\p{Digit}]/ } // MUST START WITH UNICODE LETTER
