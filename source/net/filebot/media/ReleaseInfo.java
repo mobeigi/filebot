@@ -24,7 +24,6 @@ import java.text.Normalizer.Form;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -166,6 +165,7 @@ public class ReleaseInfo {
 			Set<String> languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault()).keySet();
 			Pattern clutterBracket = getClutterBracketPattern(strict);
 			Pattern releaseGroup = getReleaseGroupPattern(strict);
+			Pattern releaseGroupTrim = getReleaseGroupTrimPattern();
 			Pattern languageSuffix = getLanguageSuffixPattern(languages, strict);
 			Pattern languageTag = getLanguageTagPattern(languages);
 			Pattern videoSource = getVideoSourcePattern();
@@ -176,7 +176,7 @@ public class ReleaseInfo {
 			Pattern queryBlacklist = getBlacklistPattern();
 
 			stopwords[b] = new Pattern[] { languageTag, videoSource, videoTags, videoFormat, resolution, stereoscopic3d, languageSuffix };
-			blacklist[b] = new Pattern[] { queryBlacklist, languageTag, clutterBracket, releaseGroup, videoSource, videoTags, videoFormat, resolution, stereoscopic3d, languageSuffix };
+			blacklist[b] = new Pattern[] { releaseGroupTrim, queryBlacklist, languageTag, clutterBracket, releaseGroup, videoSource, videoTags, videoFormat, resolution, stereoscopic3d, languageSuffix };
 		}
 
 		return items.stream().map(it -> {
@@ -305,6 +305,11 @@ public class ReleaseInfo {
 	public Pattern getReleaseGroupPattern(boolean strict) throws Exception {
 		// pattern matching any release group name enclosed in separators
 		return compile("(?<!\\p{Alnum})" + or(releaseGroup.get()) + "(?!\\p{Alnum}|[^\\p{Alnum}](19|20)\\d{2})", strict ? 0 : CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+	}
+
+	public Pattern getReleaseGroupTrimPattern() throws Exception {
+		// pattern matching any release group name enclosed in specific separators or at the start/end
+		return compile("(?<=\\[|\\(|^)" + or(releaseGroup.get()) + "(?=\\]|\\)|\\-)|(?<!\\[|\\(|\\-)" + or(releaseGroup.get()) + "(?=\\]|\\)|$)", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
 	public Pattern getBlacklistPattern() throws Exception {
@@ -519,8 +524,7 @@ public class ReleaseInfo {
 		collator.setDecomposition(Collator.FULL_DECOMPOSITION);
 		collator.setStrength(Collator.PRIMARY);
 
-		Comparator<? super String> order = collator;
-		Map<String, Locale> languageMap = new TreeMap<String, Locale>(order);
+		Map<String, Locale> languageMap = new TreeMap<String, Locale>(collator);
 
 		for (String code : Locale.getISOLanguages()) {
 			Locale locale = new Locale(code); // force ISO3 language as default toString() value
