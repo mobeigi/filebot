@@ -1,43 +1,42 @@
 package net.filebot.web;
 
+import static java.nio.charset.StandardCharsets.*;
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.util.StringUtilities.*;
 import static net.filebot.util.XPathUtilities.*;
 import static net.filebot.web.EpisodeUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
 
 import javax.swing.Icon;
-
-import net.filebot.Cache;
-import net.filebot.CacheType;
-import net.filebot.ResourceManager;
 
 import org.jsoup.Jsoup;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import net.filebot.Cache;
+import net.filebot.CacheType;
+import net.filebot.ResourceManager;
 
 public class AnidbClient extends AbstractEpisodeListProvider {
 
@@ -196,10 +195,10 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	}
 
 	/**
-	 * This method is (and must be!) overridden by WebServices.AnidbClientWithLocalSearch to use our own anime index from sourceforge (as to not abuse anidb servers)
+	 * This method is overridden in {@link net.filebot.WebServices.AnidbClientWithLocalSearch} to fetch the Anime Index from our own host and not anidb.net
 	 */
 	public synchronized List<AnidbSearchResult> getAnimeTitles() throws Exception {
-		// get data file (cached)
+		// get data file (unzip and cache)
 		byte[] bytes = getCache("root").bytes("anime-titles.dat.gz", n -> new URL("http://anidb.net/api/" + n)).get();
 
 		// <aid>|<type>|<language>|<title>
@@ -220,10 +219,9 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		// fetch data
 		Map<Integer, List<Object[]>> entriesByAnime = new HashMap<Integer, List<Object[]>>(65536);
 
-		Scanner scanner = new Scanner(new GZIPInputStream(new ByteArrayInputStream(bytes)), "UTF-8");
-		try {
-			while (scanner.hasNextLine()) {
-				Matcher matcher = pattern.matcher(scanner.nextLine());
+		try (BufferedReader text = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bytes), UTF_8))) {
+			text.lines().forEach(line -> {
+				Matcher matcher = pattern.matcher(line);
 
 				if (matcher.matches()) {
 					int aid = Integer.parseInt(matcher.group(1));
@@ -236,51 +234,32 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 						title = Jsoup.parse(title).text();
 
 						if (type.equals("3") && (title.length() < 5 || !Character.isUpperCase(title.charAt(0)) || Character.isUpperCase(title.charAt(title.length() - 1)))) {
-							continue;
+							return;
 						}
 
-						List<Object[]> names = entriesByAnime.get(aid);
-						if (names == null) {
-							names = new ArrayList<Object[]>();
-							entriesByAnime.put(aid, names);
-						}
-						names.add(new Object[] { typeOrder.indexOf(type), languageOrder.indexOf(language), title });
+						entriesByAnime.computeIfAbsent(aid, k -> new ArrayList<Object[]>()).add(new Object[] { typeOrder.indexOf(type), languageOrder.indexOf(language), title });
 					}
 				}
-			}
-		} finally {
-			scanner.close();
+			});
 		}
 
 		// build up a list of all possible AniDB search results
 		List<AnidbSearchResult> anime = new ArrayList<AnidbSearchResult>(entriesByAnime.size());
 
-		for (Entry<Integer, List<Object[]>> entry : entriesByAnime.entrySet()) {
-			int aid = entry.getKey();
-			List<Object[]> triples = entry.getValue();
-
-			Collections.sort(triples, new Comparator<Object[]>() {
-
-				@SuppressWarnings({ "unchecked", "rawtypes" })
-				@Override
-				public int compare(Object[] a, Object[] b) {
-					for (int i = 0; i < a.length; i++) {
-						if (!a[i].equals(b[i]))
-							return ((Comparable) a[i]).compareTo(b[i]);
+		entriesByAnime.forEach((aid, triples) -> {
+			List<String> names = triples.stream().sorted((a, b) -> {
+				for (int i = 0; i < a.length; i++) {
+					if (!a[i].equals(b[i])) {
+						return ((Comparable) a[i]).compareTo(b[i]);
 					}
-					return 0;
 				}
-			});
-
-			List<String> names = new ArrayList<String>(triples.size());
-			for (Object[] it : triples) {
-				names.add((String) it[2]);
-			}
+				return 0;
+			}).map(it -> (String) it[2]).collect(toList());
 
 			String primaryTitle = names.get(0);
 			String[] aliasNames = names.subList(1, names.size()).toArray(new String[0]);
 			anime.add(new AnidbSearchResult(aid, primaryTitle, aliasNames));
-		}
+		});
 
 		return anime;
 	}
