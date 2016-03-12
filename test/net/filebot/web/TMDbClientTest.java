@@ -108,7 +108,7 @@ public class TMDbClientTest {
 	public void etag() throws Exception {
 		Cache cache = Cache.getCache("test", CacheType.Persistent);
 		Cache etagStorage = Cache.getCache("etag", CacheType.Persistent);
-		CachedResource<String, byte[]> resource = cache.bytes("http://devel.squid-cache.org/old_projects.html#etag", URL::new).fetch(fetchIfNoneMatch(etagStorage)).expire(Duration.ZERO);
+		CachedResource<String, byte[]> resource = cache.bytes("http://devel.squid-cache.org/old_projects.html#etag", URL::new).fetch(fetchIfNoneMatch(etagStorage::get, etagStorage::put)).expire(Duration.ZERO);
 		assertArrayEquals(resource.get(), resource.get());
 	}
 

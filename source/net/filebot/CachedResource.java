@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import net.filebot.util.JsonUtilities;
 import net.filebot.web.WebRequest;
@@ -177,13 +180,11 @@ public class CachedResource<K, R> implements Resource<R> {
 		};
 	}
 
-	public static Fetch fetchIfNoneMatch(Cache etagStorage) {
+	public static Fetch fetchIfNoneMatch(Function<URL, Object> etagRetrieve, BiConsumer<URL, String> etagStore) {
 		return (url, lastModified) -> {
 			// record ETag response header
 			Map<String, List<String>> responseHeaders = new HashMap<String, List<String>>();
-
-			String etagKey = url.toString();
-			Object etagValue = etagStorage.get(etagKey);
+			Object etagValue = etagRetrieve.apply(url);
 
 			try {
 				debug.fine(WebRequest.log(url, lastModified, etagValue));
@@ -197,7 +198,7 @@ public class CachedResource<K, R> implements Resource<R> {
 			} finally {
 				WebRequest.getETag(responseHeaders).ifPresent(etag -> {
 					debug.finest(format("Store ETag: %s", etag));
-					etagStorage.put(etagKey, etag);
+					etagStore.accept(url, etag);
 				});
 			}
 		};

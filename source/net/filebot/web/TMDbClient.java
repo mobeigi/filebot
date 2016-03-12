@@ -34,6 +34,7 @@ import javax.swing.Icon;
 
 import net.filebot.Cache;
 import net.filebot.CacheType;
+import net.filebot.CachedResource.Fetch;
 import net.filebot.Language;
 import net.filebot.ResourceManager;
 import net.filebot.web.TMDbClient.MovieInfo.MovieProperty;
@@ -112,7 +113,7 @@ public class TMDbClient implements MovieIdentificationService {
 
 			if (extendedInfo) {
 				try {
-					Object titles = request("movie/" + id + "/alternative_titles", null, null, REQUEST_LIMIT);
+					Object titles = request("movie/" + id + "/alternative_titles", emptyMap(), Locale.ENGLISH, REQUEST_LIMIT);
 					streamJsonObjects(titles, "titles").map(n -> {
 						return getString(n, "title");
 					}).filter(t -> t != null && t.length() >= 3).forEach(alternativeTitles::add);
@@ -167,7 +168,7 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 
 	public MovieInfo getMovieInfo(String id, Locale locale, boolean extendedInfo) throws Exception {
-		Object response = request("movie/" + id, extendedInfo ? singletonMap("append_to_response", "alternative_titles,releases,casts,trailers") : null, locale, REQUEST_LIMIT);
+		Object response = request("movie/" + id, extendedInfo ? singletonMap("append_to_response", "alternative_titles,releases,casts,trailers") : emptyMap(), locale, REQUEST_LIMIT);
 
 		Map<MovieProperty, String> fields = getEnumMap(response, MovieProperty.class);
 
@@ -268,10 +269,10 @@ public class TMDbClient implements MovieIdentificationService {
 
 	public List<Artwork> getArtwork(String id) throws Exception {
 		// http://api.themoviedb.org/3/movie/11/images
-		Object config = request("configuration", null, null, REQUEST_LIMIT);
+		Object config = request("configuration", emptyMap(), Locale.ENGLISH, REQUEST_LIMIT);
 		String baseUrl = getString(getMap(config, "images"), "base_url");
 
-		Object images = request("movie/" + id + "/images", null, null, REQUEST_LIMIT);
+		Object images = request("movie/" + id + "/images", emptyMap(), Locale.ENGLISH, REQUEST_LIMIT);
 
 		return Stream.of("backdrops", "posters").flatMap(section -> {
 			Stream<Artwork> artwork = streamJsonObjects(images, section).map(it -> {
@@ -292,39 +293,37 @@ public class TMDbClient implements MovieIdentificationService {
 
 	public Object request(String resource, Map<String, Object> parameters, Locale locale, final FloodLimit limit) throws Exception {
 		// default parameters
-		LinkedHashMap<String, Object> data = new LinkedHashMap<String, Object>();
-		if (parameters != null) {
-			data.putAll(parameters);
-		}
+		String key = parameters.isEmpty() ? resource : resource + '?' + encodeParameters(parameters, true);
 
-		if (locale != null && locale.getLanguage().length() > 0) {
-			String code = locale.getLanguage();
+		Cache etagStorage = Cache.getCache(getName() + "_" + locale + "_etag", CacheType.Monthly);
+		Fetch fetchIfNoneMatch = fetchIfNoneMatch(url -> etagStorage.get(key), (url, etag) -> etagStorage.put(key, etag));
 
-			// require 2-letter language code
-			if (code.length() != 2) {
-				Language lang = Language.getLanguage(locale);
-				if (lang != null) {
-					code = lang.getISO2();
-				}
-			}
-			data.put("language", code);
-		}
-		data.put("api_key", apikey);
-
-		Cache cache = Cache.getCache(getName(), CacheType.Monthly);
-		Cache etagStorage = Cache.getCache("etag", CacheType.Monthly);
-		String key = resource + '?' + encodeParameters(data, true);
-
-		Object json = cache.json(key, s -> getResource(s)).fetch(withPermit(fetchIfNoneMatch(etagStorage), r -> limit.acquirePermit())).expire(Cache.ONE_WEEK).get();
+		Cache cache = Cache.getCache(getName() + "_" + locale, CacheType.Monthly);
+		Object json = cache.json(key, s -> getResource(s, locale)).fetch(withPermit(fetchIfNoneMatch, r -> limit.acquirePermit())).expire(Cache.ONE_WEEK).get();
 
 		if (asMap(json).isEmpty()) {
-			throw new FileNotFoundException(String.format("Resource is empty: %s => %s", json, getResource(key)));
+			throw new FileNotFoundException(String.format("Resource is empty: %s => %s", json, getResource(key, locale)));
 		}
 		return json;
 	}
 
-	public URL getResource(String file) throws Exception {
-		return new URL("http", host, "/" + version + "/" + file);
+	protected URL getResource(String file, Locale locale) throws Exception {
+		return new URL("https", host, "/" + version + "/" + file + (file.lastIndexOf('?') < 0 ? '?' : '&') + "language=" + getLanguageCode(locale) + "&api_key=" + apikey);
+	}
+
+	protected String getLanguageCode(Locale locale) {
+		// require 2-letter language code
+		String language = locale.getLanguage();
+		if (language.length() == 2) {
+			return language;
+		}
+
+		Language lang = Language.getLanguage(locale);
+		if (lang != null) {
+			return lang.getISO2();
+		}
+
+		throw new IllegalArgumentException("Illegal language code: " + language);
 	}
 
 	public static class MovieInfo implements Serializable {
