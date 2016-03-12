@@ -111,7 +111,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 				prefs.put("dialog.select.h", Integer.toString(selectDialog.getHeight()));
 
 				if (selectDialog.getSelectedAction() == null) {
-					throw new CancellationException("Cancelled by user");
+					throw new CancellationException();
 				}
 
 				// remember if we should auto-repeat the chosen action in the future

@@ -427,7 +427,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				}
 
 				if (selectDialog.getSelectedAction() == null) {
-					throw new CancellationException("Cancelled by user");
+					throw new CancellationException();
 				}
 
 				// selected value or null if the dialog was canceled by the user

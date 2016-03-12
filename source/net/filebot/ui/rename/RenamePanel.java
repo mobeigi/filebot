@@ -888,9 +888,7 @@ public class RenamePanel extends JComponent {
 						// add remaining file entries
 						renameModel.files().addAll(remainingFiles);
 					} catch (Exception e) {
-						if (findCause(e, CancellationException.class) != null) {
-							debug.log(Level.WARNING, getRootCause(e).toString());
-						} else {
+						if (findCause(e, CancellationException.class) == null) {
 							log.log(Level.WARNING, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
 						}
 					} finally {
