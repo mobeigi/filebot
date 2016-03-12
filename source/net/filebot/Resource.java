@@ -27,7 +27,7 @@ class MemoizedResource<R> implements Resource<R> {
 	}
 
 	@Override
-	public synchronized R get() throws Exception {
+	public R get() throws Exception {
 		if (value == null) {
 			value = resource.get();
 		}
