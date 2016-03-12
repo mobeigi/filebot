@@ -120,7 +120,7 @@ public class SelectDialog<T> extends JDialog {
 				html.append("• ").append(escapeHTML(n)).append("<br>");
 			}
 		}
-		html.append("<br>ID: <br>• <code>").append(escapeHTML(Integer.toString(item.getId()))).append("</code></html>");
+		html.append("<br>ID: <br>• ").append(Integer.toString(item.getId())).append("</html>");
 		return html.toString();
 	}
 

@@ -74,6 +74,8 @@ class MediaInfoTool extends Tool<TableModel> {
 							});
 						});
 					});
+				} catch (IllegalArgumentException e) {
+					debug.finest(e.getMessage());
 				} catch (Exception e) {
 					debug.warning(e.getMessage());
 				}

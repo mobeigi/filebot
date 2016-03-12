@@ -13,13 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
+
+import org.w3c.dom.Document;
 
 import net.filebot.util.JsonUtilities;
 import net.filebot.web.WebRequest;
-
-import org.w3c.dom.Document;
 
 public class CachedResource<K, R> implements Resource<R> {
 

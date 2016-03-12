@@ -27,7 +27,7 @@ public class MediaInfo implements Closeable {
 		}
 	}
 
-	public synchronized MediaInfo open(File file) throws IOException {
+	public synchronized MediaInfo open(File file) throws IOException, IllegalArgumentException {
 		if (!file.isFile() || file.length() < 64 * 1024) {
 			throw new IllegalArgumentException("Invalid media file: " + file);
 		}
