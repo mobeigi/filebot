@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import net.filebot.media.MediaDetection;
 import net.filebot.web.Episode;
 import net.filebot.web.SimpleDate;
 

@@ -172,7 +172,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 
 		// sanity check
 		if (episodes.isEmpty()) {
-			debug.fine(format("Failed to parse episode data: %s (%d): %s", anime, anime.getId(), url));
+			debug.fine(format("No episode data: %s (%d) => %s", anime, anime.getId(), url));
 		}
 
 		return new SeriesData(seriesInfo, episodes);

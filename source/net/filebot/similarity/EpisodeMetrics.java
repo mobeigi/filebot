@@ -326,13 +326,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		}
 
 		protected String[] getNormalizedEffectiveIdentifiers(Object object) {
-			List<?> identifiers = getEffectiveIdentifiers(object);
-			String[] names = new String[identifiers.size()];
-
-			for (int i = 0; i < names.length; i++) {
-				names[i] = normalizeObject(identifiers.get(i));
-			}
-			return names;
+			return getEffectiveIdentifiers(object).stream().map(EpisodeMetrics::normalizeObject).toArray(String[]::new);
 		}
 
 		protected List<?> getEffectiveIdentifiers(Object object) {
