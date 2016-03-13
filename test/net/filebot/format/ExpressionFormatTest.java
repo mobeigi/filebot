@@ -1,7 +1,6 @@
 
 package net.filebot.format;
 
-
 import static org.junit.Assert.*;
 
 import javax.script.Bindings;
@@ -10,7 +9,6 @@ import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
 import org.junit.Test;
-
 
 public class ExpressionFormatTest {
 
@@ -25,7 +23,6 @@ public class ExpressionFormatTest {
 		assertTrue(expression[2] instanceof String);
 		assertTrue(expression[3] instanceof CompiledScript);
 	}
-
 
 	@Test
 	public void format() throws Exception {
@@ -56,16 +53,14 @@ public class ExpressionFormatTest {
 		assertEquals("Today Is the Day, Part 1", new TestScriptFormat("{value.replacePart(', Part $1')}").format("Today Is the Day: part 1"));
 
 		// choice
-		assertEquals("not to be", new TestScriptFormat("{value ? 'to be' : 'not to be'}").format(null));
-		assertEquals("default", new TestScriptFormat("{value ?: 'default'}").format(null));
+		assertEquals("not to be", new TestScriptFormat("{value ? 'to be' : 'not to be'}").format(false));
+		assertEquals("default", new TestScriptFormat("{value ?: 'default'}").format(false));
 	}
-
 
 	@Test
 	public void closures() throws Exception {
 		assertEquals("[ant, cat]", new TestScriptFormat("{['ant', 'buffalo', 'cat', 'dinosaur'].findAll{ it.size() <= 3 }}").format(null));
 	}
-
 
 	@Test
 	public void illegalSyntax() throws Exception {
@@ -80,7 +75,6 @@ public class ExpressionFormatTest {
 		}
 	}
 
-
 	@Test
 	public void illegalClosingBracket() throws Exception {
 		try {
@@ -94,16 +88,14 @@ public class ExpressionFormatTest {
 		}
 	}
 
-
 	@Test
 	public void illegalBinding() throws Exception {
 		TestScriptFormat format = new TestScriptFormat("{xyz}");
 		format.format(new SimpleBindings());
 
 		// check message
-		assertEquals("BindingException: \"xyz\": undefined", format.caughtScriptException().getMessage());
+		assertEquals("Binding \"xyz\": undefined", format.caughtScriptException().getMessage());
 	}
-
 
 	@Test
 	public void illegalProperty() throws Exception {
@@ -111,16 +103,14 @@ public class ExpressionFormatTest {
 		format.format("test");
 
 		// check message
-		assertEquals("BindingException: \"xyz\": undefined", format.caughtScriptException().getMessage());
+		assertEquals("Binding \"xyz\": undefined", format.caughtScriptException().getMessage());
 	}
-
 
 	protected static class TestScriptFormat extends ExpressionFormat {
 
 		public TestScriptFormat(String format) throws ScriptException {
 			super(format);
 		}
-
 
 		@Override
 		public Bindings getBindings(Object value) {

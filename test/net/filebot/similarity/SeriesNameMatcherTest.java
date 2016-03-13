@@ -1,13 +1,17 @@
 package net.filebot.similarity;
 
 import static org.junit.Assert.*;
-import net.filebot.similarity.SeriesNameMatcher.SeriesNameCollection;
+
+import java.util.Locale;
 
 import org.junit.Test;
 
+import net.filebot.media.SmartSeasonEpisodeMatcher;
+import net.filebot.similarity.SeriesNameMatcher.SeriesNameCollection;
+
 public class SeriesNameMatcherTest {
 
-	SeriesNameMatcher matcher = new SeriesNameMatcher(true);
+	SeriesNameMatcher matcher = new SeriesNameMatcher(new SmartSeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, true), new DateMatcher(DateMatcher.DEFAULT_SANITY, Locale.ENGLISH));
 
 	@Test
 	public void whitelist() {
@@ -28,9 +32,7 @@ public class SeriesNameMatcherTest {
 	@Test
 	public void matchBeforeSeasonEpisodePattern() {
 		assertEquals("The Test", matcher.matchByEpisodeIdentifier("The Test - 1x01"));
-
-		// real world test
-		assertEquals("Mushishi", matcher.matchByEpisodeIdentifier("[niizk]_Mushishi_-_1x01_-_The_Green_Gathering"));
+		assertEquals("Mushishi", matcher.matchByEpisodeIdentifier("Mushishi_-_1x01_-_The_Green_Gathering"));
 	}
 
 	@Test

@@ -7,9 +7,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.filebot.web.Episode;
-
 import org.junit.Test;
+
+import net.filebot.web.Episode;
 
 public class EpisodeMetricsTest {
 
@@ -50,7 +50,7 @@ public class EpisodeMetricsTest {
 		episodes.add(new Episode("Greek", 1, 19, "No Campus for Old Rules"));
 
 		SimilarityMetric[] metrics = new SimilarityMetric[] { EpisodeIdentifier, SubstringFields };
-		List<Match<File, Episode>> m = new Matcher<File, Episode>(files, episodes, true, metrics).match();
+		List<Match<File, Episode>> m = new Matcher<File, Episode>(files, episodes, false, metrics).match();
 
 		assertEquals("Greek - S01E19 - No Campus for Old Rules", m.get(0).getValue().getName());
 		assertEquals("Greek - 1x19 - No Campus for Old Rules", m.get(0).getCandidate().toString());

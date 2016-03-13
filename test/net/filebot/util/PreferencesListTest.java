@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
-import net.filebot.util.PreferencesMap.SimpleAdapter;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import net.filebot.util.PreferencesMap.SimpleAdapter;
 
 
 public class PreferencesListTest {

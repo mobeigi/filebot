@@ -11,12 +11,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
-import net.filebot.util.PreferencesMap.SerializableAdapter;
-import net.filebot.util.PreferencesMap.SimpleAdapter;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import net.filebot.util.PreferencesMap.SerializableAdapter;
+import net.filebot.util.PreferencesMap.SimpleAdapter;
 
 
 public class PreferencesMapTest {

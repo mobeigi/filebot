@@ -3,10 +3,11 @@ package net.filebot.similarity;
 import static java.util.Arrays.*;
 import static net.filebot.similarity.SeasonEpisodeMatcher.SxE.*;
 import static org.junit.Assert.*;
-import net.filebot.media.MediaDetection;
-import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 import org.junit.Test;
+
+import net.filebot.media.MediaDetection;
+import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 public class SeasonEpisodeMatcherTest {
 

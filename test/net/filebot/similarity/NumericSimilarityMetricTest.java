@@ -8,12 +8,12 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import net.filebot.util.TestUtil;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import net.filebot.util.TestUtil;
 
 
 @RunWith(Parameterized.class)

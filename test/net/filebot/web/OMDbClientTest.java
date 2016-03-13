@@ -4,9 +4,9 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 
-import net.filebot.web.TMDbClient.MovieInfo;
-
 import org.junit.Test;
+
+import net.filebot.web.TMDbClient.MovieInfo;
 
 public class OMDbClientTest {
 

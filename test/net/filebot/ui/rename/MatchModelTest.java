@@ -8,11 +8,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import net.filebot.similarity.Match;
-
 import org.junit.Test;
 
 import ca.odell.glazedlists.GlazedLists;
+import net.filebot.similarity.Match;
 
 
 public class MatchModelTest {

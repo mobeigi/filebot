@@ -10,20 +10,22 @@ import org.junit.Test;
 
 public class AnidbClientTest {
 
+	static AnidbClient anidb = new AnidbClient("filebot", 6);
+
 	/**
 	 * 74 episodes
 	 */
-	private static AnidbSearchResult monsterSearchResult;
+	static AnidbSearchResult monsterSearchResult;
 
 	/**
 	 * 45 episodes
 	 */
-	private static AnidbSearchResult twelvekingdomsSearchResult;
+	static AnidbSearchResult twelvekingdomsSearchResult;
 
 	/**
 	 * 38 episodes, lots of special characters
 	 */
-	private static AnidbSearchResult princessTutuSearchResult;
+	static AnidbSearchResult princessTutuSearchResult;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -31,8 +33,6 @@ public class AnidbClientTest {
 		twelvekingdomsSearchResult = new AnidbSearchResult(26, "Juuni Kokuki", null);
 		princessTutuSearchResult = new AnidbSearchResult(516, "Princess Tutu", null);
 	}
-
-	private AnidbClient anidb = new AnidbClient("filebot", 6);
 
 	@Test
 	public void getAnimeTitles() throws Exception {
@@ -87,7 +87,7 @@ public class AnidbClientTest {
 	public void getEpisodeListAllShortLink() throws Exception {
 		List<Episode> list = anidb.getEpisodeList(twelvekingdomsSearchResult, SortOrder.Airdate, Locale.ENGLISH);
 
-		assertEquals(46, list.size());
+		assertEquals(47, list.size());
 
 		Episode first = list.get(0);
 
@@ -110,7 +110,7 @@ public class AnidbClientTest {
 		List<Episode> list = anidb.getEpisodeList(monsterSearchResult, SortOrder.Airdate, Locale.JAPANESE);
 
 		Episode last = list.get(73);
-		assertEquals("モンスター", last.getSeriesName());
+		assertEquals("MONSTER", last.getSeriesName());
 		assertEquals("2004-04-07", last.getSeriesInfo().getStartDate().toString());
 		assertEquals("本当の怪物", last.getTitle());
 		assertEquals("74", last.getEpisode().toString());

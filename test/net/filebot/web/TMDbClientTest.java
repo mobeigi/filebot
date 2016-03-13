@@ -90,8 +90,8 @@ public class TMDbClientTest {
 	@Test
 	public void getArtwork() throws Exception {
 		List<Artwork> artwork = tmdb.getArtwork("tt0418279");
-		assertEquals("backdrops", artwork.get(0).getCategory());
-		assertEquals("http://image.tmdb.org/t/p/original/ac0HwGJIU3GxjjGujlIjLJmAGPR.jpg", artwork.get(0).getUrl().toString());
+		assertEquals("posters", artwork.get(0).getCategory());
+		assertEquals("http://image.tmdb.org/t/p/original/bgSHbGEA1OM6qDs3Qba4VlSZsNG.jpg", artwork.get(0).getUrl().toString());
 	}
 
 	@Ignore

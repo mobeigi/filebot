@@ -196,7 +196,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		protected String[] normalize(Object[] objects) {
 			String[] names = new String[objects.length];
 			for (int i = 0; i < objects.length; i++) {
-				names[i] = normalizeObject(objects[i]).replaceAll("\\s", "");
+				names[i] = replaceSpace((normalizeObject(objects[i])), " "); // we're only matching between word boundaries
 			}
 			return names;
 		}

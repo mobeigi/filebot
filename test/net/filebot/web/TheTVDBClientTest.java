@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.junit.Test;
+
 import net.filebot.web.TheTVDBClient.BannerDescriptor;
 import net.filebot.web.TheTVDBClient.MirrorType;
-
-import org.junit.Test;
 
 public class TheTVDBClientTest {
 

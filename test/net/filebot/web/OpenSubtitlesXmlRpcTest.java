@@ -8,14 +8,14 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import net.filebot.web.OpenSubtitlesSubtitleDescriptor.Property;
 import net.filebot.web.OpenSubtitlesXmlRpc.Query;
 import net.filebot.web.OpenSubtitlesXmlRpc.SubFile;
 import net.filebot.web.OpenSubtitlesXmlRpc.TryUploadResponse;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 public class OpenSubtitlesXmlRpcTest {
 
@@ -77,8 +77,8 @@ public class OpenSubtitlesXmlRpcTest {
 
 		OpenSubtitlesSubtitleDescriptor sample = list.get(75);
 
-		assertEquals("\"Wonderfalls\" Wound-up Penguin", sample.getProperty(Property.MovieName));
-		assertEquals("German", sample.getProperty(Property.LanguageName));
+		assertEquals("\"Wonderfalls\" Safety Canary", sample.getProperty(Property.MovieName));
+		assertEquals("Czech", sample.getProperty(Property.LanguageName));
 		assertEquals("imdbid", sample.getProperty(Property.MatchedBy));
 
 		// check size
@@ -185,7 +185,7 @@ public class OpenSubtitlesXmlRpcTest {
 		ByteBuffer data = list.get(0).fetch();
 
 		// check size
-		assertEquals(48717, data.remaining(), 0);
+		assertEquals(48794, data.remaining(), 0);
 	}
 
 	// @Test(expected = IOException.class)
