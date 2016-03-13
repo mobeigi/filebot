@@ -9,7 +9,9 @@ import java.util.List;
 
 import org.junit.Test;
 
+import net.filebot.media.MediaDetection;
 import net.filebot.web.Episode;
+import net.filebot.web.SimpleDate;
 
 public class EpisodeMetricsTest {
 
@@ -22,21 +24,6 @@ public class EpisodeMetricsTest {
 
 		assertEquals(2.0 / 3, SubstringFields.getSimilarity(eY1T1, fY1T1), 0.01);
 		assertEquals(1.0 / 3, SubstringFields.getSimilarity(eY1T1, fY2T2), 0.01);
-	}
-
-	@Test
-	public void nameIgnoreEmbeddedChecksum() {
-		assertEquals(1, Name.getSimilarity("test", "test [EF62DF13]"), 0);
-	}
-
-	@Test
-	public void numericIgnoreEmbeddedChecksum() {
-		assertEquals(1, Numeric.getSimilarity("S01E02", "Season 1, Episode 2 [00A01E02]"), 0);
-	}
-
-	@Test
-	public void normalizeFile() {
-		assertEquals("abc", EpisodeMetrics.normalizeObject(new File("/folder/abc[EF62DF13].txt")));
 	}
 
 	@Test
@@ -57,4 +44,25 @@ public class EpisodeMetricsTest {
 		assertEquals("Veronica Mars [1x19] Hot Dogs", m.get(1).getValue().getName());
 		assertEquals("Veronica Mars - 1x19 - Hot Dogs", m.get(1).getCandidate().toString());
 	}
+
+	@Test
+	public void nameIgnoreEmbeddedChecksum() {
+		assertEquals(1, Name.getSimilarity("test", "test [EF62DF13]"), 0);
+	}
+
+	@Test
+	public void numericIgnoreEmbeddedChecksum() {
+		assertEquals(1, Numeric.getSimilarity("S01E02", "Season 1, Episode 2 [00A01E02]"), 0);
+	}
+
+	@Test
+	public void numericNumbers() {
+		String fn = "SEED - 01 - [X 2.0]";
+		Episode e1 = new Episode("SEED", null, 1, "Enraged Eyes", 1, null, new SimpleDate(2004, 10, 9), null);
+		Episode s1 = new Episode("SEED", null, null, "EDITED", null, 1, new SimpleDate(2005, 1, 29), null);
+
+		assertEquals(0.5, Numeric.getSimilarity(fn, e1), 0.01);
+		assertEquals(0.5, Numeric.getSimilarity(fn, s1), 0.01);
+	}
+
 }

@@ -1010,7 +1010,7 @@ public class MediaDetection {
 		return movies;
 	}
 
-	private static Pattern formatInfoPattern = releaseInfo.getVideoFormatPattern(false);
+	private static Pattern formatInfoPattern = releaseInfo.getVideoFormatPattern(true);
 
 	public static String stripFormatInfo(CharSequence name) {
 		return formatInfoPattern.matcher(name).replaceAll("");

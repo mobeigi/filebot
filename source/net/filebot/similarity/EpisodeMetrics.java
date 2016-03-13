@@ -466,6 +466,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				for (String s2 : f2) {
 					if (s1 != null && s2 != null) {
 						max = max(super.getSimilarity(s1, s2), max);
+						if (max >= 1) {
+							return max;
+						}
 					}
 				}
 			}
@@ -475,11 +478,10 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		protected String[] fields(Object object) {
 			if (object instanceof Episode) {
 				Episode episode = (Episode) object;
-				String[] f = new String[4];
+				String[] f = new String[3];
 				f[0] = episode.getSeriesName();
-				f[1] = EpisodeFormat.SeasonEpisode.formatSxE(episode);
+				f[1] = episode.getSpecial() == null ? EpisodeFormat.SeasonEpisode.formatSxE(episode) : episode.getSpecial().toString();
 				f[2] = episode.getAbsolute() == null ? null : episode.getAbsolute().toString();
-				f[3] = episode.getSeason() == null || episode.getEpisode() == null ? null : String.format("%02d%02d", episode.getSeason(), episode.getEpisode());
 				return f;
 			}
 
@@ -488,7 +490,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				return new String[] { movie.getName(), String.valueOf(movie.getYear()) };
 			}
 
-			return new String[] { stripFormatInfo(normalizeObject(object)) };
+			return new String[] { normalizeObject(object) };
 		}
 	}),
 
@@ -714,6 +716,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 		// remove checksums, any [...] or (...)
 		name = removeEmbeddedChecksum(name);
+
+		// remove obvious release info
+		name = stripFormatInfo(name);
 
 		synchronized (transliterator) {
 			name = transliterator.transform(name);

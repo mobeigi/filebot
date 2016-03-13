@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.Predicate;
+import java.util.function.Function;
 
 import net.filebot.media.SmartSeasonEpisodeMatcher;
 import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
@@ -126,29 +126,36 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 	}
 
 	private boolean isMultiEpisode(Episode[] episodes) {
-		if (episodes.length < 2)
+		if (episodes.length < 2) {
 			return false;
+		}
+
+		// use getEpisode() or getSpecial() as number function
+		Function<Episode, Integer> number = stream(episodes).allMatch(e -> e.getSpecial() == null) ? e -> e.getEpisode() : e -> e.getSpecial();
 
 		// check episode sequence integrity
 		Integer seqIndex = null;
 		for (Episode it : episodes) {
 			// any illegal episode object breaks the chain
-			Integer num = it != null ? it.getEpisode() != null ? it.getEpisode() : it.getSpecial() : null;
-			if (num == null)
+			Integer i = number.apply(it);
+			if (i == null) {
 				return false;
+			}
 
 			// non-sequential next episode index breaks the chain (same episode is OK since DVD numbering allows for multiple episodes to share the same SxE numbers)
 			if (seqIndex != null) {
-				if (!(num.equals(seqIndex + 1) || num.equals(seqIndex))) {
+				if (!(i.equals(seqIndex + 1) || i.equals(seqIndex))) {
 					return false;
 				}
 			}
 
-			seqIndex = num;
+			seqIndex = i;
 		}
 
 		// check drill-down integrity
-		return stream(episodes).map(Episode::getSeriesName).allMatch(Predicate.isEqual(episodes[0].getSeriesName()));
+		return stream(episodes).skip(1).allMatch(e -> {
+			return episodes[0].getSeriesName().equals(e.getSeriesName());
+		});
 	}
 
 }
