@@ -112,7 +112,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 
 		// parse series info
 		SeriesInfo seriesInfo = new SeriesInfo(getName(), sortOrder, locale, anime.getId());
-		seriesInfo.setAliasNames(searchResult.getEffectiveNames());
+		seriesInfo.setAliasNames(searchResult.getAliasNames());
 
 		// AniDB types: Movie, Music Video, Other, OVA, TV Series, TV Special, Web, unknown
 		String animeType = selectString("//type", dom);

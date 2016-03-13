@@ -76,7 +76,7 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 
 		SeriesInfo seriesInfo = new SeriesInfo(getName(), sortOrder, locale, show.getId());
 		seriesInfo.setName(show.getName());
-		seriesInfo.setAliasNames(show.getEffectiveNames());
+		seriesInfo.setAliasNames(show.getAliasNames());
 		seriesInfo.setStatus(status);
 		seriesInfo.setRuntime(runtime);
 		seriesInfo.setStartDate(premiered);

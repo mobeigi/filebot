@@ -100,8 +100,8 @@ public class SeriesInfo implements Serializable {
 		return aliasNames == null ? asList() : asList(aliasNames.clone());
 	}
 
-	public void setAliasNames(List<String> aliasNames) {
-		this.aliasNames = aliasNames.toArray(new String[aliasNames.size()]);
+	public void setAliasNames(String... aliasNames) {
+		this.aliasNames = aliasNames.clone();
 	}
 
 	public List<String> getActors() {
