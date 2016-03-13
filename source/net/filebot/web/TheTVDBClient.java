@@ -20,9 +20,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.logging.Level;
 
 import javax.swing.Icon;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import net.filebot.Cache;
 import net.filebot.Cache.TypedCache;
@@ -30,9 +32,6 @@ import net.filebot.CacheType;
 import net.filebot.ResourceManager;
 import net.filebot.util.FileUtilities;
 import net.filebot.web.TheTVDBClient.BannerDescriptor.BannerProperty;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 public class TheTVDBClient extends AbstractEpisodeListProvider {
 
@@ -106,7 +105,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			String seriesName = getTextContent("SeriesName", node);
 
 			if (seriesName.startsWith("**") && seriesName.endsWith("**")) {
-				debug.log(Level.WARNING, String.format("Invalid series: %s [%d]", seriesName, sid));
+				debug.fine(format("Invalid series: %s [%d]", seriesName, sid));
 				continue;
 			}
 

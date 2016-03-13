@@ -96,7 +96,7 @@ public class TMDbClient implements MovieIdentificationService {
 				id = getDecimal(it, "id").intValue();
 				year = matchInteger(getString(it, "release_date")); // release date is often missing
 			} catch (Exception e) {
-				debug.warning(format("Missing data: release_date => %s", it));
+				debug.fine(format("Missing data: release_date => %s", it));
 				return null;
 			}
 

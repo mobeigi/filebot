@@ -23,7 +23,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -173,8 +172,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 
 		// sanity check
 		if (episodes.isEmpty()) {
-			// anime page xml doesn't work sometimes
-			debug.log(Level.WARNING, String.format("Unable to parse episode data: %s (%d): %s", anime, anime.getAnimeId(), getXmlString(dom, false).split("\n", 2)[0].trim()));
+			debug.fine(format("Failed to parse episode data: %s (%d): %s", anime, anime.getId(), url));
 		}
 
 		return new SeriesData(seriesInfo, episodes);
