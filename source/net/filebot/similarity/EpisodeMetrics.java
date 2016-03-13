@@ -1,7 +1,7 @@
 package net.filebot.similarity;
 
-import static java.util.Arrays.*;
 import static java.lang.Math.*;
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static net.filebot.Logging.*;
@@ -25,6 +25,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ibm.icu.text.Transliterator;
+
 import net.filebot.media.SmartSeasonEpisodeMatcher;
 import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.filebot.vfs.FileInfo;
@@ -33,8 +35,6 @@ import net.filebot.web.EpisodeFormat;
 import net.filebot.web.Movie;
 import net.filebot.web.SeriesInfo;
 import net.filebot.web.SimpleDate;
-
-import com.ibm.icu.text.Transliterator;
 
 public enum EpisodeMetrics implements SimilarityMetric {
 
@@ -494,6 +494,23 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		}
 	}),
 
+	// Prioritize proper episodes over specials
+	SpecialNumber(new SimilarityMetric() {
+
+		@Override
+		public float getSimilarity(Object o1, Object o2) {
+			return getSpecialFactor(o1) + getSpecialFactor(o2);
+		}
+
+		public int getSpecialFactor(Object object) {
+			if (object instanceof Episode) {
+				Episode episode = (Episode) object;
+				return episode.getSpecial() != null ? -1 : 1;
+			}
+			return 0;
+		}
+	}),
+
 	// Match by file length (only works when matching torrents or files)
 	FileSize(new FileSizeMetric() {
 
@@ -743,9 +760,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		// 7 pass: prefer episodes that were aired closer to the last modified date of the file
 		// 8 pass: resolve remaining collisions via absolute string similarity
 		if (includeFileMetrics) {
-			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, SeriesNameBalancer, SeriesName, RegionHint, Numeric, NumericSequence, SeriesRating, VoteRate, TimeStamp, FilePathBalancer, FilePath };
+			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, SeriesNameBalancer, SeriesName, RegionHint, Numeric, NumericSequence, SpecialNumber, SeriesRating, VoteRate, TimeStamp, FilePathBalancer, FilePath };
 		} else {
-			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, SeriesNameBalancer, SeriesName, RegionHint, Numeric, NumericSequence, SeriesRating, VoteRate, TimeStamp, FilePathBalancer, FilePath };
+			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, SeriesNameBalancer, SeriesName, RegionHint, Numeric, NumericSequence, SpecialNumber, SeriesRating, VoteRate, TimeStamp, FilePathBalancer, FilePath };
 		}
 	}
 
