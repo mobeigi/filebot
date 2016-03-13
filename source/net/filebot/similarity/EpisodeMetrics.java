@@ -1,5 +1,6 @@
 package net.filebot.similarity;
 
+import static java.util.Arrays.*;
 import static java.lang.Math.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
@@ -194,11 +195,8 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		}
 
 		protected String[] normalize(Object[] objects) {
-			String[] names = new String[objects.length];
-			for (int i = 0; i < objects.length; i++) {
-				names[i] = replaceSpace((normalizeObject(objects[i])), " "); // we're only matching between word boundaries
-			}
-			return names;
+			// normalize objects (and make sure to keep word boundaries)
+			return stream(objects).map(EpisodeMetrics::normalizeObject).toArray(String[]::new);
 		}
 
 		protected Object[] fields(Object object) {
