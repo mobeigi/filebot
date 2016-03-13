@@ -309,7 +309,7 @@ public class ReleaseInfo {
 
 	public Pattern getReleaseGroupTrimPattern() throws Exception {
 		// pattern matching any release group name enclosed in specific separators or at the start/end
-		return compile("(?<=\\[|\\(|^)" + or(releaseGroup.get()) + "(?=\\]|\\)|\\-)|(?<!\\[|\\(|\\-)" + or(releaseGroup.get()) + "(?=\\]|\\)|$)", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile("(?<=\\[|\\(|^)" + or(releaseGroup.get()) + "(?=\\]|\\)|\\-)|(?<=\\[|\\(|\\-)" + or(releaseGroup.get()) + "(?=\\]|\\)|$)", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
 	public Pattern getBlacklistPattern() throws Exception {
