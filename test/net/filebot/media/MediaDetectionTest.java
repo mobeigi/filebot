@@ -23,7 +23,7 @@ public class MediaDetectionTest {
 
 	@Test
 	public void detectSeriesName() throws Exception {
-		assertEquals(null, MediaDetection.detectSeriesNames(singleton(new File("Movie/3.Idiots.PAL.DVD.DD5.1.x264")), true, false, Locale.ENGLISH));
+		assertEquals("[]", MediaDetection.detectSeriesNames(singleton(new File("Movie/LOTR.2001.AVC-1080")), true, false, Locale.ENGLISH).toString());
 	}
 
 }

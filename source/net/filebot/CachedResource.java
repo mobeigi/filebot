@@ -87,7 +87,7 @@ public class CachedResource<K, R> implements Resource<R> {
 
 				return parse.transform(data);
 			} catch (IOException e) {
-				debug.warning(format("Fetch failed: %s => %s", url, e));
+				debug.warning(format("Fetch failed: %s", e.getMessage()));
 
 				// use previously cached data if possible
 				if (element == null || element.getObjectValue() == null) {

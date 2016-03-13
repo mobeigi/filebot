@@ -407,7 +407,7 @@ public class MediaDetection {
 						for (File path : listPathTail(f, 2, true)) {
 							String fn = getName(path);
 							// ignore non-strict series name parsing if there are movie year patterns
-							if (!strict && parseMovieYear(fn).equals(matchIntegers(fn))) {
+							if (!strict && parseMovieYear(fn).equals(matchIntegers(stripFormatInfo(fn)))) {
 								break;
 							}
 							String sn = seriesNameMatcher.matchByEpisodeIdentifier(fn);
