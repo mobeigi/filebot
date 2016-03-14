@@ -678,7 +678,7 @@ public final class FileUtilities {
 		else if (size >= KILO)
 			return String.format("%,d KB", size / KILO);
 		else
-			return String.format("%,d Byte", size);
+			return String.format("%,d bytes", size);
 	}
 
 	public static final FileFilter FOLDERS = new FileFilter() {

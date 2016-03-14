@@ -44,7 +44,7 @@ class SplitTool extends Tool<TreeModel> {
 
 		add(new JLabel("Split every"));
 		add(spinner, "wmax 80, gap top rel, gap bottom unrel");
-		add(new JLabel("MB."));
+		add(new JLabel("MB"));
 
 		tree.setTransferHandler(new DefaultTransferHandler(null, new FileTreeExportHandler()));
 		tree.setDragEnabled(true);

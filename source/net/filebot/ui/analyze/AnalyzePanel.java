@@ -11,9 +11,9 @@ public class AnalyzePanel extends JComponent {
 	private final JTabbedPane toolsPanel = new JTabbedPane();
 
 	public AnalyzePanel() {
-		setLayout(new MigLayout("insets dialog, gapx 50, fill"));
-		add(fileTreePanel, "grow, sizegroupx column");
-		add(toolsPanel, "grow, sizegroupx column");
+		setLayout(new MigLayout("insets dialog, gapx 50, fill, nogrid"));
+		add(fileTreePanel, "grow 1, w 300:pref:500");
+		add(toolsPanel, "grow 2");
 
 		putClientProperty("transferablePolicy", fileTreePanel.getTransferablePolicy());
 
