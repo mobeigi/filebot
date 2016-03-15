@@ -21,7 +21,7 @@ import net.filebot.util.SystemProperty;
 public final class Logging {
 
 	private static final SystemProperty<Pattern> anonymizePattern = SystemProperty.of("net.filebot.logging.anonymize", Pattern::compile);
-	private static final SystemProperty<Level> debugLevel = SystemProperty.of("net.filebot.logging.debug", Level::parse, Level.CONFIG);
+	private static final SystemProperty<Level> debugLevel = SystemProperty.of("net.filebot.logging.debug", Level::parse, Level.WARNING);
 
 	public static final Logger log = createConsoleLogger("net.filebot.console", Level.ALL);
 	public static final Logger debug = createConsoleLogger("net.filebot.debug", debugLevel.get());

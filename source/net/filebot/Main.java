@@ -421,6 +421,24 @@ public class Main {
 	}
 
 	public static void initializeLogging(ArgumentBean args) throws IOException {
+		if (args.runCLI()) {
+			// CLI logging settings
+			log.setLevel(args.getLogLevel());
+		} else {
+			// GUI logging settings
+			log.setLevel(Level.INFO);
+			log.addHandler(new NotificationHandler(getApplicationName()));
+
+			// log errors to file
+			try {
+				Handler error = createSimpleFileHandler(ApplicationFolder.AppData.resolve("error.log"), Level.WARNING);
+				log.addHandler(error);
+				debug.addHandler(error);
+			} catch (Exception e) {
+				debug.log(Level.WARNING, "Failed to initialize error log", e);
+			}
+		}
+
 		// tee stdout and stderr to log file if set
 		if (args.logFile != null) {
 			File logFile = new File(args.logFile);
@@ -435,7 +453,7 @@ public class Main {
 			FileChannel logChannel = FileChannel.open(logFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
 			if (args.logLock) {
 				if (args.getLogLevel() == Level.ALL) {
-					debug.config("Locking " + logFile);
+					log.config("Locking " + logFile);
 				}
 				logChannel.lock();
 			}
@@ -443,29 +461,6 @@ public class Main {
 			OutputStream out = Channels.newOutputStream(logChannel);
 			System.setOut(new TeePrintStream(out, true, "UTF-8", System.out));
 			System.setErr(new TeePrintStream(out, true, "UTF-8", System.err));
-		}
-
-		if (args.runCLI()) {
-			// CLI logging settings
-			log.setLevel(args.getLogLevel());
-
-			// set debug log level standard log level if lower
-			if (debug.getLevel().intValue() < log.getLevel().intValue()) {
-				debug.setLevel(log.getLevel());
-			}
-		} else {
-			// GUI logging settings
-			log.setLevel(Level.INFO);
-			log.addHandler(new NotificationHandler(getApplicationName()));
-
-			// log errors to file
-			try {
-				Handler error = createSimpleFileHandler(ApplicationFolder.AppData.resolve("error.log"), Level.WARNING);
-				log.addHandler(error);
-				debug.addHandler(error);
-			} catch (Exception e) {
-				debug.log(Level.WARNING, "Failed to initialize error log", e);
-			}
 		}
 	}
 
