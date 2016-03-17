@@ -85,12 +85,14 @@ public class Main {
 
 				// clear preferences and cache
 				if (args.clearCache()) {
-					System.out.println("Clear cache and temporary files");
-					for (File folder : getChildren(ApplicationFolder.AppData.getCanonicalFile(), FOLDERS)) {
-						System.out.println("* Delete " + folder);
-						delete(folder);
+					System.out.println("Clear cache");
+					for (File folder : getChildren(ApplicationFolder.Cache.getCanonicalFile(), FOLDERS)) {
+						if (delete(folder)) {
+							System.out.println("* Delete " + folder);
+						} else {
+							System.out.println("* Failed to delete " + folder);
+						}
 					}
-					CacheManager.getInstance().clearAll();
 				}
 
 				// just clear cache and/or settings and then exit
