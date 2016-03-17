@@ -315,7 +315,7 @@ public class TMDbClient implements MovieIdentificationService {
 		file.append(path.lastIndexOf('?') < 0 ? '?' : '&');
 
 		if (locale.getLanguage().length() > 0) {
-			file.append("language=").append(getLanguageCode(locale));
+			file.append("language=").append(getLanguageCode(locale)).append('&');
 		}
 		file.append("api_key=").append(apikey);
 
