@@ -269,10 +269,10 @@ public class TMDbClient implements MovieIdentificationService {
 
 	public List<Artwork> getArtwork(String id) throws Exception {
 		// http://api.themoviedb.org/3/movie/11/images
-		Object config = request("configuration", emptyMap(), Locale.ENGLISH, REQUEST_LIMIT);
-		String baseUrl = getString(getMap(config, "images"), "base_url");
+		Object config = request("configuration", emptyMap(), Locale.ROOT, REQUEST_LIMIT);
+		String baseUrl = getString(getMap(config, "images"), "secure_base_url");
 
-		Object images = request("movie/" + id + "/images", emptyMap(), Locale.ENGLISH, REQUEST_LIMIT);
+		Object images = request("movie/" + id + "/images", emptyMap(), Locale.ROOT, REQUEST_LIMIT);
 
 		return Stream.of("backdrops", "posters").flatMap(section -> {
 			Stream<Artwork> artwork = streamJsonObjects(images, section).map(it -> {
@@ -294,11 +294,12 @@ public class TMDbClient implements MovieIdentificationService {
 	public Object request(String resource, Map<String, Object> parameters, Locale locale, final FloodLimit limit) throws Exception {
 		// default parameters
 		String key = parameters.isEmpty() ? resource : resource + '?' + encodeParameters(parameters, true);
+		String cacheName = locale.getLanguage().isEmpty() ? getName() : getName() + "_" + locale;
 
-		Cache etagStorage = Cache.getCache(getName() + "_" + locale + "_etag", CacheType.Monthly);
+		Cache etagStorage = Cache.getCache(cacheName + "_etag", CacheType.Monthly);
 		Fetch fetchIfNoneMatch = fetchIfNoneMatch(url -> etagStorage.get(key), (url, etag) -> etagStorage.put(key, etag));
 
-		Cache cache = Cache.getCache(getName() + "_" + locale, CacheType.Monthly);
+		Cache cache = Cache.getCache(cacheName, CacheType.Monthly);
 		Object json = cache.json(key, s -> getResource(s, locale)).fetch(withPermit(fetchIfNoneMatch, r -> limit.acquirePermit())).expire(Cache.ONE_WEEK).get();
 
 		if (asMap(json).isEmpty()) {
@@ -307,8 +308,18 @@ public class TMDbClient implements MovieIdentificationService {
 		return json;
 	}
 
-	protected URL getResource(String file, Locale locale) throws Exception {
-		return new URL("https", host, "/" + version + "/" + file + (file.lastIndexOf('?') < 0 ? '?' : '&') + "language=" + getLanguageCode(locale) + "&api_key=" + apikey);
+	protected URL getResource(String path, Locale locale) throws Exception {
+		StringBuilder file = new StringBuilder();
+		file.append('/').append(version);
+		file.append('/').append(path);
+		file.append(path.lastIndexOf('?') < 0 ? '?' : '&');
+
+		if (locale.getLanguage().length() > 0) {
+			file.append("language=").append(getLanguageCode(locale));
+		}
+		file.append("api_key=").append(apikey);
+
+		return new URL("https", host, file.toString());
 	}
 
 	protected String getLanguageCode(Locale locale) {
