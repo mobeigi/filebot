@@ -271,6 +271,10 @@
 			<option value="-Xdock:name=${title}" />
 			<option value="-Xdock:icon=Contents/Resources/filebot.icns" />
 			<option value="-Dapple.laf.useScreenMenuBar=true" />
+
+			<bundledocument extensions="avi, mkv, mk3d, ogm, ogg, mp4, m4v, 3gp, mov, divx, mpg, mpeg, vob, ts, tp, m2ts, rec, wmv, asf, wtv, webm, flv, rm, rmvb, rmp4, tivo, nuv, 3DSBS, 3DTAB, strm, ac3, dts" name="Video files" role="Viewer" />
+			<bundledocument extensions="srt, sub, sub, ssa, ass, smi, sami, sub, idx" name="Subtitle files" role="Viewer" />
+			<bundledocument extensions="mp3, m4a, aac, flac, wma, ogm, ogv, ogg, wav, aiff, alac" name="Audio files" role="Viewer" />
 		</bundleapp>
 
 		<!-- application bundle folder as .tar -->
