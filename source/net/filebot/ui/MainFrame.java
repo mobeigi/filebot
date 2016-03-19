@@ -37,6 +37,8 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.google.common.eventbus.EventBus;
+
 import net.filebot.CacheManager;
 import net.filebot.Settings;
 import net.filebot.cli.GroovyPad;
@@ -55,22 +57,26 @@ import net.miginfocom.swing.MigLayout;
 
 public class MainFrame extends JFrame {
 
+	private static final PreferencesEntry<String> persistentSelectedPanel = Settings.forPackage(MainFrame.class).entry("panel.selected").defaultValue("0");
+
+	private EventBus eventBus;
+
 	private JList selectionList;
 	private HeaderPanel headerPanel;
 
-	private static final PreferencesEntry<String> persistentSelectedPanel = Settings.forPackage(MainFrame.class).entry("panel.selected").defaultValue("0");
-
-	public MainFrame(PanelBuilder[] panels) {
+	public MainFrame(PanelBuilder[] panels, EventBus eventBus) {
 		super(isInstalled() ? getApplicationName() : String.format("%s %s", getApplicationName(), getApplicationVersion()));
+
+		this.eventBus = eventBus;
 
 		selectionList = new PanelSelectionList(panels);
 		headerPanel = new HeaderPanel();
 
+		// restore selected panel
 		try {
-			// restore selected panel
 			selectionList.setSelectedIndex(Integer.parseInt(persistentSelectedPanel.getValue()));
-		} catch (NumberFormatException e) {
-			// ignore
+		} catch (Exception e) {
+			debug.warning(e.getMessage());
 		}
 
 		JScrollPane selectionListScrollPane = new JScrollPane(selectionList, VERTICAL_SCROLLBAR_NEVER, HORIZONTAL_SCROLLBAR_NEVER);
@@ -164,35 +170,34 @@ public class MainFrame extends JFrame {
 	}
 
 	protected void showPanel(PanelBuilder selectedBuilder) {
-		final JComponent contentPane = (JComponent) getContentPane();
-
-		JComponent panel = null;
+		JComponent contentPane = (JComponent) getContentPane();
+		JComponent selectedPanel = null;
 
 		for (int i = 0; i < contentPane.getComponentCount(); i++) {
-			JComponent c = (JComponent) contentPane.getComponent(i);
-			PanelBuilder builder = (PanelBuilder) c.getClientProperty("panelBuilder");
-
+			JComponent panel = (JComponent) contentPane.getComponent(i);
+			PanelBuilder builder = (PanelBuilder) panel.getClientProperty(PanelBuilder.class.getName());
 			if (builder != null) {
 				if (builder.equals(selectedBuilder)) {
-					panel = c;
+					selectedPanel = panel;
 				} else {
-					c.setVisible(false);
+					panel.setVisible(false);
+					eventBus.unregister(panel);
 				}
 			}
 		}
 
-		if (panel == null) {
-			panel = selectedBuilder.create();
-			panel.setVisible(false); // invisible by default
-			panel.putClientProperty("panelBuilder", selectedBuilder);
-
-			contentPane.add(panel);
+		if (selectedPanel == null) {
+			selectedPanel = selectedBuilder.create();
+			selectedPanel.setVisible(false); // invisible by default
+			selectedPanel.putClientProperty(PanelBuilder.class.getName(), selectedBuilder);
+			contentPane.add(selectedPanel);
 		}
 
 		// make visible, ignore action is visible already
-		if (!panel.isVisible()) {
+		if (!selectedPanel.isVisible()) {
 			headerPanel.setTitle(selectedBuilder.getName());
-			panel.setVisible(true);
+			selectedPanel.setVisible(true);
+			eventBus.register(selectedPanel);
 		}
 	}
 

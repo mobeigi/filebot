@@ -1,8 +1,17 @@
 package net.filebot.ui.analyze;
 
+import static net.filebot.Logging.*;
+
+import java.awt.datatransfer.Transferable;
+import java.util.logging.Level;
+
 import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 
+import com.google.common.eventbus.Subscribe;
+
+import net.filebot.ui.transfer.TransferablePolicy;
+import net.filebot.ui.transfer.TransferablePolicy.TransferAction;
 import net.miginfocom.swing.MigLayout;
 
 public class AnalyzePanel extends JComponent {
@@ -15,8 +24,6 @@ public class AnalyzePanel extends JComponent {
 		add(fileTreePanel, "grow 1, w 300:pref:500");
 		add(toolsPanel, "grow 2");
 
-		putClientProperty("transferablePolicy", fileTreePanel.getTransferablePolicy());
-
 		fileTreePanel.addPropertyChangeListener("filetree", evt -> {
 			// stopped loading, refresh tools
 			for (int i = 0; i < toolsPanel.getTabCount(); i++) {
@@ -28,6 +35,19 @@ public class AnalyzePanel extends JComponent {
 
 	public void addTool(Tool<?> tool) {
 		toolsPanel.addTab(tool.getName(), tool);
+	}
+
+	@Subscribe
+	public void handle(Transferable transferable) {
+		TransferablePolicy handler = fileTreePanel.getTransferablePolicy();
+
+		try {
+			if (handler != null && handler.accept(transferable)) {
+				handler.handleTransferable(transferable, TransferAction.ADD);
+			}
+		} catch (Exception e) {
+			debug.log(Level.WARNING, "Failed to handle transferable: " + transferable, e);
+		}
 	}
 
 }

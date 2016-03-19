@@ -28,6 +28,7 @@ import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.security.Policy;
 import java.security.ProtectionDomain;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -42,6 +43,8 @@ import javax.swing.UIManager;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.w3c.dom.Document;
+
+import com.google.common.eventbus.EventBus;
 
 import net.filebot.Settings.ApplicationFolder;
 import net.filebot.cli.ArgumentBean;
@@ -170,18 +173,25 @@ public class Main {
 		}
 
 		// default frame
-		JFrame frame = new MainFrame(MainFrame.createPanelBuilders());
+		EventBus eventBus = new EventBus();
+		JFrame frame = new MainFrame(PanelBuilder.defaultSequence(), eventBus);
 
 		// single panel frame
 		if (args.mode != null) {
 			PanelBuilder[] selection = stream(MainFrame.createPanelBuilders()).filter(p -> p.getName().matches(args.mode)).toArray(PanelBuilder[]::new);
 			if (selection.length == 1) {
-				frame = new SinglePanelFrame(selection[0]).publish(new FileTransferable(args.getFiles(false)));
+				frame = new SinglePanelFrame(selection[0], eventBus);
 			} else if (selection.length > 1) {
-				frame = new MainFrame(selection);
+				frame = new MainFrame(selection, eventBus);
 			} else {
 				throw new IllegalArgumentException("Illegal mode: " + args.mode);
 			}
+		}
+
+		// handle file arguments
+		List<File> files = args.getFiles(false);
+		if (files.size() > 0) {
+			eventBus.post(new FileTransferable(files));
 		}
 
 		try {

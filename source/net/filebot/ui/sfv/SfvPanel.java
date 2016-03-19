@@ -4,6 +4,7 @@ import static java.lang.Math.*;
 import static net.filebot.ui.sfv.ChecksumTableModel.*;
 import static net.filebot.ui.transfer.BackgroundFileTransferablePolicy.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -36,7 +37,6 @@ import net.filebot.ui.transfer.LoadAction;
 import net.filebot.ui.transfer.SaveAction;
 import net.filebot.ui.transfer.TransferablePolicy;
 import net.filebot.util.FileUtilities;
-import net.filebot.util.ui.SwingUI;
 import net.miginfocom.swing.MigLayout;
 
 public class SfvPanel extends JComponent {
@@ -86,10 +86,8 @@ public class SfvPanel extends JComponent {
 			}
 		});
 
-		putClientProperty("transferablePolicy", transferablePolicy);
-
 		// Shortcut DELETE
-		SwingUI.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), removeAction);
+		installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), removeAction);
 	}
 
 	public TransferablePolicy getTransferablePolicy() {

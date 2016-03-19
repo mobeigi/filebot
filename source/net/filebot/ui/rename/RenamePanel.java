@@ -14,8 +14,8 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Insets;
 import java.awt.Window;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -47,6 +47,13 @@ import javax.swing.SwingWorker;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 
+import com.cedarsoftware.util.io.JsonReader;
+import com.cedarsoftware.util.io.JsonWriter;
+import com.google.common.eventbus.Subscribe;
+
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.ListSelection;
+import ca.odell.glazedlists.swing.DefaultEventSelectionModel;
 import net.filebot.History;
 import net.filebot.HistorySpooler;
 import net.filebot.Language;
@@ -62,6 +69,8 @@ import net.filebot.similarity.Match;
 import net.filebot.ui.rename.FormatDialog.Mode;
 import net.filebot.ui.rename.RenameModel.FormattedFuture;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
+import net.filebot.ui.transfer.TransferablePolicy;
+import net.filebot.ui.transfer.TransferablePolicy.TransferAction;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.ui.ActionPopup;
 import net.filebot.util.ui.LoadingOverlayPane;
@@ -77,12 +86,6 @@ import net.filebot.web.MovieIdentificationService;
 import net.filebot.web.MusicIdentificationService;
 import net.filebot.web.SortOrder;
 import net.miginfocom.swing.MigLayout;
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.ListSelection;
-import ca.odell.glazedlists.swing.DefaultEventSelectionModel;
-
-import com.cedarsoftware.util.io.JsonReader;
-import com.cedarsoftware.util.io.JsonWriter;
 
 public class RenamePanel extends JComponent {
 
@@ -168,41 +171,37 @@ public class RenamePanel extends JComponent {
 		new ScrollPaneSynchronizer(namesList, filesList);
 
 		// delete items from both lists
-		Action removeAction = new AbstractAction("Exclude Selected Items", ResourceManager.getIcon("dialog.cancel")) {
+		Action removeAction = newAction("Exclude Selected Items", ResourceManager.getIcon("dialog.cancel"), evt -> {
+			RenameList list = null;
+			boolean deleteCell;
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				RenameList list = null;
-				boolean deleteCell;
+			if (evt.getSource() instanceof JButton) {
+				list = filesList;
+				deleteCell = isShiftOrAltDown(evt);
+			} else {
+				list = ((RenameList) evt.getSource());
+				deleteCell = isShiftOrAltDown(evt);
+			}
 
-				if (e.getSource() instanceof JButton) {
-					list = filesList;
-					deleteCell = isShiftOrAltDown(e);
+			int index = list.getListComponent().getSelectedIndex();
+			if (index >= 0) {
+				if (deleteCell) {
+					EventList eventList = list.getModel();
+					if (index < eventList.size()) {
+						list.getModel().remove(index);
+					}
 				} else {
-					list = ((RenameList) e.getSource());
-					deleteCell = isShiftOrAltDown(e);
+					renameModel.matches().remove(index);
 				}
-
-				int index = list.getListComponent().getSelectedIndex();
+				int maxIndex = list.getModel().size() - 1;
+				if (index > maxIndex) {
+					index = maxIndex;
+				}
 				if (index >= 0) {
-					if (deleteCell) {
-						EventList eventList = list.getModel();
-						if (index < eventList.size()) {
-							list.getModel().remove(index);
-						}
-					} else {
-						renameModel.matches().remove(index);
-					}
-					int maxIndex = list.getModel().size() - 1;
-					if (index > maxIndex) {
-						index = maxIndex;
-					}
-					if (index >= 0) {
-						list.getListComponent().setSelectedIndex(index);
-					}
+					list.getListComponent().setSelectedIndex(index);
 				}
 			}
-		};
+		});
 		namesList.setRemoveAction(removeAction);
 		filesList.setRemoveAction(removeAction);
 
@@ -219,7 +218,7 @@ public class RenamePanel extends JComponent {
 		// create fetch popup
 		ActionPopup fetchPopup = createFetchPopup();
 
-		final Action fetchPopupAction = new ShowPopupAction("Fetch Data", ResourceManager.getIcon("action.fetch"));
+		Action fetchPopupAction = new ShowPopupAction("Fetch Data", ResourceManager.getIcon("action.fetch"));
 		JButton fetchButton = new JButton(fetchPopupAction);
 		filesList.getListComponent().setComponentPopupMenu(fetchPopup);
 		namesList.getListComponent().setComponentPopupMenu(fetchPopup);
@@ -248,14 +247,10 @@ public class RenamePanel extends JComponent {
 		JButton macrosButton = createImageButton(macrosAction);
 		filesList.getButtonPanel().add(macrosButton, "gap 0");
 
-		matchButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// show popup on actionPerformed only when names list is empty
-				if (renameModel.names().isEmpty()) {
-					fetchPopupAction.actionPerformed(e);
-				}
+		// show popup on actionPerformed only when names list is empty
+		matchButton.addActionListener(evt -> {
+			if (renameModel.names().isEmpty()) {
+				fetchPopupAction.actionPerformed(evt);
 			}
 		});
 
@@ -309,16 +304,11 @@ public class RenamePanel extends JComponent {
 		add(new LoadingOverlayPane(filesList, filesList, "37px", "30px"), "grow, sizegroupx list");
 
 		BackgroundFileTransferablePolicy<?> transferablePolicy = (BackgroundFileTransferablePolicy<?>) filesList.getTransferablePolicy();
-		transferablePolicy.addPropertyChangeListener(new PropertyChangeListener() {
-
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				if (BackgroundFileTransferablePolicy.LOADING_PROPERTY.equals(evt.getPropertyName())) {
-					filesList.firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, (boolean) evt.getOldValue(), (boolean) evt.getNewValue());
-				}
+		transferablePolicy.addPropertyChangeListener(evt -> {
+			if (BackgroundFileTransferablePolicy.LOADING_PROPERTY.equals(evt.getPropertyName())) {
+				filesList.firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, (boolean) evt.getOldValue(), (boolean) evt.getNewValue());
 			}
 		});
-		this.putClientProperty("transferablePolicy", transferablePolicy);
 
 		// make buttons larger
 		matchButton.setMargin(new Insets(3, 14, 2, 14));
@@ -654,6 +644,19 @@ public class RenamePanel extends JComponent {
 			}
 		}
 	};
+
+	@Subscribe
+	public void handle(Transferable transferable) {
+		TransferablePolicy handler = filesList.getTransferablePolicy();
+
+		try {
+			if (handler != null && handler.accept(transferable)) {
+				handler.handleTransferable(transferable, TransferAction.ADD);
+			}
+		} catch (Exception e) {
+			debug.log(Level.WARNING, "Failed to handle transferable: " + transferable, e);
+		}
+	}
 
 	protected static class ShowPopupAction extends AbstractAction {
 
