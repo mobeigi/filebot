@@ -179,7 +179,7 @@ public class MainFrame extends JFrame {
 			if (builder != null) {
 				if (builder.equals(selectedBuilder)) {
 					selectedPanel = panel;
-				} else {
+				} else if (panel.isVisible()) {
 					panel.setVisible(false);
 					eventBus.unregister(panel);
 				}

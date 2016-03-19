@@ -11,6 +11,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import javax.swing.JMenuBar;
@@ -130,6 +131,14 @@ public class MacAppUtilities {
 	public static void setQuitStrategyCloseAll() {
 		try {
 			Application.getApplication().setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
+		} catch (Throwable t) {
+			debug.log(Level.WARNING, t.getMessage(), t);
+		}
+	}
+
+	public static void setOpenFileHandler(Consumer<List<File>> handler) {
+		try {
+			Application.getApplication().setOpenFileHandler(evt -> handler.accept(evt.getFiles()));
 		} catch (Throwable t) {
 			debug.log(Level.WARNING, t.getMessage(), t);
 		}

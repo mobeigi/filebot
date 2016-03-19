@@ -232,6 +232,7 @@ public class Main {
 			MacAppUtilities.initializeApplication();
 			MacAppUtilities.setWindowCanFullScreen(frame);
 			MacAppUtilities.setDefaultMenuBar(FileBotMenuBar.createHelp());
+			MacAppUtilities.setOpenFileHandler(openFiles -> eventBus.post(new FileTransferable(openFiles)));
 		} else if (isUbuntuApp()) {
 			// Ubuntu specific configuration
 			String options = System.getenv("JAVA_TOOL_OPTIONS");
