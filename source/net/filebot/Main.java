@@ -188,12 +188,6 @@ public class Main {
 			}
 		}
 
-		// handle file arguments
-		List<File> files = args.getFiles(false);
-		if (files.size() > 0) {
-			eventBus.post(new FileTransferable(files));
-		}
-
 		try {
 			// restore previous size and location
 			restoreWindowBounds(frame, Settings.forPackage(MainFrame.class));
@@ -244,6 +238,12 @@ public class Main {
 		} else {
 			// Windows / Linux specific configuration
 			frame.setIconImages(ResourceManager.getApplicationIcons());
+		}
+
+		// handle file arguments
+		List<File> files = args.getFiles(false);
+		if (files.size() > 0) {
+			eventBus.post(new FileTransferable(files));
 		}
 
 		// start application

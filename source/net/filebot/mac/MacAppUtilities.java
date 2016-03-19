@@ -142,7 +142,7 @@ public class MacAppUtilities {
 			Application.getApplication().setOpenFileHandler(evt -> {
 				List<File> files = evt.getFiles();
 				if (files.size() > 0) {
-					SwingUtilities.invokeLater(() -> handler.accept(evt.getFiles()));
+					SwingUtilities.invokeLater(() -> handler.accept(files));
 				}
 			});
 		} catch (Throwable t) {
