@@ -272,9 +272,9 @@
 			<option value="-Xdock:icon=Contents/Resources/filebot.icns" />
 			<option value="-Dapple.laf.useScreenMenuBar=true" />
 
-			<bundledocument extensions="avi, mkv, mk3d, ogm, ogg, mp4, m4v, 3gp, mov, divx, mpg, mpeg, vob, ts, tp, m2ts, rec, wmv, asf, wtv, webm, flv, rm, rmvb, rmp4, tivo, nuv, 3DSBS, 3DTAB, strm, ac3, dts" name="Video files" role="Viewer" />
-			<bundledocument extensions="srt, sub, sub, ssa, ass, smi, sami, sub, idx" name="Subtitle files" role="Viewer" />
-			<bundledocument extensions="mp3, m4a, aac, flac, wma, ogm, ogv, ogg, wav, aiff, alac" name="Audio files" role="Viewer" />
+			<bundledocument role="Viewer" name="Video files" extensions="3dsbs,3dtab,3gp,ac3,asf,avi,divx,dts,flv,iso,m2ts,m4v,mk3d,mkv,mov,mp4,mpeg,mpg,nuv,ogg,ogm,rec,rm,rmp4,rmvb,strm,tivo,tp,ts,vob,webm,wmv,wtv" />
+			<bundledocument role="Viewer" name="Subtitle files" extensions="ass,idx,sami,smi,srt,ssa,sub" />
+			<bundledocument role="Viewer" name="Audio files" extensions="aac,aiff,alac,flac,m4a,mp3,oga,ogg,ogm,ogv,wav,wma" />
 		</bundleapp>
 
 		<!-- application bundle folder as .tar -->
@@ -363,6 +363,10 @@
 			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
 
 			<option value="-Dapple.laf.useScreenMenuBar=true" />
+
+			<bundledocument role="Viewer" name="Video files" extensions="3dsbs,3dtab,3gp,ac3,asf,avi,divx,dts,flv,iso,m2ts,m4v,mk3d,mkv,mov,mp4,mpeg,mpg,nuv,ogg,ogm,rec,rm,rmp4,rmvb,strm,tivo,tp,ts,vob,webm,wmv,wtv" />
+			<bundledocument role="Viewer" name="Subtitle files" extensions="ass,idx,sami,smi,srt,ssa,sub" />
+			<bundledocument role="Viewer" name="Audio files" extensions="aac,aiff,alac,flac,m4a,mp3,oga,ogg,ogm,ogv,wav,wma" />
 		</bundleapp>
 
 		<!-- fix code signing and submission issues -->

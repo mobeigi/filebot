@@ -69,9 +69,10 @@
 		<extension>wma</extension>
 	</type>
 	<type name="audio/ogm">
+		<extension>ogg</extension>
 		<extension>ogm</extension>
 		<extension>ogv</extension>
-		<extension>ogg</extension>
+		<extension>oga</extension>
 	</type>
 	<type name="audio/wav">
 		<extension>wav</extension>
