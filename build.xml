@@ -298,7 +298,7 @@
 			<param name="application.icon" value="${dir.installer}/appbundle/filebot.icns" />
 			<param name="application.cert.appbundle" value="3rd Party Mac Developer Application: Point Planck Limited" />
 			<param name="application.cert.installer" value="3rd Party Mac Developer Installer: Point Planck Limited" />
-			<param name="application.mode" value="Rename|Episodes|SFV|Analyze|List" />
+			<param name="application.mode" value="Rename|Episodes|SFV|Filter|List" />
 			<param name="application.help" value="show" />
 		</antcall>
 	</target>
