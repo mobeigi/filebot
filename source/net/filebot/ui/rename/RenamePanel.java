@@ -651,7 +651,7 @@ public class RenamePanel extends JComponent {
 
 		try {
 			if (handler != null && handler.accept(transferable)) {
-				handler.handleTransferable(transferable, TransferAction.ADD);
+				handler.handleTransferable(transferable, TransferAction.PUT);
 			}
 		} catch (Exception e) {
 			debug.log(Level.WARNING, "Failed to handle transferable: " + transferable, e);
