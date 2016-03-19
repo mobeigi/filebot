@@ -178,7 +178,7 @@ public class Main {
 
 		// single panel frame
 		if (args.mode != null) {
-			PanelBuilder[] selection = stream(MainFrame.createPanelBuilders()).filter(p -> p.getName().matches(args.mode)).toArray(PanelBuilder[]::new);
+			PanelBuilder[] selection = stream(PanelBuilder.defaultSequence()).filter(p -> p.getName().matches(args.mode)).toArray(PanelBuilder[]::new);
 			if (selection.length == 1) {
 				frame = new SinglePanelFrame(selection[0], eventBus);
 			} else if (selection.length > 1) {

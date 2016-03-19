@@ -6,6 +6,7 @@ import static javax.swing.KeyStroke.*;
 import static javax.swing.ScrollPaneConstants.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -16,13 +17,11 @@ import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
-import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.logging.Level;
 
-import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -43,16 +42,9 @@ import net.filebot.CacheManager;
 import net.filebot.Settings;
 import net.filebot.cli.GroovyPad;
 import net.filebot.mac.MacAppUtilities;
-import net.filebot.ui.analyze.AnalyzePanelBuilder;
-import net.filebot.ui.episodelist.EpisodeListPanelBuilder;
-import net.filebot.ui.list.ListPanelBuilder;
-import net.filebot.ui.rename.RenamePanelBuilder;
-import net.filebot.ui.sfv.SfvPanelBuilder;
-import net.filebot.ui.subtitle.SubtitlePanelBuilder;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.ui.DefaultFancyListCellRenderer;
 import net.filebot.util.ui.ShadowBorder;
-import net.filebot.util.ui.SwingUI;
 import net.miginfocom.swing.MigLayout;
 
 public class MainFrame extends JFrame {
@@ -114,59 +106,42 @@ public class MainFrame extends JFrame {
 		setSize(980, 630);
 
 		// KEYBOARD SHORTCUTS
-		SwingUI.installAction(this.getRootPane(), getKeyStroke(VK_DELETE, CTRL_MASK | SHIFT_MASK), new AbstractAction("Clear Cache") {
+		installAction(this.getRootPane(), getKeyStroke(VK_DELETE, CTRL_MASK | SHIFT_MASK), newAction("Clear Cache", evt -> {
+			CacheManager.getInstance().clearAll();
+			log.info("Cache has been cleared");
+		}));
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				CacheManager.getInstance().clearAll();
-				log.info("Cache has been cleared");
+		installAction(this.getRootPane(), getKeyStroke(VK_F5, 0), newAction("Run", evt -> {
+			try {
+				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // loading Groovy might take a while
+				GroovyPad pad = new GroovyPad();
+
+				pad.addWindowListener(new WindowAdapter() {
+					@Override
+					public void windowOpened(WindowEvent e) {
+						MainFrame.this.setVisible(false);
+					};
+
+					@Override
+					public void windowClosing(WindowEvent e) {
+						MainFrame.this.setVisible(true);
+					};
+				});
+
+				pad.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+				pad.setModalExclusionType(ModalExclusionType.TOOLKIT_EXCLUDE);
+				pad.setLocationByPlatform(true);
+				pad.setVisible(true);
+			} catch (IOException e) {
+				debug.log(Level.WARNING, e.getMessage(), e);
+			} finally {
+				setCursor(Cursor.getDefaultCursor());
 			}
-		});
+		}));
 
-		SwingUI.installAction(this.getRootPane(), getKeyStroke(VK_F5, 0), new AbstractAction("Run") {
-
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				try {
-					setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // loading Groovy might take a while
-					GroovyPad pad = new GroovyPad();
-
-					pad.addWindowListener(new WindowAdapter() {
-						@Override
-						public void windowOpened(WindowEvent e) {
-							MainFrame.this.setVisible(false);
-						};
-
-						@Override
-						public void windowClosing(WindowEvent e) {
-							MainFrame.this.setVisible(true);
-						};
-					});
-
-					pad.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-					pad.setModalExclusionType(ModalExclusionType.TOOLKIT_EXCLUDE);
-					pad.setLocationByPlatform(true);
-					pad.setVisible(true);
-				} catch (IOException e) {
-					debug.log(Level.WARNING, e.getMessage(), e);
-				} finally {
-					setCursor(Cursor.getDefaultCursor());
-				}
-			}
-		});
-
-		SwingUI.installAction(this.getRootPane(), getKeyStroke(VK_F1, 0), new AbstractAction("Help") {
-
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				GettingStartedStage.start();
-			}
-		});
-
-	}
-
-	public static PanelBuilder[] createPanelBuilders() {
-		return new PanelBuilder[] { new RenamePanelBuilder(), new EpisodeListPanelBuilder(), new SubtitlePanelBuilder(), new SfvPanelBuilder(), new AnalyzePanelBuilder(), new ListPanelBuilder() };
+		installAction(this.getRootPane(), getKeyStroke(VK_F1, 0), newAction("Help", evt -> {
+			GettingStartedStage.start();
+		}));
 	}
 
 	protected void showPanel(PanelBuilder selectedBuilder) {
@@ -233,18 +208,14 @@ public class MainFrame extends JFrame {
 
 			@Override
 			public void dragEnter(final DropTargetDragEvent dtde) {
-				dragEnterTimer = SwingUI.invokeLater(SELECTDELAY_ON_DRAG_OVER, new Runnable() {
+				dragEnterTimer = invokeLater(SELECTDELAY_ON_DRAG_OVER, () -> {
+					selectEnabled = true;
 
-					@Override
-					public void run() {
-						selectEnabled = true;
-
-						// bring window to front when on dnd
-						if (isMacApp()) {
-							MacAppUtilities.requestForeground();
-						} else {
-							SwingUtilities.getWindowAncestor(((DropTarget) dtde.getSource()).getComponent()).toFront();
-						}
+					// bring window to front when on dnd
+					if (isMacApp()) {
+						MacAppUtilities.requestForeground();
+					} else {
+						SwingUtilities.getWindowAncestor(((DropTarget) dtde.getSource()).getComponent()).toFront();
 					}
 				});
 			}
