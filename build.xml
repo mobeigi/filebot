@@ -272,9 +272,9 @@
 			<option value="-Xdock:icon=Contents/Resources/filebot.icns" />
 			<option value="-Dapple.laf.useScreenMenuBar=true" />
 
-			<bundledocument role="Viewer" name="Video files" extensions="3dsbs,3dtab,3gp,ac3,asf,avi,divx,dts,flv,iso,m2ts,m4v,mk3d,mkv,mov,mp4,mpeg,mpg,nuv,ogg,ogm,rec,rm,rmp4,rmvb,strm,tivo,tp,ts,vob,webm,wmv,wtv" />
-			<bundledocument role="Viewer" name="Subtitle files" extensions="ass,idx,sami,smi,srt,ssa,sub" />
-			<bundledocument role="Viewer" name="Audio files" extensions="aac,aiff,alac,flac,m4a,mp3,oga,ogg,ogm,ogv,wav,wma" />
+			<bundledocument role="viewer" handlerRank="none" contentTypes="public.movie" name="Video file" />
+			<bundledocument role="viewer" handlerRank="none" contentTypes="public.audio" name="Audio file" />
+			<bundledocument role="viewer" handlerRank="none" contentTypes="public.folder" name="Media folder" />
 		</bundleapp>
 
 		<!-- application bundle folder as .tar -->
@@ -364,9 +364,9 @@
 
 			<option value="-Dapple.laf.useScreenMenuBar=true" />
 
-			<bundledocument role="Viewer" name="Video files" extensions="3dsbs,3dtab,3gp,ac3,asf,avi,divx,dts,flv,iso,m2ts,m4v,mk3d,mkv,mov,mp4,mpeg,mpg,nuv,ogg,ogm,rec,rm,rmp4,rmvb,strm,tivo,tp,ts,vob,webm,wmv,wtv" />
-			<bundledocument role="Viewer" name="Subtitle files" extensions="ass,idx,sami,smi,srt,ssa,sub" />
-			<bundledocument role="Viewer" name="Audio files" extensions="aac,aiff,alac,flac,m4a,mp3,oga,ogg,ogm,ogv,wav,wma" />
+			<bundledocument role="viewer" handlerRank="none" contentTypes="public.movie" name="Video file" />
+			<bundledocument role="viewer" handlerRank="none" contentTypes="public.audio" name="Audio file" />
+			<bundledocument role="viewer" handlerRank="none" contentTypes="public.folder" name="Media folder" />
 		</bundleapp>
 
 		<!-- fix code signing and submission issues -->
