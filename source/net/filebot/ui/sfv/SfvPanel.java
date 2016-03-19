@@ -34,6 +34,7 @@ import net.filebot.ui.SelectDialog;
 import net.filebot.ui.transfer.DefaultTransferHandler;
 import net.filebot.ui.transfer.LoadAction;
 import net.filebot.ui.transfer.SaveAction;
+import net.filebot.ui.transfer.TransferablePolicy;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.SwingUI;
 import net.miginfocom.swing.MigLayout;
@@ -91,6 +92,10 @@ public class SfvPanel extends JComponent {
 		SwingUI.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), removeAction);
 	}
 
+	public TransferablePolicy getTransferablePolicy() {
+		return transferablePolicy;
+	}
+
 	protected void restartComputation(HashType hash) {
 		// cancel all running computations
 		computationService.reset();
@@ -126,7 +131,7 @@ public class SfvPanel extends JComponent {
 
 	private final SaveAction saveAction = new ChecksumTableSaveAction();
 
-	private final LoadAction loadAction = new LoadAction(transferablePolicy);
+	private final LoadAction loadAction = new LoadAction(this::getTransferablePolicy);
 
 	private final AbstractAction clearAction = new AbstractAction("Clear", ResourceManager.getIcon("action.clear")) {
 

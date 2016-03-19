@@ -77,7 +77,7 @@ public class ListPanel extends JComponent {
 
 		// panel with buttons that will be added inside the list component
 		JPanel buttonPanel = new JPanel(new MigLayout("insets 1.2mm, nogrid, fill", "align center"));
-		buttonPanel.add(new JButton(new LoadAction(list.getTransferablePolicy())));
+		buttonPanel.add(new JButton(new LoadAction(list::getTransferablePolicy)));
 		buttonPanel.add(new JButton(new SaveAction(list.getExportHandler())), "gap related");
 
 		list.add(buttonPanel, BorderLayout.SOUTH);

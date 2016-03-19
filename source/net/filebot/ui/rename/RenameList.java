@@ -8,7 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.ListModel;
@@ -16,13 +16,12 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
+import ca.odell.glazedlists.EventList;
 import net.filebot.ResourceManager;
 import net.filebot.ui.FileBotList;
 import net.filebot.ui.transfer.LoadAction;
-import net.filebot.ui.transfer.TransferablePolicy;
 import net.filebot.util.ui.ActionPopup;
 import net.miginfocom.swing.MigLayout;
-import ca.odell.glazedlists.EventList;
 
 class RenameList<E> extends FileBotList<E> {
 
@@ -94,61 +93,41 @@ class RenameList<E> extends FileBotList<E> {
 		return buttonPanel;
 	}
 
-	@Override
-	public void setTransferablePolicy(TransferablePolicy transferablePolicy) {
-		super.setTransferablePolicy(transferablePolicy);
-		loadAction.putValue(LoadAction.TRANSFERABLE_POLICY, transferablePolicy);
-	}
-
 	private JButton createLoadButton() {
 		ActionPopup actionPopup = new ActionPopup("Load Files", ResourceManager.getIcon("action.load"));
-		actionPopup.add(new AbstractAction("Select Folders", ResourceManager.getIcon("tree.closed")) {
 
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				loadAction.actionPerformed(new ActionEvent(evt.getSource(), evt.getID(), evt.getActionCommand(), 0));
-			}
-		});
-		actionPopup.add(new AbstractAction("Select Files", ResourceManager.getIcon("file.generic")) {
+		actionPopup.add(newAction("Select Folders", ResourceManager.getIcon("tree.closed"), evt -> {
+			loadAction.actionPerformed(new ActionEvent(evt.getSource(), evt.getID(), evt.getActionCommand(), 0));
+		}));
 
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				loadAction.actionPerformed(new ActionEvent(evt.getSource(), evt.getID(), evt.getActionCommand(), ActionEvent.SHIFT_MASK));
-			}
-		});
+		actionPopup.add(newAction("Select Files", ResourceManager.getIcon("file.generic"), evt -> {
+			loadAction.actionPerformed(new ActionEvent(evt.getSource(), evt.getID(), evt.getActionCommand(), ActionEvent.SHIFT_MASK));
+		}));
 
-		JButton b = new JButton(loadAction);
-		b.setComponentPopupMenu(actionPopup);
-		return b;
+		JButton button = new JButton(loadAction);
+		button.setComponentPopupMenu(actionPopup);
+		return button;
 	}
 
-	private final LoadAction loadAction = new LoadAction(null);
+	private final LoadAction loadAction = new LoadAction(this::getTransferablePolicy);
 
-	private final AbstractAction upAction = new AbstractAction("Align Up", ResourceManager.getIcon("action.up")) {
+	private final Action upAction = newAction("Align Up", ResourceManager.getIcon("action.up"), evt -> {
+		int index = getListComponent().getSelectedIndex();
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			int index = getListComponent().getSelectedIndex();
-
-			if (index > 0) {
-				swap(model, index, index - 1);
-				getListComponent().setSelectedIndex(index - 1);
-			}
+		if (index > 0) {
+			swap(model, index, index - 1);
+			getListComponent().setSelectedIndex(index - 1);
 		}
-	};
+	});
 
-	private final AbstractAction downAction = new AbstractAction("Align Down", ResourceManager.getIcon("action.down")) {
+	private final Action downAction = newAction("Align Down", ResourceManager.getIcon("action.down"), evt -> {
+		int index = getListComponent().getSelectedIndex();
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			int index = getListComponent().getSelectedIndex();
-
-			if (index < model.size() - 1) {
-				swap(model, index, index + 1);
-				getListComponent().setSelectedIndex(index + 1);
-			}
+		if (index < model.size() - 1) {
+			swap(model, index, index + 1);
+			getListComponent().setSelectedIndex(index + 1);
 		}
-	};
+	});
 
 	private final MouseAdapter dndReorderMouseAdapter = new MouseAdapter() {
 

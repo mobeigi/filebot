@@ -78,6 +78,7 @@ import net.filebot.ui.transfer.FileExportHandler;
 import net.filebot.ui.transfer.FileTransferablePolicy;
 import net.filebot.ui.transfer.LoadAction;
 import net.filebot.ui.transfer.SaveAction;
+import net.filebot.ui.transfer.TransferablePolicy;
 import net.filebot.ui.transfer.TransferablePolicy.TransferAction;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
@@ -126,7 +127,7 @@ class HistoryDialog extends JDialog {
 		content.add(createScrollPaneGroup("Elements", elementTable), "growx, wrap paragraph");
 
 		// use ADD by default
-		Action importAction = new LoadAction("Import", ResourceManager.getIcon("action.load"), importHandler) {
+		Action importAction = new LoadAction("Import", ResourceManager.getIcon("action.load"), this::getTransferablePolicy) {
 
 			@Override
 			public TransferAction getTransferAction(ActionEvent evt) {
@@ -592,6 +593,10 @@ class HistoryDialog extends JDialog {
 
 			return missingFiles;
 		}
+	}
+
+	public TransferablePolicy getTransferablePolicy() {
+		return importHandler;
 	}
 
 	private final FileTransferablePolicy importHandler = new FileTransferablePolicy() {

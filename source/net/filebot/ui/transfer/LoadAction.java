@@ -6,6 +6,7 @@ import static net.filebot.UserFiles.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 import javax.swing.AbstractAction;
@@ -18,16 +19,15 @@ import net.filebot.util.FileUtilities.ExtensionFileFilter;
 
 public class LoadAction extends AbstractAction {
 
-	public static final String TRANSFERABLE_POLICY = "transferablePolicy";
+	public final Supplier<TransferablePolicy> handler;
 
-	public LoadAction(TransferablePolicy transferablePolicy) {
-		this("Load", ResourceManager.getIcon("action.load"), transferablePolicy);
+	public LoadAction(Supplier<TransferablePolicy> handler) {
+		this("Load", ResourceManager.getIcon("action.load"), handler);
 	}
 
-	public LoadAction(String name, Icon icon, TransferablePolicy transferablePolicy) {
-		putValue(NAME, name);
-		putValue(SMALL_ICON, icon);
-		putValue(TRANSFERABLE_POLICY, transferablePolicy);
+	public LoadAction(String name, Icon icon, Supplier<TransferablePolicy> handler) {
+		super(name, icon);
+		this.handler = handler;
 	}
 
 	public TransferAction getTransferAction(ActionEvent evt) {
@@ -43,7 +43,7 @@ public class LoadAction extends AbstractAction {
 	public void actionPerformed(ActionEvent evt) {
 		try {
 			// get transferable policy from action properties
-			TransferablePolicy transferablePolicy = (TransferablePolicy) getValue(TRANSFERABLE_POLICY);
+			TransferablePolicy transferablePolicy = handler.get();
 			if (transferablePolicy == null) {
 				return;
 			}
