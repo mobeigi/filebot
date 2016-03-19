@@ -3,10 +3,13 @@ package net.filebot.ui.list;
 import static java.awt.Font.*;
 import static java.lang.Math.*;
 import static net.filebot.Logging.*;
+import static net.filebot.Logging.log;
 import static net.filebot.media.MediaDetection.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.text.NumberFormat;
@@ -18,7 +21,6 @@ import java.util.logging.Level;
 
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
-import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -29,14 +31,17 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 
+import com.google.common.eventbus.Subscribe;
+
 import net.filebot.ResourceManager;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.ui.FileBotList;
 import net.filebot.ui.FileBotListExportHandler;
 import net.filebot.ui.transfer.LoadAction;
 import net.filebot.ui.transfer.SaveAction;
+import net.filebot.ui.transfer.TransferablePolicy;
+import net.filebot.ui.transfer.TransferablePolicy.TransferAction;
 import net.filebot.util.ExceptionUtilities;
-import net.filebot.util.ui.SwingUI;
 import net.miginfocom.swing.MigLayout;
 
 public class ListPanel extends JComponent {
@@ -71,7 +76,7 @@ public class ListPanel extends JComponent {
 		add(fromSpinner, "gap related, wmax 14mm, sizegroup spinner, sizegroupy editor");
 		add(new JLabel("To:"), "gap 5mm");
 		add(toSpinner, "gap related, wmax 14mm, sizegroup spinner, sizegroupy editor");
-		add(new JButton(createAction), "gap 7mm, gapafter indent, wrap paragraph");
+		add(newButton("Create", ResourceManager.getIcon("action.export"), this::create), "gap 7mm, gapafter indent, wrap paragraph");
 
 		add(list, "grow");
 
@@ -82,62 +87,70 @@ public class ListPanel extends JComponent {
 
 		list.add(buttonPanel, BorderLayout.SOUTH);
 
-		SwingUI.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), createAction);
+		installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), newAction("Create", this::create));
 	}
 
-	private AbstractAction createAction = new AbstractAction("Create", ResourceManager.getIcon("action.export")) {
+	public void create(ActionEvent evt) {
+		// clear selection
+		list.getListComponent().clearSelection();
 
-		@Override
-		public void actionPerformed(ActionEvent evt) {
+		int from = fromSpinnerModel.getNumber().intValue();
+		int to = toSpinnerModel.getNumber().intValue();
 
-			// clear selection
-			list.getListComponent().clearSelection();
+		try {
+			ExpressionFormat format = new ExpressionFormat(textField.getText());
 
-			int from = fromSpinnerModel.getNumber().intValue();
-			int to = toSpinnerModel.getNumber().intValue();
+			// pad episode numbers with zeros (e.g. %02d) so all numbers have the same number of digits
+			NumberFormat numberFormat = NumberFormat.getIntegerInstance();
+			numberFormat.setMinimumIntegerDigits(max(2, Integer.toString(max(from, to)).length()));
+			numberFormat.setGroupingUsed(false);
 
-			try {
-				ExpressionFormat format = new ExpressionFormat(textField.getText());
+			List<String> names = new ArrayList<String>();
 
-				// pad episode numbers with zeros (e.g. %02d) so all numbers have the same number of digits
-				NumberFormat numberFormat = NumberFormat.getIntegerInstance();
-				numberFormat.setMinimumIntegerDigits(max(2, Integer.toString(max(from, to)).length()));
-				numberFormat.setGroupingUsed(false);
+			int min = min(from, to);
+			int max = max(from, to);
 
-				List<String> names = new ArrayList<String>();
+			for (int i = min; i <= max; i++) {
+				Bindings bindings = new SimpleBindings();
 
-				int min = min(from, to);
-				int max = max(from, to);
+				// strings
+				bindings.put("i", numberFormat.format(i));
 
-				for (int i = min; i <= max; i++) {
-					Bindings bindings = new SimpleBindings();
+				// numbers
+				bindings.put("index", i);
+				bindings.put("from", from);
+				bindings.put("to", to);
 
-					// strings
-					bindings.put("i", numberFormat.format(i));
-
-					// numbers
-					bindings.put("index", i);
-					bindings.put("from", from);
-					bindings.put("to", to);
-
-					names.add(format.format(bindings));
-				}
-
-				if (signum(to - from) < 0) {
-					Collections.reverse(names);
-				}
-
-				// try to match title from the first five names
-				Collection<String> title = getSeriesNameMatcher(true).matchAll((names.size() < 5 ? names : names.subList(0, 4)).toArray(new String[0]));
-
-				list.setTitle(title.isEmpty() ? "List" : title.iterator().next());
-
-				list.getModel().clear();
-				list.getModel().addAll(names);
-			} catch (Exception e) {
-				log.log(Level.WARNING, ExceptionUtilities.getMessage(e), e);
+				names.add(format.format(bindings));
 			}
+
+			if (signum(to - from) < 0) {
+				Collections.reverse(names);
+			}
+
+			// try to match title from the first five names
+			Collection<String> title = getSeriesNameMatcher(true).matchAll((names.size() < 5 ? names : names.subList(0, 4)).toArray(new String[0]));
+
+			list.setTitle(title.isEmpty() ? "List" : title.iterator().next());
+
+			list.getModel().clear();
+			list.getModel().addAll(names);
+		} catch (Exception e) {
+			log.log(Level.WARNING, ExceptionUtilities.getMessage(e), e);
 		}
-	};
+	}
+
+	@Subscribe
+	public void handle(Transferable transferable) {
+		TransferablePolicy handler = list.getTransferablePolicy();
+
+		try {
+			if (handler != null && handler.accept(transferable)) {
+				handler.handleTransferable(transferable, TransferAction.ADD);
+			}
+		} catch (Exception e) {
+			debug.log(Level.WARNING, "Failed to handle transferable: " + transferable, e);
+		}
+	}
 
 }

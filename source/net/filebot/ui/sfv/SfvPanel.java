@@ -1,11 +1,13 @@
 package net.filebot.ui.sfv;
 
 import static java.lang.Math.*;
+import static net.filebot.Logging.*;
 import static net.filebot.ui.sfv.ChecksumTableModel.*;
 import static net.filebot.ui.transfer.BackgroundFileTransferablePolicy.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
@@ -17,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
 
 import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
@@ -29,6 +32,8 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
+import com.google.common.eventbus.Subscribe;
+
 import net.filebot.ResourceManager;
 import net.filebot.hash.HashType;
 import net.filebot.ui.SelectDialog;
@@ -36,6 +41,7 @@ import net.filebot.ui.transfer.DefaultTransferHandler;
 import net.filebot.ui.transfer.LoadAction;
 import net.filebot.ui.transfer.SaveAction;
 import net.filebot.ui.transfer.TransferablePolicy;
+import net.filebot.ui.transfer.TransferablePolicy.TransferAction;
 import net.filebot.util.FileUtilities;
 import net.miginfocom.swing.MigLayout;
 
@@ -124,6 +130,19 @@ public class SfvPanel extends JComponent {
 		// start shutdown sequence for all created executors
 		for (ExecutorService executor : executors.values()) {
 			executor.shutdown();
+		}
+	}
+
+	@Subscribe
+	public void handle(Transferable transferable) {
+		TransferablePolicy handler = getTransferablePolicy();
+
+		try {
+			if (handler != null && handler.accept(transferable)) {
+				handler.handleTransferable(transferable, TransferAction.ADD);
+			}
+		} catch (Exception e) {
+			debug.log(Level.WARNING, "Failed to handle transferable: " + transferable, e);
 		}
 	}
 

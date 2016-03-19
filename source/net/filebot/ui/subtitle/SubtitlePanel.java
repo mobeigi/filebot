@@ -12,8 +12,10 @@ import java.awt.Dialog.ModalityType;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Path2D;
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +40,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
+import com.google.common.eventbus.Subscribe;
+
 import net.filebot.Language;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
@@ -46,6 +50,8 @@ import net.filebot.media.MediaDetection;
 import net.filebot.ui.AbstractSearchPanel;
 import net.filebot.ui.LanguageComboBox;
 import net.filebot.ui.SelectDialog;
+import net.filebot.ui.subtitle.SubtitleDropTarget.DropAction;
+import net.filebot.ui.transfer.FileTransferable;
 import net.filebot.util.ui.LabelProvider;
 import net.filebot.util.ui.LinkButton;
 import net.filebot.util.ui.SimpleLabelProvider;
@@ -72,6 +78,20 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		// add at the top right corner
 		add(uploadDropTarget, "width 1.45cm!, height 1.2cm!, pos n 0% 100%-1.8cm n", 0);
 		add(downloadDropTarget, "width 1.45cm!, height 1.2cm!, pos n 0% 100%-0.15cm n", 0);
+	}
+
+	@Subscribe
+	public void handle(Transferable transferable) {
+		try {
+			SubtitleDropTarget target = downloadDropTarget;
+			List<File> files = FileTransferable.getFilesFromTransferable(transferable);
+
+			if (files != null && files.size() > 0 && target.getDropAction(files) != DropAction.Cancel) {
+				target.handleDrop(files);
+			}
+		} catch (Exception e) {
+			debug.log(Level.WARNING, "Failed to handle transferable: " + transferable, e);
+		}
 	}
 
 	private final SubtitleDropTarget uploadDropTarget = new SubtitleDropTarget.Upload() {

@@ -45,7 +45,7 @@ import net.filebot.web.VideoHashSubtitleService;
 
 abstract class SubtitleDropTarget extends JButton {
 
-	private enum DropAction {
+	public enum DropAction {
 		Accept, Cancel
 	}
 
