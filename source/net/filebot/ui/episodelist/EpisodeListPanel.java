@@ -1,9 +1,11 @@
 package net.filebot.ui.episodelist;
 
 import static net.filebot.ui.episodelist.SeasonSpinnerModel.*;
+import static net.filebot.util.ui.SwingUI.*;
 import static net.filebot.web.EpisodeUtilities.*;
 
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
@@ -21,10 +23,13 @@ import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JPopupMenu;
 import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
+import javax.swing.TransferHandler;
 
 import net.filebot.Language;
+import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.WebServices;
 import net.filebot.media.MediaDetection;
@@ -37,11 +42,11 @@ import net.filebot.ui.SelectDialog;
 import net.filebot.ui.transfer.ArrayTransferable;
 import net.filebot.ui.transfer.ClipboardHandler;
 import net.filebot.ui.transfer.CompositeTranserable;
+import net.filebot.ui.transfer.SaveAction;
 import net.filebot.util.StringUtilities;
 import net.filebot.util.ui.LabelProvider;
 import net.filebot.util.ui.SelectButton;
 import net.filebot.util.ui.SimpleLabelProvider;
-import net.filebot.util.ui.SwingUI;
 import net.filebot.web.Episode;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.SearchResult;
@@ -73,8 +78,8 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 
 		searchTextField.getSelectButton().addPropertyChangeListener(SelectButton.SELECTED_VALUE, selectButtonListener);
 
-		SwingUI.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.SHIFT_MASK), new SpinSeasonAction(1));
-		SwingUI.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.SHIFT_MASK), new SpinSeasonAction(-1));
+		installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.SHIFT_MASK), new SpinSeasonAction(1));
+		installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.SHIFT_MASK), new SpinSeasonAction(-1));
 	}
 
 	@Override
@@ -243,6 +248,14 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 			// remove borders
 			listScrollPane.setBorder(null);
 			setBorder(null);
+
+			// popup menu
+			JPopupMenu popup = new JPopupMenu("Episodes");
+			popup.add(newAction("Copy", ResourceManager.getIcon("rename.action.copy"), evt -> {
+				getTransferHandler().getClipboardHandler().exportToClipboard(this, Toolkit.getDefaultToolkit().getSystemClipboard(), TransferHandler.COPY);
+			}));
+			popup.add(new SaveAction(getExportHandler()));
+			getListComponent().setComponentPopupMenu(popup);
 		}
 
 	}
@@ -264,6 +277,10 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		@Override
 		public void exportToClipboard(JComponent c, Clipboard clipboard, int action) throws IllegalStateException {
 			Episode[] selection = ((List<?>) list.getListComponent().getSelectedValuesList()).stream().map(Episode.class::cast).toArray(Episode[]::new);
+
+			if (selection.length == 0) {
+				selection = list.getModel().stream().map(Episode.class::cast).toArray(Episode[]::new);
+			}
 
 			Transferable episodeArray = new ArrayTransferable<Episode>(selection);
 			Transferable stringSelection = new StringSelection(StringUtilities.join(selection, "\n"));
