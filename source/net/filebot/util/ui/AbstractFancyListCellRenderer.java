@@ -1,7 +1,6 @@
 
 package net.filebot.util.ui;
 
-
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -18,7 +17,6 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-
 
 public abstract class AbstractFancyListCellRenderer extends JPanel implements ListCellRenderer {
 
@@ -38,21 +36,17 @@ public abstract class AbstractFancyListCellRenderer extends JPanel implements Li
 	private static final Insets DEFAULT_PADDING = new Insets(7, 7, 7, 7);
 	private static final Insets DEFAULT_MARGIN = new Insets(1, 1, 0, 1);
 
-
 	public AbstractFancyListCellRenderer() {
 		this(DEFAULT_PADDING, DEFAULT_MARGIN, null);
 	}
-
 
 	public AbstractFancyListCellRenderer(Insets padding) {
 		this(padding, DEFAULT_MARGIN, null);
 	}
 
-
 	public AbstractFancyListCellRenderer(Insets padding, Insets margin) {
 		this(padding, margin, null);
 	}
-
 
 	public AbstractFancyListCellRenderer(Insets padding, Insets margin, Color borderColor) {
 		this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -76,14 +70,12 @@ public abstract class AbstractFancyListCellRenderer extends JPanel implements Li
 		setOpaque(false);
 	}
 
-
 	@Override
 	protected void paintBorder(Graphics g) {
 		if (borderPainted) {
 			super.paintBorder(g);
 		}
 	}
-
 
 	@Override
 	protected void paintComponent(Graphics g) {
@@ -108,7 +100,6 @@ public abstract class AbstractFancyListCellRenderer extends JPanel implements Li
 		super.paintComponent(g);
 	}
 
-
 	@Override
 	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		configureListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
@@ -116,7 +107,6 @@ public abstract class AbstractFancyListCellRenderer extends JPanel implements Li
 
 		return this;
 	}
-
 
 	protected void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		setGradientPainted(isSelected);
@@ -143,76 +133,54 @@ public abstract class AbstractFancyListCellRenderer extends JPanel implements Li
 		}
 	}
 
-
 	public void setGradientColors(Color gradientBeginColor, Color gradientEndColor) {
 		this.gradientBeginColor = gradientBeginColor;
 		this.gradientEndColor = gradientEndColor;
 	}
 
-
 	public Color getGradientBeginColor() {
 		return gradientBeginColor;
 	}
-
 
 	public Color getGradientEndColor() {
 		return gradientEndColor;
 	}
 
-
 	public void setHighlightColor(Color highlightColor) {
 		this.highlightColor = highlightColor;
 	}
-
 
 	public void setGradientStyle(GradientStyle gradientStyle) {
 		this.gradientStyle = gradientStyle;
 	}
 
-
 	public void setHighlightingEnabled(boolean highlightingEnabled) {
 		this.highlightingEnabled = highlightingEnabled;
 	}
-
 
 	public void setBorderPainted(boolean borderPainted) {
 		this.borderPainted = borderPainted;
 	}
 
-
 	public void setGradientPainted(boolean gradientPainted) {
 		this.gradientPainted = gradientPainted;
 	}
-
 
 	public Color getHighlightColor() {
 		return highlightColor;
 	}
 
-
 	public boolean isBorderPainted() {
 		return borderPainted;
 	}
-
 
 	public GradientStyle getGradientStyle() {
 		return gradientStyle;
 	}
 
-
 	public boolean isHighlightingEnabled() {
 		return highlightingEnabled;
 	}
-
-
-	@Override
-	public void validate() {
-		// validate children, yet avoid flickering of the mouse cursor
-		synchronized (getTreeLock()) {
-			validateTree();
-		}
-	}
-
 
 	/**
 	 * Overridden for performance reasons.
@@ -221,14 +189,12 @@ public abstract class AbstractFancyListCellRenderer extends JPanel implements Li
 	public void repaint() {
 	}
 
-
 	/**
 	 * Overridden for performance reasons.
 	 */
 	@Override
 	public void repaint(long tm, int x, int y, int width, int height) {
 	}
-
 
 	/**
 	 * Overridden for performance reasons.
@@ -237,14 +203,12 @@ public abstract class AbstractFancyListCellRenderer extends JPanel implements Li
 	public void repaint(Rectangle r) {
 	}
 
-
 	/**
 	 * Overridden for performance reasons.
 	 */
 	@Override
 	protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
 	}
-
 
 	/**
 	 * Overridden for performance reasons.
@@ -253,14 +217,12 @@ public abstract class AbstractFancyListCellRenderer extends JPanel implements Li
 	public void firePropertyChange(String propertyName, byte oldValue, byte newValue) {
 	}
 
-
 	/**
 	 * Overridden for performance reasons.
 	 */
 	@Override
 	public void firePropertyChange(String propertyName, char oldValue, char newValue) {
 	}
-
 
 	/**
 	 * Overridden for performance reasons.
@@ -269,14 +231,12 @@ public abstract class AbstractFancyListCellRenderer extends JPanel implements Li
 	public void firePropertyChange(String propertyName, short oldValue, short newValue) {
 	}
 
-
 	/**
 	 * Overridden for performance reasons.
 	 */
 	@Override
 	public void firePropertyChange(String propertyName, int oldValue, int newValue) {
 	}
-
 
 	/**
 	 * Overridden for performance reasons.
@@ -285,7 +245,6 @@ public abstract class AbstractFancyListCellRenderer extends JPanel implements Li
 	public void firePropertyChange(String propertyName, long oldValue, long newValue) {
 	}
 
-
 	/**
 	 * Overridden for performance reasons.
 	 */
@@ -293,14 +252,12 @@ public abstract class AbstractFancyListCellRenderer extends JPanel implements Li
 	public void firePropertyChange(String propertyName, float oldValue, float newValue) {
 	}
 
-
 	/**
 	 * Overridden for performance reasons.
 	 */
 	@Override
 	public void firePropertyChange(String propertyName, double oldValue, double newValue) {
 	}
-
 
 	/**
 	 * Overridden for performance reasons.
