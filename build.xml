@@ -323,7 +323,7 @@
 		<property name="path.app" value="${application.name}.app" />
 		<property name="path.pkg" value="${application.executable}_${version}_r${svn.revision}.pkg" />
 
-		<property name="jre.version" value="jdk1.8.0_51.jdk" />
+		<property name="jre.version" value="jdk1.8.0_74.jdk" />
 		<property name="jre.path" value="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Home" />
 
 		<bundleapp minimumsystemversion="10.8" executablename="${application.executable}AppLauncher" version="${svn.revision}" outputdirectory="${dir.dist}" name="${application.name}" displayname="${application.name}" shortversion="${version}" identifier="${application.identifier}" mainclassname="net.filebot.Main" icon="${application.icon}" copyright="${tstamp.year} Point Planck" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
