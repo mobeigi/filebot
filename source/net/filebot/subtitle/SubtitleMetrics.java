@@ -1,6 +1,5 @@
 package net.filebot.subtitle;
 
-import static java.lang.Math.*;
 import static java.util.Collections.*;
 import static net.filebot.Logging.*;
 import static net.filebot.media.MediaDetection.*;
@@ -122,7 +121,7 @@ public enum SubtitleMetrics implements SimilarityMetric {
 
 		@Override
 		protected float similarity(String match, String s1, String s2) {
-			return (float) match.length() / max(s1.length(), s2.length()) > 0.8 ? 1 : 0;
+			return (float) match.length() / Math.max(s1.length(), s2.length()) > 0.8 ? 1 : 0;
 		}
 
 		private final Map<File, String> xattrCache = new WeakHashMap<File, String>(64);
@@ -171,11 +170,11 @@ public enum SubtitleMetrics implements SimilarityMetric {
 		private Map<String, Object> getSubtitleProperties(OpenSubtitlesSubtitleDescriptor subtitle) {
 			try {
 				Map<String, Object> props = new HashMap<String, Object>();
-				float fps = round(subtitle.getMovieFPS()); // round because most FPS values in the database are bad anyway
+				float fps = Math.round(subtitle.getMovieFPS()); // round because most FPS values in the database are bad anyway
 				if (fps > 0) {
 					props.put(FPS, fps);
 				}
-				long seconds = (long) floor(subtitle.getMovieTimeMS() / (double) 1000);
+				long seconds = (long) Math.floor(subtitle.getMovieTimeMS() / (double) 1000);
 				if (seconds > 0) {
 					props.put(SECONDS, seconds);
 				}
@@ -195,11 +194,11 @@ public enum SubtitleMetrics implements SimilarityMetric {
 						Map<String, Object> props = new HashMap<String, Object>();
 						MediaInfo mediaInfo = new MediaInfo().open(file);
 
-						float fps = round(Float.parseFloat(mediaInfo.get(StreamKind.Video, 0, "FrameRate")));
+						float fps = Math.round(Float.parseFloat(mediaInfo.get(StreamKind.Video, 0, "FrameRate")));
 						if (fps > 0) {
 							props.put(FPS, fps);
 						}
-						long seconds = (long) floor(Long.parseLong(mediaInfo.get(StreamKind.Video, 0, "Duration")) / (double) 1000);
+						long seconds = (long) Math.floor(Long.parseLong(mediaInfo.get(StreamKind.Video, 0, "Duration")) / (double) 1000);
 						if (seconds > 0) {
 							props.put(SECONDS, seconds);
 						}

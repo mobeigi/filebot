@@ -1,6 +1,5 @@
 package net.filebot.similarity;
 
-import static java.lang.Math.*;
 import static net.filebot.similarity.CommonSequenceMatcher.*;
 import static net.filebot.similarity.Normalization.*;
 
@@ -32,7 +31,7 @@ public class SequenceMatchSimilarity implements SimilarityMetric {
 	}
 
 	protected float similarity(String match, String s1, String s2) {
-		return (float) match.length() / min(s1.length(), s2.length());
+		return (float) match.length() / Math.min(s1.length(), s2.length());
 	}
 
 	protected String normalize(Object object) {

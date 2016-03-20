@@ -1,6 +1,5 @@
 package net.filebot.subtitle;
 
-import static java.lang.Math.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
@@ -359,7 +358,7 @@ public final class SubtitleUtilities {
 			try (SubRipWriter out = new SubRipWriter(buffer)) {
 				for (SubtitleElement it : decodeSubtitles(data)) {
 					if (outputTimingOffset != 0) {
-						it = new SubtitleElement(max(0, it.getStart() + outputTimingOffset), max(0, it.getEnd() + outputTimingOffset), it.getText());
+						it = new SubtitleElement(Math.max(0, it.getStart() + outputTimingOffset), Math.max(0, it.getEnd() + outputTimingOffset), it.getText());
 					}
 					out.write(it);
 				}

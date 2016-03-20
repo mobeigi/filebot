@@ -1,6 +1,5 @@
 package net.filebot.ui.sfv;
 
-import static java.lang.Math.*;
 import static net.filebot.ui.sfv.ChecksumTableModel.*;
 import static net.filebot.ui.transfer.BackgroundFileTransferablePolicy.*;
 import static net.filebot.util.FileUtilities.*;
@@ -184,7 +183,7 @@ public class SfvPanel extends JComponent {
 			computationService.purge();
 
 			// auto select next row
-			selectedRow = min(selectedRow, table.getRowCount() - 1);
+			selectedRow = Math.min(selectedRow, table.getRowCount() - 1);
 
 			table.getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
 		}

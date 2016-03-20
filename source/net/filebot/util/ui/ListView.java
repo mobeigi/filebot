@@ -1,9 +1,6 @@
 
 package net.filebot.util.ui;
 
-
-import static java.lang.Math.*;
-
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -23,11 +20,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 
-
 public class ListView extends JList {
 
 	protected final BlockSelectionHandler blockSelectionHandler = new BlockSelectionHandler();
-
 
 	public ListView(ListModel dataModel) {
 		super(dataModel);
@@ -45,7 +40,6 @@ public class ListView extends JList {
 		addMouseMotionListener(blockSelectionHandler);
 	}
 
-
 	public void addSelectionInterval(Rectangle selection) {
 		Point p1 = selection.getLocation();
 		Point p2 = new Point(p1.x + selection.width, p1.y + selection.height);
@@ -62,7 +56,6 @@ public class ListView extends JList {
 		}
 	}
 
-
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -75,7 +68,6 @@ public class ListView extends JList {
 		}
 	}
 
-
 	protected void paintBlockSelection(Graphics2D g2d, Rectangle selection) {
 		g2d.setPaint(SwingUI.derive(getSelectionBackground(), 0.3f));
 		g2d.fill(selection);
@@ -84,23 +76,19 @@ public class ListView extends JList {
 		g2d.draw(selection);
 	}
 
-
 	protected String convertValueToText(Object value) {
 		return value.toString();
 	}
 
-
 	protected Icon convertValueToIcon(Object value) {
 		return null;
 	}
-
 
 	protected class ListViewRenderer extends DefaultListCellRenderer {
 
 		public ListViewRenderer() {
 			setOpaque(false);
 		}
-
 
 		@Override
 		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -125,7 +113,6 @@ public class ListView extends JList {
 			return this;
 		}
 
-
 		@Override
 		protected void paintComponent(Graphics g) {
 			// paint selection background for the text area only, not the whole cell
@@ -140,13 +127,11 @@ public class ListView extends JList {
 		}
 	};
 
-
 	protected class BlockSelectionHandler extends MouseInputAdapter {
 
 		private Rectangle selection;
 
 		private Point origin;
-
 
 		@Override
 		public void mousePressed(MouseEvent e) {
@@ -154,7 +139,6 @@ public class ListView extends JList {
 				origin = e.getPoint();
 			}
 		}
-
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
@@ -167,8 +151,8 @@ public class ListView extends JList {
 
 			// keep point within component bounds
 			Point p2 = e.getPoint();
-			p2.x = max(0, min(getWidth() - 1, p2.x));
-			p2.y = max(0, min(getHeight() - 1, p2.y));
+			p2.x = Math.max(0, Math.min(getWidth() - 1, p2.x));
+			p2.y = Math.max(0, Math.min(getHeight() - 1, p2.y));
 
 			// update selection bounds
 			selection.setFrameFromDiagonal(origin, p2);
@@ -184,7 +168,6 @@ public class ListView extends JList {
 			repaint();
 		}
 
-
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			origin = null;
@@ -195,7 +178,6 @@ public class ListView extends JList {
 			// update view
 			repaint();
 		}
-
 
 		public Rectangle getSelection() {
 			return selection;

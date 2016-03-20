@@ -1,6 +1,5 @@
 package net.filebot.similarity;
 
-import static java.lang.Math.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
@@ -161,7 +160,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			}
 
 			// 1:SxE && Title, 2:SxE
-			return (float) ((max(sxe, 0) * title) + (floor(sxe) / 10));
+			return (float) ((Math.max(sxe, 0) * title) + (Math.floor(sxe) / 10));
 		}
 
 		public Object getTitle(Object o) {
@@ -191,7 +190,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			sum /= f1.length * f2.length;
 
 			// normalize into 3 similarity levels
-			return (float) (ceil(sum * 3) / 3);
+			return (float) (Math.ceil(sum * 3) / 3);
 		}
 
 		protected String[] normalize(Object[] objects) {
@@ -244,13 +243,13 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			float max = 0;
 			for (String s1 : f1) {
 				for (String s2 : f2) {
-					max = max(super.getSimilarity(s1, s2), max);
+					max = Math.max(super.getSimilarity(s1, s2), max);
 				}
 			}
 
 			// normalize absolute similarity to similarity rank (4 ranks in total),
 			// so we are less likely to fall for false positives in this pass, and move on to the next one
-			return (float) (floor(max * 4) / 4);
+			return (float) (Math.floor(max * 4) / 4);
 		}
 
 		@Override
@@ -287,7 +286,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		public float getSimilarity(Object o1, Object o2) {
 			// normalize absolute similarity to similarity rank (4 ranks in total),
 			// so we are less likely to fall for false positives in this pass, and move on to the next one
-			return (float) (floor(super.getSimilarity(o1, o2) * 4) / 4);
+			return (float) (Math.floor(super.getSimilarity(o1, o2) * 4) / 4);
 		}
 
 		@Override
@@ -311,13 +310,13 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			float max = 0;
 			for (String s1 : f1) {
 				for (String s2 : f2) {
-					max = max(super.getSimilarity(s1, s2), max);
+					max = Math.max(super.getSimilarity(s1, s2), max);
 				}
 			}
 
 			// normalize absolute similarity to similarity rank (4 ranks in total),
 			// so we are less likely to fall for false positives in this pass, and move on to the next one
-			return (float) (floor(max * 4) / 4);
+			return (float) (Math.floor(max * 4) / 4);
 		}
 
 		@Override
@@ -395,11 +394,11 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			s1 = stripReleaseInfo(s1, false);
 			s2 = stripReleaseInfo(s2, false);
 
-			int length = min(s1.length(), s2.length());
+			int length = Math.min(s1.length(), s2.length());
 			s1 = s1.substring(0, length);
 			s2 = s2.substring(0, length);
 
-			return (float) (floor(super.getSimilarity(s1, s2) * 4) / 4);
+			return (float) (Math.floor(super.getSimilarity(s1, s2) * 4) / 4);
 		};
 
 		@Override
@@ -415,7 +414,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			float lowerBound = super.getSimilarity(normalize(o1, true), normalize(o2, true));
 			float upperBound = super.getSimilarity(normalize(o1, false), normalize(o2, false));
 
-			return max(lowerBound, upperBound);
+			return Math.max(lowerBound, upperBound);
 		};
 
 		@Override
@@ -459,7 +458,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			for (String s1 : f1) {
 				for (String s2 : f2) {
 					if (s1 != null && s2 != null) {
-						max = max(super.getSimilarity(s1, s2), max);
+						max = Math.max(super.getSimilarity(s1, s2), max);
 						if (max >= 1) {
 							return max;
 						}
@@ -578,7 +577,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			if (r1 < 0 || r2 < 0)
 				return -1;
 
-			return max(r1, r2);
+			return Math.max(r1, r2);
 		}
 
 		public float getScore(Object object) {
@@ -586,7 +585,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				SeriesInfo seriesInfo = ((Episode) object).getSeriesInfo();
 				if (seriesInfo != null && seriesInfo.getRating() != null && seriesInfo.getRatingCount() != null) {
 					if (seriesInfo.getRatingCount() >= 20) {
-						return (float) floor(seriesInfo.getRating() / 3); // BOOST POPULAR SHOWS and PUT INTO 3 GROUPS
+						return (float) Math.floor(seriesInfo.getRating() / 3); // BOOST POPULAR SHOWS and PUT INTO 3 GROUPS
 					}
 					if (seriesInfo.getRatingCount() >= 1) {
 						return 0; // PENALIZE SHOWS WITH FEW RATINGS
@@ -605,7 +604,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			float r1 = getScore(o1);
 			float r2 = getScore(o2);
 
-			return max(r1, r2) >= 0.1 ? 1 : 0;
+			return Math.max(r1, r2) >= 0.1 ? 1 : 0;
 		}
 
 		public float getScore(Object object) {

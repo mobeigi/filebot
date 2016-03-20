@@ -1,13 +1,9 @@
 
 package net.filebot.similarity;
 
-
-import static java.lang.Math.*;
-
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
-
 
 public class TimeStampMetric implements SimilarityMetric {
 
@@ -19,12 +15,11 @@ public class TimeStampMetric implements SimilarityMetric {
 		if (t1 <= 0 || t2 <= 0)
 			return -1;
 
-		float min = min(t1, t2);
-		float max = max(t1, t2);
+		float min = Math.min(t1, t2);
+		float max = Math.max(t1, t2);
 
 		return min / max;
 	}
-
 
 	public long getTimeStamp(Object obj) {
 		if (obj instanceof File) {

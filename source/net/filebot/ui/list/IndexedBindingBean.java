@@ -1,7 +1,5 @@
 package net.filebot.ui.list;
 
-import static net.filebot.util.FileUtilities.*;
-
 import java.io.File;
 import java.util.List;
 import java.util.Map;

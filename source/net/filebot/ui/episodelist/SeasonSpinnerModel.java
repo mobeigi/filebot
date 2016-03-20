@@ -1,6 +1,5 @@
 package net.filebot.ui.episodelist;
 
-import static java.lang.Math.*;
 import static java.util.Collections.*;
 
 import java.util.List;
@@ -35,7 +34,7 @@ class SeasonSpinnerModel extends SpinnerListModel {
 	}
 
 	public void spin(int steps) {
-		for (int i = 0; i < abs(steps); i++) {
+		for (int i = 0; i < Math.abs(steps); i++) {
 			setValue(i < 0 ? getPreviousValue() : getNextValue());
 		}
 	}
