@@ -202,7 +202,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				}
 
 				// fetch episode data
-				Collection<Episode> episodes = fetchEpisodeSet(db, seriesNames, sortOrder, locale, strict);
+				List<Episode> episodes = fetchEpisodeSet(db, seriesNames, sortOrder, locale, strict);
 				if (episodes.size() == 0) {
 					log.warning("Failed to fetch episode data: " + seriesNames);
 					continue;
@@ -277,7 +277,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return validMatches;
 	}
 
-	private Set<Episode> fetchEpisodeSet(final EpisodeListProvider db, final Collection<String> names, final SortOrder sortOrder, final Locale locale, final boolean strict) throws Exception {
+	private List<Episode> fetchEpisodeSet(final EpisodeListProvider db, final Collection<String> names, final SortOrder sortOrder, final Locale locale, final boolean strict) throws Exception {
 		Set<SearchResult> shows = new LinkedHashSet<SearchResult>();
 		Set<Episode> episodes = new LinkedHashSet<Episode>();
 
@@ -304,7 +304,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 		}
 
-		return episodes;
+		return new ArrayList<Episode>(episodes);
 	}
 
 	public List<File> renameMovie(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, MovieIdentificationService service, String query, ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
@@ -434,7 +434,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			// unknown hash, try via imdb id from nfo file
 			if (movie == null) {
 				log.fine(format("Auto-detect movie from context: [%s]", file));
-				Collection<Movie> options = detectMovie(file, service, locale, strict);
+				List<Movie> options = detectMovie(file, service, locale, strict);
 
 				// apply filter if defined
 				options = applyExpressionFilter(options, filter);
@@ -871,13 +871,13 @@ public class CmdlineOperations implements CmdlineInterface {
 		return destination;
 	}
 
-	private <T> List<T> applyExpressionFilter(Collection<T> input, ExpressionFilter filter) throws Exception {
+	private <T> List<T> applyExpressionFilter(List<T> input, ExpressionFilter filter) throws Exception {
 		if (filter == null) {
 			return new ArrayList<T>(input);
 		}
 
 		log.fine(format("Apply Filter: {%s}", filter.getExpression()));
-		Map<File, Object> context = new EntryList<File, Object>(null, input);
+		Map<File, T> context = new EntryList<File, T>(null, input);
 		List<T> output = new ArrayList<T>(input.size());
 		for (T it : input) {
 			if (filter.matches(new MediaBindingBean(it, null, context))) {

@@ -278,7 +278,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 
 	}
 
-	protected static class EpisodeListExportHandler extends FileBotListExportHandler implements ClipboardHandler {
+	protected static class EpisodeListExportHandler extends FileBotListExportHandler<Episode> implements ClipboardHandler {
 
 		public EpisodeListExportHandler(FileBotList<Episode> list) {
 			super(list);

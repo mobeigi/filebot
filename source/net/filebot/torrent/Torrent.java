@@ -1,6 +1,7 @@
 package net.filebot.torrent;
 
 import static java.nio.charset.StandardCharsets.*;
+import static java.util.Collections.*;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -9,10 +10,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import net.filebot.vfs.FileInfo;
+import net.filebot.vfs.SimpleFileInfo;
 
 public class Torrent {
 
@@ -24,7 +27,7 @@ public class Torrent {
 	private Long creationDate;
 	private Long pieceLength;
 
-	private List<Entry> files;
+	private List<FileInfo> files;
 	private boolean singleFileTorrent;
 
 	protected Torrent() {
@@ -59,7 +62,7 @@ public class Torrent {
 			// torrent contains multiple entries
 			singleFileTorrent = false;
 
-			List<Entry> entries = new ArrayList<Entry>();
+			List<FileInfo> entries = new ArrayList<FileInfo>();
 
 			for (Object fileMapObject : (List<?>) infoMap.get("files")) {
 				Map<?, ?> fileMap = (Map<?, ?>) fileMapObject;
@@ -81,17 +84,17 @@ public class Torrent {
 
 				Long length = decodeLong(fileMap.get("length"));
 
-				entries.add(new Entry(path.toString(), length));
+				entries.add(new SimpleFileInfo(path.toString(), length));
 			}
 
-			files = Collections.unmodifiableList(entries);
+			files = unmodifiableList(entries);
 		} else {
 			// single file torrent
 			singleFileTorrent = true;
 
 			Long length = decodeLong(infoMap.get("length"));
 
-			files = Collections.singletonList(new Entry(name, length));
+			files = singletonList(new SimpleFileInfo(name, length));
 		}
 	}
 
@@ -139,7 +142,7 @@ public class Torrent {
 		return encoding;
 	}
 
-	public List<Entry> getFiles() {
+	public List<FileInfo> getFiles() {
 		return files;
 	}
 
@@ -153,37 +156,6 @@ public class Torrent {
 
 	public boolean isSingleFileTorrent() {
 		return singleFileTorrent;
-	}
-
-	public static class Entry {
-
-		private final String path;
-
-		private final long length;
-
-		public Entry(String path, long length) {
-			this.path = path;
-			this.length = length;
-		}
-
-		public String getPath() {
-			return path;
-		}
-
-		public String getName() {
-			// the last element in the path is the filename
-			// torrents don't contain directory entries, so there is always a non-empty name
-			return path.substring(path.lastIndexOf("/") + 1);
-		}
-
-		public long getLength() {
-			return length;
-		}
-
-		@Override
-		public String toString() {
-			return getPath();
-		}
 	}
 
 }

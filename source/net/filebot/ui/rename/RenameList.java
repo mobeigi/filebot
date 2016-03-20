@@ -11,16 +11,14 @@ import java.awt.event.MouseEvent;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
 
 import ca.odell.glazedlists.EventList;
 import net.filebot.ResourceManager;
 import net.filebot.ui.FileBotList;
 import net.filebot.ui.transfer.LoadAction;
 import net.filebot.util.ui.ActionPopup;
+import net.filebot.util.ui.PrototypeCellValueUpdater;
 import net.miginfocom.swing.MigLayout;
 
 class RenameList<E> extends FileBotList<E> {
@@ -36,43 +34,7 @@ class RenameList<E> extends FileBotList<E> {
 
 		// need a fixed cell size for high performance scrolling
 		list.setFixedCellHeight(28);
-		list.getModel().addListDataListener(new ListDataListener() {
-
-			private int longestItemLength = -1;
-
-			@Override
-			public void intervalRemoved(ListDataEvent evt) {
-				// reset prototype value
-				ListModel<?> m = (ListModel<?>) evt.getSource();
-				if (m.getSize() == 0) {
-					longestItemLength = -1;
-					list.setPrototypeCellValue(null);
-				}
-			}
-
-			@Override
-			public void intervalAdded(ListDataEvent evt) {
-				contentsChanged(evt);
-			}
-
-			@Override
-			public void contentsChanged(ListDataEvent evt) {
-				ListModel<?> m = (ListModel<?>) evt.getSource();
-				for (int i = evt.getIndex0(); i <= evt.getIndex1() && i < m.getSize(); i++) {
-					Object item = m.getElementAt(i);
-					int itemLength = item.toString().length();
-					if (itemLength > longestItemLength) {
-						// cell values will not be updated if the prototype object remains the same (even if the object has changed) so we need to reset it
-						if (item == list.getPrototypeCellValue()) {
-							list.setPrototypeCellValue("");
-						}
-
-						longestItemLength = itemLength;
-						list.setPrototypeCellValue(item);
-					}
-				}
-			}
-		});
+		list.getModel().addListDataListener(new PrototypeCellValueUpdater(list, ""));
 
 		list.addMouseListener(dndReorderMouseAdapter);
 		list.addMouseMotionListener(dndReorderMouseAdapter);

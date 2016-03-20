@@ -145,10 +145,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	protected void loadTorrentFiles(List<File> files, List<Object> values) throws IOException {
 		for (File file : files) {
 			Torrent torrent = new Torrent(file);
-
-			for (Torrent.Entry entry : torrent.getFiles()) {
-				values.add(new SimpleFileInfo(entry.getPath(), entry.getLength()));
-			}
+			values.addAll(torrent.getFiles());
 		}
 	}
 

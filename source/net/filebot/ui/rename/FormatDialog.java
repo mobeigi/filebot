@@ -50,9 +50,9 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
@@ -206,11 +206,11 @@ public class FormatDialog extends JDialog {
 
 		editorScrollPane.setVerticalScrollBarPolicy(RTextScrollPane.VERTICAL_SCROLLBAR_NEVER);
 		editorScrollPane.setHorizontalScrollBarPolicy(RTextScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		editorScrollPane.setViewportBorder(new EmptyBorder(7, 0, 7, 0));
-		editorScrollPane.setBackground(editor.getBackground());
+		editorScrollPane.setViewportBorder(createEmptyBorder(7, 2, 7, 2));
 		editorScrollPane.setOpaque(true);
+		editorScrollPane.setBorder(new JTextField().getBorder());
 
-		content.add(editorScrollPane, "w 120px:min(pref, 420px), h 40px!, growx, wrap 4px, id editor");
+		content.add(editorScrollPane, "w 120px:min(pref, 420px), h pref!, growx, wrap 4px, id editor");
 		content.add(createImageButton(changeSampleAction), "sg action, w 25!, h 19!, pos n editor.y2+2 editor.x2 n");
 		content.add(createImageButton(selectFolderAction), "sg action, w 25!, h 19!, pos n editor.y2+2 editor.x2-(27*1) n");
 		content.add(createImageButton(showRecentAction), "sg action, w 25!, h 19!, pos n editor.y2+2 editor.x2-(27*2) n");

@@ -67,7 +67,7 @@ public class MediaBindingBean {
 
 	private final Object infoObject;
 	private final File mediaFile;
-	private final Map<File, Object> context;
+	private final Map<File, ?> context;
 
 	private MediaInfo mediaInfo;
 	private Object metaInfo;
@@ -76,7 +76,7 @@ public class MediaBindingBean {
 		this(infoObject, mediaFile, singletonMap(mediaFile, infoObject));
 	}
 
-	public MediaBindingBean(Object infoObject, File mediaFile, Map<File, Object> context) {
+	public MediaBindingBean(Object infoObject, File mediaFile, Map<File, ?> context) {
 		this.infoObject = infoObject;
 		this.mediaFile = mediaFile;
 		this.context = context;
@@ -903,14 +903,14 @@ public class MediaBindingBean {
 	@Define("model")
 	public List<AssociativeScriptObject> getModel() {
 		List<AssociativeScriptObject> result = new ArrayList<AssociativeScriptObject>();
-		for (Entry<File, Object> it : context.entrySet()) {
+		for (Entry<File, ?> it : context.entrySet()) {
 			result.add(createBindingObject(it.getKey(), it.getValue(), context));
 		}
 		return result;
 	}
 
 	@Define("json")
-	public String getInfoObjectDump() throws Exception {
+	public String getInfoObjectDump() {
 		return JsonWriter.objectToJson(infoObject);
 	}
 
@@ -924,7 +924,7 @@ public class MediaBindingBean {
 		} else if (SUBTITLE_FILES.accept(getMediaFile()) || ((infoObject instanceof Episode || infoObject instanceof Movie) && !VIDEO_FILES.accept(getMediaFile()))) {
 			// prefer equal match from current context if possible
 			if (context != null) {
-				for (Entry<File, Object> it : context.entrySet()) {
+				for (Entry<File, ?> it : context.entrySet()) {
 					if (infoObject.equals(it.getValue()) && VIDEO_FILES.accept(it.getKey())) {
 						return it.getKey();
 					}
@@ -994,7 +994,7 @@ public class MediaBindingBean {
 		return undefined(String.format("%s[%d][%s]", streamKind, streamNumber, join(keys, ", ")));
 	}
 
-	private AssociativeScriptObject createBindingObject(File file, Object info, Map<File, Object> context) {
+	private AssociativeScriptObject createBindingObject(File file, Object info, Map<File, ?> context) {
 		MediaBindingBean mediaBindingBean = new MediaBindingBean(info, file, context) {
 			@Override
 			@Define(undefined)
