@@ -102,12 +102,12 @@ public class ReleaseInfo {
 		// try case-sensitive match
 		String match = matchLast(getReleaseGroupPattern(true), groups, strings);
 
-		// try case-insensitive match as fallback
-		if (match == null) {
-			match = matchLast(getReleaseGroupPattern(false), groups, strings);
+		if (match != null) {
+			return match;
 		}
 
-		return match;
+		// try case-insensitive match
+		return matchLast(getReleaseGroupPattern(false), groups, strings);
 	}
 
 	private Map<String, Locale> languages;
@@ -121,13 +121,14 @@ public class ReleaseInfo {
 		}
 
 		String lang = matchLast(languageSuffix, null, name);
-		if (lang == null)
+		if (lang == null) {
 			return null;
+		}
 
 		return languages.get(lang);
 	}
 
-	protected String matchLast(Pattern pattern, String[] standardValues, CharSequence... sequence) {
+	protected String matchLast(Pattern pattern, String[] paragon, CharSequence... sequence) {
 		String lastMatch = null;
 
 		// match last occurrence
@@ -142,11 +143,9 @@ public class ReleaseInfo {
 		}
 
 		// prefer standard value over matched value
-		if (lastMatch != null && standardValues != null) {
-			for (String standard : standardValues) {
-				if (standard.equalsIgnoreCase(lastMatch)) {
-					return standard;
-				}
+		if (lastMatch != null && paragon != null) {
+			for (String it : paragon) {
+				lastMatch = compile("(?<!\\p{Alnum})" + it.replaceAll("[\\p{Punct}\\s]", ".") + "(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS).matcher(lastMatch).replaceAll(it);
 			}
 		}
 
@@ -304,7 +303,7 @@ public class ReleaseInfo {
 
 	public Pattern getReleaseGroupPattern(boolean strict) throws Exception {
 		// pattern matching any release group name enclosed in separators
-		return compile("(?<!\\p{Alnum})" + or(releaseGroup.get()) + "(?!\\p{Alnum}|[^\\p{Alnum}](19|20)\\d{2})", strict ? 0 : CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile("((?<!\\p{Alnum})" + or(releaseGroup.get()) + "(?!\\p{Alnum}|[^\\p{Alnum}](19|20)\\d{2})($|[\\p{Punct}]))+", strict ? 0 : CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
 	public Pattern getReleaseGroupTrimPattern() throws Exception {

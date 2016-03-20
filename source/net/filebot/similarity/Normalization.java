@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 public class Normalization {
 
 	private static final Pattern apostrophe = compile("['`´‘’ʻ]+");
-	private static final Pattern punctuation = compile("[\\p{Punct}\\p{Space}]+");
+	private static final Pattern punctuation = compile("[\\p{Punct}\\s]+");
 
 	private static final Pattern space = compile("\\s+");
 	private static final Pattern spaceLikePunctuation = compile("[:?._]");
