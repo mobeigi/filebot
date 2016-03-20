@@ -36,8 +36,6 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import com.google.common.eventbus.EventBus;
-
 import net.filebot.CacheManager;
 import net.filebot.Settings;
 import net.filebot.cli.GroovyPad;
@@ -45,21 +43,18 @@ import net.filebot.mac.MacAppUtilities;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.ui.DefaultFancyListCellRenderer;
 import net.filebot.util.ui.ShadowBorder;
+import net.filebot.util.ui.SwingEventBus;
 import net.miginfocom.swing.MigLayout;
 
 public class MainFrame extends JFrame {
 
 	private static final PreferencesEntry<String> persistentSelectedPanel = Settings.forPackage(MainFrame.class).entry("panel.selected").defaultValue("0");
 
-	private EventBus eventBus;
-
 	private JList selectionList;
 	private HeaderPanel headerPanel;
 
-	public MainFrame(PanelBuilder[] panels, EventBus eventBus) {
+	public MainFrame(PanelBuilder[] panels) {
 		super(isInstalled() ? getApplicationName() : String.format("%s %s", getApplicationName(), getApplicationVersion()));
-
-		this.eventBus = eventBus;
 
 		selectionList = new PanelSelectionList(panels);
 		headerPanel = new HeaderPanel();
@@ -156,7 +151,7 @@ public class MainFrame extends JFrame {
 					selectedPanel = panel;
 				} else if (panel.isVisible()) {
 					panel.setVisible(false);
-					eventBus.unregister(panel);
+					SwingEventBus.getInstance().unregister(panel);
 				}
 			}
 		}
@@ -172,7 +167,7 @@ public class MainFrame extends JFrame {
 		if (!selectedPanel.isVisible()) {
 			headerPanel.setTitle(selectedBuilder.getName());
 			selectedPanel.setVisible(true);
-			eventBus.register(selectedPanel);
+			SwingEventBus.getInstance().register(selectedPanel);
 		}
 	}
 

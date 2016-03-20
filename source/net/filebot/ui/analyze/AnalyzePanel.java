@@ -1,9 +1,6 @@
 package net.filebot.ui.analyze;
 
-import static net.filebot.Logging.*;
-
 import java.awt.datatransfer.Transferable;
-import java.util.logging.Level;
 
 import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
@@ -38,15 +35,11 @@ public class AnalyzePanel extends JComponent {
 	}
 
 	@Subscribe
-	public void handle(Transferable transferable) {
+	public void handle(Transferable transferable) throws Exception {
 		TransferablePolicy handler = fileTreePanel.getTransferablePolicy();
 
-		try {
-			if (handler != null && handler.accept(transferable)) {
-				handler.handleTransferable(transferable, TransferAction.PUT);
-			}
-		} catch (Exception e) {
-			debug.log(Level.WARNING, "Failed to handle transferable: " + transferable, e);
+		if (handler != null && handler.accept(transferable)) {
+			handler.handleTransferable(transferable, TransferAction.PUT);
 		}
 	}
 

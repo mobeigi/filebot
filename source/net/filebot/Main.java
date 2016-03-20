@@ -44,8 +44,6 @@ import javax.swing.UIManager;
 import org.kohsuke.args4j.CmdLineException;
 import org.w3c.dom.Document;
 
-import com.google.common.eventbus.EventBus;
-
 import net.filebot.Settings.ApplicationFolder;
 import net.filebot.cli.ArgumentBean;
 import net.filebot.cli.ArgumentProcessor;
@@ -59,6 +57,7 @@ import net.filebot.ui.PanelBuilder;
 import net.filebot.ui.SinglePanelFrame;
 import net.filebot.ui.transfer.FileTransferable;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
+import net.filebot.util.ui.SwingEventBus;
 import net.filebot.util.TeePrintStream;
 import net.miginfocom.swing.MigLayout;
 
@@ -126,7 +125,15 @@ public class Main {
 			}
 
 			// GUI mode => start user interface
-			SwingUtilities.invokeAndWait(() -> startUserInterface(args));
+			SwingUtilities.invokeAndWait(() -> {
+				startUserInterface(args);
+			});
+
+			// publish file arguments
+			List<File> files = args.getFiles(false);
+			if (files.size() > 0) {
+				SwingEventBus.getInstance().post(new FileTransferable(files));
+			}
 
 			// preload media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
 			MediaTypes.getDefault();
@@ -173,16 +180,15 @@ public class Main {
 		}
 
 		// default frame
-		EventBus eventBus = new EventBus();
-		JFrame frame = new MainFrame(PanelBuilder.defaultSequence(), eventBus);
+		JFrame frame = new MainFrame(PanelBuilder.defaultSequence());
 
 		// single panel frame
 		if (args.mode != null) {
 			PanelBuilder[] selection = stream(PanelBuilder.defaultSequence()).filter(p -> p.getName().matches(args.mode)).toArray(PanelBuilder[]::new);
 			if (selection.length == 1) {
-				frame = new SinglePanelFrame(selection[0], eventBus);
+				frame = new SinglePanelFrame(selection[0]);
 			} else if (selection.length > 1) {
-				frame = new MainFrame(selection, eventBus);
+				frame = new MainFrame(selection);
 			} else {
 				throw new IllegalArgumentException("Illegal mode: " + args.mode);
 			}
@@ -226,7 +232,7 @@ public class Main {
 			MacAppUtilities.initializeApplication();
 			MacAppUtilities.setWindowCanFullScreen(frame);
 			MacAppUtilities.setDefaultMenuBar(FileBotMenuBar.createHelp());
-			MacAppUtilities.setOpenFileHandler(openFiles -> eventBus.post(new FileTransferable(openFiles)));
+			MacAppUtilities.setOpenFileHandler(openFiles -> SwingEventBus.getInstance().post(new FileTransferable(openFiles)));
 		} else if (isUbuntuApp()) {
 			// Ubuntu specific configuration
 			String options = System.getenv("JAVA_TOOL_OPTIONS");
@@ -238,12 +244,6 @@ public class Main {
 		} else {
 			// Windows / Linux specific configuration
 			frame.setIconImages(ResourceManager.getApplicationIcons());
-		}
-
-		// handle file arguments
-		List<File> files = args.getFiles(false);
-		if (files.size() > 0) {
-			eventBus.post(new FileTransferable(files));
 		}
 
 		// start application

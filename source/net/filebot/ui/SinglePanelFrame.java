@@ -8,13 +8,12 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.border.EmptyBorder;
 
-import com.google.common.eventbus.EventBus;
-
+import net.filebot.util.ui.SwingEventBus;
 import net.miginfocom.swing.MigLayout;
 
 public class SinglePanelFrame extends JFrame {
 
-	public SinglePanelFrame(PanelBuilder builder, EventBus eventBus) {
+	public SinglePanelFrame(PanelBuilder builder) {
 		super(String.format("%s %s %s", getApplicationName(), builder.getName(), getApplicationVersion()));
 		JComponent panel = builder.create();
 
@@ -32,7 +31,7 @@ public class SinglePanelFrame extends JFrame {
 		setSize(850, 600);
 		setMinimumSize(new Dimension(800, 400));
 
-		eventBus.register(panel);
+		SwingEventBus.getInstance().register(panel);
 	}
 
 }

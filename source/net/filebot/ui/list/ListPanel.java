@@ -3,7 +3,6 @@ package net.filebot.ui.list;
 import static java.awt.Font.*;
 import static java.lang.Math.*;
 import static net.filebot.Logging.*;
-import static net.filebot.Logging.log;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.ui.SwingUI.*;
 
@@ -141,15 +140,11 @@ public class ListPanel extends JComponent {
 	}
 
 	@Subscribe
-	public void handle(Transferable transferable) {
+	public void handle(Transferable transferable) throws Exception {
 		TransferablePolicy handler = list.getTransferablePolicy();
 
-		try {
-			if (handler != null && handler.accept(transferable)) {
-				handler.handleTransferable(transferable, TransferAction.PUT);
-			}
-		} catch (Exception e) {
-			debug.log(Level.WARNING, "Failed to handle transferable: " + transferable, e);
+		if (handler != null && handler.accept(transferable)) {
+			handler.handleTransferable(transferable, TransferAction.PUT);
 		}
 	}
 

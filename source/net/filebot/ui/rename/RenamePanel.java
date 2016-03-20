@@ -646,15 +646,11 @@ public class RenamePanel extends JComponent {
 	};
 
 	@Subscribe
-	public void handle(Transferable transferable) {
+	public void handle(Transferable transferable) throws Exception {
 		TransferablePolicy handler = filesList.getTransferablePolicy();
 
-		try {
-			if (handler != null && handler.accept(transferable)) {
-				handler.handleTransferable(transferable, TransferAction.PUT);
-			}
-		} catch (Exception e) {
-			debug.log(Level.WARNING, "Failed to handle transferable: " + transferable, e);
+		if (handler != null && handler.accept(transferable)) {
+			handler.handleTransferable(transferable, TransferAction.PUT);
 		}
 	}
 

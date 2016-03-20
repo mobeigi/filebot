@@ -1,7 +1,6 @@
 package net.filebot.ui.sfv;
 
 import static java.lang.Math.*;
-import static net.filebot.Logging.*;
 import static net.filebot.ui.sfv.ChecksumTableModel.*;
 import static net.filebot.ui.transfer.BackgroundFileTransferablePolicy.*;
 import static net.filebot.util.FileUtilities.*;
@@ -19,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.logging.Level;
 
 import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
@@ -134,15 +132,11 @@ public class SfvPanel extends JComponent {
 	}
 
 	@Subscribe
-	public void handle(Transferable transferable) {
+	public void handle(Transferable transferable) throws Exception {
 		TransferablePolicy handler = getTransferablePolicy();
 
-		try {
-			if (handler != null && handler.accept(transferable)) {
-				handler.handleTransferable(transferable, TransferAction.PUT);
-			}
-		} catch (Exception e) {
-			debug.log(Level.WARNING, "Failed to handle transferable: " + transferable, e);
+		if (handler != null && handler.accept(transferable)) {
+			handler.handleTransferable(transferable, TransferAction.PUT);
 		}
 	}
 

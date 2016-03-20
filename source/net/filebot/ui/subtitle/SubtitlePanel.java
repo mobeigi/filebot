@@ -81,16 +81,12 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 	}
 
 	@Subscribe
-	public void handle(Transferable transferable) {
-		try {
-			SubtitleDropTarget target = downloadDropTarget;
-			List<File> files = FileTransferable.getFilesFromTransferable(transferable);
+	public void handle(Transferable transferable) throws Exception {
+		SubtitleDropTarget target = downloadDropTarget;
+		List<File> files = FileTransferable.getFilesFromTransferable(transferable);
 
-			if (files != null && files.size() > 0 && target.getDropAction(files) != DropAction.Cancel) {
-				target.handleDrop(files);
-			}
-		} catch (Exception e) {
-			debug.log(Level.WARNING, "Failed to handle transferable: " + transferable, e);
+		if (files != null && files.size() > 0 && target.getDropAction(files) != DropAction.Cancel) {
+			target.handleDrop(files);
 		}
 	}
 

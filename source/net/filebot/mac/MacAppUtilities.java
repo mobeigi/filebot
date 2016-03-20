@@ -15,7 +15,6 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import javax.swing.JMenuBar;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import com.apple.eawt.Application;
@@ -142,7 +141,7 @@ public class MacAppUtilities {
 			Application.getApplication().setOpenFileHandler(evt -> {
 				List<File> files = evt.getFiles();
 				if (files.size() > 0) {
-					SwingUtilities.invokeLater(() -> handler.accept(files));
+					handler.accept(files);
 				}
 			});
 		} catch (Throwable t) {
