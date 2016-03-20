@@ -23,6 +23,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
@@ -38,8 +39,8 @@ import net.filebot.ui.AbstractSearchPanel;
 import net.filebot.ui.FileBotList;
 import net.filebot.ui.FileBotListExportHandler;
 import net.filebot.ui.LanguageComboBox;
+import net.filebot.ui.PanelBuilder;
 import net.filebot.ui.SelectDialog;
-import net.filebot.ui.rename.RenamePanelBuilder;
 import net.filebot.ui.transfer.ArrayTransferable;
 import net.filebot.ui.transfer.ClipboardHandler;
 import net.filebot.ui.transfer.CompositeTranserable;
@@ -253,13 +254,21 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 
 			// popup menu
 			JPopupMenu popup = new JPopupMenu("Episodes");
-			popup.add(newAction("Import", ResourceManager.getIcon("database.go"), evt -> {
-				// switch to Rename panel
-				SwingEventBus.getInstance().post(new RenamePanelBuilder());
 
-				// load episode data
-				invokeLater(200, () -> SwingEventBus.getInstance().post(EpisodeListExportHandler.export(this, false)));
-			}));
+			JMenu menu = new JMenu("Send to");
+			for (PanelBuilder panel : PanelBuilder.episodeHandlerSequence()) {
+				menu.add(newAction(panel.getName(), panel.getIcon(), evt -> {
+					// switch to Rename panel
+					SwingEventBus.getInstance().post(panel);
+
+					// load episode data
+					invokeLater(200, () -> SwingEventBus.getInstance().post(EpisodeListExportHandler.export(this, false)));
+				}));
+			}
+
+			popup.add(menu);
+			popup.addSeparator();
+
 			popup.add(newAction("Copy", ResourceManager.getIcon("rename.action.copy"), evt -> {
 				getTransferHandler().getClipboardHandler().exportToClipboard(this, Toolkit.getDefaultToolkit().getSystemClipboard(), TransferHandler.COPY);
 			}));

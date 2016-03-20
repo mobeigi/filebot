@@ -1,8 +1,9 @@
 package net.filebot.ui.analyze;
 
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
+import static net.filebot.util.ui.SwingUI.*;
 
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
@@ -27,8 +28,11 @@ import javax.swing.tree.TreeSelectionModel;
 
 import net.filebot.ResourceManager;
 import net.filebot.UserFiles;
+import net.filebot.ui.PanelBuilder;
+import net.filebot.ui.transfer.FileTransferable;
 import net.filebot.util.FilterIterator;
 import net.filebot.util.TreeIterator;
+import net.filebot.util.ui.SwingEventBus;
 
 public class FileTree extends JTree {
 
@@ -74,70 +78,85 @@ public class FileTree extends JTree {
 	private class OpenExpandCollapsePopup extends JPopupMenu {
 
 		public OpenExpandCollapsePopup() {
-			TreePath[] selectionPaths = getSelectionPaths();
-			Set<File> selectionFiles = null;
+			Collection<File> selectedFiles = getFiles(getSelectionPaths());
 
-			if (selectionPaths != null) {
-				selectionFiles = new LinkedHashSet<File>(selectionPaths.length);
-
-				for (TreePath treePath : selectionPaths) {
-					Object node = treePath.getLastPathComponent();
-
-					if (node instanceof FileNode) {
-						selectionFiles.add(((FileNode) node).getFile());
-					}
-				}
-			}
-
-			if (selectionFiles != null && !selectionFiles.isEmpty()) {
-				JMenuItem openItem = new JMenuItem(new OpenAction("Open", selectionFiles));
-				openItem.setFont(openItem.getFont().deriveFont(Font.BOLD));
-				add(openItem);
-
-				Set<File> selectionParentFolders = new LinkedHashSet<File>(selectionFiles.size());
-				for (File file : selectionFiles) {
-					selectionParentFolders.add(file.getParentFile());
+			if (selectedFiles != null && !selectedFiles.isEmpty()) {
+				JMenu menu = new JMenu("Send to");
+				for (PanelBuilder panel : PanelBuilder.fileHandlerSequence()) {
+					menu.add(new JMenuItem(new ImportAction(panel, selectedFiles)));
 				}
 
-				add(new OpenAction("Open Folder", selectionParentFolders));
+				add(menu);
 				addSeparator();
 			}
 
-			add(expandAction);
-			add(collapseAction);
+			if (selectedFiles.size() > 0) {
+				add(new JMenuItem(new RevealAction("Reveal", selectedFiles)));
+				add(new RevealAction("Reveal Folder", selectedFiles.stream().map(File::getParentFile).distinct().collect(toList())));
+				addSeparator();
+			}
+
+			add(newAction("Expand all", ResourceManager.getIcon("tree.expand"), evt -> expandAll()));
+			add(newAction("Collapse all", ResourceManager.getIcon("tree.collapse"), evt -> collapseAll()));
 		}
 
-		private class OpenAction extends AbstractAction {
+		private Collection<File> getFiles(TreePath[] selection) {
+			if (selection == null || selection.length == 0) {
+				return emptySet();
+			}
 
-			public OpenAction(String text, Collection<File> files) {
+			Set<File> files = new LinkedHashSet<File>();
+			for (TreePath path : selection) {
+				collectFiles(path.getLastPathComponent(), files);
+			}
+			return files;
+		}
+
+		private void collectFiles(Object node, Collection<File> files) {
+			if (node instanceof FileNode) {
+				files.add(((FileNode) node).getFile());
+			} else if (node instanceof FolderNode) {
+				for (Object it : ((FolderNode) node).getChildren()) {
+					collectFiles(it, files);
+				}
+			}
+		}
+
+		private class RevealAction extends AbstractAction {
+
+			private Collection<File> files;
+
+			public RevealAction(String text, Collection<File> files) {
 				super(text);
-				putValue("files", files);
+				this.files = files;
 			}
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				UserFiles.revealFiles((Collection) getValue("files"));
+				UserFiles.revealFiles(files);
 			}
 		}
 
-		private final Action expandAction = new AbstractAction("Expand all", ResourceManager.getIcon("tree.expand")) {
+		private class ImportAction extends AbstractAction {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				expandAll();
+			private PanelBuilder panel;
+			private Collection<File> files;
+
+			public ImportAction(PanelBuilder panel, Collection<File> files) {
+				super(panel.getName(), panel.getIcon());
+				this.panel = panel;
+				this.files = files;
 			}
 
-		};
-
-		private final Action collapseAction = new AbstractAction("Collapse all", ResourceManager.getIcon("tree.collapse")) {
-
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				collapseAll();
+			public void actionPerformed(ActionEvent event) {
+				// switch to panel
+				SwingEventBus.getInstance().post(panel);
+
+				// load files
+				invokeLater(200, () -> SwingEventBus.getInstance().post(new FileTransferable(files)));
 			}
-
-		};
-
+		}
 	}
 
 	private class ExpandCollapsePopupListener extends MouseAdapter {

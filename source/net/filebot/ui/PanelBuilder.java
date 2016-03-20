@@ -23,4 +23,12 @@ public interface PanelBuilder {
 		return new PanelBuilder[] { new RenamePanelBuilder(), new EpisodeListPanelBuilder(), new SubtitlePanelBuilder(), new SfvPanelBuilder(), new AnalyzePanelBuilder(), new ListPanelBuilder() };
 	}
 
+	public static PanelBuilder[] episodeHandlerSequence() {
+		return new PanelBuilder[] { new RenamePanelBuilder(), new ListPanelBuilder() };
+	}
+
+	public static PanelBuilder[] fileHandlerSequence() {
+		return new PanelBuilder[] { new RenamePanelBuilder(), new SfvPanelBuilder(), new ListPanelBuilder() };
+	}
+
 }
