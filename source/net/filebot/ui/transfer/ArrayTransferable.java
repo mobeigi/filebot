@@ -18,10 +18,14 @@ public class ArrayTransferable<T> implements Transferable {
 		this.array = array;
 	}
 
+	public T[] getArray() {
+		return array.clone();
+	}
+
 	@Override
 	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
 		if (isDataFlavorSupported(flavor)) {
-			return array;
+			return getArray();
 		}
 
 		return null;

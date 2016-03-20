@@ -20,6 +20,11 @@ public class AnalyzePanelBuilder implements PanelBuilder {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof AnalyzePanelBuilder;
+	}
+
+	@Override
 	public JComponent create() {
 		AnalyzePanel panel = new AnalyzePanel();
 		panel.addTool(new ExtractTool());

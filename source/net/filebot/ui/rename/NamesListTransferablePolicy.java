@@ -43,7 +43,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 
 	@Override
 	public boolean accept(Transferable tr) throws Exception {
-		return tr.isDataFlavorSupported(stringFlavor) || hasFileListFlavor(tr);
+		return hasFileListFlavor(tr) || tr.isDataFlavorSupported(stringFlavor) || tr.isDataFlavorSupported(episodeArrayFlavor);
 	}
 
 	@Override

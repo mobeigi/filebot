@@ -36,6 +36,8 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.google.common.eventbus.Subscribe;
+
 import net.filebot.CacheManager;
 import net.filebot.Settings;
 import net.filebot.cli.GroovyPad;
@@ -137,9 +139,16 @@ public class MainFrame extends JFrame {
 		installAction(this.getRootPane(), getKeyStroke(VK_F1, 0), newAction("Help", evt -> {
 			GettingStartedStage.start();
 		}));
+
+		SwingEventBus.getInstance().register(this);
 	}
 
-	protected void showPanel(PanelBuilder selectedBuilder) {
+	@Subscribe
+	public void selectPanel(PanelBuilder panel) {
+		selectionList.setSelectedValue(panel, false);
+	}
+
+	private void showPanel(PanelBuilder selectedBuilder) {
 		JComponent contentPane = (JComponent) getContentPane();
 		JComponent selectedPanel = null;
 
