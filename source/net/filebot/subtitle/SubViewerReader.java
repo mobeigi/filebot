@@ -1,7 +1,6 @@
 
 package net.filebot.subtitle;
 
-
 import static java.util.regex.Pattern.*;
 import static net.filebot.util.StringUtilities.*;
 
@@ -10,17 +9,19 @@ import java.text.ParseException;
 import java.util.InputMismatchException;
 import java.util.regex.Pattern;
 
-
 public class SubViewerReader extends SubtitleReader {
 
 	private final DateFormat timeFormat = new SubtitleTimeFormat();
 	private final Pattern newline = compile(quote("[br]"), CASE_INSENSITIVE);
 
-
 	public SubViewerReader(Readable source) {
 		super(source);
 	}
 
+	@Override
+	public String getFormatName() {
+		return "SubViewer";
+	}
 
 	@Override
 	protected SubtitleElement readNext() throws Exception {

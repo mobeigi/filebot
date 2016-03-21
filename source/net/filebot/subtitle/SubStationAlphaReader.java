@@ -1,13 +1,11 @@
 
 package net.filebot.subtitle;
 
-
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.regex.Pattern;
-
 
 public class SubStationAlphaReader extends SubtitleReader {
 
@@ -20,11 +18,14 @@ public class SubStationAlphaReader extends SubtitleReader {
 	private int formatIndexEnd;
 	private int formatIndexText;
 
-
 	public SubStationAlphaReader(Readable source) {
 		super(source);
 	}
 
+	@Override
+	public String getFormatName() {
+		return "SubStationAlpha";
+	}
 
 	private void readFormat() throws Exception {
 		// read format line (e.g. Format: Marked, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text)
@@ -47,7 +48,6 @@ public class SubStationAlphaReader extends SubtitleReader {
 		formatIndexEnd = lookup.indexOf("end");
 		formatIndexText = lookup.indexOf("text");
 	}
-
 
 	@Override
 	public SubtitleElement readNext() throws Exception {
@@ -83,7 +83,6 @@ public class SubStationAlphaReader extends SubtitleReader {
 
 		return new SubtitleElement(start, end, resolve(text));
 	}
-
 
 	protected String resolve(String text) {
 		// remove tags

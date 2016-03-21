@@ -27,6 +27,11 @@ public class SubRipReader extends SubtitleReader {
 	}
 
 	@Override
+	public String getFormatName() {
+		return "SubRip";
+	}
+
+	@Override
 	protected SubtitleElement readNext() throws Exception {
 		String number = scanner.nextLine();
 

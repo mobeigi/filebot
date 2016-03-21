@@ -14,6 +14,11 @@ public class MicroDVDReader extends SubtitleReader {
 	}
 
 	@Override
+	public String getFormatName() {
+		return "MicroDVD";
+	}
+
+	@Override
 	public SubtitleElement readNext() throws Exception {
 		String line = scanner.nextLine();
 

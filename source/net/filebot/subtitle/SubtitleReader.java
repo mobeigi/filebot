@@ -17,6 +17,8 @@ public abstract class SubtitleReader implements Iterator<SubtitleElement>, Close
 		this.scanner = new Scanner(source);
 	}
 
+	public abstract String getFormatName();
+
 	protected abstract SubtitleElement readNext() throws Exception;
 
 	@Override
@@ -27,7 +29,7 @@ public abstract class SubtitleReader implements Iterator<SubtitleElement>, Close
 				current = readNext();
 			} catch (Exception e) {
 				// log and ignore
-				debug.warning("Illegal input: " + e.getMessage());
+				debug.warning(format("Failed to read %s subtitles: %s", getFormatName(), e.getMessage()));
 			}
 		}
 
