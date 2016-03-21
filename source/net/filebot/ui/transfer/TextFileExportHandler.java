@@ -34,10 +34,10 @@ public abstract class TextFileExportHandler implements TransferableExportHandler
 
 	@Override
 	public Transferable createTransferable(JComponent c) {
-		// get transfer data
 		StringWriter buffer = new StringWriter();
-		export(new PrintWriter(buffer));
-
+		try (PrintWriter out = new PrintWriter(buffer)) {
+			export(out);
+		}
 		return new TextFileTransferable(getDefaultFileName(), buffer.toString());
 	}
 

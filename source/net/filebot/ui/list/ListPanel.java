@@ -9,7 +9,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.datatransfer.Transferable;
-import java.io.PrintWriter;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.stream.IntStream;
@@ -71,13 +70,10 @@ public class ListPanel extends JComponent {
 		list.getRemoveAction().setEnabled(true);
 
 		list.setTransferablePolicy(new FileListTransferablePolicy(list::setTitle, editor::setText, this::createItemSequence));
-		list.setExportHandler(new FileBotListExportHandler<ListItem>(list) {
 
-			@Override
-			public void export(ListItem item, PrintWriter out) {
-				out.println(item.getFormattedValue());
-			}
-		});
+		FileBotListExportHandler<ListItem> exportHandler = new FileBotListExportHandler<ListItem>(list, (item, out) -> out.println(item.getFormattedValue()));
+		list.setExportHandler(exportHandler);
+		list.getTransferHandler().setClipboardHandler(exportHandler);
 
 		list.getListComponent().setCellRenderer(new DefaultFancyListCellRenderer() {
 

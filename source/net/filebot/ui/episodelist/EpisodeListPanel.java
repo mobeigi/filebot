@@ -6,9 +6,6 @@ import static net.filebot.web.EpisodeUtilities.*;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
@@ -22,7 +19,6 @@ import java.util.Locale;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 import javax.swing.JSpinner;
@@ -37,15 +33,10 @@ import net.filebot.media.MediaDetection;
 import net.filebot.similarity.Normalization;
 import net.filebot.ui.AbstractSearchPanel;
 import net.filebot.ui.FileBotList;
-import net.filebot.ui.FileBotListExportHandler;
 import net.filebot.ui.LanguageComboBox;
 import net.filebot.ui.PanelBuilder;
 import net.filebot.ui.SelectDialog;
-import net.filebot.ui.transfer.ArrayTransferable;
-import net.filebot.ui.transfer.ClipboardHandler;
-import net.filebot.ui.transfer.CompositeTranserable;
 import net.filebot.ui.transfer.SaveAction;
-import net.filebot.util.StringUtilities;
 import net.filebot.util.ui.LabelProvider;
 import net.filebot.util.ui.SelectButton;
 import net.filebot.util.ui.SimpleLabelProvider;
@@ -277,39 +268,6 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 			getListComponent().setComponentPopupMenu(popup);
 		}
 
-	}
-
-	protected static class EpisodeListExportHandler extends FileBotListExportHandler<Episode> implements ClipboardHandler {
-
-		public EpisodeListExportHandler(FileBotList<Episode> list) {
-			super(list);
-		}
-
-		@Override
-		public Transferable createTransferable(JComponent c) {
-			Transferable episodeArray = export(list, true);
-			Transferable textFile = super.createTransferable(c);
-
-			return new CompositeTranserable(episodeArray, textFile);
-		}
-
-		@Override
-		public void exportToClipboard(JComponent c, Clipboard clipboard, int action) throws IllegalStateException {
-			ArrayTransferable<Episode> episodeData = export(list, false);
-			Transferable stringSelection = new StringSelection(StringUtilities.join(episodeData.getArray(), System.lineSeparator()));
-
-			clipboard.setContents(new CompositeTranserable(episodeData, stringSelection), null);
-		}
-
-		public ArrayTransferable<Episode> export(FileBotList<?> list, boolean forceAll) {
-			Episode[] selection = ((List<?>) list.getListComponent().getSelectedValuesList()).stream().map(Episode.class::cast).toArray(Episode[]::new);
-
-			if (forceAll || selection.length == 0) {
-				selection = list.getModel().stream().map(Episode.class::cast).toArray(Episode[]::new);
-			}
-
-			return new ArrayTransferable<Episode>(selection);
-		}
 	}
 
 }

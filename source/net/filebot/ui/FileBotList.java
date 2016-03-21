@@ -26,7 +26,7 @@ public class FileBotList<E> extends JComponent {
 
 	protected EventList<E> model = new BasicEventList<E>();
 
-	protected JList list = new JList(new DefaultEventListModel<E>(model));
+	protected JList<E> list = new JList<E>(new DefaultEventListModel<E>(model));
 
 	protected JScrollPane listScrollPane = new JScrollPane(list);
 
@@ -58,7 +58,7 @@ public class FileBotList<E> extends JComponent {
 		list.setModel(new DefaultEventListModel(model));
 	}
 
-	public JList getListComponent() {
+	public JList<E> getListComponent() {
 		return list;
 	}
 
