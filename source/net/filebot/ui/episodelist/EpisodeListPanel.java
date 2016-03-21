@@ -242,8 +242,9 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 
 		public EpisodeListTab() {
 			// initialize dnd and clipboard export handler for episode list
-			setExportHandler(new EpisodeListExportHandler(this));
-			getTransferHandler().setClipboardHandler(new EpisodeListExportHandler(this));
+			EpisodeListExportHandler exportHandler = new EpisodeListExportHandler(this);
+			setExportHandler(exportHandler);
+			getTransferHandler().setClipboardHandler(exportHandler);
 
 			// allow removal of episode list entries
 			getRemoveAction().setEnabled(true);
@@ -262,7 +263,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 					SwingEventBus.getInstance().post(panel);
 
 					// load episode data
-					invokeLater(200, () -> SwingEventBus.getInstance().post(EpisodeListExportHandler.export(this, false)));
+					invokeLater(200, () -> SwingEventBus.getInstance().post(exportHandler.export(this, false)));
 				}));
 			}
 
@@ -300,7 +301,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 			clipboard.setContents(new CompositeTranserable(episodeData, stringSelection), null);
 		}
 
-		public static ArrayTransferable<Episode> export(FileBotList<?> list, boolean forceAll) {
+		public ArrayTransferable<Episode> export(FileBotList<?> list, boolean forceAll) {
 			Episode[] selection = ((List<?>) list.getListComponent().getSelectedValuesList()).stream().map(Episode.class::cast).toArray(Episode[]::new);
 
 			if (forceAll || selection.length == 0) {
