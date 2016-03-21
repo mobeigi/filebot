@@ -1,5 +1,8 @@
 package net.filebot.util;
 
+import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -7,33 +10,33 @@ import java.util.AbstractSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.stream.Stream;
 
 public class FileSet extends AbstractSet<Path> {
 
+	private static final int ROOT_LEVEL = -1;
+
 	private final Map<Path, FileSet> folders = new HashMap<Path, FileSet>(4, 2);
 	private final Set<Path> files = new HashSet<Path>(4, 2);
 
 	private boolean add(Path e, int depth) {
 		// add new leaf element
-		if (e.getNameCount() - depth == 1) {
+		if (e.getNameCount() - 1 == depth) {
 			return files.add(e.getFileName());
 		}
 
 		// add new node element
-		if (e.getNameCount() - depth > 1) {
-			folders.computeIfAbsent(e.getName(depth), k -> new FileSet()).add(e, depth + 1);
-		}
-
-		return false;
+		return folders.computeIfAbsent(depth == ROOT_LEVEL ? e.getRoot() : e.getName(depth), k -> new FileSet()).add(e, depth + 1);
 	}
 
 	@Override
 	public boolean add(Path e) {
-		return add(e, 0);
+		return add(e, ROOT_LEVEL);
 	}
 
 	public boolean add(File e) {
@@ -82,6 +85,25 @@ public class FileSet extends AbstractSet<Path> {
 
 	protected Path getPath(String path) {
 		return Paths.get(path);
+	}
+
+	public Map<Path, List<Path>> getRoots() {
+		if (folders.size() != 1 || files.size() > 0) {
+			return emptyMap();
+		}
+
+		Entry<Path, FileSet> entry = folders.entrySet().iterator().next();
+		Path parent = entry.getKey();
+		Map<Path, List<Path>> next = entry.getValue().getRoots();
+		if (next.size() > 0) {
+			// resolve children
+			return next.entrySet().stream().collect(toMap(it -> {
+				return parent.resolve(it.getKey());
+			}, it -> it.getValue()));
+		}
+
+		// resolve children
+		return folders.entrySet().stream().collect(toMap(it -> it.getKey(), it -> it.getValue().stream().collect(toList())));
 	}
 
 	@Override

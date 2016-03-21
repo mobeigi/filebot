@@ -11,6 +11,7 @@ import static net.filebot.util.ui.SwingUI.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import net.filebot.hash.VerificationFileReader;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 import net.filebot.util.ExceptionUtilities;
+import net.filebot.util.FileSet;
 
 class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumCell> {
 
@@ -84,19 +86,41 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 
 		try {
 			// handle single verification file drop
-			if (files.size() == 1 && getHashType(files.get(0)) != null) {
-				loadVerificationFile(files.get(0), getHashType(files.get(0)));
-			}
-			// handle single folder drop
-			else if (files.size() == 1 && files.get(0).isDirectory()) {
-				for (File file : getChildren(files.get(0), NOT_HIDDEN, CASE_INSENSITIVE_PATH)) {
-					load(file, null, files.get(0));
+			if (containsOnly(files, VERIFICATION_FILES)) {
+				for (File file : files) {
+					loadVerificationFile(file, getHashType(file));
 				}
+				return;
 			}
-			// handle all other drops
-			else {
+
+			// handle single folder drop
+			if (files.size() == 1 && containsOnly(files, FOLDERS)) {
+				for (File folder : files) {
+					for (File file : getChildren(folder, NOT_HIDDEN, CASE_INSENSITIVE_PATH)) {
+						load(file, null, folder);
+					}
+				}
+				return;
+			}
+
+			// handle files and folders dropped from the same parent folder
+			if (mapByFolder(files).size() == 1) {
 				for (File file : files) {
 					load(file, null, file.getParentFile());
+				}
+				return;
+			}
+
+			// handle all other drops and auto-detect common root folder from dropped fileset
+			FileSet fileset = new FileSet();
+			files.forEach(fileset::add);
+
+			for (Entry<Path, List<Path>> it : fileset.getRoots().entrySet()) {
+				File root = it.getKey().toFile();
+				for (Path path : it.getValue()) {
+					File relativeFile = path.toFile().getParentFile();
+					File absoluteFile = new File(root, path.toString());
+					load(absoluteFile, relativeFile, root);
 				}
 			}
 		} catch (InterruptedException e) {
@@ -120,8 +144,9 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 
 			while (parser.hasNext()) {
 				// make this possibly long-running operation interruptible
-				if (Thread.interrupted())
+				if (Thread.interrupted()) {
 					throw new InterruptedException();
+				}
 
 				Entry<File, String> entry = parser.next();
 
@@ -140,12 +165,14 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 	}
 
 	protected void load(File absoluteFile, File relativeFile, File root) throws IOException, InterruptedException {
-		if (Thread.interrupted())
+		if (Thread.interrupted()) {
 			throw new InterruptedException();
+		}
 
 		// ignore hidden files/folders
-		if (absoluteFile.isHidden())
+		if (absoluteFile.isHidden()) {
 			return;
+		}
 
 		// add next name to relative path
 		relativeFile = new File(relativeFile, absoluteFile.getName());
