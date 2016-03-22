@@ -1,4 +1,4 @@
-package net.filebot.ui.analyze;
+package net.filebot.ui.filter;
 
 import java.awt.datatransfer.Transferable;
 
@@ -11,12 +11,12 @@ import net.filebot.ui.transfer.TransferablePolicy;
 import net.filebot.ui.transfer.TransferablePolicy.TransferAction;
 import net.miginfocom.swing.MigLayout;
 
-public class AnalyzePanel extends JComponent {
+public class FilterPanel extends JComponent {
 
 	private final FileTreePanel fileTreePanel = new FileTreePanel();
 	private final JTabbedPane toolsPanel = new JTabbedPane();
 
-	public AnalyzePanel() {
+	public FilterPanel() {
 		setLayout(new MigLayout("insets dialog, gapx 50, fill, nogrid"));
 		add(fileTreePanel, "grow 1, w 300:pref:500");
 		add(toolsPanel, "grow 2");

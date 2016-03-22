@@ -1,4 +1,4 @@
-package net.filebot.ui.analyze;
+package net.filebot.ui.filter;
 
 import static net.filebot.Logging.*;
 
@@ -15,8 +15,8 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.commons.io.FileUtils;
 
-import net.filebot.ui.analyze.FileTree.FileNode;
-import net.filebot.ui.analyze.FileTree.FolderNode;
+import net.filebot.ui.filter.FileTree.FileNode;
+import net.filebot.ui.filter.FileTree.FolderNode;
 import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.LoadingOverlayPane;

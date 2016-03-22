@@ -1,4 +1,4 @@
-package net.filebot.ui.analyze;
+package net.filebot.ui.filter;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
@@ -23,7 +23,7 @@ import javax.swing.tree.TreeNode;
 
 import net.filebot.MediaTypes;
 import net.filebot.media.MediaDetection;
-import net.filebot.ui.analyze.FileTree.FolderNode;
+import net.filebot.ui.filter.FileTree.FolderNode;
 import net.filebot.ui.transfer.DefaultTransferHandler;
 import net.filebot.util.ui.LoadingOverlayPane;
 import net.miginfocom.swing.MigLayout;

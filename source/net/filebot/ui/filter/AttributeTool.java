@@ -1,4 +1,4 @@
-package net.filebot.ui.analyze;
+package net.filebot.ui.filter;
 
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;

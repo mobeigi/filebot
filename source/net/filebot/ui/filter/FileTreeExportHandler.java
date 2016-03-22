@@ -1,4 +1,4 @@
-package net.filebot.ui.analyze;
+package net.filebot.ui.filter;
 
 import java.awt.datatransfer.Transferable;
 import java.io.File;
@@ -10,8 +10,8 @@ import javax.swing.TransferHandler;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import net.filebot.ui.analyze.FileTree.FileNode;
-import net.filebot.ui.analyze.FileTree.FolderNode;
+import net.filebot.ui.filter.FileTree.FileNode;
+import net.filebot.ui.filter.FileTree.FolderNode;
 import net.filebot.ui.transfer.FileTransferable;
 import net.filebot.ui.transfer.TransferableExportHandler;
 

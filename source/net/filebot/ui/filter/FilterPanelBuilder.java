@@ -1,5 +1,5 @@
 
-package net.filebot.ui.analyze;
+package net.filebot.ui.filter;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -7,7 +7,7 @@ import javax.swing.JComponent;
 import net.filebot.ResourceManager;
 import net.filebot.ui.PanelBuilder;
 
-public class AnalyzePanelBuilder implements PanelBuilder {
+public class FilterPanelBuilder implements PanelBuilder {
 
 	@Override
 	public String getName() {
@@ -21,12 +21,12 @@ public class AnalyzePanelBuilder implements PanelBuilder {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj instanceof AnalyzePanelBuilder;
+		return obj instanceof FilterPanelBuilder;
 	}
 
 	@Override
 	public JComponent create() {
-		AnalyzePanel panel = new AnalyzePanel();
+		FilterPanel panel = new FilterPanel();
 		panel.addTool(new ExtractTool());
 		panel.addTool(new TypeTool());
 		panel.addTool(new SplitTool());

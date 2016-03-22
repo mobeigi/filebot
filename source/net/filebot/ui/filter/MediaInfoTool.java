@@ -1,4 +1,4 @@
-package net.filebot.ui.analyze;
+package net.filebot.ui.filter;
 
 import static java.util.Collections.*;
 import static net.filebot.Logging.*;

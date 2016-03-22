@@ -1,4 +1,4 @@
-package net.filebot.ui.analyze;
+package net.filebot.ui.filter;
 
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
@@ -15,8 +15,8 @@ import java.util.logging.Level;
 import javax.swing.tree.TreeNode;
 
 import net.filebot.mac.MacAppUtilities;
-import net.filebot.ui.analyze.FileTree.FileNode;
-import net.filebot.ui.analyze.FileTree.FolderNode;
+import net.filebot.ui.filter.FileTree.FileNode;
+import net.filebot.ui.filter.FileTree.FolderNode;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.FastFile;

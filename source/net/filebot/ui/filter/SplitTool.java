@@ -1,4 +1,4 @@
-package net.filebot.ui.analyze;
+package net.filebot.ui.filter;
 
 import java.awt.Color;
 import java.io.File;
@@ -15,7 +15,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 
-import net.filebot.ui.analyze.FileTree.FolderNode;
+import net.filebot.ui.filter.FileTree.FolderNode;
 import net.filebot.ui.transfer.DefaultTransferHandler;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.GradientStyle;
