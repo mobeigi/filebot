@@ -3,15 +3,15 @@
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 		<meta name="keywords" content="rename tv shows, rename movies, download subtitles, check sfv files" />
-		
+
 		<title>FileBot - The ultimate TV and Movie Renamer / Subtitle Downloader</title>
 		<meta name="description" content="FileBot is the ultimate tool for renaming your movies, tv shows or anime and downloading subtitles. It's smart, streamlined for simplicity and just works. FileBot supports Windows, Linux and Mac, plus there's a full-featured command-line interface for all sorts of automation." />
 		<meta name="author" content="Reinhard Pointner" />
-		
+
 		<meta itemprop="name" content="FileBot - The ultimate TV and Movie Renamer / Subtitle Downloader" />
 		<meta itemprop="description" content="FileBot is the ultimate tool for renaming your movies, tv shows or anime and downloading subtitles. It's smart, streamlined for simplicity and just works. FileBot supports Windows, Linux and Mac, plus there's a full-featured command-line interface for all sorts of automation." />
 		<meta itemprop="image" content="http://www.filebot.net/icon.png" />
-		
+
 		<meta property="og:title" content="FileBot" />
 		<meta property="og:type" content="product" />
 		<meta property="og:url" content="http://www.filebot.net/" />
@@ -19,26 +19,26 @@
 		<meta property="og:site_name" content="FileBot TV and Movie Renamer" />
 		<meta property="fb:admins" content="1320039434" />
 		<meta property="fb:page_id" content="102742293101063" />
-		
+
 		<link rel="stylesheet" href="base.css" type="text/css" />
 		<link rel="icon" href="favicon.png" />
-		
+
 		<!-- Fonts -->
 		<link href='https://fonts.googleapis.com/css?family=Dawning+of+a+New+Day' rel='stylesheet' type='text/css' />
-		
+
 		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-		
+
 		<!-- google +1 -->
 		<script type="text/javascript">
 		  window.___gcfg = {lang: 'en-GB'};
-		
+
 		  (function() {
 		    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
 		    po.src = 'https://apis.google.com/js/plusone.js';
 		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
 		  })();
 		</script>
-		
+
 		<!-- twitter -->
 		<script>window.twttr = (function(d, s, id) {
 		  var js, fjs = d.getElementsByTagName(s)[0],
@@ -48,12 +48,12 @@
 		  js.id = id;
 		  js.src = "https://platform.twitter.com/widgets.js";
 		  fjs.parentNode.insertBefore(js, fjs);
-		 
+
 		  t._e = [];
 		  t.ready = function(f) {
 		    t._e.push(f);
 		  };
-		 
+
 		  return t;
 		}(document, "script", "twitter-wjs"));</script>
 	</head>
@@ -67,7 +67,7 @@
 		  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.3";
 		  fjs.parentNode.insertBefore(js, fjs);
 		}(document, 'script', 'facebook-jssdk'));</script>
-		
+
 		<div class="page">
 			<div class="navigation">
 				<div>
@@ -83,11 +83,11 @@
 				<div class="twitter">
 					<a class="twitter-share-button" href="https://twitter.com/share" data-url="http://www.filebot.net/" data-via="filebot_renamer" data-text="FileBot - The ultimate TV and Movie Renamer" data-lang="en"></a>
 				</div>
-				
+
 				<div class="facebook">
 					<div data-width="80" class="fb-like" data-href="https://www.facebook.com/filebot" data-layout="button_count" data-action="like" data-show-faces="false" data-share="false"></div>
 				</div>
-				
+
 				<div class="plusone">
 					<g:plusone href="http://www.filebot.net/"></g:plusone>
 				</div>
@@ -122,7 +122,7 @@
 					<script type="text/javascript">
 						$(document).ready(function () {
 							if (navigator.userAgent.indexOf('Ubuntu') >= 0) {
-								$("#ubuntu").show();
+								$(".ubuntuappstore").show();
 							}
 						});
 					</script>
@@ -132,13 +132,12 @@
 						</a>
 					</div>
 				</div>
-				
-                <div id="macosx" class="section deployment macosx" style="display:none">
+
+				<div id="macosx" class="section deployment macosx macappstore" style="display:none">
 					<script type="text/javascript">
 						$(document).ready(function () {
 							if (navigator.userAgent.indexOf('Macintosh') >= 0) {
-								$("#macosx").show();
-								$("#macosx-filebot-subtitles").show();
+								$(".macappstore").show();
 							}
 						});
 					</script>
@@ -146,7 +145,7 @@
 						<a href="https://itunes.apple.com/us/app/filebot/id905384638?mt=12&amp;uo=6&amp;at=1l3vupy&amp;ct=filebot1" target="itunes_store" style="display:inline-block;overflow:hidden;background:url(http://linkmaker.itunes.apple.com/images/badges/en-us/badge_macappstore-lrg.svg) no-repeat;width:165px;height:40px;"></a>
 					</div>
 				</div>
-				
+
 				<a id="review" class="review message box" style="display:none" href="reviews.php" target="_blank">
 				<div class="thumbs up">
 					<img src="images/thumbs_up.png" />
@@ -173,7 +172,7 @@
 					<p class="text quote"></p>
 				</div>
 				</a>
-				
+
 				<div class="section first tutorial">
 					<img class="icon" src="images/starthere.png" alt="start" width="48" height="48" />
 					<h2>Getting Started</h2>
@@ -292,7 +291,7 @@
 					<ul class="list">
 						<li class="macosx">Available on the <a href="https://itunes.apple.com/us/app/filebot/id905384638?mt=12&amp;uo=6&amp;at=1l3vupy&amp;ct=filebot2" target="itunes_store">Mac App Store</a></li>
 						<!-- <li class="ubuntu">Available on the <a target="_blank" href="https://apps.ubuntu.com/cat/applications/filebot/">Ubuntu Software Center</a></li> -->
-						<li id="macosx-filebot-subtitles" style="display:none">FileBot Subtitles for Mac OS X: <a target="_blank" href="https://www.filebot.net/forums/viewtopic.php?f=12&amp;t=3350">FileBot_Subtitles_Installer.pkg</a></li>
+						<li class="macappstore" style="display:none">FileBot Subtitles for Mac OS X: <a target="_blank" href="https://www.filebot.net/forums/viewtopic.php?f=12&amp;t=3350">FileBot_Subtitles_Installer.pkg</a> <small class="comment">for everyone who purchased FileBot on the Mac App Store</small></li>
 						<li>Windows installer: <a target="_blank" href="https://app.filebot.net/download.php?type=nsis&amp;version=@{version}">FileBot_@{version}-setup.exe</a></li>
 						<li>Debian packages: <a target="_blank" href="https://app.filebot.net/download.php?type=deb&amp;arch=i386&amp;version=@{version}">filebot_@{version}_i386.deb</a> or <a target="_blank" href="https://app.filebot.net/download.php?type=deb&amp;arch=amd64&amp;version=@{version}">filebot_@{version}_amd64.deb</a></li>
 						<li>Embedded Linux package: <a target="_blank" href="https://app.filebot.net/download.php?type=ipkg&amp;arch=noarch&amp;version=@{version}">filebot_@{version}_noarch.ipk</a></li>
@@ -348,7 +347,7 @@
 				</div>
 			</div>
 		</div>
-		
+
 		<!-- FIX SCROLLING ISSUES CAUSED BY DYNAMICALLY CHANGES TO THE CONTENT BY JQUERY -->
 		<script type="text/javascript">
 			$(document).ready(function () {
