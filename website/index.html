@@ -138,6 +138,7 @@
 						$(document).ready(function () {
 							if (navigator.userAgent.indexOf('Macintosh') >= 0) {
 								$("#macosx").show();
+								$("#macosx-filebot-subtitles").show();
 							}
 						});
 					</script>
@@ -291,6 +292,7 @@
 					<ul class="list">
 						<li class="macosx">Available on the <a href="https://itunes.apple.com/us/app/filebot/id905384638?mt=12&amp;uo=6&amp;at=1l3vupy&amp;ct=filebot2" target="itunes_store">Mac App Store</a></li>
 						<!-- <li class="ubuntu">Available on the <a target="_blank" href="https://apps.ubuntu.com/cat/applications/filebot/">Ubuntu Software Center</a></li> -->
+						<li id="macosx-filebot-subtitles" style="display:none">FileBot Subtitles for Mac OS X: <a target="_blank" href="https://www.filebot.net/forums/viewtopic.php?f=12&amp;t=3350">FileBot_Subtitles_Installer.pkg</a></li>
 						<li>Windows installer: <a target="_blank" href="https://app.filebot.net/download.php?type=nsis&amp;version=@{version}">FileBot_@{version}-setup.exe</a></li>
 						<li>Debian packages: <a target="_blank" href="https://app.filebot.net/download.php?type=deb&amp;arch=i386&amp;version=@{version}">filebot_@{version}_i386.deb</a> or <a target="_blank" href="https://app.filebot.net/download.php?type=deb&amp;arch=amd64&amp;version=@{version}">filebot_@{version}_amd64.deb</a></li>
 						<li>Embedded Linux package: <a target="_blank" href="https://app.filebot.net/download.php?type=ipkg&amp;arch=noarch&amp;version=@{version}">filebot_@{version}_noarch.ipk</a></li>
