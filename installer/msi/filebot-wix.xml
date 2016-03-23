@@ -19,11 +19,11 @@
 
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
 	<Product Id='*' Name='$(var.ProductName)' Manufacturer='$(var.Manufacturer)' Version='$(var.releaseversion)' UpgradeCode='$(var.UpgradeCode)' Language='1033' Codepage='1252'>
-	
+
 		<Package Description="FileBot Installer" Manufacturer='$(var.Manufacturer)' InstallerVersion='300' Compressed='yes' Platform="$(var.Platform)" />
-		
+
 		<MajorUpgrade AllowDowngrades="yes" IgnoreRemoveFailure="yes" />
-		
+
 		<Directory Id='TARGETDIR' Name='SourceDir'>
 			<Directory Id='$(var.ProgramFiles)' Name='Program Files'>
 				<Directory Id='INSTALLDIR' Name='FileBot'>
@@ -32,6 +32,7 @@
 						<File Id='filebot.launcher.exe' Name='filebot.launcher.exe' Source='filebot.launcher.exe' KeyPath='yes'>
 							<Shortcut Id="shortcut.menu.filebot" Directory="ProgramMenuDir" Name="FileBot" Description="The ultimate TV Renamer and Subtitle Downloader" WorkingDirectory='INSTALLDIR' Icon="icon.ico" Advertise="no" />
 							<Shortcut Id="shortcut.desktop" Directory="DesktopFolder" Name="FileBot" Description="The ultimate TV Renamer and Subtitle Downloader" WorkingDirectory='INSTALLDIR' Icon="icon.ico" Advertise="no" />
+							<Shortcut Id="shortcut.sendto" Directory="SendToFolder" Name="FileBot" Description="The ultimate TV Renamer and Subtitle Downloader" WorkingDirectory='INSTALLDIR' Icon="icon.ico" Advertise="no" />
 						</File>
 						<File Id='filebot.platform.launcher.exe' Name='filebot.platform.launcher.exe' Source='filebot.platform.launcher.exe'>
 							<Shortcut Id="shortcut.menu.filebot.platform" Directory="ProgramMenuDir" Name="FileBot (platform)" Description="Launch FileBot with platform-independent configuration" WorkingDirectory='INSTALLDIR' Icon="icon.ico" IconIndex="0" Advertise="no" />
@@ -40,7 +41,7 @@
 						<File Id='filebot.platform.launcher.l4j.ini' Name='filebot.platform.launcher.l4j.ini' Source='filebot.platform.launcher.l4j.ini' />
 						<Shortcut Id="shortcut.uninstall" Directory="ProgramMenuDir" Name="Uninstall FileBot" Description="Uninstall FileBot" Icon="icon.ico" Target="[SystemFolder]msiexec.exe" Arguments="/x [ProductCode]" Advertise="no" />
 					</Component>
-					
+
 					<Component Id='ApplicationStubCmd' Guid='D2B1A845-3B5C-4B59-B0D0-A4E80C173220' Win64="$(var.Win64)">
 						<File Id='filebot.exe' Name='filebot.exe' Source='filebot.exe' KeyPath='yes'>
 							<Shortcut Id="shortcut.menu.filebot.cmd" Directory="ProgramMenuDir" Name="FileBot (console)" Description="Launch FileBot with debug logging" WorkingDirectory='INSTALLDIR' />
@@ -48,7 +49,7 @@
 						<File Id='filebot.l4j.ini' Name='filebot.l4j.ini' Source='filebot.l4j.ini' />
 						<Environment Id="PATH" Name="PATH" Value="[INSTALLDIR]" Action="set" Part="last" Permanent="no" System="yes" />
 					</Component>
-					
+
 					<Component Id='ApplicationBase' Guid='9E365344-A00C-45DE-A2A4-266412C3D06E' Win64="$(var.Win64)">
 						<File Id='FileBot.jar' Name='FileBot.jar' Source='$(var.fatjar)' KeyPath='yes' />
 						<File Id='jnidispatch.dll' Name='jnidispatch.dll' Source='$(var.jnidispatch)' />
@@ -67,7 +68,7 @@
 					</Component>
 				</Directory>
 			</Directory>
-			
+
 			<Directory Id="DesktopFolder" Name="Desktop" />
 		</Directory>
 
@@ -78,21 +79,21 @@
 			<ComponentRef Id='ApplicationBase' />
 			<ComponentRef Id='ProgramMenuDir' />
 		</Feature>
-		
+
 		<!-- The media table defines the location that the MSI will look to find source files during         -->
 		<!-- installation or repair scenarios. In this case, the source files are in a cab file that will be -->
 		<!-- embedded directly into the MSI at build time.                                                   -->
 		<Media Id='1' Cabinet='FileBot.cab' EmbedCab='yes' />
-		
+
 		<!-- These properties define links that will appear in the Add/Remove Programs control panel when    -->
 		<!-- this product is installed on the system.                                                        -->
 		<Property Id="ARPURLINFOABOUT" Value="http://www.filebot.net/" />
-		
+
 		<!-- This property is used as the default installation directory, and the user can change this path  -->
 		<!-- during setup. The Id must be set to WIXUI_INSTALLDIR and the value must match the directory Id  -->
 		<!-- defined above that represents the root installation directory.                                  -->
 		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR"/>
-		
+
 		<!-- This UIRef element specifies what WiXUI dialog set to use for the setup UI. This package uses   -->
 		<!-- the WixUI_InstallDir dialog set, which provides a welcome page, a license agreement page, a     -->
 		<!-- page to allow changing the installation path, an installation confirmation page, a progress     -->
