@@ -430,6 +430,9 @@ public class MediaDetection {
 			}
 		}
 
+		// DEBUG
+		debug.finest(format("Series Name => %s %s", names, matches));
+
 		try {
 			Collection<String> priorityMatchSet = new LinkedHashSet<String>();
 			priorityMatchSet.addAll(stripReleaseInfo(matches, true));
@@ -440,8 +443,12 @@ public class MediaDetection {
 		}
 		names.addAll(matches);
 
-		// don't allow duplicates
-		return getUniqueQuerySet(unids, names);
+		// filter out duplicates
+		List<String> querySet = getUniqueQuerySet(unids, names);
+
+		// DEBUG
+		debug.finest(format("Series Name => %s", querySet));
+		return querySet;
 	}
 
 	public static List<String> matchSeriesByMapping(Collection<File> files) throws Exception {
