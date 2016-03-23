@@ -39,6 +39,69 @@
 	<target name="resolve" description="Retrieve dependencies with Apache Ivy">
 		<delete dir="${dir.lib}/ivy" />
 		<ivy:retrieve pattern="${dir.lib}/ivy/[type]/[artifact].[ext]" />
+
+		<antcall target="resolve-import-native">
+			<param name="arch" value="mac-x86_64" />
+			<param name="arch.jna" value="darwin" />
+			<param name="arch.7zj" value="Mac-x86_64" />
+		</antcall>
+		<antcall target="resolve-import-native">
+			<param name="arch" value="win32-x64" />
+			<param name="arch.jna" value="win32-x86-64" />
+			<param name="arch.7zj" value="Windows-amd64" />
+		</antcall>
+		<antcall target="resolve-import-native">
+			<param name="arch" value="win32-x86" />
+			<param name="arch.jna" value="win32-x86/" />
+			<param name="arch.7zj" value="Windows-x86" />
+		</antcall>
+		<antcall target="resolve-import-native">
+			<param name="arch" value="linux-amd64" />
+			<param name="arch.jna" value="linux-x86-64" />
+			<param name="arch.7zj" value="Linux-amd64" />
+		</antcall>
+		<antcall target="resolve-import-native">
+			<param name="arch" value="linux-i686" />
+			<param name="arch.jna" value="linux-x86" />
+			<param name="arch.7zj" value="Linux-i386" />
+		</antcall>
+		<antcall target="resolve-import-native">
+			<param name="arch" value="linux-arm" />
+			<param name="arch.jna" value="linux-arm" />
+			<param name="arch.7zj" value="Linux-arm" />
+		</antcall>
+	</target>
+
+
+	<target name="resolve-import-native">
+		<unzip src="${dir.lib}/ivy/jar/jna.jar" dest="${dir.lib}/native/${arch}" overwrite="yes">
+			<patternset>
+				<include name="**/${arch.jna}/*.dll" />
+				<include name="**/${arch.jna}/*.so" />
+				<include name="**/${arch.jna}/*.jnilib" />
+			</patternset>
+			<chainedmapper>
+				<flattenmapper />
+				<compositemapper>
+					<globmapper from="*.jnilib" to="*.dylib" />
+					<identitymapper />
+				</compositemapper>
+			</chainedmapper>
+		</unzip>
+		<unzip src="${dir.lib}/ivy/jar/sevenzipjbinding-all-platforms.jar" dest="${dir.lib}/native/${arch}" overwrite="yes">
+			<patternset>
+				<include name="**/${arch.7zj}/*.dll" />
+				<include name="**/${arch.7zj}/*.so" />
+				<include name="**/${arch.7zj}/*.dylib" />
+			</patternset>
+			<chainedmapper>
+				<flattenmapper />
+				<compositemapper>
+					<globmapper from="lib*.dll" to="*.dll" />
+					<identitymapper />
+				</compositemapper>
+			</chainedmapper>
+		</unzip>
 	</target>
 
 

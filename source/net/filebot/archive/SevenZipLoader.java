@@ -23,7 +23,7 @@ public class SevenZipLoader {
 		try {
 			try {
 				if (Platform.isWindows() && Platform.is64Bit()) {
-					System.loadLibrary("libgcc_s_seh-1");
+					System.loadLibrary("gcc_s_seh-1");
 				}
 			} catch (Throwable e) {
 				debug.warning("Failed to preload library: " + e);
