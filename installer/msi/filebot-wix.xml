@@ -70,6 +70,7 @@
 			</Directory>
 
 			<Directory Id="DesktopFolder" Name="Desktop" />
+			<Directory Id="SendToFolder" Name="SendTo" />
 		</Directory>
 
 
