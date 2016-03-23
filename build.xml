@@ -619,11 +619,11 @@
 	<target name="msi" description="Build Windows Installer for x86 and x64">
 		<antcall target="msi-arch">
 			<param name="arch" value="x86" />
-			<param name="libgcc_name" value="libgcc_s_seh-1.dll" />
+			<param name="libgcc_name" value="gcc_s_seh-1.dll" />
 		</antcall>
 		<antcall target="msi-arch">
 			<param name="arch" value="x64" />
-			<param name="libgcc_name" value="libgcc_s_seh-1.dll" />
+			<param name="libgcc_name" value="gcc_s_seh-1.dll" />
 		</antcall>
 	</target>
 
