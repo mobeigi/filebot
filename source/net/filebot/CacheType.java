@@ -12,15 +12,15 @@ public enum CacheType {
 
 	Weekly(Duration.ofDays(12), true),
 
-	Daily(Duration.ofDays(1), true),
+	Daily(Duration.ofHours(24), true),
 
-	Ephemeral(Duration.ofHours(2), false);
+	Ephemeral(Duration.ofHours(6), false);
 
 	final long timeToLiveSeconds;
 	final boolean diskPersistent;
 
 	CacheType(Duration timeToLive, boolean diskPersistent) {
-		this.timeToLiveSeconds = timeToLive.getSeconds();
+		this.timeToLiveSeconds = timeToLive.minusHours(1).getSeconds(); // 60 minutes grace period to make sure data is always fresh when TTL is almost about to be exceeded
 		this.diskPersistent = diskPersistent;
 	}
 
