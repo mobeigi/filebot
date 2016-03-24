@@ -778,7 +778,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			private final String languageCode = Language.getStandardLanguageCode(getLanguage(languageName).getName());
 
 			public boolean matchesLanguageCode(File f) {
-				Locale languageSuffix = MediaDetection.releaseInfo.getLanguageSuffix(FileUtilities.getName(f));
+				Locale languageSuffix = MediaDetection.releaseInfo.getLanguageTag(FileUtilities.getName(f));
 				Language language = Language.getLanguage(languageSuffix);
 				if (language != null) {
 					return language.getISO3().equalsIgnoreCase(languageCode);

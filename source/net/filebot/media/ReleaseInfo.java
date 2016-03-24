@@ -110,22 +110,25 @@ public class ReleaseInfo {
 		return matchLast(getReleaseGroupPattern(false), groups, strings);
 	}
 
-	private Map<String, Locale> languages;
-	private Pattern languageSuffix;
+	private Pattern languageTag;
 
-	public Locale getLanguageSuffix(String name) {
+	public Locale getLanguageTag(CharSequence... name) {
 		// match locale identifier and lookup Locale object
-		if (languages == null || languageSuffix == null) {
-			languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault());
-			languageSuffix = getLanguageSuffixPattern(languages.keySet(), false);
+		if (languageTag == null) {
+			languageTag = getSubtitleLanguageTagPattern(getDefaultLanguageMap().keySet());
 		}
+		String lang = matchLast(languageTag, null, name);
+		return lang == null ? null : getDefaultLanguageMap().get(lang);
+	}
 
-		String lang = matchLast(languageSuffix, null, name);
-		if (lang == null) {
-			return null;
+	private Pattern categoryTag;
+
+	public String getSubtitleCategoryTag(CharSequence... name) {
+		// match locale identifier and lookup Locale object
+		if (categoryTag == null) {
+			categoryTag = getSubtitleCategoryTagPattern(getDefaultLanguageMap().keySet());
 		}
-
-		return languages.get(lang);
+		return matchLast(categoryTag, getSubtitleCategoryTags(), name);
 	}
 
 	protected String matchLast(Pattern pattern, String[] paragon, CharSequence... sequence) {
@@ -161,11 +164,11 @@ public class ReleaseInfo {
 
 		// initialize cached patterns
 		if (stopwords[b] == null || blacklist[b] == null) {
-			Set<String> languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault()).keySet();
+			Set<String> languages = getDefaultLanguageMap().keySet();
 			Pattern clutterBracket = getClutterBracketPattern(strict);
 			Pattern releaseGroup = getReleaseGroupPattern(strict);
 			Pattern releaseGroupTrim = getReleaseGroupTrimPattern();
-			Pattern languageSuffix = getLanguageSuffixPattern(languages, strict);
+			Pattern languageSuffix = getSubtitleLanguageTagPattern(languages);
 			Pattern languageTag = getLanguageTagPattern(languages);
 			Pattern videoSource = getVideoSourcePattern();
 			Pattern videoTags = getVideoTagPattern();
@@ -261,9 +264,14 @@ public class ReleaseInfo {
 		return compile("(?<=[-\\[{(])" + or(quoteAll(languages)) + "(?=\\p{Punct})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
-	public Pattern getLanguageSuffixPattern(Collection<String> languages, boolean strict) {
+	public Pattern getSubtitleCategoryTagPattern(Collection<String> languages) {
 		// e.g. ".en.srt" or ".en.forced.srt"
-		return compile("(?<=[._-])" + or(quoteAll(languages)) + "(?=([._-](" + getProperty("pattern.subtitle.tags") + "))?$)", strict ? 0 : CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile("(?<=[._-](" + or(quoteAll(languages)) + ")[._-])" + or(getSubtitleCategoryTags()) + "$", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+	}
+
+	public Pattern getSubtitleLanguageTagPattern(Collection<String> languages) {
+		// e.g. ".en.srt" or ".en.forced.srt"
+		return compile("(?<=[._-])" + or(quoteAll(languages)) + "(?=([._-]" + or(getSubtitleCategoryTags()) + ")?$)", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
 	public Pattern getResolutionPattern() {
@@ -378,6 +386,10 @@ public class ReleaseInfo {
 			roots.add(new File(it));
 		}
 		return roots;
+	}
+
+	public String[] getSubtitleCategoryTags() {
+		return getProperty("pattern.subtitle.tags").split("\\|");
 	}
 
 	protected final Resource<Map<Pattern, String>> seriesMappings = resource("url.series-mappings", Cache.ONE_WEEK, Function.identity(), String[]::new).transform(lines -> {
@@ -517,7 +529,19 @@ public class ReleaseInfo {
 		return values.stream().map((s) -> Pattern.quote(s)).toArray(String[]::new);
 	}
 
-	public Map<String, Locale> getLanguageMap(Locale... supportedDisplayLocale) {
+	private Map<String, Locale> defaultLanguageMap;
+
+	public Map<String, Locale> getDefaultLanguageMap() {
+		if (defaultLanguageMap == null) {
+			defaultLanguageMap = getLanguageMap(Locale.ENGLISH, Locale.getDefault());
+		}
+		return defaultLanguageMap;
+	}
+
+	public Map<String, Locale> getLanguageMap(Locale... displayLanguages) {
+		// unique
+		displayLanguages = stream(displayLanguages).distinct().toArray(Locale[]::new);
+
 		// use maximum strength collator by default
 		Collator collator = Collator.getInstance(Locale.ENGLISH);
 		collator.setDecomposition(Collator.FULL_DECOMPOSITION);
@@ -533,7 +557,7 @@ public class ReleaseInfo {
 			languageMap.put(locale.getISO3Language(), iso3locale);
 
 			// map display language names for given locales
-			for (Locale language : new HashSet<Locale>(asList(supportedDisplayLocale))) {
+			for (Locale language : displayLanguages) {
 				// make sure language name is properly normalized so accents and whatever don't break the regex pattern syntax
 				String languageName = Normalizer.normalize(locale.getDisplayLanguage(language), Form.NFKD);
 				languageMap.put(languageName.toLowerCase(), iso3locale);

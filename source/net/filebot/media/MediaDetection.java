@@ -111,7 +111,7 @@ public class MediaDetection {
 	}
 
 	public static Locale guessLanguageFromSuffix(File file) {
-		return releaseInfo.getLanguageSuffix(getName(file));
+		return releaseInfo.getLanguageTag(getName(file));
 	}
 
 	private static final SeasonEpisodeMatcher seasonEpisodeMatcherStrict = new SmartSeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, true);
@@ -1089,7 +1089,7 @@ public class MediaDetection {
 
 			// allow extended extensions for subtitles files, for example name.eng.srt => map by en.srt
 			if (key != null && SUBTITLE_FILES.accept(file)) {
-				Locale locale = releaseInfo.getLanguageSuffix(getName(file));
+				Locale locale = releaseInfo.getLanguageTag(getName(file));
 				if (locale != null) {
 					key = locale.getLanguage() + '.' + key;
 				}

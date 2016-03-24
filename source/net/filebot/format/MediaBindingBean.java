@@ -518,9 +518,28 @@ public class MediaBindingBean {
 		return releaseInfo.getReleaseGroup(filenames);
 	}
 
+	@Define("sub")
+	public String getSubtitleTags() throws Exception {
+		if (!SUBTITLE_FILES.accept(getMediaFile())) {
+			return null;
+		}
+
+		Language language = getLanguageTag();
+		if (language != null) {
+			String tag = '.' + language.getISO3B();
+			String category = releaseInfo.getSubtitleCategoryTag(FileUtilities.getName(getMediaFile()), getOriginalFileName(getMediaFile()));
+			if (category != null) {
+				return tag + '.' + category;
+			}
+			return tag;
+		}
+
+		return null;
+	}
+
 	@Define("lang")
-	public Language getSubtitleLanguage() throws Exception {
-		Locale languageSuffix = releaseInfo.getLanguageSuffix(FileUtilities.getName(getMediaFile()));
+	public Language getLanguageTag() throws Exception {
+		Locale languageSuffix = releaseInfo.getLanguageTag(FileUtilities.getName(getMediaFile()), getOriginalFileName(getMediaFile()));
 		if (languageSuffix != null) {
 			return Language.getLanguage(languageSuffix);
 		}
