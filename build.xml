@@ -681,6 +681,7 @@
 			<info name="silent_upgrade" value="yes" />
 			<info name="thirdparty" value="yes" />
 			<info name="start_dep_services" value="ssh" />
+			<info name="install_dep_packages" value="oracle-java" />
 
 			<!-- require 250 MB disk space to account for large disk persistent cache files -->
 			<info name="extractsize" value="262144000" />
