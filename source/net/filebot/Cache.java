@@ -12,16 +12,17 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import org.w3c.dom.Document;
+
 import net.filebot.CachedResource.Transform;
 import net.sf.ehcache.Element;
 
-import org.w3c.dom.Document;
-
 public class Cache {
 
-	public static final Duration ONE_DAY = Duration.ofDays(1);
-	public static final Duration ONE_WEEK = Duration.ofDays(7);
-	public static final Duration ONE_MONTH = Duration.ofDays(30);
+	// grace period to make sure data is always fresh when TTL is almost about to be reached
+	public static final Duration ONE_DAY = Duration.ofHours(18);
+	public static final Duration ONE_WEEK = Duration.ofDays(6);
+	public static final Duration ONE_MONTH = Duration.ofDays(24);
 
 	public static Cache getCache(String name, CacheType type) {
 		return CacheManager.getInstance().getCache(name.toLowerCase() + "_" + type.ordinal(), type);
