@@ -422,4 +422,16 @@ public class ExpressionFormatMethods {
 		return Locale.forLanguageTag(self);
 	}
 
+	public static String plus(Object self, String value) {
+		return self.toString() + value;
+	}
+
+	public static String plus(String self, Closure<?> closure) {
+		try {
+			return self + closure.call();
+		} catch (Exception e) {
+			return self;
+		}
+	}
+
 }
