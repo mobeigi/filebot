@@ -1,9 +1,13 @@
 package net.filebot.util;
 
+import static java.nio.charset.StandardCharsets.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.AbstractSet;
@@ -40,51 +44,53 @@ public class FileSet extends AbstractSet<Path> {
 	}
 
 	public boolean add(File e) {
-		return add(e.toPath());
+		return add(getPath(e));
 	}
 
 	public boolean add(String e) {
 		return add(getPath(e));
 	}
 
-	public void feed(Stream<? extends Object> stream) {
-		stream.forEach(path -> add(path.toString()));
-	}
-
 	private boolean contains(Path e, int depth) {
-		// add new leaf element
-		if (e.getNameCount() - depth == 1) {
+		// leaf element
+		if (e.getNameCount() - 1 == depth) {
 			return files.contains(e.getFileName());
 		}
 
-		// add new node element
-		if (e.getNameCount() - depth > 1) {
-			FileSet subSet = folders.get(e.getName(depth));
-			return subSet == null ? false : subSet.contains(e, depth + 1);
+		// node element
+		if (e.getNameCount() - 1 > depth) {
+			FileSet subSet = folders.get(depth == ROOT_LEVEL ? e.getRoot() : e.getName(depth));
+			if (subSet != null) {
+				return subSet.contains(e, depth + 1);
+			}
 		}
 
 		return false;
 	}
 
 	public boolean contains(Path e) {
-		return contains(e, 0);
+		return contains(e, ROOT_LEVEL);
 	};
-
-	public boolean contains(File e) {
-		return contains(e.toPath());
-	}
-
-	public boolean contains(String e) {
-		return contains(getPath(e));
-	}
 
 	@Override
 	public boolean contains(Object e) {
-		return contains(e.toString());
+		return contains(getPath(e));
 	};
 
-	protected Path getPath(String path) {
-		return Paths.get(path);
+	protected Path getPath(Object path) {
+		if (path instanceof Path) {
+			return (Path) path;
+		}
+		if (path instanceof File) {
+			return ((File) path).toPath();
+		}
+		if (path instanceof String) {
+			return Paths.get((String) path);
+		}
+		if (path instanceof URI) {
+			return Paths.get((URI) path);
+		}
+		return Paths.get(path.toString());
 	}
 
 	public Map<Path, List<Path>> getRoots() {
@@ -141,7 +147,21 @@ public class FileSet extends AbstractSet<Path> {
 
 	@Override
 	public void clear() {
-		throw new UnsupportedOperationException();
+		folders.values().forEach(FileSet::clear);
+		folders.clear();
+		files.clear();
+	}
+
+	public void feed(Stream<? extends Object> stream) {
+		stream.forEach(it -> add(getPath(it)));
+	}
+
+	public void load(File f) throws IOException {
+		feed(Files.lines(f.toPath(), UTF_8));
+	}
+
+	public void store(File f) throws IOException {
+		Files.write(f.toPath(), stream().map(it -> (CharSequence) it.toString())::iterator, UTF_8);
 	}
 
 }
