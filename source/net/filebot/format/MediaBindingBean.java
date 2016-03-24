@@ -539,7 +539,7 @@ public class MediaBindingBean {
 
 	@Define("lang")
 	public Language getLanguageTag() throws Exception {
-		Locale languageSuffix = releaseInfo.getLanguageTag(FileUtilities.getName(getMediaFile()), getOriginalFileName(getMediaFile()));
+		Locale languageSuffix = releaseInfo.getSubtitleLanguageTag(FileUtilities.getName(getMediaFile()), getOriginalFileName(getMediaFile()));
 		if (languageSuffix != null) {
 			return Language.getLanguage(languageSuffix);
 		}

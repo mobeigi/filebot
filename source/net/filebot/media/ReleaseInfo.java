@@ -112,7 +112,7 @@ public class ReleaseInfo {
 
 	private Pattern languageTag;
 
-	public Locale getLanguageTag(CharSequence... name) {
+	public Locale getSubtitleLanguageTag(CharSequence... name) {
 		// match locale identifier and lookup Locale object
 		if (languageTag == null) {
 			languageTag = getSubtitleLanguageTagPattern(getDefaultLanguageMap().keySet());
