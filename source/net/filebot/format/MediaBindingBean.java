@@ -518,7 +518,7 @@ public class MediaBindingBean {
 		return releaseInfo.getReleaseGroup(filenames);
 	}
 
-	@Define("sub")
+	@Define("subt")
 	public String getSubtitleTags() throws Exception {
 		if (!SUBTITLE_FILES.accept(getMediaFile())) {
 			return null;
