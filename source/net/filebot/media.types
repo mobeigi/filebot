@@ -167,6 +167,9 @@
 		<extension>smi</extension>
 		<extension>sami</extension>
 	</type>
+	<type name="subtitle/WebVTT">
+		<extension>vtt</extension>
+	</type>
 	<type name="subtitle/VobSub">
 		<extension>vobsub</extension>
 		<extension>sub</extension>
