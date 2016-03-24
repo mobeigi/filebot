@@ -1,16 +1,17 @@
 package net.filebot.ui.rename;
 
+import static java.nio.charset.StandardCharsets.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.awt.datatransfer.Transferable;
 import java.io.File;
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -49,49 +50,48 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 
 	@Override
 	protected void load(List<File> files, TransferAction action) {
-		load(files, action != TransferAction.LINK);
+		Set<File> fileset = new LinkedHashSet<File>();
+
+		// load files recursively by default
+		load(files, action != TransferAction.LINK, fileset);
+
+		publish(FastFile.create(fileset));
 	}
 
-	protected void load(List<File> files, boolean recursive) {
-		Set<File> entries = new LinkedHashSet<File>();
-		LinkedList<File> queue = new LinkedList<File>(files);
-
-		while (queue.size() > 0) {
-			File f = queue.removeFirst();
-
-			if (f.isHidden())
+	private void load(List<File> files, boolean recursive, Collection<File> sink) {
+		for (File f : files) {
+			// ignore hidden files
+			if (f.isHidden()) {
 				continue;
+			}
 
+			// load file paths from text files
 			if (recursive && LIST_FILES.accept(f)) {
-				// don't use new Scanner(File) because of BUG 6368019 (http://bugs.sun.com/view_bug.do?bug_id=6368019)
-				try (Scanner scanner = new Scanner(createTextReader(f))) {
-					List<File> paths = new ArrayList<File>();
-					while (scanner.hasNextLine()) {
-						String line = scanner.nextLine().trim();
-						if (line.length() > 0) {
-							File path = new File(line);
-							if (path.isAbsolute() && path.exists()) {
-								paths.add(path);
-							}
-						}
-					}
+				try {
+					List<File> list = Files.lines(f.toPath(), UTF_8).map(File::new).filter(it -> {
+						return it.isAbsolute() && it.exists();
+					}).collect(toList());
 
-					if (paths.isEmpty()) {
-						entries.add(f); // treat as simple text file
+					if (list.isEmpty()) {
+						sink.add(f); // treat as simple text file
 					} else {
-						queue.addAll(0, paths); // add paths from text file
+						load(list, false, sink); // add paths from text file
 					}
 				} catch (Exception e) {
 					debug.log(Level.WARNING, e.getMessage(), e);
 				}
-			} else if (!recursive || f.isFile() || MediaDetection.isDiskFolder(f)) {
-				entries.add(f);
-			} else if (f.isDirectory()) {
-				queue.addAll(0, sortByUniquePath(getChildren(f))); // FORCE NATURAL FILE ORDER
+			}
+
+			// load normal files
+			else if (!recursive || f.isFile() || MediaDetection.isDiskFolder(f)) {
+				sink.add(f);
+			}
+
+			// load folders recursively
+			else if (f.isDirectory()) {
+				load(sortByUniquePath(getChildren(f)), true, sink); // FORCE NATURAL FILE ORDER
 			}
 		}
-
-		publish(FastFile.create(entries));
 	}
 
 	@Override
