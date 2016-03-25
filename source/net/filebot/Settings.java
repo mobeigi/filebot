@@ -5,9 +5,7 @@ import static net.filebot.util.FileUtilities.*;
 
 import java.awt.GraphicsEnvironment;
 import java.io.File;
-import java.util.LinkedHashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -160,27 +158,6 @@ public final class Settings {
 	public static String getEmbeddedHelpURL() {
 		// add #hash so we can dynamically adjust the slides for the various platforms via JavaScript
 		return getApplicationProperty("link.app.help") + '#' + getApplicationDeployment();
-	}
-
-	public static Map<String, String> getHelpURIs() {
-		Map<String, String> links = new LinkedHashMap<String, String>();
-
-		links.put("Getting Started", getApplicationProperty("link.intro"));
-		links.put("FAQ", getApplicationProperty("link.faq"));
-		links.put("Forums", getApplicationProperty("link.forums"));
-
-		if (isMacSandbox()) {
-			links.put("Report Bugs", getApplicationProperty("link.help.mas"));
-			links.put("Request Help", getApplicationProperty("link.help.mas"));
-		} else {
-			links.put("Report Bugs", getApplicationProperty("link.bugs"));
-			links.put("Request Help", getApplicationProperty("link.help"));
-		}
-
-		links.put("Contact us on Twitter", getApplicationProperty("link.twitter"));
-		links.put("Contact us on Facebook", getApplicationProperty("link.facebook"));
-
-		return links;
 	}
 
 	public static String getApplicationIdentifier() {
