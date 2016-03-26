@@ -23,13 +23,13 @@ new File(dir_data).mkdirs()
 	def input = new URL("https://raw.githubusercontent.com/filebot/data/master/${it}")
 	def output = new File("${dir_data}/${it}")
 
-	log.fine input
+	log.fine "Fetch $input"
 	def lines = new TreeSet(String.CASE_INSENSITIVE_ORDER)
 	input.getText('UTF-8').split(/\R/)*.trim().findAll{ it.length() > 0 }.each{
-		lines += Pattern.compile(it).pattern()
+		lines << Pattern.compile(it).pattern()
 	}
 
-	lines.each{ log.finest it }
+	lines.each{ log.finest "$it" }
 	pack(output, lines)
 }
 
@@ -170,13 +170,13 @@ omdb.each{ m ->
 		def names = [info.name, info.originalName] + info.alternativeTitles
 		[info?.released?.year, m[2]].findResults{ it?.toInteger() }.unique().each{ y ->
 			def row = [sync, m[0].pad(7), info.id.pad(7), y.pad(4)] + names
-			log.info row
+			log.info "Update ${m[0..2]}: $row"
 			tmdb << row
 		}
 	} catch(IllegalArgumentException | FileNotFoundException e) {
 		printException(e, false)
 		def row = [sync, m[0].pad(7), 0, m[2], m[1]]
-		log.info row
+		log.info "[BAD] Update ${m[0..2]}: $row"
 		tmdb << row
 	}
 }
@@ -273,7 +273,7 @@ tvdb_updates.values().each{ update ->
 			printException(e, false)
 			def data = [update.time, update.id, '', 0, 0]
 			tvdb.put(update.id, data)
-			log.info "Update $update => $data"
+			log.info "[BAD] Update $update => $data"
 		}
 	}
 }
