@@ -13,13 +13,13 @@ public class TVMazeClientTest {
 	/**
 	 * 145 episodes / 7 seasons
 	 */
-	private static TVMazeSearchResult buffySearchResult = new TVMazeSearchResult(427, "Buffy the Vampire Slayer");
+	SearchResult buffySearchResult = new SearchResult(427, "Buffy the Vampire Slayer");
 
 	@Test
 	public void search() throws Exception {
 		List<SearchResult> results = client.search("Buffy", Locale.ENGLISH);
 
-		TVMazeSearchResult result = (TVMazeSearchResult) results.get(0);
+		SearchResult result = results.get(0);
 
 		assertEquals(buffySearchResult.getName(), result.getName());
 		assertEquals(buffySearchResult.getId(), result.getId());

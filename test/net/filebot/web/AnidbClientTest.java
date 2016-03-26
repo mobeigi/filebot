@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import java.util.List;
 import java.util.Locale;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class AnidbClientTest {
@@ -15,28 +14,21 @@ public class AnidbClientTest {
 	/**
 	 * 74 episodes
 	 */
-	static AnidbSearchResult monsterSearchResult;
+	SearchResult monsterSearchResult = new SearchResult(1539, "Monster");
 
 	/**
 	 * 45 episodes
 	 */
-	static AnidbSearchResult twelvekingdomsSearchResult;
+	SearchResult twelvekingdomsSearchResult = new SearchResult(26, "Juuni Kokuki");
 
 	/**
 	 * 38 episodes, lots of special characters
 	 */
-	static AnidbSearchResult princessTutuSearchResult;
-
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-		monsterSearchResult = new AnidbSearchResult(1539, "Monster", null);
-		twelvekingdomsSearchResult = new AnidbSearchResult(26, "Juuni Kokuki", null);
-		princessTutuSearchResult = new AnidbSearchResult(516, "Princess Tutu", null);
-	}
+	SearchResult princessTutuSearchResult = new SearchResult(516, "Princess Tutu");
 
 	@Test
 	public void getAnimeTitles() throws Exception {
-		List<AnidbSearchResult> animeTitles = anidb.getAnimeTitles();
+		List<SearchResult> animeTitles = anidb.getAnimeTitles();
 		assertTrue(animeTitles.size() > 8000);
 	}
 
@@ -44,9 +36,9 @@ public class AnidbClientTest {
 	public void search() throws Exception {
 		List<SearchResult> results = anidb.search("one piece", Locale.ENGLISH);
 
-		AnidbSearchResult result = (AnidbSearchResult) results.get(0);
+		SearchResult result = results.get(0);
 		assertEquals("One Piece", result.getName());
-		assertEquals(69, result.getAnimeId());
+		assertEquals(69, result.getId());
 	}
 
 	@Test

@@ -61,16 +61,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		return true;
 	}
 
-	@Override
-	protected SortOrder vetoRequestParameter(SortOrder order) {
-		return order != null ? order : SortOrder.Airdate;
-	}
-
-	@Override
-	protected Locale vetoRequestParameter(Locale language) {
-		return language != null ? language : Locale.ENGLISH;
-	}
-
 	public String getLanguageCode(Locale locale) {
 		String code = locale.getLanguage();
 
@@ -98,7 +88,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		// perform online search
 		Document dom = getXmlResource(MirrorType.SEARCH, "GetSeries.php?seriesname=" + encode(query, true) + "&language=" + getLanguageCode(locale));
 
-		Map<Integer, TheTVDBSearchResult> resultSet = new LinkedHashMap<Integer, TheTVDBSearchResult>();
+		Map<Integer, SearchResult> resultSet = new LinkedHashMap<Integer, SearchResult>();
 
 		for (Node node : selectNodes("Data/Series", dom)) {
 			int sid = matchInteger(getTextContent("seriesid", node));
@@ -119,7 +109,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			}
 
 			if (!resultSet.containsKey(sid)) {
-				resultSet.put(sid, new TheTVDBSearchResult(seriesName, aliasNames.toArray(new String[0]), sid));
+				resultSet.put(sid, new SearchResult(sid, seriesName, aliasNames));
 			}
 		}
 
@@ -127,14 +117,13 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
-	protected SeriesData fetchSeriesData(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception {
-		TheTVDBSearchResult series = (TheTVDBSearchResult) searchResult;
-		Document dom = getXmlResource(MirrorType.XML, "series/" + series.getSeriesId() + "/all/" + getLanguageCode(locale) + ".xml");
+	protected SeriesData fetchSeriesData(SearchResult series, SortOrder sortOrder, Locale locale) throws Exception {
+		Document dom = getXmlResource(MirrorType.XML, "series/" + series.getId() + "/all/" + getLanguageCode(locale) + ".xml");
 
 		// parse series info
 		Node seriesNode = selectNode("Data/Series", dom);
 		TheTVDBSeriesInfo seriesInfo = new TheTVDBSeriesInfo(getName(), sortOrder, locale, series.getId());
-		seriesInfo.setAliasNames(searchResult.getAliasNames());
+		seriesInfo.setAliasNames(series.getAliasNames());
 
 		seriesInfo.setName(getTextContent("SeriesName", seriesNode));
 		seriesInfo.setAirsDayOfWeek(getTextContent("Airs_DayOfWeek", seriesNode));
@@ -218,7 +207,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		return new SeriesData(seriesInfo, episodes);
 	}
 
-	public TheTVDBSearchResult lookupByID(int id, Locale language) throws Exception {
+	public SearchResult lookupByID(int id, Locale language) throws Exception {
 		if (id <= 0) {
 			throw new IllegalArgumentException("Illegal TheTVDB ID: " + id);
 		}
@@ -227,11 +216,11 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			Document dom = getXmlResource(MirrorType.XML, "series/" + id + "/all/" + getLanguageCode(language) + ".xml");
 			String name = selectString("//SeriesName", dom);
 
-			return new TheTVDBSearchResult(name, id);
+			return new SearchResult(id, name);
 		});
 	}
 
-	public TheTVDBSearchResult lookupByIMDbID(int imdbid, Locale locale) throws Exception {
+	public SearchResult lookupByIMDbID(int imdbid, Locale locale) throws Exception {
 		if (imdbid <= 0) {
 			throw new IllegalArgumentException("Illegal IMDbID ID: " + imdbid);
 		}
@@ -245,7 +234,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			if (id.isEmpty() || name.isEmpty())
 				return null;
 
-			return new TheTVDBSearchResult(name, Integer.parseInt(id));
+			return new SearchResult(Integer.parseInt(id), name);
 		});
 	}
 
@@ -335,13 +324,8 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
-	protected SearchResult createSearchResult(int id) {
-		return new TheTVDBSearchResult(null, id);
-	}
-
-	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
-		return URI.create("http://www.thetvdb.com/?tab=seasonall&id=" + ((TheTVDBSearchResult) searchResult).getSeriesId());
+		return URI.create("http://www.thetvdb.com/?tab=seasonall&id=" + searchResult.getId());
 	}
 
 	/**
@@ -349,7 +333,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	 *
 	 * @see http://thetvdb.com/wiki/index.php/API:banners.xml
 	 */
-	public BannerDescriptor getBanner(TheTVDBSearchResult series, Map<?, ?> filterDescriptor) throws Exception {
+	public BannerDescriptor getBanner(SearchResult series, Map<?, ?> filterDescriptor) throws Exception {
 		EnumMap<BannerProperty, String> filter = new EnumMap<BannerProperty, String>(BannerProperty.class);
 		for (Entry<?, ?> it : filterDescriptor.entrySet()) {
 			if (it.getValue() != null) {
@@ -367,7 +351,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		return null;
 	}
 
-	public List<BannerDescriptor> getBannerList(TheTVDBSearchResult series) throws Exception {
+	public List<BannerDescriptor> getBannerList(SearchResult series) throws Exception {
 		return getBannerCache().computeIfAbsent(series.getId(), it -> {
 			Document dom = getXmlResource(MirrorType.XML, "series/" + series.getId() + "/banners.xml");
 
@@ -382,9 +366,9 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		});
 	}
 
-	protected TypedCache<TheTVDBSearchResult> getLookupCache(String type, Locale language) {
+	protected TypedCache<SearchResult> getLookupCache(String type, Locale language) {
 		// lookup should always yield the same results so we can cache it for longer
-		return Cache.getCache(getName() + "_" + "lookup" + "_" + type + "_" + language, CacheType.Monthly).cast(TheTVDBSearchResult.class);
+		return Cache.getCache(getName() + "_" + "lookup" + "_" + type + "_" + language, CacheType.Monthly).cast(SearchResult.class);
 	}
 
 	protected TypedCache<List<BannerDescriptor>> getBannerCache() {

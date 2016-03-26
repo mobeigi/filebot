@@ -385,14 +385,14 @@ new File('anime-list.xml').eachLine('UTF-8') {
 }
 
 def anidb_index = anidb.findResults{
-	if (animeExcludes.contains(it.animeId))
+	if (animeExcludes.contains(it.id))
 		return null
 
 	def names = it.effectiveNames*.replaceAll(/\s+/, ' ')*.trim()*.replaceAll(/['`´‘’ʻ]+/, /'/)
 	names = getNamePermutations(names)
 	names = names.findAll{ stripReleaseInfo(it)?.length() > 0 }
 
-	return names.empty ? null : [it.animeId.pad(5)] + names.take(4)
+	return names.empty ? null : [it.id.pad(5)] + names.take(4)
 }
 
 // join and sort

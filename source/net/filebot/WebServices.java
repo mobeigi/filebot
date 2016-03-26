@@ -21,7 +21,6 @@ import net.filebot.media.XattrMetaInfoProvider;
 import net.filebot.similarity.MetricAvg;
 import net.filebot.web.AcoustIDClient;
 import net.filebot.web.AnidbClient;
-import net.filebot.web.AnidbSearchResult;
 import net.filebot.web.Datasource;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.FanartTVClient;
@@ -38,7 +37,6 @@ import net.filebot.web.SubtitleSearchResult;
 import net.filebot.web.TMDbClient;
 import net.filebot.web.TVMazeClient;
 import net.filebot.web.TheTVDBClient;
-import net.filebot.web.TheTVDBSearchResult;
 import net.filebot.web.VideoHashSubtitleService;
 import one.util.streamex.StreamEx;
 
@@ -120,7 +118,7 @@ public final class WebServices {
 		public synchronized LocalSearch<SearchResult> getLocalIndex() throws Exception {
 			if (localIndex == null) {
 				// fetch data dump
-				TheTVDBSearchResult[] data = releaseInfo.getTheTVDBIndex();
+				SearchResult[] data = releaseInfo.getTheTVDBIndex();
 
 				// index data dump
 				localIndex = new LocalSearch<SearchResult>(asList(data)) {
@@ -142,7 +140,7 @@ public final class WebServices {
 			int id = prime.getId();
 			String name = prime.getName();
 			String[] aliasNames = StreamEx.of(group).flatMap(it -> stream(it.getAliasNames())).remove(name::equals).distinct().toArray(String[]::new);
-			return new TheTVDBSearchResult(name, aliasNames, id);
+			return new SearchResult(id, name, aliasNames);
 		}
 
 		@Override
@@ -165,7 +163,7 @@ public final class WebServices {
 		}
 
 		@Override
-		public List<AnidbSearchResult> getAnimeTitles() throws Exception {
+		public List<SearchResult> getAnimeTitles() throws Exception {
 			return asList(releaseInfo.getAnidbIndex());
 		}
 	}

@@ -45,11 +45,6 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
-	protected SearchResult createSearchResult(int id) {
-		return new TVMazeSearchResult(id, null);
-	}
-
-	@Override
 	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception {
 		// e.g. http://api.tvmaze.com/search/shows?q=girls
 		Object response = request("search/shows?q=" + encode(query, true));
@@ -60,11 +55,11 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 			Integer id = getInteger(show, "id");
 			String name = getString(show, "name");
 
-			return new TVMazeSearchResult(id, name);
+			return new SearchResult(id, name);
 		}).collect(toList());
 	}
 
-	protected SeriesInfo fetchSeriesInfo(TVMazeSearchResult show, SortOrder sortOrder, Locale locale) throws Exception {
+	protected SeriesInfo fetchSeriesInfo(SearchResult show, SortOrder sortOrder, Locale locale) throws Exception {
 		// e.g. http://api.tvmaze.com/shows/1
 		Object response = request("shows/" + show.getId());
 
@@ -88,7 +83,7 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 
 	@Override
 	protected SeriesData fetchSeriesData(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception {
-		SeriesInfo seriesInfo = fetchSeriesInfo((TVMazeSearchResult) searchResult, sortOrder, locale);
+		SeriesInfo seriesInfo = fetchSeriesInfo(searchResult, sortOrder, locale);
 
 		// e.g. http://api.tvmaze.com/shows/1/episodes
 		Object response = request("shows/" + seriesInfo.getId() + "/episodes");
@@ -116,7 +111,7 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
-		return URI.create("http://www.tvmaze.com/shows/" + ((TVMazeSearchResult) searchResult).getId());
+		return URI.create("http://www.tvmaze.com/shows/" + searchResult.getId());
 	}
 
 }

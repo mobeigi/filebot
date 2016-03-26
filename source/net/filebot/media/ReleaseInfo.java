@@ -44,10 +44,9 @@ import net.filebot.CacheType;
 import net.filebot.Resource;
 import net.filebot.util.FileUtilities.RegexFileFilter;
 import net.filebot.util.SystemProperty;
-import net.filebot.web.AnidbSearchResult;
 import net.filebot.web.Movie;
+import net.filebot.web.SearchResult;
 import net.filebot.web.SubtitleSearchResult;
-import net.filebot.web.TheTVDBSearchResult;
 
 public class ReleaseInfo {
 
@@ -337,11 +336,11 @@ public class ReleaseInfo {
 		return seriesMappings.get();
 	}
 
-	public TheTVDBSearchResult[] getTheTVDBIndex() throws Exception {
+	public SearchResult[] getTheTVDBIndex() throws Exception {
 		return tvdbIndex.get();
 	}
 
-	public AnidbSearchResult[] getAnidbIndex() throws Exception {
+	public SearchResult[] getAnidbIndex() throws Exception {
 		return anidbIndex.get();
 	}
 
@@ -405,26 +404,19 @@ public class ReleaseInfo {
 	protected final Resource<String[]> queryBlacklist = lines("url.query-blacklist", Cache.ONE_WEEK);
 	protected final Resource<String[]> excludeBlacklist = lines("url.exclude-blacklist", Cache.ONE_WEEK);
 
-	protected final Resource<TheTVDBSearchResult[]> tvdbIndex = tsv("url.thetvdb-index", Cache.ONE_WEEK, this::parseSeries, TheTVDBSearchResult[]::new);
-	protected final Resource<AnidbSearchResult[]> anidbIndex = tsv("url.anidb-index", Cache.ONE_WEEK, this::parseAnime, AnidbSearchResult[]::new);
+	protected final Resource<SearchResult[]> tvdbIndex = tsv("url.thetvdb-index", Cache.ONE_WEEK, this::parseSeries, SearchResult[]::new);
+	protected final Resource<SearchResult[]> anidbIndex = tsv("url.anidb-index", Cache.ONE_WEEK, this::parseSeries, SearchResult[]::new);
 
 	protected final Resource<Movie[]> movieIndex = tsv("url.movie-list", Cache.ONE_MONTH, this::parseMovie, Movie[]::new);
 	protected final Resource<SubtitleSearchResult[]> osdbIndex = tsv("url.osdb-index", Cache.ONE_MONTH, this::parseSubtitle, SubtitleSearchResult[]::new);
 
 	protected final SystemProperty<Duration> refreshDuration = SystemProperty.of("url.refresh", Duration::parse, null);
 
-	private TheTVDBSearchResult parseSeries(String[] v) {
+	private SearchResult parseSeries(String[] v) {
 		int id = parseInt(v[0]);
 		String name = v[1];
 		String[] aliasNames = copyOfRange(v, 2, v.length);
-		return new TheTVDBSearchResult(name, aliasNames, id);
-	}
-
-	private AnidbSearchResult parseAnime(String[] v) {
-		int aid = parseInt(v[0]);
-		String primaryTitle = v[1];
-		String[] aliasNames = copyOfRange(v, 2, v.length);
-		return new AnidbSearchResult(aid, primaryTitle, aliasNames);
+		return new SearchResult(id, name, aliasNames);
 	}
 
 	private Movie parseMovie(String[] v) {

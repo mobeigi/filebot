@@ -16,17 +16,19 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 
 	protected abstract SeriesData fetchSeriesData(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception;
 
-	protected abstract SearchResult createSearchResult(int id);
-
-	protected abstract SortOrder vetoRequestParameter(SortOrder order);
-
-	protected abstract Locale vetoRequestParameter(Locale language);
-
 	@Override
 	public List<SearchResult> search(String query, Locale language) throws Exception {
 		return getSearchCache(language).computeIfAbsent(query, it -> {
 			return fetchSearchResult(query, language);
 		});
+	}
+
+	protected SortOrder vetoRequestParameter(SortOrder order) {
+		return order == null ? SortOrder.Airdate : order;
+	}
+
+	protected Locale vetoRequestParameter(Locale language) {
+		return language == null || language.getLanguage().isEmpty() ? Locale.ENGLISH : language;
 	}
 
 	@Override
@@ -36,7 +38,7 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 
 	@Override
 	public List<Episode> getEpisodeList(int id, SortOrder order, Locale language) throws Exception {
-		return getEpisodeList(createSearchResult(id), order, language);
+		return getEpisodeList(new SearchResult(id, null), order, language);
 	}
 
 	@Override
@@ -46,7 +48,7 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 
 	@Override
 	public SeriesInfo getSeriesInfo(int id, Locale language) throws Exception {
-		return getSeriesInfo(createSearchResult(id), language);
+		return getSeriesInfo(new SearchResult(id, null), language);
 	}
 
 	protected SeriesData getSeriesData(SearchResult searchResult, SortOrder order, Locale language) throws Exception {

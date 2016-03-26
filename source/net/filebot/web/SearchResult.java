@@ -4,9 +4,10 @@ import static java.util.Collections.*;
 
 import java.io.Serializable;
 import java.util.AbstractList;
+import java.util.Collection;
 import java.util.List;
 
-public abstract class SearchResult implements Serializable {
+public class SearchResult implements Serializable {
 
 	protected int id;
 	protected String name;
@@ -17,9 +18,11 @@ public abstract class SearchResult implements Serializable {
 	}
 
 	public SearchResult(int id, String name) {
-		this.id = id;
-		this.name = name;
-		this.aliasNames = EMPTY_STRING_ARRAY;
+		this(id, name, EMPTY_STRING_ARRAY);
+	}
+
+	public SearchResult(int id, String name, Collection<String> aliasNames) {
+		this(id, name, aliasNames.toArray(EMPTY_STRING_ARRAY));
 	}
 
 	public SearchResult(int id, String name, String[] aliasNames) {
@@ -80,8 +83,10 @@ public abstract class SearchResult implements Serializable {
 	}
 
 	@Override
-	public abstract SearchResult clone();
+	public SearchResult clone() {
+		return new SearchResult(id, name, aliasNames);
+	}
 
-	protected static final String[] EMPTY_STRING_ARRAY = new String[0];
+	private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
 }

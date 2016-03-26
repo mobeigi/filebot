@@ -17,6 +17,10 @@ public class TheTVDBClientTest {
 
 	TheTVDBClient thetvdb = new TheTVDBClient("BA864DEE427E384A");
 
+	SearchResult buffy = new SearchResult(70327, "Buffy the Vampire Slayer");
+	SearchResult wonderfalls = new SearchResult(78845, "Wonderfalls");
+	SearchResult firefly = new SearchResult(78874, "Firefly");
+
 	@Test
 	public void search() throws Exception {
 		// test default language and query escaping (blanks)
@@ -24,10 +28,10 @@ public class TheTVDBClientTest {
 
 		assertEquals(2, results.size());
 
-		TheTVDBSearchResult first = (TheTVDBSearchResult) results.get(0);
+		SearchResult first = results.get(0);
 
 		assertEquals("Babylon 5", first.getName());
-		assertEquals(70726, first.getSeriesId());
+		assertEquals(70726, first.getId());
 	}
 
 	@Test
@@ -36,15 +40,15 @@ public class TheTVDBClientTest {
 
 		assertEquals(2, results.size());
 
-		TheTVDBSearchResult first = (TheTVDBSearchResult) results.get(0);
+		SearchResult first = results.get(0);
 
 		assertEquals("Buffy the Vampire Slayer", first.getName());
-		assertEquals(70327, first.getSeriesId());
+		assertEquals(70327, first.getId());
 	}
 
 	@Test
 	public void getEpisodeListAll() throws Exception {
-		List<Episode> list = thetvdb.getEpisodeList(new TheTVDBSearchResult("Buffy the Vampire Slayer", 70327), SortOrder.Airdate, Locale.ENGLISH);
+		List<Episode> list = thetvdb.getEpisodeList(buffy, SortOrder.Airdate, Locale.ENGLISH);
 
 		assertTrue(list.size() >= 144);
 
@@ -71,7 +75,7 @@ public class TheTVDBClientTest {
 
 	@Test
 	public void getEpisodeListSingleSeason() throws Exception {
-		List<Episode> list = thetvdb.getEpisodeList(new TheTVDBSearchResult("Wonderfalls", 78845), SortOrder.Airdate, Locale.ENGLISH);
+		List<Episode> list = thetvdb.getEpisodeList(wonderfalls, SortOrder.Airdate, Locale.ENGLISH);
 
 		Episode first = list.get(0);
 
@@ -86,7 +90,7 @@ public class TheTVDBClientTest {
 
 	@Test
 	public void getEpisodeListNumbering() throws Exception {
-		List<Episode> list = thetvdb.getEpisodeList(new TheTVDBSearchResult("Firefly", 78874), SortOrder.DVD, Locale.ENGLISH);
+		List<Episode> list = thetvdb.getEpisodeList(firefly, SortOrder.DVD, Locale.ENGLISH);
 
 		Episode first = list.get(0);
 		assertEquals("Firefly", first.getSeriesName());
@@ -98,9 +102,8 @@ public class TheTVDBClientTest {
 		assertEquals("2002-12-20", first.getAirdate().toString());
 	}
 
-	@Test
 	public void getEpisodeListLink() {
-		assertEquals("http://www.thetvdb.com/?tab=seasonall&id=78874", thetvdb.getEpisodeListLink(new TheTVDBSearchResult("Firefly", 78874)).toString());
+		assertEquals("http://www.thetvdb.com/?tab=seasonall&id=78874", thetvdb.getEpisodeListLink(firefly).toString());
 	}
 
 	@Test
@@ -114,21 +117,21 @@ public class TheTVDBClientTest {
 
 	@Test
 	public void lookupByID() throws Exception {
-		TheTVDBSearchResult series = thetvdb.lookupByID(78874, Locale.ENGLISH);
+		SearchResult series = thetvdb.lookupByID(78874, Locale.ENGLISH);
 		assertEquals("Firefly", series.getName());
-		assertEquals(78874, series.getSeriesId());
+		assertEquals(78874, series.getId());
 	}
 
 	@Test
 	public void lookupByIMDbID() throws Exception {
-		TheTVDBSearchResult series = thetvdb.lookupByIMDbID(303461, Locale.ENGLISH);
+		SearchResult series = thetvdb.lookupByIMDbID(303461, Locale.ENGLISH);
 		assertEquals("Firefly", series.getName());
-		assertEquals(78874, series.getSeriesId());
+		assertEquals(78874, series.getId());
 	}
 
 	@Test
 	public void getSeriesInfo() throws Exception {
-		TheTVDBSeriesInfo it = (TheTVDBSeriesInfo) thetvdb.getSeriesInfo(new TheTVDBSearchResult(null, 80348), Locale.ENGLISH);
+		TheTVDBSeriesInfo it = (TheTVDBSeriesInfo) thetvdb.getSeriesInfo(80348, Locale.ENGLISH);
 
 		assertEquals(80348, it.getId(), 0);
 		assertEquals("TV-PG", it.getContentRating());
@@ -149,7 +152,7 @@ public class TheTVDBClientTest {
 		filter.put("Season", "7");
 		filter.put("Language", "en");
 
-		BannerDescriptor banner = thetvdb.getBanner(new TheTVDBSearchResult("Buffy the Vampire Slayer", 70327), filter);
+		BannerDescriptor banner = thetvdb.getBanner(buffy, filter);
 
 		assertEquals(857660, banner.getId(), 0);
 		assertEquals("season", banner.getBannerType());
@@ -160,7 +163,7 @@ public class TheTVDBClientTest {
 
 	@Test
 	public void getBannerList() throws Exception {
-		List<BannerDescriptor> banners = thetvdb.getBannerList(new TheTVDBSearchResult("Buffy the Vampire Slayer", 70327));
+		List<BannerDescriptor> banners = thetvdb.getBannerList(buffy);
 
 		assertEquals("fanart", banners.get(0).getBannerType());
 		assertEquals("1280x720", banners.get(0).getBannerType2());

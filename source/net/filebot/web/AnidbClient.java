@@ -70,11 +70,6 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
-	protected Locale vetoRequestParameter(Locale language) {
-		return language != null ? language : Locale.ENGLISH;
-	}
-
-	@Override
 	protected Cache getCache(String section) {
 		return Cache.getCache(getName() + "_" + section, CacheType.Weekly);
 	}
@@ -98,11 +93,9 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
-	protected SeriesData fetchSeriesData(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception {
-		AnidbSearchResult anime = (AnidbSearchResult) searchResult;
-
+	protected SeriesData fetchSeriesData(SearchResult anime, SortOrder sortOrder, Locale locale) throws Exception {
 		// e.g. http://api.anidb.net:9001/httpapi?request=anime&client=filebot&clientver=1&protover=1&aid=4521
-		URL url = new URL("http://api.anidb.net:9001/httpapi?request=anime&client=" + client + "&clientver=" + clientver + "&protover=1&aid=" + anime.getAnimeId());
+		URL url = new URL("http://api.anidb.net:9001/httpapi?request=anime&client=" + client + "&clientver=" + clientver + "&protover=1&aid=" + anime.getId());
 
 		// respect flood protection limits
 		REQUEST_LIMIT.acquirePermit();
@@ -112,7 +105,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 
 		// parse series info
 		SeriesInfo seriesInfo = new SeriesInfo(getName(), sortOrder, locale, anime.getId());
-		seriesInfo.setAliasNames(searchResult.getAliasNames());
+		seriesInfo.setAliasNames(anime.getAliasNames());
 
 		// AniDB types: Movie, Music Video, Other, OVA, TV Series, TV Special, Web, unknown
 		String animeType = selectString("//type", dom);
@@ -179,11 +172,6 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
-	protected SearchResult createSearchResult(int id) {
-		return new AnidbSearchResult(id, null, new String[0]);
-	}
-
-	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
 		try {
 			return new URI("http://anidb.net/a" + searchResult.getId());
@@ -195,7 +183,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	/**
 	 * This method is overridden in {@link net.filebot.WebServices.AnidbClientWithLocalSearch} to fetch the Anime Index from our own host and not anidb.net
 	 */
-	public synchronized List<AnidbSearchResult> getAnimeTitles() throws Exception {
+	public synchronized List<SearchResult> getAnimeTitles() throws Exception {
 		// get data file (unzip and cache)
 		byte[] bytes = getCache("root").bytes("anime-titles.dat.gz", n -> new URL("http://anidb.net/api/" + n)).get();
 
@@ -242,7 +230,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		}
 
 		// build up a list of all possible AniDB search results
-		List<AnidbSearchResult> anime = new ArrayList<AnidbSearchResult>(entriesByAnime.size());
+		List<SearchResult> anime = new ArrayList<SearchResult>(entriesByAnime.size());
 
 		entriesByAnime.forEach((aid, triples) -> {
 			List<String> names = triples.stream().sorted((a, b) -> {
@@ -255,8 +243,8 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 			}).map(it -> (String) it[2]).collect(toList());
 
 			String primaryTitle = names.get(0);
-			String[] aliasNames = names.subList(1, names.size()).toArray(new String[0]);
-			anime.add(new AnidbSearchResult(aid, primaryTitle, aliasNames));
+			List<String> aliasNames = names.subList(1, names.size());
+			anime.add(new SearchResult(aid, primaryTitle, aliasNames));
 		});
 
 		return anime;

@@ -66,7 +66,6 @@ import net.filebot.web.MovieIdentificationService;
 import net.filebot.web.SearchResult;
 import net.filebot.web.SeriesInfo;
 import net.filebot.web.SimpleDate;
-import net.filebot.web.TheTVDBSearchResult;
 
 public class MediaDetection {
 
@@ -1221,14 +1220,14 @@ public class MediaDetection {
 				String text = new String(readFile(nfo), "UTF-8");
 
 				for (int imdbid : grepImdbId(text)) {
-					TheTVDBSearchResult series = WebServices.TheTVDB.lookupByIMDbID(imdbid, language);
+					SearchResult series = WebServices.TheTVDB.lookupByIMDbID(imdbid, language);
 					if (series != null) {
 						names.add(series);
 					}
 				}
 
 				for (int tvdbid : grepTheTvdbId(text)) {
-					TheTVDBSearchResult series = WebServices.TheTVDB.lookupByID(tvdbid, language);
+					SearchResult series = WebServices.TheTVDB.lookupByID(tvdbid, language);
 					if (series != null) {
 						names.add(series);
 					}
