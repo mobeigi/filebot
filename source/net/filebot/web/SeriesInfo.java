@@ -1,6 +1,7 @@
 package net.filebot.web;
 
 import static java.util.Arrays.*;
+import static java.util.Collections.*;
 
 import java.io.Serializable;
 import java.util.List;
@@ -97,7 +98,7 @@ public class SeriesInfo implements Serializable {
 	}
 
 	public List<String> getAliasNames() {
-		return aliasNames == null ? asList() : asList(aliasNames.clone());
+		return aliasNames == null ? emptyList() : asList(aliasNames.clone());
 	}
 
 	public void setAliasNames(String... aliasNames) {
@@ -105,7 +106,7 @@ public class SeriesInfo implements Serializable {
 	}
 
 	public List<String> getActors() {
-		return actors == null ? asList() : asList(actors.clone());
+		return actors == null ? emptyList() : asList(actors.clone());
 	}
 
 	public void setActors(List<String> actors) {
@@ -129,7 +130,7 @@ public class SeriesInfo implements Serializable {
 	}
 
 	public List<String> getGenres() {
-		return genres == null ? asList() : asList(genres.clone());
+		return genres == null ? emptyList() : asList(genres.clone());
 	}
 
 	public void setGenres(List<String> genres) {

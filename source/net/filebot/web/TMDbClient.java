@@ -7,6 +7,7 @@ import static net.filebot.CachedResource.*;
 import static net.filebot.Logging.*;
 import static net.filebot.util.JsonUtilities.*;
 import static net.filebot.util.StringUtilities.*;
+import static net.filebot.web.EpisodeUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
 import java.io.File;
@@ -40,7 +41,7 @@ import net.filebot.ResourceManager;
 import net.filebot.web.TMDbClient.MovieInfo.MovieProperty;
 import net.filebot.web.TMDbClient.Person.PersonProperty;
 
-public class TMDbClient implements MovieIdentificationService {
+public class TMDbClient extends AbstractEpisodeListProvider implements MovieIdentificationService {
 
 	private static final String host = "api.themoviedb.org";
 	private static final String version = "3";
@@ -64,14 +65,18 @@ public class TMDbClient implements MovieIdentificationService {
 		return ResourceManager.getIcon("search.themoviedb");
 	}
 
+	private Matcher getNameYearMatcher(String query) {
+		return Pattern.compile("(.+)\\b[(]?((?:19|20)\\d{2})[)]?$").matcher(query.trim());
+	}
+
 	@Override
 	public List<Movie> searchMovie(String query, Locale locale) throws Exception {
 		// query by name with year filter if possible
-		Matcher nameYear = Pattern.compile("(.+)\\b\\(?(19\\d{2}|20\\d{2})\\)?$").matcher(query.trim());
+		Matcher nameYear = getNameYearMatcher(query);
 		if (nameYear.matches()) {
 			return searchMovie(nameYear.group(1).trim(), Integer.parseInt(nameYear.group(2)), locale, false);
 		} else {
-			return searchMovie(query, -1, locale, false);
+			return searchMovie(query.trim(), -1, locale, false);
 		}
 	}
 
@@ -81,13 +86,12 @@ public class TMDbClient implements MovieIdentificationService {
 			return emptyList();
 		}
 
-		Map<String, Object> param = new LinkedHashMap<String, Object>(2);
-		param.put("query", movieName);
+		Map<String, Object> query = new LinkedHashMap<String, Object>(2);
+		query.put("query", movieName);
 		if (movieYear > 0) {
-			param.put("year", movieYear);
+			query.put("year", movieYear);
 		}
-
-		Object response = request("search/movie", param, locale, SEARCH_LIMIT);
+		Object response = request("search/movie", query, locale, SEARCH_LIMIT);
 
 		// e.g. {"id":16320,"title":"冲出宁静号","release_date":"2005-09-30","original_title":"Serenity"}
 		return streamJsonObjects(response, "results").map(it -> {
@@ -106,31 +110,37 @@ public class TMDbClient implements MovieIdentificationService {
 				title = originalTitle;
 			}
 
-			Set<String> alternativeTitles = new LinkedHashSet<String>();
-			if (originalTitle != null) {
-				alternativeTitles.add(originalTitle);
-			}
-
-			if (extendedInfo) {
-				try {
-					Object titles = request("movie/" + id + "/alternative_titles", emptyMap(), Locale.ENGLISH, REQUEST_LIMIT);
-					streamJsonObjects(titles, "titles").map(n -> {
-						return getString(n, "title");
-					}).filter(t -> t != null && t.length() >= 3).forEach(alternativeTitles::add);
-				} catch (Exception e) {
-					debug.warning(format("Failed to fetch alternative titles for %s [%d] => %s", title, id, e));
-				}
-			}
-
-			// make sure main title is not in the set of alternative titles
-			alternativeTitles.remove(title);
+			Set<String> alternativeTitles = getAlternativeTitles("movie/" + id, "titles", title, originalTitle, extendedInfo);
 
 			return new Movie(title, alternativeTitles.toArray(new String[0]), year, -1, id, locale);
 		}).filter(Objects::nonNull).collect(toList());
 	}
 
+	private Set<String> getAlternativeTitles(String path, String key, String title, String originalTitle, boolean extendedInfo) {
+		Set<String> alternativeTitles = new LinkedHashSet<String>();
+		if (originalTitle != null) {
+			alternativeTitles.add(originalTitle);
+		}
+
+		if (extendedInfo) {
+			try {
+				Object response = request(path + "/alternative_titles", emptyMap(), Locale.ENGLISH, REQUEST_LIMIT);
+				streamJsonObjects(response, key).map(n -> {
+					return getString(n, "title");
+				}).filter(Objects::nonNull).filter(n -> n.length() >= 2).forEach(alternativeTitles::add);
+			} catch (Exception e) {
+				debug.warning(format("Failed to fetch alternative titles for %s => %s", path, e));
+			}
+		}
+
+		// make sure main title is not in the set of alternative titles
+		alternativeTitles.remove(title);
+
+		return alternativeTitles;
+	}
+
 	public URI getMoviePageLink(int tmdbid) {
-		return URI.create("http://www.themoviedb.org/movie/" + tmdbid);
+		return URI.create("https://www.themoviedb.org/movie/" + tmdbid);
 	}
 
 	@Override
@@ -714,6 +724,109 @@ public class TMDbClient implements MovieIdentificationService {
 			return String.format("%s %s (%s)", name, sources.keySet(), type);
 		}
 
+	}
+
+	@Override
+	public boolean hasSeasonSupport() {
+		return true;
+	}
+
+	@Override
+	protected SortOrder vetoRequestParameter(SortOrder order) {
+		return SortOrder.Airdate;
+	}
+
+	@Override
+	public URI getEpisodeListLink(SearchResult searchResult) {
+		return URI.create("https://www.themoviedb.org/tv/" + searchResult.getId());
+	}
+
+	@Override
+	protected List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception {
+		// query by name with year filter if possible
+		Matcher nameYear = getNameYearMatcher(query);
+		if (nameYear.matches()) {
+			return searchTV(nameYear.group(1).trim(), Integer.parseInt(nameYear.group(2)), locale, true);
+		} else {
+			return searchTV(query.trim(), -1, locale, true);
+		}
+	}
+
+	public List<SearchResult> searchTV(String seriesName, int startYear, Locale locale, boolean extendedInfo) throws Exception {
+		Map<String, Object> query = new LinkedHashMap<String, Object>(2);
+		query.put("query", seriesName);
+		if (startYear > 0) {
+			query.put("first_air_date_year", startYear);
+		}
+		Object response = request("search/tv", query, locale, SEARCH_LIMIT);
+
+		return streamJsonObjects(response, "results").map(it -> {
+			Integer id = getInteger(it, "id");
+			String name = getString(it, "name");
+			String originalName = getString(it, "original_name");
+
+			if (name == null) {
+				name = originalName;
+			}
+
+			if (id == null || name == null) {
+				return null;
+			}
+
+			Set<String> alternativeTitles = getAlternativeTitles("tv/" + id, "results", name, originalName, extendedInfo);
+
+			return new SearchResult(id, name, alternativeTitles);
+		}).filter(Objects::nonNull).collect(toList());
+	}
+
+	@Override
+	protected SeriesData fetchSeriesData(SearchResult series, SortOrder sortOrder, Locale locale) throws Exception {
+		// http://api.themoviedb.org/3/tv/id
+		Object tv = request("tv/" + series.getId(), emptyMap(), locale, REQUEST_LIMIT);
+
+		SeriesInfo info = new SeriesInfo(getName(), sortOrder, locale, series.getId());
+		info.setName(Stream.of("original_name", "name").map(key -> getString(tv, key)).filter(Objects::nonNull).findFirst().orElse(series.getName()));
+		info.setAliasNames(series.getAliasNames());
+		info.setStatus(getString(tv, "status"));
+		info.setLanguage(getString(tv, "original_language"));
+		info.setStartDate(getStringValue(tv, "first_air_date", SimpleDate::parse));
+		info.setRating(getStringValue(tv, "vote_average", Double::new));
+		info.setRatingCount(getStringValue(tv, "vote_count", Integer::new));
+		info.setRuntime(stream(getArray(tv, "episode_run_time")).map(Object::toString).map(Integer::new).findFirst().orElse(null));
+		info.setGenres(streamJsonObjects(tv, "genres").map(it -> getString(it, "name")).collect(toList()));
+		info.setNetwork(streamJsonObjects(tv, "networks").map(it -> getString(it, "name")).findFirst().orElse(null));
+
+		int[] seasons = streamJsonObjects(tv, "seasons").mapToInt(it -> getInteger(it, "season_number")).toArray();
+		List<Episode> episodes = new ArrayList<Episode>();
+		List<Episode> specials = new ArrayList<Episode>();
+
+		for (int s : seasons) {
+			// http://api.themoviedb.org/3/tv/id/season/season_number
+			Object season = request("tv/" + series.getId() + "/season/" + s, emptyMap(), locale, REQUEST_LIMIT);
+
+			streamJsonObjects(season, "episodes").forEach(episode -> {
+				Integer episodeNumber = getInteger(episode, "episode_number");
+				Integer seasonNumber = getInteger(episode, "season_number");
+				String episodeTitle = getString(episode, "name");
+				SimpleDate airdate = getStringValue(episode, "air_date", SimpleDate::parse);
+
+				Integer absoluteNumber = episodes.size() + 1;
+
+				if (s > 0) {
+					episodes.add(new Episode(series.getName(), seasonNumber, episodeNumber, episodeTitle, absoluteNumber, null, airdate, info));
+				} else {
+					specials.add(new Episode(series.getName(), null, null, episodeTitle, null, episodeNumber, airdate, info));
+				}
+			});
+		}
+
+		// episodes my not be ordered by DVD episode number
+		episodes.sort(episodeComparator());
+
+		// add specials at the end
+		episodes.addAll(specials);
+
+		return new SeriesData(info, episodes);
 	}
 
 }

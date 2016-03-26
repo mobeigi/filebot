@@ -90,8 +90,64 @@ public class TMDbClientTest {
 	@Test
 	public void getArtwork() throws Exception {
 		List<Artwork> artwork = tmdb.getArtwork("tt0418279");
-		assertEquals("posters", artwork.get(0).getCategory());
-		assertEquals("http://image.tmdb.org/t/p/original/bgSHbGEA1OM6qDs3Qba4VlSZsNG.jpg", artwork.get(0).getUrl().toString());
+		assertEquals("backdrops", artwork.get(0).getCategory());
+		assertEquals("https://image.tmdb.org/t/p/original/ac0HwGJIU3GxjjGujlIjLJmAGPR.jpg", artwork.get(0).getUrl().toString());
+	}
+
+	SearchResult buffy = new SearchResult(95, "Buffy the Vampire Slayer");
+	SearchResult wonderfalls = new SearchResult(1982, "Wonderfalls");
+	SearchResult firefly = new SearchResult(1437, "Firefly");
+
+	@Test
+	public void search() throws Exception {
+		// test default language and query escaping (blanks)
+		List<SearchResult> results = tmdb.search("babylon 5", Locale.ENGLISH);
+
+		assertEquals(1, results.size());
+
+		assertEquals("Babylon 5", results.get(0).getName());
+		assertEquals(3137, results.get(0).getId());
+	}
+
+	@Test
+	public void getEpisodeListAll() throws Exception {
+		List<Episode> list = tmdb.getEpisodeList(buffy, SortOrder.Airdate, Locale.ENGLISH);
+
+		assertTrue(list.size() >= 144);
+
+		// check ordinary episode
+		Episode first = list.get(0);
+		assertEquals("Buffy the Vampire Slayer", first.getSeriesName());
+		assertEquals("1997-03-10", first.getSeriesInfo().getStartDate().toString());
+		assertEquals("Welcome to the Hellmouth (1)", first.getTitle());
+		assertEquals("1", first.getEpisode().toString());
+		assertEquals("1", first.getSeason().toString());
+		assertEquals("1", first.getAbsolute().toString());
+		assertEquals("1997-03-10", first.getAirdate().toString());
+
+		// check special episode
+		Episode last = list.get(list.size() - 1);
+		assertEquals("Buffy the Vampire Slayer", last.getSeriesName());
+		assertEquals("Unaired Buffy the Vampire Slayer pilot", last.getTitle());
+		assertEquals(null, last.getSeason());
+		assertEquals(null, last.getEpisode());
+		assertEquals(null, last.getAbsolute());
+		assertEquals("1", last.getSpecial().toString());
+		assertEquals(null, last.getAirdate());
+	}
+
+	@Test
+	public void getEpisodeListSingleSeason() throws Exception {
+		List<Episode> list = tmdb.getEpisodeList(wonderfalls, SortOrder.Airdate, Locale.ENGLISH);
+
+		Episode first = list.get(0);
+		assertEquals("Wonderfalls", first.getSeriesName());
+		assertEquals("2004-03-12", first.getSeriesInfo().getStartDate().toString());
+		assertEquals("Wax Lion", first.getTitle());
+		assertEquals("1", first.getEpisode().toString());
+		assertEquals("1", first.getSeason().toString());
+		assertEquals("1", first.getAbsolute().toString());
+		assertEquals("2004-03-12", first.getAirdate().toString());
 	}
 
 	@Ignore

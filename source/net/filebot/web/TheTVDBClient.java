@@ -1,6 +1,5 @@
 package net.filebot.web;
 
-import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.util.StringUtilities.*;
@@ -199,7 +198,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 
 		// episodes my not be ordered by DVD episode number
-		sort(episodes, episodeComparator());
+		episodes.sort(episodeComparator());
 
 		// add specials at the end
 		episodes.addAll(specials);

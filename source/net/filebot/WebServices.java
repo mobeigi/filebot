@@ -66,7 +66,7 @@ public final class WebServices {
 	public static final XattrMetaInfoProvider XattrMetaData = new XattrMetaInfoProvider();
 
 	public static EpisodeListProvider[] getEpisodeListProviders() {
-		return new EpisodeListProvider[] { TheTVDB, AniDB, TVmaze };
+		return new EpisodeListProvider[] { TheTVDB, TheMovieDB, AniDB, TVmaze };
 	}
 
 	public static MovieIdentificationService[] getMovieIdentificationServices() {
@@ -89,6 +89,12 @@ public final class WebServices {
 	}
 
 	public static EpisodeListProvider getEpisodeListProvider(String name) {
+		// special handling for TheMovieDB which is the only datasource that supports both series and movie mode
+		if (name.equalsIgnoreCase(TheMovieDB.getName()))
+			return null;
+		if (name.equalsIgnoreCase(TheMovieDB.getName() + "::TV"))
+			return TheMovieDB;
+
 		return getService(name, getEpisodeListProviders());
 	}
 
