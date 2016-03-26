@@ -430,7 +430,7 @@ public class MediaDetection {
 		}
 
 		// DEBUG
-		debug.finest(format("Series Name => %s %s", names, matches));
+		debug.finest(format("Match Series Name => %s %s", names, matches));
 
 		try {
 			Collection<String> priorityMatchSet = new LinkedHashSet<String>();
@@ -446,7 +446,7 @@ public class MediaDetection {
 		List<String> querySet = getUniqueQuerySet(unids, names);
 
 		// DEBUG
-		debug.finest(format("Series Name => %s", querySet));
+		debug.finest(format("Query Series => %s", querySet));
 		return querySet;
 	}
 
@@ -948,7 +948,7 @@ public class MediaDetection {
 		querySet = getUniqueQuerySet(emptySet(), stripBlacklistedTerms(querySet));
 
 		// DEBUG
-		debug.finest(format("Query [%s] => %s", queryLookupService.getName(), querySet));
+		debug.finest(format("Query Movie => %s", queryLookupService.getName(), querySet));
 
 		final Map<Movie, Float> probabilityMap = new LinkedHashMap<Movie, Float>();
 		final SimilarityMetric metric = getMovieMatchMetric();
