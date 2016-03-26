@@ -3,22 +3,22 @@
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 		<meta name="keywords" content="rename tv shows, rename movies, download subtitles, check sfv files" />
-		
+
 		<title>FileBot Command-line Interface</title>
 		<meta name="description" content="The FileBot command-line interface will allow you to rename tv shows, download subtitles and do lots of other nifty things directly directly from the console. Running on an headless server is fully supported. Make sure to check out FileBot scripting as well for a new level of automation." />
-		
+
 		<meta itemprop="name" content="FileBot Command-line Interface" />
 		<meta itemprop="description" content="The FileBot command-line interface will allow you to rename tv shows, download subtitles and do lots of other nifty things directly directly from the console. Running on an headless server is fully supported. Make sure to check out FileBot scripting as well for a new level of automation." />
 		<meta itemprop="image" content="http://www.filebot.net/icon.png" />
-		
+
 		<link rel="stylesheet" href="base.css" type="text/css" />
 		<link rel="stylesheet" href="code.css" type="text/css" />
 		<link rel="icon" href="favicon.png" />
-		
+
 		<!-- google +1 -->
 		<script type="text/javascript">
 		  window.___gcfg = {lang: 'en-GB'};
-		
+
 		  (function() {
 		    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
 		    po.src = 'https://apis.google.com/js/plusone.js';
@@ -41,7 +41,7 @@
 		  js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1";
 		  fjs.parentNode.insertBefore(js, fjs);
 		}(document, 'script', 'facebook-jssdk'));</script>
-		
+
 		<div class="page">
 			<div class="navigation">
 				<div>
@@ -57,16 +57,16 @@
 				<div class="twitter">
 					<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://www.filebot.net/" data-text="FileBot - The ultimate tv renamer and subtitle downloader" data-via="filebot_renamer" data-lang="en"></a>
 				</div>
-				
+
 				<div class="facebook">
 					<div class="fb-like" data-href="https://www.facebook.com/filebot" data-send="false" data-layout="button_count" data-width="80" data-show-faces="false"></div>
 				</div>
-				
+
 				<div class="plusone">
 					<g:plusone href="http://www.filebot.net/"></g:plusone>
 				</div>
 			</div>
-			
+
 			<div class="header">
 				<a href="http://www.filebot.net"><img class="logo" alt="logo" src="images/filebot.logo.svg" width="64" height="64" /></a>
 				<h1>
@@ -74,7 +74,7 @@
 					<span class="description">Command-line interface usage manual</span>
 				</h1>
 			</div>
-			
+
 			<div class="content">
 				<div class="main-section-screenshot">
 					<a target="_blank" href="screenshots/cli.png"><img alt="FileBot command-line tools" width="330" height="221" src="screenshots/cli.png" /></a>
@@ -152,8 +152,8 @@
 					<code><span class="cmd">filebot</span> <span class="option">-script</span> <span class="argument">"path/to/script.groovy"</span> <span class="argument">args...</span></code>
 					Execute a given Groovy script. Find the manual on scripting <a href="script.html">here</a>.
 					</p>
-					
-					
+
+
 					<h2 class="reference" id="arguments">
 						Argument Reference
 						<a href="https://sourceforge.net/p/filebot/code/HEAD/tree/trunk/source/net/filebot/cli/ArgumentBean.java" class="source" target="_blank">source</a>
@@ -171,11 +171,11 @@
 						</tr>
 						<tr>
 							<td>--db</td>
-							<td>media database</td>
+							<td>database</td>
 							<td>
 							<table>
 								<tr>
-									<td>TV Series mode: TheTVDB, TVmaze, AniDB</td>
+									<td>Series mode: TheTVDB, AniDB</td>
 								</tr>
 								<tr>
 									<td>Movie mode: TheMovieDB, OMDb</td>
@@ -194,7 +194,7 @@
 						<tr>
 							<td>--format</td>
 							<td><a href="naming.html">naming scheme</a></td>
-							<td><a href="naming.html">movie or episode format expression</a></td>
+							<td><a href="naming.html">format expression</a></td>
 						</tr>
 						<tr>
 							<td>--action</td>
@@ -204,55 +204,50 @@
 						<tr>
 							<td>--conflict</td>
 							<td>conflict resolution</td>
-							<td>override | skip | fail</td>
+							<td>override | skip | index | fail</td>
 						</tr>
 						<tr>
 							<td>--filter</td>
-							<td>episode include rules</td>
-							<td>filter expression (e.g. &quot;y > 2000&quot;)</td>
+							<td><a href="https://www.filebot.net/forums/viewtopic.php?f=3&amp;t=2127" target="_blank">match filter rules</a></td>
+							<td>filter expression (e.g. <span style="font-family: monospace; color: #008800">y &gt; 2000</span>)</td>
 						</tr>
 						<tr>
 							<td>-get-subtitles</td>
-							<td>fetch subtitles</td>
-							<td>media folder or media file</td>
-						</tr>
-						<tr>
-							<td>-get-missing-subtitles</td>
 							<td>fetch missing subtitles</td>
-							<td>media folder or media file</td>
+							<td>media folder or video file</td>
 						</tr>
 						<tr>
 							<td>--q</td>
 							<td>search query</td>
-							<td>tv series or movie title</td>
+							<td>force movie or series name</td>
 						</tr>
 						<tr>
 							<td>--lang</td>
 							<td><a href="http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes" target="_blank">2-letter language code</a></td>
-							<td>en, de, fr, es, ja, zh, etc</td>
+							<td>en, de, fr, es, ja, zh, ...</td>
 						</tr>
 						<tr>
 							<td>-non-strict</td>
-							<td>use advanced matching</td>
+							<td>opportunistic match mode</td>
 							<td>
 								<table>
 								<tr>
-									<td>Rename mode: match multiple tv shows</td>
+									<td>Rename mode: required for tricky filenames</td>
 								</tr>
 								<tr>
-									<td>Subtitle mode: match subtitles by name</td>
+									<td>Subtitle mode: <a href="http://www.filebot.net/forums/viewtopic.php?f=3&amp;t=2615" target="_blank">enable fuzzy search</a></td>
 								</tr>
 							</table>
 							</td>
 						</tr>
 						<tr>
 							<td>-r</td>
-							<td>handle folders recursively</td>
+							<td>traverse folders recursively</td>
 							<td></td>
 						</tr>
 						<tr>
 							<td>-check</td>
-							<td>create/check sfv file</td>
+							<td>create or check sfv file</td>
 							<td>folder or sfv file</td>
 						</tr>
 						<tr>
@@ -269,10 +264,10 @@
 									<td>Rename mode: output folder</td>
 								</tr>
 								<tr>
-									<td>Subtitle mode: srt <small class="comment">(re-encode subtitles)</small></td>
+									<td>Subtitle mode: srt <small class="comment">(enable transcode non-srt subtitles)</small></td>
 								</tr>
 								<tr>
-									<td>Checksum mode: sfv, md5, sha1</td>
+									<td>Checksum mode: sfv, md5, sha256</td>
 								</tr>
 							</table>
 							</td>
@@ -280,7 +275,7 @@
 						<tr>
 							<td>--encoding</td>
 							<td>output charset</td>
-							<td>UTF-8, windows-1252, GB18030, etc</td>
+							<td>UTF-8, Windows-1252, GB18030, ...</td>
 						</tr>
 						<tr>
 							<td>-list</td>
@@ -300,7 +295,7 @@
 						<tr>
 							<td>--log</td>
 							<td>log level</td>
-							<td>all, config, info, warning</td>
+							<td>all, fine, info, warning, off</td>
 						</tr>
 						<tr>
 							<td>-clear-cache</td>
@@ -313,20 +308,30 @@
 							<td></td>
 						</tr>
 						<tr>
+							<td>-no-xattr</td>
+							<td>disable <a href="https://en.wikipedia.org/wiki/Extended_file_attributes" target="_blank">extended attributes</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>-version</td>
+							<td>print version</td>
+							<td></td>
+						</tr>
+						<tr>
 							<td>-help</td>
-							<td>print help message</td>
+							<td>print usage</td>
 							<td></td>
 						</tr>
 					</table>
 				</div>
-				
+
 				<p class="suggestion">
 				Need some help getting started? Check the <a href="https://www.filebot.net/forums/viewforum.php?f=4">forums</a>.
 				</p>
-				
+
 				<div class="metrics">
 				</div>
-				
+
 				<div class="footer">
 					<p>
 					Hosted on <a href="http://sourceforge.net/projects/filebot/">sourceforge.net</a> | Creative Commons License: Attribution-NonCommercial-ShareAlike © @{tstamp.year}
