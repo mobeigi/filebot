@@ -960,12 +960,8 @@ public class MediaDetection {
 
 		// sort by similarity to original query (descending)
 		List<Movie> results = new ArrayList<Movie>(probabilityMap.keySet());
-		sort(results, new Comparator<Movie>() {
-
-			@Override
-			public int compare(Movie a, Movie b) {
-				return probabilityMap.get(b).compareTo(probabilityMap.get(a));
-			}
+		results.sort((a, b) -> {
+			return probabilityMap.get(b).compareTo(probabilityMap.get(a));
 		});
 
 		return results;
