@@ -23,13 +23,13 @@ new File(dir_data).mkdirs()
 	def input = new URL("https://raw.githubusercontent.com/filebot/data/master/${it}")
 	def output = new File("${dir_data}/${it}")
 
+	log.fine input
 	def lines = new TreeSet(String.CASE_INSENSITIVE_ORDER)
 	input.getText('UTF-8').split(/\R/)*.trim().findAll{ it.length() > 0 }.each{
 		lines += Pattern.compile(it).pattern()
 	}
 
-	println input
-	lines.each{ println it }
+	lines.each{ log.finest it }
 	pack(output, lines)
 }
 
@@ -47,7 +47,7 @@ reviews = reviews.sort{ it.date }
 def json = new groovy.json.JsonBuilder()
 json.call(reviews as List)
 json.toPrettyString().saveAs("${dir_website}/reviews.json")
-println "Reviews: " + reviews.size()
+log.info "Reviews: " + reviews.size()
 
 
 /* ------------------------------------------------------------------------- */
@@ -72,7 +72,7 @@ def pack(file, lines) {
 	}
 	def rows = lines.size()
 	def columns = lines.collect{ it.split(/\t/).length }.max()
-	println "${file.canonicalFile} ($rows rows, $columns columns)"
+	log.info "${file.canonicalFile} ($rows rows, $columns columns)"
 }
 
 
@@ -142,7 +142,7 @@ new File('omdbMovies.txt').eachLine('Windows-1252'){
 		def genres = line[6]
 		def rating = tryQuietly{ line[12].toFloat() } ?: 0
 		def votes = tryQuietly{ line[13].replaceAll(/\D/, '').toInteger() } ?: 0
-		
+
 		if (!(genres =~ /Short/ || votes <= 100 || rating <= 2) && ((year >= 1970 && (runtime =~ /(\d.h)|(\d{2,3}.min)/ || votes >= 1000)) || (year >= 1950 && votes >= 20000))) {
 			omdb << [imdbid.pad(7), name, year]
 		}
@@ -170,13 +170,13 @@ omdb.each{ m ->
 		def names = [info.name, info.originalName] + info.alternativeTitles
 		[info?.released?.year, m[2]].findResults{ it?.toInteger() }.unique().each{ y ->
 			def row = [sync, m[0].pad(7), info.id.pad(7), y.pad(4)] + names
-			println row
+			log.info row
 			tmdb << row
 		}
 	} catch(IllegalArgumentException | FileNotFoundException e) {
 		printException(e, false)
 		def row = [sync, m[0].pad(7), 0, m[2], m[1]]
-		println row
+		log.info row
 		tmdb << row
 	}
 }
@@ -235,10 +235,10 @@ tvdb_updates.values().each{ update ->
 				def xml = new XmlSlurper().parse("http://thetvdb.com/api/BA864DEE427E384A/series/${update.id}/en.xml")
 				def imdbid = xml.Series.IMDB_ID.text()
 				seriesNames += xml.Series.SeriesName.text()
-				
+
 				def rating = tryQuietly{ xml.Series.Rating.text().toFloat() }
 				def votes = tryQuietly{ xml.Series.RatingCount.text().toFloat() }
-				
+
 				// only retrieve additional data for reasonably popular shows
 				if (votes >= 5 && rating >= 4) {
 					tryLogCatch{
@@ -258,22 +258,22 @@ tvdb_updates.values().each{ update ->
 												.sort{ it.attr('name').match(/\d+/) as int }
 												.collect{ it.attr('value') }
 												.findAll{ it?.length() > 0 }
-					
-					println "Scraped data $akaseries and $intlseries for series $seriesNames"
+
+					log.info "Scraped data $akaseries and $intlseries for series $seriesNames"
 					seriesNames += akaseries
 					seriesNames += intlseries
 				}
 
 				def data = [update.time, update.id, imdbid, rating ?: 0, votes ?: 0] + seriesNames.findAll{ it != null && it.length() > 0 }
 				tvdb.put(update.id, data)
-				println "Update $update => $data"
+				log.info "Update $update => $data"
 			}
 		}
 		catch(Throwable e) {
 			printException(e, false)
 			def data = [update.time, update.id, '', 0, 0]
 			tvdb.put(update.id, data)
-			println "Update $update => $data"
+			log.info "Update $update => $data"
 		}
 	}
 }
@@ -281,7 +281,7 @@ tvdb_updates.values().each{ update ->
 // remove entries that have become invalid
 tvdb.keySet().toList().each{ id ->
 	if (tvdb_updates[id] == null) {
-		println "Invalid ID found: ${tvdb[id]}"
+		log.info "Invalid ID found: ${tvdb[id]}"
 		tvdb.remove(id)
 	}
 }
@@ -294,7 +294,7 @@ tvdb.values().each{ r ->
 	def rating = r[3]
 	def votes = r[4]
 	def names = r.subList(5, r.size())
-	
+
 	if ((votes >= 5 && rating >= 4) || (votes >= 2 && rating >= 6) || (votes >= 1 && rating >= 10)) {
 		getNamePermutations(names).each{ n ->
 			thetvdb_index << [tvdb_id, n]
