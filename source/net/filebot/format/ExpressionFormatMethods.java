@@ -1,7 +1,6 @@
 package net.filebot.format;
 
 import static java.util.regex.Pattern.*;
-import groovy.lang.Closure;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,13 +17,14 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.filebot.similarity.Normalization;
-import net.filebot.util.FileUtilities;
-import net.filebot.util.StringUtilities;
-
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 
 import com.ibm.icu.text.Transliterator;
+
+import groovy.lang.Closure;
+import net.filebot.similarity.Normalization;
+import net.filebot.util.FileUtilities;
+import net.filebot.util.StringUtilities;
 
 public class ExpressionFormatMethods {
 
