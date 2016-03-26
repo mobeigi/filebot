@@ -17,7 +17,7 @@ public class TheTVDBSeriesInfo extends SeriesInfo implements Serializable {
 	protected String posterUrl;
 
 	protected TheTVDBSeriesInfo() {
-		super();
+
 	}
 
 	public TheTVDBSeriesInfo(TheTVDBSeriesInfo other) {
@@ -31,7 +31,7 @@ public class TheTVDBSeriesInfo extends SeriesInfo implements Serializable {
 		this.posterUrl = other.posterUrl;
 	}
 
-	public TheTVDBSeriesInfo(String database, SortOrder order, Locale language, Integer id) {
+	public TheTVDBSeriesInfo(Datasource database, SortOrder order, Locale language, Integer id) {
 		super(database, order, language, id);
 	}
 

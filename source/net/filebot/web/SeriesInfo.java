@@ -50,8 +50,8 @@ public class SeriesInfo implements Serializable {
 		this.status = other.status;
 	}
 
-	public SeriesInfo(String database, SortOrder order, Locale language, Integer id) {
-		this.database = database;
+	public SeriesInfo(Datasource database, SortOrder order, Locale language, Integer id) {
+		this.database = database.getIdentifier();
 		this.order = order.name();
 		this.language = language.getLanguage();
 		this.id = id;

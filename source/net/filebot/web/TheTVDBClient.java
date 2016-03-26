@@ -121,7 +121,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 		// parse series info
 		Node seriesNode = selectNode("Data/Series", dom);
-		TheTVDBSeriesInfo seriesInfo = new TheTVDBSeriesInfo(getName(), sortOrder, locale, series.getId());
+		TheTVDBSeriesInfo seriesInfo = new TheTVDBSeriesInfo(this, sortOrder, locale, series.getId());
 		seriesInfo.setAliasNames(series.getAliasNames());
 
 		seriesInfo.setName(getTextContent("SeriesName", seriesNode));

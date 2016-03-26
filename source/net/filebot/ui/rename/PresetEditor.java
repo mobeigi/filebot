@@ -33,6 +33,11 @@ import javax.swing.ListCellRenderer;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 
+import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
+
 import net.filebot.Language;
 import net.filebot.RenameAction;
 import net.filebot.ResourceManager;
@@ -49,11 +54,6 @@ import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.MovieIdentificationService;
 import net.filebot.web.SortOrder;
 import net.miginfocom.swing.MigLayout;
-
-import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rtextarea.RTextScrollPane;
 
 public class PresetEditor extends JDialog {
 
@@ -154,7 +154,7 @@ public class PresetEditor extends JDialog {
 		boolean input = selectRadio.isSelected();
 
 		inputPanel.setVisible(input);
-		sortOrderCombo.setEnabled(ds instanceof EpisodeListProvider && ((EpisodeListProvider) ds).hasSeasonSupport());
+		sortOrderCombo.setEnabled(ds instanceof EpisodeListProvider);
 		languageCombo.setEnabled(ds instanceof EpisodeListProvider || ds instanceof MovieIdentificationService);
 		matchModeCombo.setEnabled(ds instanceof EpisodeListProvider || ds instanceof MovieIdentificationService);
 	}
@@ -247,7 +247,7 @@ public class PresetEditor extends JDialog {
 				providers.addElement(it);
 			}
 		}
-		providers.addElement(PlainFileMatcher.INSTANCE);
+		providers.addElement(PlainFileMatcher.getInstance());
 
 		JComboBox<Datasource> combo = new JComboBox<Datasource>(providers);
 		combo.setRenderer(new ListCellRenderer<Object>() {

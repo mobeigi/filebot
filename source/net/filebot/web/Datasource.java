@@ -8,4 +8,8 @@ public interface Datasource {
 
 	Icon getIcon();
 
+	default String getIdentifier() {
+		return getName();
+	}
+
 }

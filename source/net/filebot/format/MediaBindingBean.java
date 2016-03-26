@@ -245,7 +245,7 @@ public class MediaBindingBean {
 
 		if (infoObject instanceof Episode) {
 			// force English series name for TheTVDB data
-			if (WebServices.TheTVDB.getName().equals(getSeriesInfo().getDatabase())) {
+			if (WebServices.TheTVDB.getIdentifier().equals(getSeriesInfo().getDatabase())) {
 				return WebServices.TheTVDB.getSeriesInfo(getSeriesInfo().getId(), Locale.ENGLISH).getName();
 			}
 
@@ -628,7 +628,7 @@ public class MediaBindingBean {
 
 		try {
 			if (infoObject instanceof Episode) {
-				if (WebServices.TheTVDB.getName().equals(getSeriesInfo().getDatabase())) {
+				if (WebServices.TheTVDB.getIdentifier().equals(getSeriesInfo().getDatabase())) {
 					TheTVDBSeriesInfo extendedSeriesInfo = (TheTVDBSeriesInfo) WebServices.TheTVDB.getSeriesInfo(getSeriesInfo().getId(), Locale.ENGLISH);
 					if (extendedSeriesInfo.getImdbId() != null) {
 						metaInfo = WebServices.OMDb.getMovieInfo(new Movie(null, -1, grepImdbId(extendedSeriesInfo.getImdbId()).iterator().next(), -1));

@@ -94,14 +94,14 @@ public class CmdlineOperations implements CmdlineInterface {
 		Locale locale = getLanguage(lang).getLocale();
 		ConflictAction conflictAction = ConflictAction.forName(conflict);
 
-		if (getEpisodeListProvider(db) != null) {
-			// tv series mode
-			return renameSeries(files, action, conflictAction, outputDir, format, getEpisodeListProvider(db), query, SortOrder.forName(sortOrder), filter, locale, strict);
-		}
-
 		if (getMovieIdentificationService(db) != null) {
 			// movie mode
 			return renameMovie(files, action, conflictAction, outputDir, format, getMovieIdentificationService(db), query, filter, locale, strict);
+		}
+
+		if (getEpisodeListProvider(db) != null) {
+			// tv series mode
+			return renameSeries(files, action, conflictAction, outputDir, format, getEpisodeListProvider(db), query, SortOrder.forName(sortOrder), filter, locale, strict);
 		}
 
 		if (getMusicIdentificationService(db) != null || containsOnly(files, AUDIO_FILES)) {

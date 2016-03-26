@@ -35,6 +35,7 @@ import net.filebot.web.ShooterSubtitles;
 import net.filebot.web.SubtitleProvider;
 import net.filebot.web.SubtitleSearchResult;
 import net.filebot.web.TMDbClient;
+import net.filebot.web.TMDbTVClient;
 import net.filebot.web.TVMazeClient;
 import net.filebot.web.TheTVDBClient;
 import net.filebot.web.VideoHashSubtitleService;
@@ -45,28 +46,30 @@ import one.util.streamex.StreamEx;
  */
 public final class WebServices {
 
-	// episode dbs
+	// movie sources
+	public static final OMDbClient OMDb = new OMDbClient();
+	public static final TMDbClient TheMovieDB = new TMDbClient(getApiKey("themoviedb"));
+
+	// episode sources
 	public static final TVMazeClient TVmaze = new TVMazeClient();
 	public static final AnidbClient AniDB = new AnidbClientWithLocalSearch(getApiKey("anidb"), 6);
 
 	// extended TheTVDB module with local search
 	public static final TheTVDBClientWithLocalSearch TheTVDB = new TheTVDBClientWithLocalSearch(getApiKey("thetvdb"));
+	public static final TMDbTVClient TheMovieDB_TV = new TMDbTVClient(TheMovieDB);
 
-	// movie dbs
-	public static final OMDbClient OMDb = new OMDbClient();
-	public static final TMDbClient TheMovieDB = new TMDbClient(getApiKey("themoviedb"));
-
-	// subtitle dbs
+	// subtitle sources
 	public static final OpenSubtitlesClient OpenSubtitles = new OpenSubtitlesClientWithLocalSearch(getApiKey("opensubtitles"), getApplicationVersion());
 	public static final ShooterSubtitles Shooter = new ShooterSubtitles();
 
-	// misc
+	// other sources
 	public static final FanartTVClient FanartTV = new FanartTVClient(Settings.getApiKey("fanart.tv"));
 	public static final AcoustIDClient AcoustID = new AcoustIDClient(Settings.getApiKey("acoustid"));
 	public static final XattrMetaInfoProvider XattrMetaData = new XattrMetaInfoProvider();
+	public static final ID3Lookup MediaInfoID3 = new ID3Lookup();
 
 	public static EpisodeListProvider[] getEpisodeListProviders() {
-		return new EpisodeListProvider[] { TheTVDB, TheMovieDB, AniDB, TVmaze };
+		return new EpisodeListProvider[] { TheTVDB, TheMovieDB_TV, AniDB, TVmaze };
 	}
 
 	public static MovieIdentificationService[] getMovieIdentificationServices() {
@@ -85,16 +88,10 @@ public final class WebServices {
 	}
 
 	public static MusicIdentificationService[] getMusicIdentificationServices() {
-		return new MusicIdentificationService[] { AcoustID, new ID3Lookup() };
+		return new MusicIdentificationService[] { AcoustID, MediaInfoID3 };
 	}
 
 	public static EpisodeListProvider getEpisodeListProvider(String name) {
-		// special handling for TheMovieDB which is the only datasource that supports both series and movie mode
-		if (name.equalsIgnoreCase(TheMovieDB.getName()))
-			return null;
-		if (name.equalsIgnoreCase(TheMovieDB.getName() + "::TV"))
-			return TheMovieDB;
-
 		return getService(name, getEpisodeListProviders());
 	}
 
@@ -107,7 +104,7 @@ public final class WebServices {
 	}
 
 	private static <T extends Datasource> T getService(String name, T[] services) {
-		return StreamEx.of(services).findFirst(it -> it.getName().equalsIgnoreCase(name)).orElse(null);
+		return StreamEx.of(services).findFirst(it -> it.getIdentifier().equalsIgnoreCase(name)).orElse(null);
 	}
 
 	public static final ExecutorService requestThreadPool = Executors.newCachedThreadPool();

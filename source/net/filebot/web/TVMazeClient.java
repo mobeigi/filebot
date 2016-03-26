@@ -69,7 +69,7 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 		Object[] genres = getArray(response, "genres");
 		Double rating = getStringValue(getMap(response, "rating"), "average", Double::new);
 
-		SeriesInfo seriesInfo = new SeriesInfo(getName(), sortOrder, locale, show.getId());
+		SeriesInfo seriesInfo = new SeriesInfo(this, sortOrder, locale, show.getId());
 		seriesInfo.setName(show.getName());
 		seriesInfo.setAliasNames(show.getAliasNames());
 		seriesInfo.setStatus(status);
