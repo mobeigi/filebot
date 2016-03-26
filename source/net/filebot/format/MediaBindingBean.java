@@ -385,7 +385,7 @@ public class MediaBindingBean {
 		List<Integer> dim = getDimension();
 
 		// width-to-height aspect ratio greater than 1.37:1
-		return (float) dim.get(0) / dim.get(1) > 1.37f ? "ws" : null;
+		return (float) dim.get(0) / dim.get(1) > 1.37f ? "WS" : null;
 	}
 
 	@Define("sdhd")
@@ -559,7 +559,7 @@ public class MediaBindingBean {
 	@Define("languages")
 	public Object getSpokenLanguages() {
 		List<?> languages = infoObject instanceof Movie ? (List<?>) getMetaInfo().getProperty("spokenLanguages") : singletonList(getMetaInfo().getProperty("language"));
-		return languages.stream().map(it -> new Locale(it.toString()).getDisplayLanguage()).collect(toList());
+		return languages.stream().map(it -> new Locale(it.toString()).getDisplayLanguage(Locale.ENGLISH)).collect(toList());
 	}
 
 	@Define("actors")
