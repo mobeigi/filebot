@@ -54,8 +54,7 @@ public class XattrMetaInfo {
 
 	public synchronized Object getMetaInfo(File file) {
 		return getCachedValue(xattrMetaInfoCache, file, key -> {
-			Object metadata = xattr(file).getObject();
-			return isMetaInfo(metadata) ? metadata : null;
+			return xattr(file).getObject();
 		});
 	}
 
@@ -108,12 +107,15 @@ public class XattrMetaInfo {
 		try {
 			if (isMetaInfo(model)) {
 				xattrMetaInfoCache.put(file, model);
+
 				if (useExtendedFileAttributes) {
 					xattr.get().setObject(model);
 				}
 			}
+
 			if (original != null && original.length() > 0 && getOriginalName(file) == null) {
 				xattrOriginalNameCache.put(file, original);
+
 				if (useExtendedFileAttributes) {
 					xattr.get().setOriginalName(original);
 				}
