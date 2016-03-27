@@ -168,7 +168,7 @@ public class ReleaseInfo {
 			Pattern releaseGroup = getReleaseGroupPattern(strict);
 			Pattern releaseGroupTrim = getReleaseGroupTrimPattern();
 			Pattern languageSuffix = getSubtitleLanguageTagPattern(languages);
-			Pattern languageTag = getLanguageTagPattern(languages);
+			Pattern languageTag = getLanguageTagPattern(languages, strict);
 			Pattern videoSource = getVideoSourcePattern();
 			Pattern videoTags = getVideoTagPattern();
 			Pattern videoFormat = getVideoFormatPattern(strict);
@@ -258,9 +258,15 @@ public class ReleaseInfo {
 		return structureRootFolderPattern;
 	}
 
-	public Pattern getLanguageTagPattern(Collection<String> languages) {
+	public Pattern getLanguageTagPattern(Collection<String> languages, boolean strict) {
 		// [en]
-		return compile("(?<=[-\\[{(])" + or(quoteAll(languages)) + "(?=\\p{Punct})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		if (strict) {
+			return compile("(?<=[-\\[\\{\\(])" + or(quoteAll(languages)) + "(?=[-\\]\\}\\)]|$)", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		}
+
+		// FR
+		List<String> allCapsLanguageTags = languages.stream().map(String::toUpperCase).collect(toList());
+		return compile("(?<!\\p{Alnum})" + or(quoteAll(allCapsLanguageTags)) + "(?!\\p{Alnum})");
 	}
 
 	public Pattern getSubtitleCategoryTagPattern(Collection<String> languages) {
