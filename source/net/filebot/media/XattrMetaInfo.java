@@ -9,6 +9,7 @@ import java.util.Locale;
 import net.filebot.Cache;
 import net.filebot.Cache.Compute;
 import net.filebot.CacheType;
+import net.filebot.Resource;
 import net.filebot.WebServices;
 import net.filebot.web.Episode;
 import net.filebot.web.Movie;
@@ -53,15 +54,19 @@ public class XattrMetaInfo {
 
 	public synchronized Object getMetaInfo(File file) {
 		return getCachedValue(xattrMetaInfoCache, file, key -> {
-			Object metadata = new MetaAttributes(file).getObject();
+			Object metadata = xattr(file).getObject();
 			return isMetaInfo(metadata) ? metadata : null;
 		});
 	}
 
 	public synchronized String getOriginalName(File file) {
 		return (String) getCachedValue(xattrOriginalNameCache, file, key -> {
-			return new MetaAttributes(file).getOriginalName();
+			return xattr(file).getOriginalName();
 		});
+	}
+
+	private MetaAttributes xattr(File file) throws Exception {
+		return new MetaAttributes(file);
 	}
 
 	private Object getCachedValue(Cache cache, File file, Compute<?> compute) {
@@ -86,11 +91,13 @@ public class XattrMetaInfo {
 		}
 
 		// set creation date to episode / movie release date
+		Resource<MetaAttributes> xattr = Resource.lazy(() -> xattr(file));
+
 		if (useCreationDate) {
 			try {
 				long t = getTimeStamp(model);
 				if (t > 0) {
-					new MetaAttributes(file).setCreationDate(t);
+					xattr.get().setCreationDate(t);
 				}
 			} catch (Throwable e) {
 				debug.warning("Failed to set creation date: " + e.getMessage());
@@ -98,20 +105,21 @@ public class XattrMetaInfo {
 		}
 
 		// store metadata object and original name as xattr
-		if (useExtendedFileAttributes) {
-			try {
-				MetaAttributes attr = new MetaAttributes(file);
-				if (isMetaInfo(model)) {
-					xattrMetaInfoCache.put(file, model);
-					attr.setObject(model);
+		try {
+			if (isMetaInfo(model)) {
+				xattrMetaInfoCache.put(file, model);
+				if (useExtendedFileAttributes) {
+					xattr.get().setObject(model);
 				}
-				if (original != null && original.length() > 0 && getOriginalName(file) == null) {
-					xattrOriginalNameCache.put(file, original);
-					attr.setOriginalName(original);
-				}
-			} catch (Throwable e) {
-				debug.warning("Failed to set xattr: " + e.getMessage());
 			}
+			if (original != null && original.length() > 0 && getOriginalName(file) == null) {
+				xattrOriginalNameCache.put(file, original);
+				if (useExtendedFileAttributes) {
+					xattr.get().setOriginalName(original);
+				}
+			}
+		} catch (Throwable e) {
+			debug.warning("Failed to set xattr: " + e.getMessage());
 		}
 	}
 
@@ -122,7 +130,7 @@ public class XattrMetaInfo {
 
 		if (useExtendedFileAttributes) {
 			try {
-				new MetaAttributes(file).clear();
+				xattr(file).clear();
 			} catch (Throwable e) {
 				debug.warning("Failed to clear xattr: " + e.getMessage());
 			}

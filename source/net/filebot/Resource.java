@@ -15,6 +15,10 @@ public interface Resource<R> {
 		return new TransformedResource<R, T>(this, function);
 	}
 
+	static <T> Resource<T> lazy(Resource<T> resource) {
+		return resource.memoize();
+	}
+
 }
 
 class MemoizedResource<R> implements Resource<R> {
