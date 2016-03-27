@@ -94,15 +94,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		}
 
 		// match movie hashes online
-		final Map<File, Movie> movieByFile = new TreeMap<File, Movie>();
-		if (autodetect && movieFiles.size() > 0) {
-			try {
-				Map<File, Movie> hashLookup = service.getMovieDescriptors(movieFiles, locale);
-				movieByFile.putAll(hashLookup);
-			} catch (UnsupportedOperationException e) {
-				// ignore
-			}
-		}
+		Map<File, Movie> movieByFile = new TreeMap<File, Movie>();
 
 		// collect useful nfo files even if they are not part of the selected fileset
 		Set<File> effectiveNfoFileSet = new TreeSet<File>(nfoFiles);

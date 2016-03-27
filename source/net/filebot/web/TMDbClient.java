@@ -9,13 +9,11 @@ import static net.filebot.util.JsonUtilities.*;
 import static net.filebot.util.StringUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -156,11 +154,6 @@ public class TMDbClient implements MovieIdentificationService {
 			}
 		}
 		return null;
-	}
-
-	@Override
-	public Map<File, Movie> getMovieDescriptors(Collection<File> movieFiles, Locale locale) throws Exception {
-		throw new UnsupportedOperationException();
 	}
 
 	public MovieInfo getMovieInfo(Movie movie, Locale locale, boolean extendedInfo) throws Exception {

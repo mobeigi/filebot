@@ -342,18 +342,6 @@ public class CmdlineOperations implements CmdlineInterface {
 		// match movie hashes online
 		final Map<File, Movie> movieByFile = new TreeMap<File, Movie>();
 		if (query == null) {
-			if (movieFiles.size() > 0) {
-				try {
-					Map<File, Movie> hashLookup = service.getMovieDescriptors(movieFiles, locale);
-					if (hashLookup.size() > 0) {
-						log.finest(format("Looking up up movie by hash via [%s]", service.getName()));
-						movieByFile.putAll(hashLookup);
-					}
-				} catch (UnsupportedOperationException e) {
-					// ignore logging => hash lookup only supported by OpenSubtitles
-				}
-			}
-
 			// collect useful nfo files even if they are not part of the selected fileset
 			Set<File> effectiveNfoFileSet = new TreeSet<File>(nfoFiles);
 			for (File dir : mapByFolder(movieFiles).keySet()) {

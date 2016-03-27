@@ -580,19 +580,6 @@ public class MediaDetection {
 			options.add((Movie) metaObject);
 		}
 
-		// lookup by file hash
-		if (service != null && movieFile.isFile()) {
-			try {
-				for (Movie movie : service.getMovieDescriptors(singleton(movieFile), locale).values()) {
-					if (movie != null) {
-						options.add(movie);
-					}
-				}
-			} catch (UnsupportedOperationException e) {
-				// ignore logging => hash lookup only supported by OpenSubtitles
-			}
-		}
-
 		// lookup by id from nfo file
 		if (service != null) {
 			for (int imdbid : grepImdbId(movieFile.getPath())) {

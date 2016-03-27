@@ -335,7 +335,6 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		return getMovieDescriptors(singleton(movieFile), locale).get(movieFile);
 	}
 
-	@Override
 	public synchronized Map<File, Movie> getMovieDescriptors(Collection<File> movieFiles, Locale locale) throws Exception {
 		// create result array
 		Map<File, Movie> results = new HashMap<File, Movie>();
