@@ -48,7 +48,7 @@ public class ArgumentProcessor {
 			} else if (findCause(e, ScriptDeath.class) != null) {
 				log.log(Level.WARNING, findCause(e, ScriptDeath.class).getMessage());
 			} else {
-				log.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), getRootCause(e));
+				log.log(Level.SEVERE, e.getMessage(), e);
 			}
 		}
 
