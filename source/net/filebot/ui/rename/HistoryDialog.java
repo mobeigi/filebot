@@ -8,6 +8,7 @@ import static javax.swing.JOptionPane.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.UserFiles.*;
+import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
@@ -73,7 +74,6 @@ import net.filebot.History.Sequence;
 import net.filebot.ResourceManager;
 import net.filebot.StandardRenameAction;
 import net.filebot.mac.MacAppUtilities;
-import net.filebot.media.MetaAttributes;
 import net.filebot.ui.transfer.FileExportHandler;
 import net.filebot.ui.transfer.FileTransferablePolicy;
 import net.filebot.ui.transfer.LoadAction;
@@ -539,9 +539,8 @@ class HistoryDialog extends JDialog {
 					File original = StandardRenameAction.revert(entry.getKey(), entry.getValue());
 					count++;
 
-					if (original.isFile() && useExtendedFileAttributes()) {
-						new MetaAttributes(original).clear();
-					}
+					// clear xattr that may or may not exist
+					xattr.clear(original);
 				}
 			} catch (Exception e) {
 				log.log(Level.WARNING, "Failed to revert files: " + e.getMessage(), e);

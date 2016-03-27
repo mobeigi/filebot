@@ -679,7 +679,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 			// deserialize MetaAttributes if enabled and available
 			if (object instanceof File) {
-				Object metaObject = xattr.readMetaInfo((File) object);
+				Object metaObject = xattr.getMetaInfo((File) object);
 				if (metaObject != null) {
 					return super.getProperties(metaObject);
 				}

@@ -300,7 +300,7 @@ public class MediaDetection {
 
 		// try xattr metadata if enabled
 		for (File it : files) {
-			Object metaObject = xattr.readMetaInfo(it);
+			Object metaObject = xattr.getMetaInfo(it);
 			if (metaObject instanceof Episode) {
 				unids.add(((Episode) metaObject).getSeriesName());
 			}
@@ -575,7 +575,7 @@ public class MediaDetection {
 		List<Movie> options = new ArrayList<Movie>();
 
 		// try xattr metadata if enabled
-		Object metaObject = xattr.readMetaInfo(movieFile);
+		Object metaObject = xattr.getMetaInfo(movieFile);
 		if (metaObject instanceof Movie) {
 			options.add((Movie) metaObject);
 		}

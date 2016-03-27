@@ -26,7 +26,7 @@ public class XattrMetaInfoProvider implements Datasource {
 		Map<File, Object> result = new LinkedHashMap<File, Object>();
 
 		for (File f : files) {
-			Object metaObject = xattr.readMetaInfo(f);
+			Object metaObject = xattr.getMetaInfo(f);
 			if (metaObject != null) {
 				result.put(f, metaObject);
 			}

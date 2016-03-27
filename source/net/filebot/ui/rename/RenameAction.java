@@ -124,7 +124,7 @@ class RenameAction extends AbstractAction {
 					if (renameMap.containsKey(file) && meta != null) {
 						File destination = resolveDestination(file, renameMap.get(file), false);
 						if (destination.isFile()) {
-							xattr.storeMetaInfo(destination, meta, file.getName());
+							xattr.setMetaInfo(destination, meta, file.getName());
 						}
 					}
 				}

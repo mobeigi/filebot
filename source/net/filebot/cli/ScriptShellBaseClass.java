@@ -227,7 +227,7 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	public Movie detectMovie(File file, boolean strict) {
 		// 1. xattr
-		Object metaObject = xattr.readMetaInfo(file);
+		Object metaObject = xattr.getMetaInfo(file);
 		if (metaObject instanceof Movie) {
 			return (Movie) metaObject;
 		}

@@ -333,7 +333,7 @@ public class RenamePanel extends JComponent {
 							List<Object> objects = new ArrayList<Object>(files.size());
 							List<File> objectsTail = new ArrayList<File>();
 							for (File file : files) {
-								Object metaObject = xattr.readMetaInfo(file);
+								Object metaObject = xattr.getMetaInfo(file);
 								if (metaObject != null) {
 									objects.add(metaObject); // upper list is based on xattr metadata
 								} else {

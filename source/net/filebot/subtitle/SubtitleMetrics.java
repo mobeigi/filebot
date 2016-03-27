@@ -3,6 +3,7 @@ package net.filebot.subtitle;
 import static java.util.Collections.*;
 import static net.filebot.Logging.*;
 import static net.filebot.media.MediaDetection.*;
+import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.similarity.EpisodeMetrics.*;
 import static net.filebot.util.FileUtilities.*;
 
@@ -14,7 +15,6 @@ import java.util.WeakHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.filebot.media.MetaAttributes;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.similarity.CrossPropertyMetric;
@@ -124,26 +124,20 @@ public enum SubtitleMetrics implements SimilarityMetric {
 			return (float) match.length() / Math.max(s1.length(), s2.length()) > 0.8 ? 1 : 0;
 		}
 
-		private final Map<File, String> xattrCache = new WeakHashMap<File, String>(64);
-
 		@Override
-		public String normalize(Object obj) {
-			if (obj instanceof File) {
-				synchronized (xattrCache) {
-					return xattrCache.computeIfAbsent((File) obj, (f) -> {
-						try {
-							String originalName = new MetaAttributes(f).getOriginalName();
-							return super.normalize(getNameWithoutExtension(originalName));
-						} catch (Exception e) {
-							return super.normalize(getNameWithoutExtension(f.getName()));
-						}
-					});
+		public String normalize(Object object) {
+			if (object instanceof File) {
+				File file = (File) object;
+				String name = xattr.getOriginalName(file);
+				if (name == null) {
+					name = file.getName();
 				}
-			} else if (obj instanceof OpenSubtitlesSubtitleDescriptor) {
-				String name = ((OpenSubtitlesSubtitleDescriptor) obj).getName();
+				return super.normalize(getNameWithoutExtension(name));
+			} else if (object instanceof OpenSubtitlesSubtitleDescriptor) {
+				String name = ((OpenSubtitlesSubtitleDescriptor) object).getName();
 				return super.normalize(name);
 			}
-			return super.normalize(obj);
+			return super.normalize(object);
 		}
 	}),
 

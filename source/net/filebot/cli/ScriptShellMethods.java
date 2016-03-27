@@ -4,6 +4,7 @@ import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.MediaTypes.*;
+import static net.filebot.media.XattrMetaInfo.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +29,6 @@ import groovy.lang.Closure;
 import net.filebot.MediaTypes;
 import net.filebot.MetaAttributeView;
 import net.filebot.media.MediaDetection;
-import net.filebot.media.MetaAttributes;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.similarity.Normalization;
 import net.filebot.similarity.SimilarityMetric;
@@ -394,7 +394,7 @@ public class ScriptShellMethods {
 
 	public static Object getMetadata(File self) {
 		try {
-			return new MetaAttributes(self).getObject();
+			return xattr.getMetaInfo(self);
 		} catch (Exception e) {
 			return null;
 		}

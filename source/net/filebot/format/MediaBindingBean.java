@@ -8,6 +8,7 @@ import static net.filebot.format.Define.*;
 import static net.filebot.format.ExpressionFormatMethods.*;
 import static net.filebot.hash.VerificationUtilities.*;
 import static net.filebot.media.MediaDetection.*;
+import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.subtitle.SubtitleUtilities.*;
 import static net.filebot.util.FileUtilities.*;
@@ -44,7 +45,6 @@ import net.filebot.Settings;
 import net.filebot.Settings.ApplicationFolder;
 import net.filebot.WebServices;
 import net.filebot.hash.HashType;
-import net.filebot.media.MetaAttributes;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.mediainfo.MediaInfoException;
@@ -411,7 +411,7 @@ public class MediaBindingBean {
 
 	@Define("xattr")
 	public Object getMetaAttributesObject() throws Exception {
-		return new MetaAttributes(getMediaFile()).getObject();
+		return xattr.getMetaInfo(getMediaFile());
 	}
 
 	@Define("crc32")
@@ -1054,11 +1054,7 @@ public class MediaBindingBean {
 	}
 
 	private String getOriginalFileName(File file) {
-		try {
-			return getNameWithoutExtension(new MetaAttributes(file).getOriginalName());
-		} catch (Throwable e) {
-			return null;
-		}
+		return getNameWithoutExtension(xattr.getOriginalName(file));
 	}
 
 	private List<String> getKeywords() {

@@ -378,7 +378,7 @@ class BindingDialog extends JDialog {
 				mediaFileTextField.setText(file.get(0).getAbsolutePath());
 
 				// set info object from xattr if possible
-				Object object = xattr.readMetaInfo(file.get(0));
+				Object object = xattr.getMetaInfo(file.get(0));
 				if (object != null && infoObjectFormat.format(object) != null) {
 					setInfoObject(object);
 				}

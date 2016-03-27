@@ -660,14 +660,14 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// write metadata into xattr if xattr is enabled
-		if (matches != null && renameLog.size() > 0 && (useExtendedFileAttributes() || useCreationDate()) && renameAction != StandardRenameAction.TEST) {
+		if (matches != null && renameLog.size() > 0 && renameAction != StandardRenameAction.TEST) {
 			for (Match<File, ?> match : matches) {
 				File source = match.getValue();
 				Object infoObject = match.getCandidate();
 				if (infoObject != null) {
 					File destination = renameLog.get(source);
 					if (destination != null && destination.isFile()) {
-						xattr.storeMetaInfo(destination, infoObject, source.getName());
+						xattr.setMetaInfo(destination, infoObject, source.getName());
 					}
 				}
 			}
@@ -1076,7 +1076,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		List<String> output = new ArrayList<String>();
 		for (File file : filter(files, fileFilter)) {
-			String line = formatter.format(new MediaBindingBean(xattr.readMetaInfo(file), file, null));
+			String line = formatter.format(new MediaBindingBean(xattr.getMetaInfo(file), file, null));
 			output.add(line);
 		}
 		return output;
