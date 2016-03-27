@@ -1054,7 +1054,8 @@ public class MediaBindingBean {
 	}
 
 	private String getOriginalFileName(File file) {
-		return getNameWithoutExtension(xattr.getOriginalName(file));
+		String name = xattr.getOriginalName(file);
+		return name == null ? null : getNameWithoutExtension(name);
 	}
 
 	private List<String> getKeywords() {
