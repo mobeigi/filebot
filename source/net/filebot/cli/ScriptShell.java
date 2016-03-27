@@ -1,7 +1,5 @@
 package net.filebot.cli;
 
-import groovy.lang.GroovyClassLoader;
-
 import java.net.URI;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -15,6 +13,8 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.codehaus.groovy.jsr223.GroovyScriptEngineImpl;
 import org.codehaus.groovy.runtime.StackTraceUtils;
+
+import groovy.lang.GroovyClassLoader;
 
 public class ScriptShell {
 

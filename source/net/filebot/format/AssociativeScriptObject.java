@@ -2,8 +2,6 @@
 package net.filebot.format;
 
 
-import groovy.lang.GroovyObjectSupport;
-
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.HashMap;
@@ -12,6 +10,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+
+import groovy.lang.GroovyObjectSupport;
 
 
 public class AssociativeScriptObject extends GroovyObjectSupport implements Iterable<Entry<Object, Object>> {

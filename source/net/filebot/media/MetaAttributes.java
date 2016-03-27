@@ -6,10 +6,10 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.FileTime;
 
-import net.filebot.MetaAttributeView;
-
 import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
+
+import net.filebot.MetaAttributeView;
 
 public class MetaAttributes {
 

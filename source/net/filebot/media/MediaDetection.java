@@ -5,7 +5,7 @@ import static java.util.regex.Pattern.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
-import static net.filebot.Settings.*;
+import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.similarity.CommonSequenceMatcher.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.FileUtilities.*;
@@ -300,7 +300,7 @@ public class MediaDetection {
 
 		// try xattr metadata if enabled
 		for (File it : files) {
-			Object metaObject = readMetaInfo(it);
+			Object metaObject = xattr.readMetaInfo(it);
 			if (metaObject instanceof Episode) {
 				unids.add(((Episode) metaObject).getSeriesName());
 			}
@@ -575,7 +575,7 @@ public class MediaDetection {
 		List<Movie> options = new ArrayList<Movie>();
 
 		// try xattr metadata if enabled
-		Object metaObject = readMetaInfo(movieFile);
+		Object metaObject = xattr.readMetaInfo(movieFile);
 		if (metaObject instanceof Movie) {
 			options.add((Movie) metaObject);
 		}
@@ -1490,74 +1490,6 @@ public class MediaDetection {
 		}
 
 		return singletonList(folder);
-	}
-
-	public static Object readMetaInfo(File file) {
-		if (useExtendedFileAttributes()) {
-			try {
-				MetaAttributes xattr = new MetaAttributes(file);
-				Object metaObject = xattr.getObject();
-				if (metaObject instanceof Episode || metaObject instanceof Movie) {
-					return metaObject;
-				}
-			} catch (Throwable e) {
-				debug.warning("Unable to read xattr: " + e.getMessage());
-			}
-		}
-		return null;
-	}
-
-	public static void storeMetaInfo(File file, Object model, String original, boolean useExtendedFileAttributes, boolean useCreationDate) {
-		// only for Episode / Movie objects
-		if ((useExtendedFileAttributes || useCreationDate) && (model instanceof Episode || model instanceof Movie) && file.isFile()) {
-			try {
-				MetaAttributes xattr = new MetaAttributes(file);
-
-				// set creation date to episode / movie release date
-				if (useCreationDate) {
-					try {
-						if (model instanceof Episode) {
-							Episode episode = (Episode) model;
-							if (episode.getAirdate() != null) {
-								xattr.setCreationDate(episode.getAirdate().getTimeStamp());
-							}
-						} else if (model instanceof Movie) {
-							Movie movie = (Movie) model;
-							if (movie.getYear() > 0 && movie.getTmdbId() > 0) {
-								SimpleDate releaseDate = WebServices.TheMovieDB.getMovieInfo(movie, Locale.ENGLISH, false).getReleased();
-								if (releaseDate != null) {
-									xattr.setCreationDate(releaseDate.getTimeStamp());
-								}
-							}
-						}
-					} catch (Exception e) {
-						if (e instanceof RuntimeException && e.getCause() instanceof IOException) {
-							e = (IOException) e.getCause();
-						}
-						debug.warning("Failed to set creation date: " + e.getMessage());
-					}
-				}
-
-				// store original name and model as xattr
-				if (useExtendedFileAttributes) {
-					try {
-						if (model instanceof Episode || model instanceof Movie) {
-							xattr.setObject(model);
-						}
-						if (xattr.getOriginalName() == null && original != null) {
-							xattr.setOriginalName(original);
-						}
-					} catch (Exception e) {
-						if (e instanceof RuntimeException && e.getCause() instanceof IOException) {
-							e = (IOException) e.getCause();
-						}
-						debug.warning("Failed to set xattr: " + e.getMessage());
-					}
-				}
-			} catch (Throwable t) {
-				debug.warning("Unable to store xattr: " + t.getMessage());
-			}
-		}
 	}
 
 	public static void warmupCachedResources() throws Exception {

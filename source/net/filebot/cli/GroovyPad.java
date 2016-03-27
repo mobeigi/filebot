@@ -31,16 +31,16 @@ import javax.swing.SwingWorker;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 
+import org.fife.ui.rsyntaxtextarea.FileLocation;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rsyntaxtextarea.TextEditorPane;
+import org.fife.ui.rtextarea.RTextScrollPane;
+
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.Settings.ApplicationFolder;
 import net.filebot.cli.ArgumentProcessor.DefaultScriptProvider;
 import net.filebot.util.TeePrintStream;
-
-import org.fife.ui.rsyntaxtextarea.FileLocation;
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rsyntaxtextarea.TextEditorPane;
-import org.fife.ui.rtextarea.RTextScrollPane;
 
 public class GroovyPad extends JFrame {
 

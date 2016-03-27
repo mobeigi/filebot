@@ -13,14 +13,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 
-import net.filebot.Language;
-
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.ParserProperties;
 import org.kohsuke.args4j.spi.ExplicitBooleanOptionHandler;
+
+import net.filebot.Language;
 
 public class ArgumentBean {
 

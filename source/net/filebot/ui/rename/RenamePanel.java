@@ -6,6 +6,7 @@ import static javax.swing.KeyStroke.*;
 import static javax.swing.SwingUtilities.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
+import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.ui.LoadingOverlayPane.*;
 import static net.filebot.util.ui.SwingUI.*;
@@ -64,7 +65,6 @@ import net.filebot.UserFiles;
 import net.filebot.WebServices;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.mac.MacAppUtilities;
-import net.filebot.media.MediaDetection;
 import net.filebot.similarity.Match;
 import net.filebot.ui.rename.FormatDialog.Mode;
 import net.filebot.ui.rename.RenameModel.FormattedFuture;
@@ -333,7 +333,7 @@ public class RenamePanel extends JComponent {
 							List<Object> objects = new ArrayList<Object>(files.size());
 							List<File> objectsTail = new ArrayList<File>();
 							for (File file : files) {
-								Object metaObject = MediaDetection.readMetaInfo(file);
+								Object metaObject = xattr.readMetaInfo(file);
 								if (metaObject != null) {
 									objects.add(metaObject); // upper list is based on xattr metadata
 								} else {

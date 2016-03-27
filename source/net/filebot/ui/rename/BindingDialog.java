@@ -3,6 +3,7 @@ package net.filebot.ui.rename;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.UserFiles.*;
+import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
@@ -52,7 +53,6 @@ import javax.swing.table.TableRowSorter;
 import net.filebot.ResourceManager;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
-import net.filebot.media.MediaDetection;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.util.DefaultThreadFactory;
@@ -378,7 +378,7 @@ class BindingDialog extends JDialog {
 				mediaFileTextField.setText(file.get(0).getAbsolutePath());
 
 				// set info object from xattr if possible
-				Object object = MediaDetection.readMetaInfo(file.get(0));
+				Object object = xattr.readMetaInfo(file.get(0));
 				if (object != null && infoObjectFormat.format(object) != null) {
 					setInfoObject(object);
 				}

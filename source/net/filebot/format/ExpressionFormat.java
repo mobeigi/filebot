@@ -3,9 +3,6 @@ package net.filebot.format;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
-import groovy.lang.GroovyClassLoader;
-import groovy.lang.GroovyRuntimeException;
-import groovy.lang.MissingPropertyException;
 
 import java.security.AccessController;
 import java.text.FieldPosition;
@@ -28,6 +25,10 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.MultipleCompilationErrorsException;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.codehaus.groovy.jsr223.GroovyScriptEngineImpl;
+
+import groovy.lang.GroovyClassLoader;
+import groovy.lang.GroovyRuntimeException;
+import groovy.lang.MissingPropertyException;
 
 public class ExpressionFormat extends Format {
 

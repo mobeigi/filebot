@@ -4,7 +4,6 @@ import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.MediaTypes.*;
-import groovy.lang.Closure;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +19,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.codehaus.groovy.runtime.DefaultGroovyMethods;
+
+import com.cedarsoftware.util.io.JsonReader;
+import com.cedarsoftware.util.io.JsonWriter;
+
+import groovy.lang.Closure;
 import net.filebot.MediaTypes;
 import net.filebot.MetaAttributeView;
 import net.filebot.media.MediaDetection;
@@ -30,11 +35,6 @@ import net.filebot.similarity.SimilarityMetric;
 import net.filebot.util.FastFile;
 import net.filebot.util.FileUtilities;
 import net.filebot.web.WebRequest;
-
-import org.codehaus.groovy.runtime.DefaultGroovyMethods;
-
-import com.cedarsoftware.util.io.JsonReader;
-import com.cedarsoftware.util.io.JsonWriter;
 
 public class ScriptShellMethods {
 

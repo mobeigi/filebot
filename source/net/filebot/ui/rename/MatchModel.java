@@ -8,11 +8,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import net.filebot.similarity.Match;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.TransformedList;
 import ca.odell.glazedlists.event.ListEvent;
+import net.filebot.similarity.Match;
 
 
 public class MatchModel<Value, Candidate> {

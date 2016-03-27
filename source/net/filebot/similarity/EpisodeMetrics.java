@@ -5,6 +5,7 @@ import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static net.filebot.Logging.*;
 import static net.filebot.media.MediaDetection.*;
+import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
@@ -678,7 +679,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 			// deserialize MetaAttributes if enabled and available
 			if (object instanceof File) {
-				Object metaObject = readMetaInfo((File) object);
+				Object metaObject = xattr.readMetaInfo((File) object);
 				if (metaObject != null) {
 					return super.getProperties(metaObject);
 				}

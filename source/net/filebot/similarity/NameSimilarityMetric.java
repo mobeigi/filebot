@@ -3,11 +3,12 @@ package net.filebot.similarity;
 
 
 import static net.filebot.similarity.Normalization.*;
+
+import com.ibm.icu.text.Transliterator;
+
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
 import uk.ac.shef.wit.simmetrics.tokenisers.TokeniserQGram3;
-
-import com.ibm.icu.text.Transliterator;
 
 
 public class NameSimilarityMetric implements SimilarityMetric {

@@ -4,6 +4,7 @@ import static java.util.Collections.*;
 import static javax.swing.JOptionPane.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
+import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
@@ -46,7 +47,6 @@ import net.filebot.NativeRenameAction;
 import net.filebot.ResourceManager;
 import net.filebot.StandardRenameAction;
 import net.filebot.mac.MacAppUtilities;
-import net.filebot.media.MediaDetection;
 import net.filebot.similarity.Match;
 import net.filebot.util.ui.ProgressDialog;
 import net.filebot.util.ui.ProgressDialog.Cancellable;
@@ -118,19 +118,15 @@ class RenameAction extends AbstractAction {
 
 			// write metadata into xattr if xattr is enabled
 			if (useExtendedFileAttributes() || useCreationDate()) {
-				try {
-					for (Match<Object, File> match : matches) {
-						File file = match.getCandidate();
-						Object meta = match.getValue();
-						if (renameMap.containsKey(file) && meta != null) {
-							File destination = resolveDestination(file, renameMap.get(file), false);
-							if (destination.isFile()) {
-								MediaDetection.storeMetaInfo(destination, meta, file.getName(), useExtendedFileAttributes(), useCreationDate());
-							}
+				for (Match<Object, File> match : matches) {
+					File file = match.getCandidate();
+					Object meta = match.getValue();
+					if (renameMap.containsKey(file) && meta != null) {
+						File destination = resolveDestination(file, renameMap.get(file), false);
+						if (destination.isFile()) {
+							xattr.storeMetaInfo(destination, meta, file.getName());
 						}
 					}
-				} catch (Throwable e) {
-					debug.warning("Failed to write xattr: " + e.getMessage());
 				}
 			}
 		} catch (ExecutionException e) {

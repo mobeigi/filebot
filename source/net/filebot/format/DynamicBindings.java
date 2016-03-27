@@ -1,10 +1,10 @@
 package net.filebot.format;
 
-import groovy.lang.GroovyObjectSupport;
-
 import java.util.Arrays;
 import java.util.function.Function;
 import java.util.stream.Stream;
+
+import groovy.lang.GroovyObjectSupport;
 
 public class DynamicBindings extends GroovyObjectSupport {
 

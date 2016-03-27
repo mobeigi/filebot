@@ -10,6 +10,7 @@ import static net.filebot.Settings.*;
 import static net.filebot.WebServices.*;
 import static net.filebot.hash.VerificationUtilities.*;
 import static net.filebot.media.MediaDetection.*;
+import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.subtitle.SubtitleUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
@@ -660,19 +661,15 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		// write metadata into xattr if xattr is enabled
 		if (matches != null && renameLog.size() > 0 && (useExtendedFileAttributes() || useCreationDate()) && renameAction != StandardRenameAction.TEST) {
-			try {
-				for (Match<File, ?> match : matches) {
-					File source = match.getValue();
-					Object infoObject = match.getCandidate();
-					if (infoObject != null) {
-						File destination = renameLog.get(source);
-						if (destination != null && destination.isFile()) {
-							MediaDetection.storeMetaInfo(destination, infoObject, source.getName(), useExtendedFileAttributes(), useCreationDate());
-						}
+			for (Match<File, ?> match : matches) {
+				File source = match.getValue();
+				Object infoObject = match.getCandidate();
+				if (infoObject != null) {
+					File destination = renameLog.get(source);
+					if (destination != null && destination.isFile()) {
+						xattr.storeMetaInfo(destination, infoObject, source.getName());
 					}
 				}
-			} catch (Throwable e) {
-				log.warning("Failed to write xattr: " + e.getMessage());
 			}
 		}
 
@@ -1079,7 +1076,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		List<String> output = new ArrayList<String>();
 		for (File file : filter(files, fileFilter)) {
-			String line = formatter.format(new MediaBindingBean(readMetaInfo(file), file, null));
+			String line = formatter.format(new MediaBindingBean(xattr.readMetaInfo(file), file, null));
 			output.add(line);
 		}
 		return output;

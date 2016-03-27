@@ -3,11 +3,8 @@ package net.filebot.cli;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.Logging.*;
+import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.util.StringUtilities.*;
-import groovy.lang.Closure;
-import groovy.lang.MissingPropertyException;
-import groovy.lang.Script;
-import groovy.xml.MarkupBuilder;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -33,6 +30,15 @@ import java.util.logging.Logger;
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
 
+import org.codehaus.groovy.runtime.StackTraceUtils;
+import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
+
+import com.sun.jna.Platform;
+
+import groovy.lang.Closure;
+import groovy.lang.MissingPropertyException;
+import groovy.lang.Script;
+import groovy.xml.MarkupBuilder;
 import net.filebot.HistorySpooler;
 import net.filebot.RenameAction;
 import net.filebot.StandardRenameAction;
@@ -42,11 +48,6 @@ import net.filebot.media.MediaDetection;
 import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.filebot.util.FileUtilities;
 import net.filebot.web.Movie;
-
-import org.codehaus.groovy.runtime.StackTraceUtils;
-import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
-
-import com.sun.jna.Platform;
 
 public abstract class ScriptShellBaseClass extends Script {
 
@@ -226,7 +227,7 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	public Movie detectMovie(File file, boolean strict) {
 		// 1. xattr
-		Object metaObject = MediaDetection.readMetaInfo(file);
+		Object metaObject = xattr.readMetaInfo(file);
 		if (metaObject instanceof Movie) {
 			return (Movie) metaObject;
 		}

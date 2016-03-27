@@ -1,7 +1,7 @@
 package net.filebot.format;
 
 import static net.filebot.Logging.*;
-import static net.filebot.media.MediaDetection.*;
+import static net.filebot.media.XattrMetaInfo.*;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -23,7 +23,7 @@ public class ExpressionFileFilter implements FileFilter {
 	@Override
 	public boolean accept(File f) {
 		try {
-			return filter.matches(new MediaBindingBean(readMetaInfo(f), f, null));
+			return filter.matches(new MediaBindingBean(xattr.readMetaInfo(f), f, null));
 		} catch (Exception e) {
 			debug.warning(format("Expression failed: %s", e));
 			return error;
