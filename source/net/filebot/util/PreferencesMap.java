@@ -9,7 +9,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -202,9 +201,6 @@ public class PreferencesMap<T> implements Map<String, T> {
 			if (value != null) {
 				try {
 					return constructor.newInstance(value);
-				} catch (InvocationTargetException e) {
-					// try to throw the cause directly, e.g. NumberFormatException
-					throw ExceptionUtilities.asRuntimeException(e.getCause());
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}

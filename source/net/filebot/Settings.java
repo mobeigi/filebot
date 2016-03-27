@@ -15,7 +15,6 @@ import java.util.prefs.Preferences;
 import net.filebot.UserFiles.FileChooser;
 import net.filebot.archive.Archive.Extractor;
 import net.filebot.cli.ArgumentBean;
-import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.PreferencesList;
 import net.filebot.util.PreferencesMap;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
@@ -315,7 +314,7 @@ public final class Settings {
 			// remove entries
 			prefs.clear();
 		} catch (BackingStoreException e) {
-			throw ExceptionUtilities.asRuntimeException(e);
+			debug.warning(e.getMessage());
 		}
 	}
 
