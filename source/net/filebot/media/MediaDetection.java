@@ -611,8 +611,8 @@ public class MediaDetection {
 			}
 		}
 
-		// search by file name or folder name
-		Collection<String> terms = new LinkedHashSet<String>();
+		// search by file name or folder name (initialize with known options)
+		Set<String> terms = options.stream().map(Movie::getNameWithYear).collect(toCollection(LinkedHashSet::new));
 
 		// 1. term: try to match movie pattern 'name (year)' or use filename as is
 		terms.add(getName(movieFile));
@@ -745,11 +745,11 @@ public class MediaDetection {
 	}
 
 	public static List<Movie> sortMoviesBySimilarity(Collection<Movie> options, Collection<String> terms) throws Exception {
-		Collection<String> paragon = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+		Set<String> paragon = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 		paragon.addAll(stripReleaseInfo(terms, true));
 		paragon.addAll(stripReleaseInfo(terms, false));
 
-		return sortBySimilarity(options, paragon, getMovieMatchMetric(), SearchResult::getEffectiveNames);
+		return sortBySimilarity(options, paragon, getMovieMatchMetric());
 	}
 
 	public static boolean isEpisodeNumberMatch(File f, Episode e) {
@@ -778,7 +778,7 @@ public class MediaDetection {
 		return null;
 	}
 
-	public static Collection<String> reduceMovieNamePermutations(Collection<String> terms) throws IOException {
+	public static List<String> reduceMovieNamePermutations(Collection<String> terms) throws IOException {
 		LinkedList<String> names = new LinkedList<String>();
 
 		for (String it : terms) {
