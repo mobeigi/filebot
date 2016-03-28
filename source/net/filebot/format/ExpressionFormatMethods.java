@@ -1,6 +1,7 @@
 package net.filebot.format;
 
 import static java.util.regex.Pattern.*;
+import static net.filebot.format.ExpressionFormatFunctions.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,9 +23,11 @@ import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 import com.ibm.icu.text.Transliterator;
 
 import groovy.lang.Closure;
+import net.filebot.Language;
 import net.filebot.similarity.Normalization;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.StringUtilities;
+import net.filebot.web.SimpleDate;
 
 public class ExpressionFormatMethods {
 
@@ -422,12 +425,20 @@ public class ExpressionFormatMethods {
 		return Locale.forLanguageTag(self);
 	}
 
-	public static String plus(String self, Closure<?> closure) {
-		try {
-			return self + closure.call();
-		} catch (Exception e) {
-			return self;
-		}
+	public static String plus(String self, Closure<?> other) {
+		return concat(self, other);
+	}
+
+	public static String plus(Closure<?> self, Object other) {
+		return concat(self, other);
+	}
+
+	public static String plus(Language self, Object other) {
+		return concat(self, other);
+	}
+
+	public static String plus(SimpleDate self, Object other) {
+		return concat(self, other);
 	}
 
 }
