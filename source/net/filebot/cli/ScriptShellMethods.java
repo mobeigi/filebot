@@ -28,7 +28,6 @@ import com.cedarsoftware.util.io.JsonWriter;
 import groovy.lang.Closure;
 import net.filebot.MediaTypes;
 import net.filebot.MetaAttributeView;
-import net.filebot.WebServices;
 import net.filebot.media.MediaDetection;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.similarity.Normalization;
@@ -406,7 +405,7 @@ public class ScriptShellMethods {
 	}
 
 	public static boolean isMovie(File self) {
-		return MediaDetection.isMovie(self, true, WebServices.TheMovieDB);
+		return MediaDetection.isMovie(self, true);
 	}
 
 }
