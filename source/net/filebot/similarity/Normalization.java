@@ -14,6 +14,7 @@ public class Normalization {
 
 	private static final Pattern[] brackets = new Pattern[] { compile("\\([^\\(]*\\)"), compile("\\[[^\\[]*\\]"), compile("\\{[^\\{]*\\}") };
 	private static final Pattern trailingParentheses = compile("(?<!^)[(]([^)]*)[)]$");
+	private static final Pattern trailingPunctuation = compile("[!?.]+$");
 
 	private static final Pattern checksum = compile("[\\(\\[]\\p{XDigit}{8}[\\]\\)]");
 
@@ -27,6 +28,10 @@ public class Normalization {
 			}
 		}
 		return name;
+	}
+
+	public static String trimTrailingPunctuation(String name) {
+		return trailingPunctuation.matcher(name).replaceAll("").trim();
 	}
 
 	public static String normalizePunctuation(String name) {

@@ -45,6 +45,7 @@ import net.filebot.Settings;
 import net.filebot.Settings.ApplicationFolder;
 import net.filebot.WebServices;
 import net.filebot.hash.HashType;
+import net.filebot.media.NamingStandard;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.mediainfo.MediaInfoException;
@@ -912,6 +913,17 @@ public class MediaBindingBean {
 			}
 		}
 		return 1 + identityIndexOf(duplicates, getInfoObject());
+	}
+
+	@Define("plex")
+	public File getPlexStandardPath() throws Exception {
+		String path = NamingStandard.Plex.getPath(infoObject);
+		try {
+			path = path.concat(getSubtitleTags());
+		} catch (Exception e) {
+			// ignore => no language tags
+		}
+		return new File(path);
 	}
 
 	@Define("self")
