@@ -683,9 +683,6 @@
 			<info name="start_dep_services" value="ssh" />
 			<info name="install_dep_packages" value="oracle-java" />
 
-			<!-- require 250 MB disk space to account for large disk persistent cache files -->
-			<info name="extractsize" value="262144000" />
-
 			<icon size="72" file="${dir.installer}/icons/icon72.png" />
 			<icon size="256" file="${dir.installer}/icons/icon256.png" />
 
