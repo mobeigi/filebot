@@ -632,7 +632,7 @@ public class MediaBindingBean {
 				if (WebServices.TheTVDB.getIdentifier().equals(getSeriesInfo().getDatabase())) {
 					TheTVDBSeriesInfo extendedSeriesInfo = (TheTVDBSeriesInfo) WebServices.TheTVDB.getSeriesInfo(getSeriesInfo().getId(), Locale.ENGLISH);
 					if (extendedSeriesInfo.getImdbId() != null) {
-						metaInfo = WebServices.OMDb.getMovieInfo(new Movie(null, -1, grepImdbId(extendedSeriesInfo.getImdbId()).iterator().next(), -1));
+						metaInfo = WebServices.OMDb.getMovieInfo(new Movie(grepImdbId(extendedSeriesInfo.getImdbId()).iterator().next()));
 					}
 				}
 			}
@@ -640,7 +640,7 @@ public class MediaBindingBean {
 				if (getMovie().getTmdbId() > 0) {
 					MovieInfo movieInfo = WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false);
 					if (movieInfo.getImdbId() != null) {
-						metaInfo = WebServices.OMDb.getMovieInfo(new Movie(null, -1, movieInfo.getImdbId(), -1));
+						metaInfo = WebServices.OMDb.getMovieInfo(new Movie(movieInfo.getImdbId()));
 					}
 				} else if (getMovie().getImdbId() > 0) {
 					metaInfo = WebServices.OMDb.getMovieInfo(getMovie());

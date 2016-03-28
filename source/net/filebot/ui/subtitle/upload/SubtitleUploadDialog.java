@@ -169,7 +169,7 @@ public class SubtitleUploadDialog extends JDialog {
 								TheTVDBSeriesInfo seriesInfo = (TheTVDBSeriesInfo) WebServices.TheTVDB.getSeriesInfo(entry, Locale.ENGLISH);
 								if (seriesInfo.getImdbId() != null) {
 									int imdbId = grepImdbId(seriesInfo.getImdbId()).iterator().next();
-									mapping.setIdentity(WebServices.OpenSubtitles.getMovieDescriptor(new Movie(null, 0, imdbId, -1), Locale.ENGLISH));
+									mapping.setIdentity(WebServices.OpenSubtitles.getMovieDescriptor(new Movie(imdbId), Locale.ENGLISH));
 									break NAMES;
 								}
 							}

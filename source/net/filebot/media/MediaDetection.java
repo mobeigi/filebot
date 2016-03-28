@@ -1,5 +1,6 @@
 package net.filebot.media;
 
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static java.util.stream.Collectors.*;
@@ -33,6 +34,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -79,7 +81,7 @@ public class MediaDetection {
 		try {
 			return releaseInfo.getClutterFileFilter();
 		} catch (Exception e) {
-			debug.log(Level.SEVERE, "Unable to access clutter file filter: " + e.getMessage(), e);
+			debug.log(Level.SEVERE, "Failed to access clutter file filter: " + e.getMessage(), e);
 		}
 		return f -> false;
 	}
@@ -111,6 +113,35 @@ public class MediaDetection {
 
 	public static Locale guessLanguageFromSuffix(File file) {
 		return releaseInfo.getSubtitleLanguageTag(getName(file));
+	}
+
+	public static boolean isEpisode(File file, boolean strict) {
+		if (xattr.getMetaInfo(file) instanceof Episode)
+			return true;
+
+		return MediaDetection.isEpisode(String.join("/", file.getParent(), file.getName()), strict);
+	}
+
+	public static boolean isMovie(File file, boolean strict) {
+		if (xattr.getMetaInfo(file) instanceof Movie)
+			return true;
+		if (isEpisode(file, strict))
+			return false;
+
+		try {
+			return matchMovieName(asList(file.getName(), file.getParent()), strict, 0).size() > 0;
+		} catch (Exception e) {
+			debug.log(Level.SEVERE, "Failed to access movie index: " + e.getMessage(), e);
+		}
+
+		// check for valid imdb id patterns
+		return grepImdbId(file.getPath()).stream().map(Movie::new).filter(m -> {
+			try {
+				return strict ? WebServices.TheMovieDB.getMovieDescriptor(m, Locale.ENGLISH).getId() > 0 : true;
+			} catch (Exception e) {
+				return false;
+			}
+		}).filter(Objects::nonNull).findFirst().isPresent();
 	}
 
 	private static final SeasonEpisodeMatcher seasonEpisodeMatcherStrict = new SmartSeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, true);
@@ -513,9 +544,7 @@ public class MediaDetection {
 		HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(maxStartIndex);
 		List<String> matches = new ArrayList<String>();
 
-		List<CollationKey[]> names = HighPerformanceMatcher.prepare(files);
-
-		for (CollationKey[] name : names) {
+		for (CollationKey[] name : HighPerformanceMatcher.prepare(files)) {
 			IndexEntry<SearchResult> bestMatch = null;
 			for (IndexEntry<SearchResult> it : index) {
 				CollationKey[] commonName = nameMatcher.matchFirstCommonSequence(new CollationKey[][] { name, it.getLenientKey() });
@@ -529,15 +558,9 @@ public class MediaDetection {
 		}
 
 		// sort by length of name match (descending)
-		sort(matches, new Comparator<String>() {
-
-			@Override
-			public int compare(String a, String b) {
-				return Integer.valueOf(b.length()).compareTo(Integer.valueOf(a.length()));
-			}
-		});
-
-		return matches;
+		return matches.stream().sorted((a, b) -> {
+			return Integer.compare(b.length(), a.length());
+		}).collect(toList());
 	}
 
 	public static List<SearchResult> matchSeriesFromStringWithoutSpacing(Collection<String> names, boolean strict, List<IndexEntry<SearchResult>> index) throws IOException {
@@ -583,7 +606,7 @@ public class MediaDetection {
 		// lookup by id from nfo file
 		if (service != null) {
 			for (int imdbid : grepImdbId(movieFile.getPath())) {
-				Movie movie = service.getMovieDescriptor(new Movie(null, 0, imdbid, -1), locale);
+				Movie movie = service.getMovieDescriptor(new Movie(imdbid), locale);
 				if (movie != null) {
 					options.add(movie);
 				}
@@ -591,7 +614,7 @@ public class MediaDetection {
 
 			// try to grep imdb id from nfo files
 			for (int imdbid : grepImdbIdFor(movieFile)) {
-				Movie movie = service.getMovieDescriptor(new Movie(null, 0, imdbid, -1), locale);
+				Movie movie = service.getMovieDescriptor(new Movie(imdbid), locale);
 				if (movie != null) {
 					options.add(movie);
 				}
@@ -879,16 +902,9 @@ public class MediaDetection {
 		}
 
 		// sort by length of name match (descending)
-		List<Movie> results = new ArrayList<Movie>(matchMap.keySet());
-		sort(results, new Comparator<Movie>() {
-
-			@Override
-			public int compare(Movie a, Movie b) {
-				return Integer.valueOf(matchMap.get(b).length()).compareTo(Integer.valueOf(matchMap.get(a).length()));
-			}
-		});
-
-		return results;
+		return matchMap.keySet().stream().sorted((a, b) -> {
+			return Integer.compare(matchMap.get(b).length(), matchMap.get(a).length());
+		}).collect(toList());
 	}
 
 	public static List<Movie> matchMovieFromStringWithoutSpacing(Collection<String> names, boolean strict) throws IOException {
@@ -1223,14 +1239,11 @@ public class MediaDetection {
 
 	public static Set<Integer> grepImdbId(CharSequence text) {
 		// scan for imdb id patterns like tt1234567
-		Matcher imdbMatch = Pattern.compile("(?<=tt)\\d{7}").matcher(text);
+		Matcher imdbMatch = Pattern.compile("(?<!\\p{Alnum})tt(\\d{7})(?!\\p{Alnum})", Pattern.CASE_INSENSITIVE).matcher(text);
 		Set<Integer> collection = new LinkedHashSet<Integer>();
 
 		while (imdbMatch.find()) {
-			int imdbid = Integer.parseInt(imdbMatch.group());
-			if (imdbid > 0) {
-				collection.add(imdbid);
-			}
+			collection.add(Integer.parseInt(imdbMatch.group(1)));
 		}
 
 		return collection;
@@ -1259,7 +1272,7 @@ public class MediaDetection {
 	public static Movie grepMovie(File nfo, MovieIdentificationService resolver, Locale locale) throws Exception {
 		String contents = new String(readFile(nfo), "UTF-8");
 		int imdbid = grepImdbId(contents).iterator().next();
-		return resolver.getMovieDescriptor(new Movie(null, 0, imdbid, -1), locale);
+		return resolver.getMovieDescriptor(new Movie(imdbid), locale);
 	}
 
 	public static SeriesInfo grepSeries(File nfo, Locale locale) throws Exception {
@@ -1374,11 +1387,9 @@ public class MediaDetection {
 		}
 
 		public static List<CollationKey[]> prepare(Collection<String> sequences) {
-			List<CollationKey[]> result = new ArrayList<CollationKey[]>(sequences.size());
-			for (String it : sequences) {
-				result.add(prepare(normalizePunctuation(it)));
-			}
-			return result;
+			return sequences.stream().filter(Objects::nonNull).map(s -> {
+				return prepare(normalizePunctuation(s));
+			}).collect(toList());
 		}
 
 		public static List<IndexEntry<Movie>> prepare(Movie m) {

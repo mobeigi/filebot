@@ -64,7 +64,7 @@ public class OMDbClientTest {
 
 	@Test
 	public void getMovieDescriptor1() throws Exception {
-		Movie movie = client.getMovieDescriptor(new Movie(null, 0, 499549, -1), null);
+		Movie movie = client.getMovieDescriptor(new Movie(499549), null);
 
 		assertEquals("Avatar", movie.getName());
 		assertEquals(2009, movie.getYear());
@@ -73,7 +73,7 @@ public class OMDbClientTest {
 
 	@Test
 	public void getMovieDescriptor2() throws Exception {
-		Movie movie = client.getMovieDescriptor(new Movie(null, 0, 211915, -1), null);
+		Movie movie = client.getMovieDescriptor(new Movie(211915), null);
 
 		assertEquals("Amélie", movie.getName());
 		assertEquals(2001, movie.getYear());
@@ -82,7 +82,7 @@ public class OMDbClientTest {
 
 	@Test
 	public void getMovieDescriptor3() throws Exception {
-		Movie movie = client.getMovieDescriptor(new Movie(null, 0, 75610, -1), null);
+		Movie movie = client.getMovieDescriptor(new Movie(75610), null);
 
 		assertEquals("21 Up", movie.getName());
 		assertEquals(1977, movie.getYear());
@@ -91,7 +91,7 @@ public class OMDbClientTest {
 
 	@Test
 	public void getMovieDescriptor4() throws Exception {
-		Movie movie = client.getMovieDescriptor(new Movie(null, 0, 369702, -1), null);
+		Movie movie = client.getMovieDescriptor(new Movie(369702), null);
 
 		assertEquals("The Sea Inside", movie.getName());
 		assertEquals(2004, movie.getYear());
@@ -100,7 +100,7 @@ public class OMDbClientTest {
 
 	@Test
 	public void getMovieDescriptor5() throws Exception {
-		Movie movie = client.getMovieDescriptor(new Movie(null, 0, 1020960, -1), null);
+		Movie movie = client.getMovieDescriptor(new Movie(1020960), null);
 
 		assertEquals("God, the Universe and Everything Else", movie.getName());
 		assertEquals(1988, movie.getYear());
@@ -109,7 +109,7 @@ public class OMDbClientTest {
 
 	@Test
 	public void getImdbApiMovieInfoReleasedNA() throws Exception {
-		MovieInfo movie = client.getMovieInfo(new Movie(null, -1, 1287357, -1));
+		MovieInfo movie = client.getMovieInfo(new Movie(1287357));
 		assertEquals("Sommersonntag", movie.getName());
 		assertEquals(2008, movie.getReleased().getYear());
 		assertEquals("2008-06-07", movie.getReleased().toString());

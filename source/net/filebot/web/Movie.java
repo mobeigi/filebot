@@ -20,6 +20,10 @@ public class Movie extends SearchResult {
 		// used by serializer
 	}
 
+	public Movie(int imdbId) {
+		this(null, 0, imdbId, -1);
+	}
+
 	public Movie(String name, int year, int imdbId, int tmdbId) {
 		this(name, null, year, imdbId, tmdbId, null);
 	}

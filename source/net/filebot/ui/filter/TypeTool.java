@@ -1,8 +1,6 @@
 package net.filebot.ui.filter;
 
-import static java.util.Arrays.*;
 import static java.util.Collections.*;
-import static net.filebot.MediaTypes.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
@@ -72,8 +70,8 @@ class TypeTool extends Tool<TreeModel> {
 
 	public Map<String, FileFilter> getMetaTypes() {
 		Map<String, FileFilter> types = new LinkedHashMap<String, FileFilter>();
-		types.put("Episode", new EpisodeFilter());
-		types.put("Movie", new MovieFilter());
+		types.put("Movie", (f) -> MediaDetection.isMovie(f, true));
+		types.put("Episode", (f) -> MediaDetection.isEpisode(f, true));
 		types.put("Video", MediaTypes.VIDEO_FILES);
 		types.put("Subtitle", MediaTypes.SUBTITLE_FILES);
 		types.put("Audio", MediaTypes.AUDIO_FILES);
@@ -82,30 +80,6 @@ class TypeTool extends Tool<TreeModel> {
 		types.put("Clutter", MediaDetection.getClutterFileFilter());
 		types.put("Disk Folder", MediaDetection.getDiskFolderFilter());
 		return types;
-	}
-
-	private static class EpisodeFilter implements FileFilter {
-
-		private final static long MAX_SIZE = 50 * MEGA;
-
-		@Override
-		public boolean accept(File file) {
-			return file.length() > MAX_SIZE && VIDEO_FILES.accept(file) && MediaDetection.isEpisode(file.getPath(), true);
-		}
-	}
-
-	private static class MovieFilter implements FileFilter {
-
-		private final static long MAX_SIZE = 500 * MEGA;
-
-		@Override
-		public boolean accept(File file) {
-			try {
-				return file.length() > MAX_SIZE && VIDEO_FILES.accept(file) && !MediaDetection.isEpisode(file.getPath(), true) && MediaDetection.matchMovieName(asList(file.getName(), file.getParent()), true, 0).size() > 0;
-			} catch (Exception e) {
-				return false;
-			}
-		}
 	}
 
 	@Override

@@ -67,7 +67,7 @@ public class TMDbClientTest {
 
 	@Test
 	public void searchByIMDB() throws Exception {
-		Movie movie = tmdb.getMovieDescriptor(new Movie(null, 0, 418279, -1), Locale.ENGLISH);
+		Movie movie = tmdb.getMovieDescriptor(new Movie(418279), Locale.ENGLISH);
 
 		assertEquals("Transformers", movie.getName());
 		assertEquals(2007, movie.getYear(), 0);
@@ -77,7 +77,7 @@ public class TMDbClientTest {
 
 	@Test
 	public void getMovieInfo() throws Exception {
-		MovieInfo movie = tmdb.getMovieInfo(new Movie(null, 0, 418279, -1), Locale.ENGLISH, true);
+		MovieInfo movie = tmdb.getMovieInfo(new Movie(418279), Locale.ENGLISH, true);
 
 		assertEquals("Transformers", movie.getName());
 		assertEquals("2007-06-27", movie.getReleased().toString());
