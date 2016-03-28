@@ -92,21 +92,25 @@ public class Preset {
 	}
 
 	public AutoCompleteMatcher getAutoCompleteMatcher() {
-		EpisodeListProvider sdb = WebServices.getEpisodeListProvider(database);
-		if (sdb != null) {
-			return new EpisodeListMatcher(sdb, sdb != WebServices.AniDB, sdb == WebServices.AniDB);
-		}
 		MovieIdentificationService mdb = WebServices.getMovieIdentificationService(database);
 		if (mdb != null) {
 			return new MovieHashMatcher(mdb);
 		}
+
+		EpisodeListProvider sdb = WebServices.getEpisodeListProvider(database);
+		if (sdb != null) {
+			return new EpisodeListMatcher(sdb, sdb != WebServices.AniDB, sdb == WebServices.AniDB);
+		}
+
 		MusicIdentificationService adb = WebServices.getMusicIdentificationService(database);
 		if (adb != null) {
 			return new AudioFingerprintMatcher(adb);
 		}
+
 		if (PlainFileMatcher.getInstance().getIdentifier().equals(database)) {
 			return PlainFileMatcher.getInstance();
 		}
+
 		throw new IllegalStateException(database);
 	}
 
@@ -114,21 +118,26 @@ public class Preset {
 		if (database == null || database.isEmpty()) {
 			return null;
 		}
+
 		MovieIdentificationService mdb = WebServices.getMovieIdentificationService(database);
 		if (mdb != null) {
 			return mdb;
 		}
+
 		EpisodeListProvider sdb = WebServices.getEpisodeListProvider(database);
 		if (sdb != null) {
 			return sdb;
 		}
+
 		MusicIdentificationService adb = WebServices.getMusicIdentificationService(database);
 		if (adb != null) {
 			return adb;
 		}
+
 		if (PlainFileMatcher.getInstance().getIdentifier().equals(database)) {
 			return PlainFileMatcher.getInstance();
 		}
+
 		throw new IllegalStateException(database);
 	}
 

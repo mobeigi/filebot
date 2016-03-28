@@ -104,7 +104,7 @@ public final class WebServices {
 	}
 
 	private static <T extends Datasource> T getService(String name, T[] services) {
-		return StreamEx.of(services).findFirst(it -> it.getIdentifier().equalsIgnoreCase(name)).orElse(null);
+		return StreamEx.of(services).findFirst(it -> it.getIdentifier().equalsIgnoreCase(name) || it.getName().equalsIgnoreCase(name)).orElse(null);
 	}
 
 	public static final ExecutorService requestThreadPool = Executors.newCachedThreadPool();

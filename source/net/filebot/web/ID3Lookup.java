@@ -24,6 +24,11 @@ public class ID3Lookup implements MusicIdentificationService {
 	}
 
 	@Override
+	public String getIdentifier() {
+		return "ID3";
+	}
+
+	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("search.mediainfo");
 	}
