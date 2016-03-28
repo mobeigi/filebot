@@ -5,6 +5,7 @@ import static javax.swing.JOptionPane.*;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics2D;
@@ -259,6 +260,16 @@ public final class SwingUI {
 		timer.start();
 
 		return timer;
+	}
+
+	public static void withWaitCursor(Object source, BackgroundRunnable runnable) throws Exception {
+		Window window = getWindow(source);
+		try {
+			window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			runnable.run();
+		} finally {
+			window.setCursor(Cursor.getDefaultCursor());
+		}
 	}
 
 	public static JButton newButton(String name, Icon icon, Consumer<ActionEvent> action) {

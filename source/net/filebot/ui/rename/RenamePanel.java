@@ -6,7 +6,6 @@ import static javax.swing.KeyStroke.*;
 import static javax.swing.SwingUtilities.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
-import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.ui.LoadingOverlayPane.*;
 import static net.filebot.util.ui.SwingUI.*;
@@ -326,35 +325,33 @@ public class RenamePanel extends JComponent {
 			public void actionPerformed(ActionEvent evt) {
 				try {
 					if (namesList.getModel().isEmpty()) {
-						try {
-							getWindow(evt.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+						withWaitCursor(evt.getSource(), () -> {
+							// try to read xattr from all files
+							Map<File, Object> xattr = WebServices.XattrMetaData.getMetaData(renameModel.files());
 
-							List<File> files = new ArrayList<File>(renameModel.files());
-							List<Object> objects = new ArrayList<Object>(files.size());
-							List<File> objectsTail = new ArrayList<File>();
-							for (File file : files) {
-								Object metaObject = xattr.getMetaInfo(file);
-								if (metaObject != null) {
-									objects.add(metaObject); // upper list is based on xattr metadata
-								} else {
-									objectsTail.add(file); // lower list is just the fallback file object
-								}
-							}
-							objects.addAll(objectsTail);
+							// upper list is based on xattr metadata
+							List<File> files = new ArrayList<File>(xattr.keySet());
+							List<Object> objects = new ArrayList<Object>(xattr.values());
+
+							// lower list is just the fallback file object
+							renameModel.files().stream().filter(f -> !xattr.containsKey(f)).forEach(f -> {
+								files.add(f);
+								objects.add(f);
+							});
 
 							renameModel.clear();
 							renameModel.addAll(objects, files);
-						} finally {
-							getWindow(evt.getSource()).setCursor(Cursor.getDefaultCursor());
-						}
+						});
 					} else {
 						int index = namesList.getListComponent().getSelectedIndex();
-						File file = (File) filesList.getListComponent().getModel().getElementAt(index);
-						String generatedName = namesList.getListComponent().getModel().getElementAt(index).toString();
+						if (index >= 0) {
+							File file = (File) filesList.getListComponent().getModel().getElementAt(index);
+							String generatedName = namesList.getListComponent().getModel().getElementAt(index).toString();
 
-						String forcedName = showInputDialog("Enter Name:", generatedName, "Enter Name", RenamePanel.this);
-						if (forcedName != null && forcedName.length() > 0) {
-							renameModel.matches().set(index, new Match<Object, File>(forcedName, file));
+							String forcedName = showInputDialog("Enter Name:", generatedName, "Enter Name", RenamePanel.this);
+							if (forcedName != null && forcedName.length() > 0) {
+								renameModel.matches().set(index, new Match<Object, File>(forcedName, file));
+							}
 						}
 					}
 				} catch (Exception e) {
