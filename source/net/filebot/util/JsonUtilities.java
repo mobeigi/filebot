@@ -17,6 +17,9 @@ public class JsonUtilities {
 	public static final Object[] EMPTY_ARRAY = new Object[0];
 
 	public static Object readJson(CharSequence json) {
+		if (json.length() == 0) {
+			return EMPTY_MAP;
+		}
 		return JsonReader.jsonToJava(json.toString(), singletonMap(JsonReader.USE_MAPS, true));
 	}
 

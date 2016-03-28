@@ -78,29 +78,28 @@ public final class WebRequest {
 		return new InputStreamReader(inputStream, charset);
 	}
 
-	public static Document getDocument(URL url) throws IOException, SAXException {
+	public static Document getDocument(URL url) throws Exception {
 		return getDocument(url.openConnection());
 	}
 
-	public static Document getDocument(URLConnection connection) throws IOException, SAXException {
+	public static Document getDocument(URLConnection connection) throws Exception {
 		return getDocument(new InputSource(getReader(connection)));
 	}
 
-	public static Document getDocument(String xml) throws IOException, SAXException {
+	public static Document getDocument(String xml) throws Exception {
+		if (xml.isEmpty()) {
+			return DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+		}
+
 		return getDocument(new InputSource(new StringReader(xml)));
 	}
 
-	public static Document getDocument(InputSource source) throws IOException, SAXException {
-		try {
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			factory.setValidating(false);
-			factory.setFeature("http://xml.org/sax/features/namespaces", false);
-			factory.setFeature("http://xml.org/sax/features/validation", false);
-			return factory.newDocumentBuilder().parse(source);
-		} catch (ParserConfigurationException e) {
-			// will never happen
-			throw new RuntimeException(e);
-		}
+	public static Document getDocument(InputSource source) throws Exception {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setValidating(false);
+		factory.setFeature("http://xml.org/sax/features/namespaces", false);
+		factory.setFeature("http://xml.org/sax/features/validation", false);
+		return factory.newDocumentBuilder().parse(source);
 	}
 
 	public static ByteBuffer fetch(URL resource) throws IOException {
@@ -311,6 +310,9 @@ public final class WebRequest {
 	}
 
 	public static void validateXml(String xml) throws SAXException, ParserConfigurationException, IOException {
+		if (xml.isEmpty())
+			return;
+
 		SAXParserFactory sax = SAXParserFactory.newInstance();
 		sax.setValidating(false);
 		sax.setNamespaceAware(false);
