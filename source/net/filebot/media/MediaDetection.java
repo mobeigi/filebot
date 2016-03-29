@@ -44,6 +44,7 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.filebot.Resource;
 import net.filebot.WebServices;
 import net.filebot.archive.Archive;
 import net.filebot.format.MediaBindingBean;
@@ -458,23 +459,8 @@ public class MediaDetection {
 			}
 		}
 
-		// DEBUG
 		debug.finest(format("Match Series Name => %s %s", names, matches));
-
-		try {
-			Collection<String> priorityMatchSet = new LinkedHashSet<String>();
-			priorityMatchSet.addAll(stripReleaseInfo(matches, true));
-			priorityMatchSet.addAll(stripReleaseInfo(matches, false));
-			matches = stripBlacklistedTerms(priorityMatchSet);
-		} catch (Exception e) {
-			debug.warning("Failed to clean matches: " + e);
-		}
-		names.addAll(matches);
-
-		// filter out duplicates
 		List<String> querySet = getUniqueQuerySet(unids, names);
-
-		// DEBUG
 		debug.finest(format("Query Series => %s", querySet));
 		return querySet;
 	}
@@ -940,13 +926,8 @@ public class MediaDetection {
 	}
 
 	private static List<Movie> queryMovieByFileName(Collection<String> files, MovieIdentificationService queryLookupService, Locale locale) throws Exception {
-		// remove blacklisted terms
-		List<String> querySet = new ArrayList<String>();
-		querySet.addAll(stripReleaseInfo(files, true));
-		querySet.addAll(stripReleaseInfo(files, false));
-
-		// remove duplicates
-		querySet = getUniqueQuerySet(emptySet(), stripBlacklistedTerms(querySet));
+		// remove blacklisted terms and remove duplicates
+		List<String> querySet = getUniqueQuerySet(emptySet(), files);
 
 		// DEBUG
 		debug.finest(format("Query Movie => %s", querySet));
@@ -969,14 +950,19 @@ public class MediaDetection {
 	}
 
 	private static List<String> getUniqueQuerySet(Collection<String> exactMatches, Collection<String> guessMatches) {
-		Map<String, String> uniqueMap = new LinkedHashMap<String, String>();
+		Map<String, String> unique = new LinkedHashMap<String, String>();
 
 		// unique key function (case-insensitive ignore-punctuation)
 		Function<String, String> normalize = (s) -> normalizePunctuation(s).toLowerCase();
-		addUniqueQuerySet(exactMatches, normalize, Function.identity(), uniqueMap);
-		addUniqueQuerySet(guessMatches, normalize, normalize, uniqueMap);
+		addUniqueQuerySet(exactMatches, normalize, Function.identity(), unique);
 
-		return new ArrayList<String>(uniqueMap.values());
+		// remove blacklisted terms and remove duplicates
+		Set<String> terms = new LinkedHashSet<String>();
+		terms.addAll(stripReleaseInfo(guessMatches, true));
+		terms.addAll(stripReleaseInfo(guessMatches, false));
+		addUniqueQuerySet(stripBlacklistedTerms(terms), normalize, normalize, unique);
+
+		return new ArrayList<String>(unique.values());
 	}
 
 	private static void addUniqueQuerySet(Collection<String> terms, Function<String, String> keyFunction, Function<String, String> valueFunction, Map<String, String> uniqueMap) {
@@ -986,10 +972,6 @@ public class MediaDetection {
 				uniqueMap.put(key, valueFunction.apply(it));
 			}
 		}
-	}
-
-	public static String stripReleaseInfo(String name) {
-		return stripReleaseInfo(name, true);
 	}
 
 	public static List<Movie> matchMovieByWordSequence(String name, Collection<Movie> options, int maxStartIndex) {
@@ -1017,18 +999,6 @@ public class MediaDetection {
 
 	public static String stripFormatInfo(CharSequence name) {
 		return formatInfoPattern.matcher(name).replaceAll("");
-	}
-
-	public static String stripReleaseInfo(String name, boolean strict) {
-		try {
-			Iterator<String> value = releaseInfo.cleanRelease(singleton(name), strict).iterator();
-			if (value.hasNext()) {
-				return value.next();
-			}
-		} catch (Exception e) {
-			debug.log(Level.SEVERE, "Failed to strip release info: " + e.getMessage(), e);
-		}
-		return ""; // default value in case all tokens are stripped away
 	}
 
 	public static boolean isStructureRoot(File folder) throws Exception {
@@ -1154,24 +1124,37 @@ public class MediaDetection {
 		return file.getParentFile();
 	}
 
-	public static List<String> stripReleaseInfo(Collection<String> names, boolean strict) throws Exception {
-		return releaseInfo.cleanRelease(names, strict);
+	public static List<String> stripReleaseInfo(Collection<String> names, boolean strict) {
+		try {
+			return releaseInfo.cleanRelease(names, strict);
+		} catch (Exception e) {
+			debug.log(Level.SEVERE, "Failed to strip release info: " + e.getMessage(), e);
+		}
+		return new ArrayList<String>(names);
 	}
 
-	private static Pattern blacklistPattern;
-
-	public static List<String> stripBlacklistedTerms(Collection<String> names) throws Exception {
-		if (blacklistPattern == null) {
-			blacklistPattern = releaseInfo.getBlacklistPattern();
+	public static String stripReleaseInfo(String name, boolean strict) {
+		Iterator<String> value = stripReleaseInfo(singleton(name), strict).iterator();
+		if (value.hasNext()) {
+			return value.next();
 		}
+		return ""; // default value in case all tokens are stripped away
+	}
 
-		List<String> acceptables = new ArrayList<String>(names.size());
-		for (String it : names) {
-			if (blacklistPattern.matcher(it).replaceAll("").trim().length() > 0) {
-				acceptables.add(it);
-			}
+	public static String stripReleaseInfo(String name) {
+		return stripReleaseInfo(name, true);
+	}
+
+	private static final Resource<Pattern> blacklistPattern = Resource.lazy(releaseInfo::getBlacklistPattern);
+
+	public static List<String> stripBlacklistedTerms(Collection<String> names) {
+		try {
+			Pattern pattern = blacklistPattern.get();
+			return names.stream().filter(s -> pattern.matcher(s).replaceAll("").trim().length() > 0).collect(toList());
+		} catch (Exception e) {
+			debug.log(Level.SEVERE, "Failed to strip release info: " + e.getMessage(), e);
 		}
-		return acceptables;
+		return emptyList();
 	}
 
 	public static Set<Integer> grepImdbIdFor(File file) throws Exception {
