@@ -252,7 +252,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		return null;
 	}
 
-	public Movie matchMovie(String name) throws Exception {
+	public Movie matchMovie(String name) {
 		List<Movie> matches = MediaDetection.matchMovieName(singleton(name), true, 0);
 		return matches == null || matches.isEmpty() ? null : matches.get(0);
 	}

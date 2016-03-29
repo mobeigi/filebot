@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -33,7 +34,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
@@ -81,7 +81,7 @@ public class MediaDetection {
 		try {
 			return releaseInfo.getClutterFileFilter();
 		} catch (Exception e) {
-			debug.log(Level.SEVERE, "Failed to access clutter file filter: " + e.getMessage(), e);
+			debug.log(Level.SEVERE, "Failed to load clutter file filter: " + e.getMessage(), e);
 		}
 		return f -> false;
 	}
@@ -125,14 +125,12 @@ public class MediaDetection {
 	public static boolean isMovie(File file, boolean strict) {
 		if (xattr.getMetaInfo(file) instanceof Movie)
 			return true;
+
 		if (isEpisode(file, strict))
 			return false;
 
-		try {
-			return matchMovieName(asList(file.getName(), file.getParent()), strict, 0).size() > 0;
-		} catch (Exception e) {
-			debug.log(Level.SEVERE, "Failed to access movie index: " + e.getMessage(), e);
-		}
+		if (matchMovieName(asList(file.getName(), file.getParent()), strict, 0).size() > 0)
+			return true;
 
 		// check for valid imdb id patterns
 		return grepImdbId(file.getPath()).stream().map(Movie::new).filter(m -> {
@@ -851,14 +849,14 @@ public class MediaDetection {
 		return null;
 	}
 
-	public static Movie checkMovie(File file, boolean strict) throws Exception {
-		List<Movie> matches = file != null ? matchMovieName(singleton(file.getName()), strict, 4) : null;
-		return matches != null && matches.size() > 0 ? matches.get(0) : null;
+	public static Movie checkMovie(File file, boolean strict) {
+		List<Movie> matches = file == null ? null : matchMovieName(singleton(file.getName()), strict, 4);
+		return matches == null || matches.isEmpty() ? null : matches.get(0);
 	}
 
 	private static final ArrayList<IndexEntry<Movie>> movieIndex = new ArrayList<IndexEntry<Movie>>();
 
-	public static List<IndexEntry<Movie>> getMovieIndex() throws IOException {
+	public static List<IndexEntry<Movie>> getMovieIndex() {
 		synchronized (movieIndex) {
 			if (movieIndex.isEmpty()) {
 				movieIndex.ensureCapacity(100000);
@@ -878,7 +876,7 @@ public class MediaDetection {
 		}
 	}
 
-	public static List<Movie> matchMovieName(final Collection<String> files, boolean strict, int maxStartIndex) throws Exception {
+	public static List<Movie> matchMovieName(Collection<String> files, boolean strict, int maxStartIndex) {
 		// cross-reference file / folder name with movie list
 		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(maxStartIndex);
 		final Map<Movie, String> matchMap = new HashMap<Movie, String>();
@@ -907,7 +905,7 @@ public class MediaDetection {
 		}).collect(toList());
 	}
 
-	public static List<Movie> matchMovieFromStringWithoutSpacing(Collection<String> names, boolean strict) throws IOException {
+	public static List<Movie> matchMovieFromStringWithoutSpacing(Collection<String> names, boolean strict) {
 		// clear name of punctuation, spacing, and leading 'The' or 'A' that are common causes for word-lookup to fail
 		Pattern spacing = Pattern.compile("(^(?i)(The|A)\\b)|[\\p{Punct}\\p{Space}]+");
 
@@ -1023,12 +1021,14 @@ public class MediaDetection {
 
 	public static String stripReleaseInfo(String name, boolean strict) {
 		try {
-			return releaseInfo.cleanRelease(singleton(name), strict).iterator().next();
-		} catch (NoSuchElementException e) {
-			return ""; // default value in case all tokens are stripped away
+			Iterator<String> value = releaseInfo.cleanRelease(singleton(name), strict).iterator();
+			if (value.hasNext()) {
+				return value.next();
+			}
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			debug.log(Level.SEVERE, "Failed to strip release info: " + e.getMessage(), e);
 		}
+		return ""; // default value in case all tokens are stripped away
 	}
 
 	public static boolean isStructureRoot(File folder) throws Exception {
@@ -1129,16 +1129,13 @@ public class MediaDetection {
 	}
 
 	public static Movie matchMovie(File file, int depth) {
-		try {
-			List<String> names = new ArrayList<String>(depth);
-			for (File it : listPathTail(file, depth, true)) {
-				names.add(it.getName());
-			}
-			List<Movie> matches = matchMovieName(names, true, 0);
-			return matches.size() > 0 ? matches.get(0) : null;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		List<String> names = new ArrayList<String>(depth);
+		for (File it : listPathTail(file, depth, true)) {
+			names.add(it.getName());
 		}
+
+		List<Movie> matches = matchMovieName(names, true, 0);
+		return matches.size() > 0 ? matches.get(0) : null;
 	}
 
 	public static File guessMediaFolder(File file) {
