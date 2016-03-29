@@ -95,19 +95,19 @@ public class ReleaseInfo {
 		return null;
 	}
 
-	public String getReleaseGroup(String... strings) throws Exception {
+	public String getReleaseGroup(String... name) throws Exception {
 		// check file and folder for release group names
 		String[] groups = releaseGroup.get();
 
 		// try case-sensitive match
-		String match = matchLast(getReleaseGroupPattern(true), groups, strings);
+		String match = matchLast(getReleaseGroupPattern(true), groups, name);
 
 		if (match != null) {
 			return match;
 		}
 
 		// try case-insensitive match
-		return matchLast(getReleaseGroupPattern(false), groups, strings);
+		return matchLast(getReleaseGroupPattern(false), groups, name);
 	}
 
 	private Pattern languageTag;
@@ -177,8 +177,8 @@ public class ReleaseInfo {
 			Pattern resolution = getResolutionPattern();
 			Pattern queryBlacklist = getBlacklistPattern();
 
-			stopwords[b] = new Pattern[] { languageTag, videoSource, videoTags, videoFormat, resolution, stereoscopic3d, languageSuffix };
-			blacklist[b] = new Pattern[] { releaseGroupTrim, queryBlacklist, languageTag, clutterBracket, releaseGroup, videoSource, videoTags, videoFormat, resolution, stereoscopic3d, languageSuffix };
+			stopwords[b] = new Pattern[] { languageSuffix, languageTag, videoSource, videoTags, videoFormat, resolution, stereoscopic3d };
+			blacklist[b] = new Pattern[] { languageSuffix, releaseGroupTrim, queryBlacklist, languageTag, clutterBracket, releaseGroup, videoSource, videoTags, videoFormat, resolution, stereoscopic3d };
 		}
 
 		return items.stream().map(it -> {
@@ -324,8 +324,13 @@ public class ReleaseInfo {
 	}
 
 	public Pattern getReleaseGroupPattern(boolean strict) throws Exception {
-		// pattern matching any release group name enclosed in separators
-		return compile("((?<!\\p{Alnum})" + or(releaseGroup.get()) + "(?!\\p{Alnum}|[^\\p{Alnum}](19|20)\\d{2})($|[\\p{Punct}]))+", strict ? 0 : CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		// match 1..N group patterns
+		String group = "((?<!\\p{Alnum})" + or(releaseGroup.get()) + "(?!\\p{Alnum})[\\p{Punct}]??)+";
+
+		// group pattern at beginning or ending of the string
+		String[] groupHeadTail = { "(?<=^[^\\p{Alnum}]*)" + group, group + "(?=[\\p{Alpha}\\p{Punct}]*$)" };
+
+		return compile(or(groupHeadTail), strict ? 0 : CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
 	public Pattern getReleaseGroupTrimPattern() throws Exception {

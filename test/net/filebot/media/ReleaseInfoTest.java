@@ -22,6 +22,17 @@ public class ReleaseInfoTest {
 	}
 
 	@Test
+	public void getReleaseGroupWithSubs() throws Exception {
+		assertEquals("aXXo", info.getReleaseGroup("Jurassic.Park[1993]DvDrip-aXXo.eng-forced"));
+	}
+
+	@Test
+	public void getReleaseGroupFalseNegative() throws Exception {
+		assertEquals(null, info.getReleaseGroup("The.aXXo.Movie.2005"));
+		assertEquals(null, info.getReleaseGroup("The aXXo Movie"));
+	}
+
+	@Test
 	public void getClutterBracketPattern() throws Exception {
 		assertEquals("John [2016]  (ENG)", clean(info.getClutterBracketPattern(true), "John [2016] [Action, Drama] (ENG)"));
 		assertEquals("John [2016]  ", clean(info.getClutterBracketPattern(false), "John [2016] [Action, Drama] (ENG)"));
