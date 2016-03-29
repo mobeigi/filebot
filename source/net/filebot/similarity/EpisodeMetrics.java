@@ -3,7 +3,7 @@ package net.filebot.similarity;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
-import static net.filebot.Logging.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.similarity.Normalization.*;
@@ -13,7 +13,6 @@ import static net.filebot.util.StringUtilities.*;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -330,43 +329,22 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		}
 
 		protected List<?> getEffectiveIdentifiers(Object object) {
-			List<String> names = null;
-
 			if (object instanceof Episode) {
-				names = ((Episode) object).getSeriesNames();
+				Episode episode = (Episode) object;
+
+				// strip release info from known series name to make sure it matches the stripped filename
+				return stripReleaseInfo(episode.getSeriesNames(), true);
 			} else if (object instanceof File) {
 				File file = (File) object;
 
-				// check direct mappings first
-				try {
-					List<String> directMapping = matchSeriesByMapping(singleton(file));
-					if (directMapping.size() > 0) {
-						return directMapping;
-					}
-				} catch (Exception e) {
-					debug.warning("Failed to retrieve series mappings: " + e.getMessage());
-				}
-
 				// guess potential series names from path
-				names = new ArrayList<String>(3);
-
-				for (File f : listPathTail(file, 3, true)) {
+				return listPathTail(file, 3, true).stream().map(f -> {
 					String fn = getName(f);
 					String sn = seriesNameMatcher.matchByEpisodeIdentifier(fn);
-					names.add(sn != null ? sn : fn);
-				}
+					return sn != null ? sn : fn;
+				}).collect(collectingAndThen(toList(), v -> stripReleaseInfo(v, true)));
 			}
 
-			// equally strip away strip potential any clutter
-			if (names != null) {
-				try {
-					return stripReleaseInfo(names, true);
-				} catch (Exception e) {
-					debug.warning("Failed to strip release info: " + e.toString());
-				}
-			}
-
-			// simplify file name, if possible
 			return emptyList();
 		}
 	}),
