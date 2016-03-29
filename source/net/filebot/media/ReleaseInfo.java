@@ -36,6 +36,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 import org.tukaani.xz.XZInputStream;
 
@@ -181,9 +182,10 @@ public class ReleaseInfo {
 		}
 
 		return items.stream().map(it -> {
-			it = strict ? clean(it, stopwords[b]) : substringBefore(it, stopwords[b]);
-			it = normalizePunctuation(clean(it, blacklist[b]));
-			return it;
+			String head = strict ? clean(it, stopwords[b]) : substringBefore(it, stopwords[b]);
+			String norm = normalizePunctuation(clean(head, blacklist[b]));
+			// debug.finest(format("CLEAN: %s => %s => %s", it, head, norm));
+			return norm;
 		}).filter(s -> s.length() > 0).collect(toList());
 	}
 
@@ -310,8 +312,15 @@ public class ReleaseInfo {
 
 	public Pattern getClutterBracketPattern(boolean strict) {
 		// match patterns like [Action, Drama] or {ENG-XViD-MP3-DVDRiP} etc
-		String contentFilter = strict ? "[\\p{Space}\\p{Punct}&&[^\\[\\]]]" : "\\p{Alpha}";
-		return compile("(?:\\[([^\\[\\]]+?" + contentFilter + "[^\\[\\]]+?)\\])|(?:\\{([^\\{\\}]+?" + contentFilter + "[^\\{\\}]+?)\\})|(?:\\(([^\\(\\)]+?" + contentFilter + "[^\\(\\)]+?)\\))");
+		String brackets = "()[]{}";
+		String contains = strict ? "[[^a-z0-9]&&[^" + quote(brackets) + "]]" : "\\p{Alpha}";
+
+		return IntStream.range(0, brackets.length() / 2).map(i -> i * 2).mapToObj(i -> {
+			String open = quote(brackets.substring(i, i + 1));
+			String close = quote(brackets.substring(i + 1, i + 2));
+			String notOpenClose = "[^" + open + close + "]+?";
+			return open + "(" + notOpenClose + contains + notOpenClose + ")" + close;
+		}).collect(collectingAndThen(joining("|"), pattern -> compile(pattern, CASE_INSENSITIVE)));
 	}
 
 	public Pattern getReleaseGroupPattern(boolean strict) throws Exception {
