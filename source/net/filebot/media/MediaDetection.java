@@ -338,7 +338,7 @@ public class MediaDetection {
 
 		// completely trust xattr metadata if all files are tagged
 		if (unids.size() == files.size()) {
-			return getUniqueQuerySet(unids, emptySet());
+			return getUniqueQuerySet(unids);
 		}
 
 		// try to detect series name via nfo files
@@ -351,11 +351,7 @@ public class MediaDetection {
 		}
 
 		// try to detect series name via known patterns
-		try {
-			unids.addAll(matchSeriesByMapping(files));
-		} catch (Exception e) {
-			debug.warning("Failed to match direct mappings: " + e);
-		}
+		unids.addAll(matchSeriesMappings(files));
 
 		// guessed queries
 		List<String> names = new ArrayList<String>();
@@ -421,7 +417,7 @@ public class MediaDetection {
 		}
 
 		// match common word sequence and clean detected word sequence from unwanted elements
-		Collection<String> matches = new LinkedHashSet<String>();
+		Set<String> matches = new LinkedHashSet<String>();
 
 		// check for known pattern matches
 		for (boolean strict : new boolean[] { true, false }) {
@@ -459,25 +455,29 @@ public class MediaDetection {
 			}
 		}
 
-		debug.finest(format("Match Series Name => %s %s", names, matches));
-		List<String> querySet = getUniqueQuerySet(unids, names);
+		debug.finest(format("Match Series Name => %s %s %s", unids, names, matches));
+
+		List<String> querySet = getUniqueQuerySet(unids, names, matches);
 		debug.finest(format("Query Series => %s", querySet));
 		return querySet;
 	}
 
-	public static List<String> matchSeriesByMapping(Collection<File> files) throws Exception {
-		Map<Pattern, String> patterns = releaseInfo.getSeriesMappings();
-		List<String> matches = new ArrayList<String>();
-
-		for (File file : files) {
-			patterns.forEach((pattern, seriesName) -> {
-				if (pattern.matcher(getName(file)).find()) {
-					matches.add(seriesName);
-				}
-			});
+	public static List<String> matchSeriesMappings(Collection<File> files) {
+		try {
+			Map<Pattern, String> patterns = releaseInfo.getSeriesMappings();
+			List<String> matches = new ArrayList<String>();
+			for (File file : files) {
+				patterns.forEach((pattern, seriesName) -> {
+					if (pattern.matcher(getName(file)).find()) {
+						matches.add(seriesName);
+					}
+				});
+			}
+			return matches;
+		} catch (Exception e) {
+			debug.log(Level.SEVERE, "Failed to load series mappings: " + e.getMessage(), e);
 		}
-
-		return matches;
+		return emptyList();
 	}
 
 	private static final ArrayList<IndexEntry<SearchResult>> seriesIndex = new ArrayList<IndexEntry<SearchResult>>();
@@ -949,7 +949,7 @@ public class MediaDetection {
 		return results;
 	}
 
-	private static List<String> getUniqueQuerySet(Collection<String> exactMatches, Collection<String> guessMatches) {
+	private static List<String> getUniqueQuerySet(Collection<String> exactMatches, Collection<String>... guessMatches) {
 		Map<String, String> unique = new LinkedHashMap<String, String>();
 
 		// unique key function (case-insensitive ignore-punctuation)
@@ -958,8 +958,10 @@ public class MediaDetection {
 
 		// remove blacklisted terms and remove duplicates
 		Set<String> terms = new LinkedHashSet<String>();
-		terms.addAll(stripReleaseInfo(guessMatches, true));
-		terms.addAll(stripReleaseInfo(guessMatches, false));
+		for (Collection<String> it : guessMatches) {
+			terms.addAll(stripReleaseInfo(it, true));
+			terms.addAll(stripReleaseInfo(it, false));
+		}
 		addUniqueQuerySet(stripBlacklistedTerms(terms), normalize, normalize, unique);
 
 		return new ArrayList<String>(unique.values());
@@ -1474,7 +1476,7 @@ public class MediaDetection {
 		// load filter data
 		MediaDetection.getClutterFileFilter();
 		MediaDetection.getDiskFolderFilter();
-		MediaDetection.matchSeriesByMapping(emptyList());
+		MediaDetection.matchSeriesMappings(emptyList());
 
 		// load movie/series index
 		MediaDetection.stripReleaseInfo(singleton(""), true);
