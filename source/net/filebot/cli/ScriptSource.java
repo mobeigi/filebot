@@ -5,11 +5,8 @@ import static net.filebot.Settings.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.time.Duration;
 
 import net.filebot.Cache;
