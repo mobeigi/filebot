@@ -148,7 +148,7 @@ public class ReleaseInfo {
 		// prefer standard value over matched value
 		if (lastMatch != null && paragon != null) {
 			for (String it : paragon) {
-				lastMatch = compile("(?<!\\p{Alnum})" + it.replaceAll("[\\p{Punct}\\s]", ".") + "(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS).matcher(lastMatch).replaceAll(it);
+				lastMatch = compile("(?<!\\p{Alnum})" + it.replaceAll("[\\p{Punct}\\s]", ".") + "(?!\\p{Alnum})", CASE_INSENSITIVE).matcher(lastMatch).replaceAll(it);
 			}
 		}
 
@@ -255,7 +255,7 @@ public class ReleaseInfo {
 					folders.add(it);
 				}
 			}
-			structureRootFolderPattern = compile(or(folders.toArray()), CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+			structureRootFolderPattern = compile(or(folders.toArray()), CASE_INSENSITIVE);
 		}
 		return structureRootFolderPattern;
 	}
@@ -263,7 +263,7 @@ public class ReleaseInfo {
 	public Pattern getLanguageTagPattern(Collection<String> languages, boolean strict) {
 		// [en]
 		if (strict) {
-			return compile("(?<=[-\\[\\{\\(])" + or(quoteAll(languages)) + "(?=[-\\]\\}\\)]|$)", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+			return compile("(?<=[-\\[\\{\\(])" + or(quoteAll(languages)) + "(?=[-\\]\\}\\)]|$)", CASE_INSENSITIVE);
 		}
 
 		// FR
@@ -273,12 +273,12 @@ public class ReleaseInfo {
 
 	public Pattern getSubtitleCategoryTagPattern(Collection<String> languages) {
 		// e.g. ".en.srt" or ".en.forced.srt"
-		return compile("(?<=[._-](" + or(quoteAll(languages)) + ")[._-])" + or(getSubtitleCategoryTags()) + "$", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile("(?<=[._-](" + or(quoteAll(languages)) + ")[._-])" + or(getSubtitleCategoryTags()) + "$", CASE_INSENSITIVE);
 	}
 
 	public Pattern getSubtitleLanguageTagPattern(Collection<String> languages) {
 		// e.g. ".en.srt" or ".en.forced.srt"
-		return compile("(?<=[._-])" + or(quoteAll(languages)) + "(?=([._-]" + or(getSubtitleCategoryTags()) + ")?$)", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile("(?<=[._-])" + or(quoteAll(languages)) + "(?=([._-]" + or(getSubtitleCategoryTags()) + ")?$)", CASE_INSENSITIVE);
 	}
 
 	public Pattern getResolutionPattern() {
@@ -330,26 +330,26 @@ public class ReleaseInfo {
 		// group pattern at beginning or ending of the string
 		String[] groupHeadTail = { "(?<=^[^\\p{Alnum}]*)" + group, group + "(?=[\\p{Alpha}\\p{Punct}]*$)" };
 
-		return compile(or(groupHeadTail), strict ? 0 : CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile(or(groupHeadTail), strict ? 0 : CASE_INSENSITIVE);
 	}
 
 	public Pattern getReleaseGroupTrimPattern() throws Exception {
 		// pattern matching any release group name enclosed in specific separators or at the start/end
-		return compile("(?<=\\[|\\(|^)" + or(releaseGroup.get()) + "(?=\\]|\\)|\\-)|(?<=\\[|\\(|\\-)" + or(releaseGroup.get()) + "(?=\\]|\\)|$)", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile("(?<=\\[|\\(|^)" + or(releaseGroup.get()) + "(?=\\]|\\)|\\-)|(?<=\\[|\\(|\\-)" + or(releaseGroup.get()) + "(?=\\]|\\)|$)", CASE_INSENSITIVE);
 	}
 
 	public Pattern getBlacklistPattern() throws Exception {
 		// pattern matching any release group name enclosed in separators
-		return compile("(?<!\\p{Alnum})" + or(queryBlacklist.get()) + "(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile("(?<!\\p{Alnum})" + or(queryBlacklist.get()) + "(?!\\p{Alnum})", CASE_INSENSITIVE);
 	}
 
 	public Pattern getExcludePattern() throws Exception {
 		// pattern matching any release group name enclosed in separators
-		return compile(or(excludeBlacklist.get()), CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile(or(excludeBlacklist.get()), CASE_INSENSITIVE);
 	}
 
 	public Pattern getCustomRemovePattern(Collection<String> terms) throws IOException {
-		return compile("(?<!\\p{Alnum})" + or(quoteAll(terms)) + "(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile("(?<!\\p{Alnum})" + or(quoteAll(terms)) + "(?!\\p{Alnum})", CASE_INSENSITIVE);
 	}
 
 	public Map<Pattern, String> getSeriesMappings() throws Exception {
@@ -414,7 +414,7 @@ public class ReleaseInfo {
 	protected final Resource<Map<Pattern, String>> seriesMappings = resource("url.series-mappings", Cache.ONE_WEEK, Function.identity(), String[]::new).transform(lines -> {
 		Map<Pattern, String> map = new LinkedHashMap<Pattern, String>(lines.length);
 		stream(lines).map(s -> s.split("\t", 2)).filter(v -> v.length == 2).forEach(v -> {
-			Pattern pattern = compile("(?<!\\p{Alnum})(" + v[0] + ")(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+			Pattern pattern = compile("(?<!\\p{Alnum})(" + v[0] + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
 			map.put(pattern, v[1]);
 		});
 		return unmodifiableMap(map);
