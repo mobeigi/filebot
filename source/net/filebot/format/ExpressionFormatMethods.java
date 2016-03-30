@@ -121,6 +121,15 @@ public class ExpressionFormatMethods {
 	}
 
 	/**
+	 * Replace colon to make the name more Windows friendly.
+	 *
+	 * e.g. "Sissi: The Young Empress" -> "Sissi - The Young Empress"
+	 */
+	public static String colon(String self, String replacement) {
+		return self.replaceAll("\\s*[:]\\s*", replacement);
+	}
+
+	/**
 	 * Upper-case all initials.
 	 *
 	 * e.g. "The Day a new Demon was born" -> "The Day A New Demon Was Born"
