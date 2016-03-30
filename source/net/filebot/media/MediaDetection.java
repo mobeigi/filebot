@@ -21,9 +21,7 @@ import java.net.URL;
 import java.text.CollationKey;
 import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,7 +45,6 @@ import java.util.regex.Pattern;
 import net.filebot.Resource;
 import net.filebot.WebServices;
 import net.filebot.archive.Archive;
-import net.filebot.format.MediaBindingBean;
 import net.filebot.similarity.CommonSequenceMatcher;
 import net.filebot.similarity.DateMatcher;
 import net.filebot.similarity.EpisodeMetrics;
@@ -1407,55 +1404,6 @@ public class MediaDetection {
 			throw new UnsupportedOperationException("requires ahead-of-time collation");
 		}
 	}
-
-	public static Comparator<File> VIDEO_SIZE_ORDER = new Comparator<File>() {
-
-		@Override
-		public int compare(File f1, File f2) {
-			long[] v1 = getSizeValues(f1);
-			long[] v2 = getSizeValues(f2);
-
-			for (int i = 0; i < v1.length; i++) {
-				// best to worst
-				int d = new Long(v1[i]).compareTo(new Long(v2[i]));
-				if (d != 0) {
-					return d;
-				}
-			}
-			return 0;
-		}
-
-		public long[] getSizeValues(File f) {
-			long[] v = new long[] { 0, 0 };
-
-			try {
-				if (VIDEO_FILES.accept(f) || SUBTITLE_FILES.accept(f)) {
-					MediaBindingBean media = new MediaBindingBean(null, f, null);
-
-					// 1. Video Resolution
-					List<Integer> dim = media.getDimension();
-					v[0] = dim.get(0).longValue() * dim.get(1).longValue();
-
-					// 2. File Size
-					v[1] = media.getInferredMediaFile().length();
-				} else if (AUDIO_FILES.accept(f)) {
-					// 1. Audio BitRate
-					v[0] = 0;
-
-					// 2. File Size
-					v[1] = f.length();
-				}
-			} catch (Exception e) {
-				// negative values for invalid files
-				debug.warning(format("Unable to read media info: %s [%s]", e.getMessage(), f.getName()));
-
-				Arrays.fill(v, -1);
-				return v;
-			}
-
-			return v;
-		}
-	};
 
 	public static List<File> getMediaUnits(File folder) {
 		if (folder.isHidden()) {
