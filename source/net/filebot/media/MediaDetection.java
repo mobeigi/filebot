@@ -350,9 +350,6 @@ public class MediaDetection {
 		// try to detect series name via known patterns
 		unids.addAll(matchSeriesMappings(files));
 
-		// guessed queries
-		List<String> names = new ArrayList<String>();
-
 		// strict series name matcher for recognizing 1x01 patterns
 		SeriesNameMatcher strictSeriesNameMatcher = getSeriesNameMatcher(true);
 
@@ -399,32 +396,31 @@ public class MediaDetection {
 					matches.add(it.getName());
 				}
 
-				// less reliable CWS deep matching
 				matches.addAll(matchSeriesByName(folders, 2, index));
 				matches.addAll(matchSeriesByName(filenames, 2, index));
 
 				// pass along only valid terms
-				names.addAll(stripBlacklistedTerms(matches));
+				unids.addAll(stripBlacklistedTerms(matches));
 			} else {
 				// trust terms matched by 0-stance
-				names.addAll(matches);
+				unids.addAll(matches);
 			}
 		} catch (Exception e) {
 			debug.warning("Failed to match folder structure: " + e);
 		}
 
 		// match common word sequence and clean detected word sequence from unwanted elements
-		Set<String> matches = new LinkedHashSet<String>();
+		Set<String> queries = new LinkedHashSet<String>();
 
 		// check for known pattern matches
 		for (boolean strict : new boolean[] { true, false }) {
-			if (matches.isEmpty()) {
+			if (queries.isEmpty()) {
 				// check CWS matches
 				SeriesNameMatcher seriesNameMatcher = getSeriesNameMatcher(strict);
-				matches.addAll(strictSeriesNameMatcher.matchAll(files.toArray(new File[files.size()])));
+				queries.addAll(strictSeriesNameMatcher.matchAll(files.toArray(new File[files.size()])));
 
 				// try before SxE pattern
-				if (matches.isEmpty()) {
+				if (queries.isEmpty()) {
 					for (File f : files) {
 						for (File path : listPathTail(f, 2, true)) {
 							String fn = getName(path);
@@ -443,7 +439,7 @@ public class MediaDetection {
 										}
 									}
 								}
-								matches.add(sn);
+								queries.add(sn);
 								break;
 							}
 						}
@@ -452,9 +448,9 @@ public class MediaDetection {
 			}
 		}
 
-		debug.finest(format("Match Series Name => %s %s %s", unids, names, matches));
+		debug.finest(format("Match Series Name => %s %s", unids, queries));
 
-		List<String> querySet = getUniqueQuerySet(unids, names, matches);
+		List<String> querySet = getUniqueQuerySet(unids, queries);
 		debug.finest(format("Query Series => %s", querySet));
 		return querySet;
 	}
