@@ -16,8 +16,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +32,7 @@ import net.filebot.web.EpisodeFormat;
 import net.filebot.web.Movie;
 import net.filebot.web.SeriesInfo;
 import net.filebot.web.SimpleDate;
+import one.util.streamex.StreamEx;
 
 public enum EpisodeMetrics implements SimilarityMetric {
 
@@ -200,31 +199,18 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 		protected Object[] fields(Object object) {
 			if (object instanceof Episode) {
-				Episode episode = (Episode) object;
-				Set<String> keywords = new LinkedHashSet<String>();
-				keywords.add(removeTrailingBrackets(episode.getSeriesName()));
-				keywords.add(removeTrailingBrackets(episode.getTitle()));
-				for (String it : episode.getSeriesNames()) {
-					keywords.add(removeTrailingBrackets(it));
-				}
-
-				// create array with size 4
-				Object[] f = new Object[4];
-				Iterator<String> keywordItr = keywords.iterator();
-				for (int i = 0; i < f.length; i++) {
-					f[i] = keywordItr.hasNext() ? keywordItr.next() : null;
-				}
-				return f;
+				Episode e = (Episode) object;
+				return StreamEx.of(e.getSeriesName(), e.getTitle()).append(e.getSeriesNames()).map(Normalization::removeTrailingBrackets).distinct().limit(5).toArray();
 			}
 
 			if (object instanceof File) {
-				File file = (File) object;
-				return new Object[] { file.getParentFile().getAbsolutePath(), file };
+				File f = (File) object;
+				return new Object[] { f.getParentFile().getAbsolutePath(), f };
 			}
 
 			if (object instanceof Movie) {
-				Movie movie = (Movie) object;
-				return new Object[] { movie.getName(), movie.getYear() };
+				Movie m = (Movie) object;
+				return new Object[] { m.getName(), m.getYear() };
 			}
 
 			return new Object[] { object };
