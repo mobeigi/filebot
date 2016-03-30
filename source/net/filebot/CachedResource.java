@@ -204,7 +204,7 @@ public class CachedResource<K, R> implements Resource<R> {
 	}
 
 	private static ByteBuffer fileNotFound(URL url, FileNotFoundException e) {
-		debug.warning(format("Resource not found: %s => %s", url, e.getMessage()));
+		debug.warning(format("Resource not found: %s", url));
 		return ByteBuffer.allocate(0);
 	}
 

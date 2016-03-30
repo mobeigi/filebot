@@ -1,6 +1,5 @@
 package net.filebot.cli;
 
-import java.net.URI;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -67,19 +66,8 @@ public class ScriptShell {
 		}
 	}
 
-	public static interface ScriptProvider {
-
-		public URI getScriptLocation(String input) throws Exception;
-
-		public String fetchScript(URI uri) throws Exception;
-	}
-
-	public Object runScript(String input, Bindings bindings) throws Throwable {
-		return runScript(scriptProvider.getScriptLocation(input), bindings);
-	}
-
-	public Object runScript(URI resource, Bindings bindings) throws Throwable {
-		return evaluate(scriptProvider.fetchScript(resource), bindings);
+	public Object runScript(String name, Bindings bindings) throws Throwable {
+		return evaluate(scriptProvider.getScript(name), bindings);
 	}
 
 }

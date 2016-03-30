@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.util.HashMap;
 
 import javax.script.Bindings;
@@ -39,7 +38,6 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.Settings.ApplicationFolder;
-import net.filebot.cli.ArgumentProcessor.DefaultScriptProvider;
 import net.filebot.util.TeePrintStream;
 
 public class GroovyPad extends JFrame {
@@ -155,10 +153,7 @@ public class GroovyPad extends JFrame {
 
 	protected ScriptShell createScriptShell() {
 		try {
-			DefaultScriptProvider scriptProvider = new DefaultScriptProvider();
-			scriptProvider.setBaseScheme(new URI("fn", "%s", null));
-
-			return new ScriptShell(scriptProvider, new HashMap<String, Object>());
+			return new ScriptShell(ScriptSource.GITHUB_STABLE.getScriptProvider(null), new HashMap<String, Object>());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
