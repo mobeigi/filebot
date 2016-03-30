@@ -110,9 +110,9 @@ public enum ScriptSource {
 
 	private static ScriptProvider getScriptBundle(ScriptSource source, String branch, Duration expirationTime) throws Exception {
 		Cache cache = Cache.getCache(source.name(), CacheType.Persistent);
-		byte[] bytes = cache.bytes("bundle.jar", f -> new URL(getApplicationProperty(branch) + f)).expire(expirationTime).get();
+		byte[] bytes = cache.bytes("repository.jar", f -> new URL(getApplicationProperty(branch) + f)).expire(expirationTime).get();
 
-		return new ScriptBundle(bytes, source.getClass().getResourceAsStream("bundle.cer"));
+		return new ScriptBundle(bytes, source.getClass().getResourceAsStream("repository.cer"));
 	}
 
 }
