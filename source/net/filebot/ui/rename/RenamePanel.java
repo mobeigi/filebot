@@ -275,29 +275,24 @@ public class RenamePanel extends JComponent {
 		});
 
 		// reveal file location on double click
-		namesList.getListComponent().addMouseListener(new MouseAdapter() {
-
-			@Override
-			public void mouseClicked(MouseEvent evt) {
-				if (evt.getClickCount() == 2) {
-					getWindow(evt.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		namesList.getListComponent().addMouseListener(mouseClicked(evt -> {
+			if (evt.getClickCount() == 2) {
+				JList list = (JList) evt.getSource();
+				if (list.getSelectedIndex() >= 0) {
 					try {
-						JList list = (JList) evt.getSource();
-						if (list.getSelectedIndex() >= 0) {
+						withWaitCursor(list, () -> {
 							Match<Object, File> match = renameModel.getMatch(list.getSelectedIndex());
 							Map<File, Object> context = renameModel.getMatchContext(match);
 
 							MediaBindingBean sample = new MediaBindingBean(match.getValue(), match.getCandidate(), context);
 							showFormatEditor(sample);
-						}
+						});
 					} catch (Exception e) {
 						debug.log(Level.WARNING, e.getMessage(), e);
-					} finally {
-						getWindow(evt.getSource()).setCursor(Cursor.getDefaultCursor());
 					}
 				}
 			}
-		});
+		}));
 
 		setLayout(new MigLayout("fill, insets dialog, gapx 10px", "[fill][align center, pref!][fill]", "align 33%"));
 		add(new LoadingOverlayPane(filesList, filesList, "37px", "30px"), "grow, sizegroupx list");

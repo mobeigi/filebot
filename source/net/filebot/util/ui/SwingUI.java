@@ -14,7 +14,9 @@ import java.awt.Point;
 import java.awt.Window;
 import java.awt.dnd.DnDConstants;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
@@ -92,6 +94,10 @@ public final class SwingUI {
 
 	public static String toHex(Color c) {
 		return c == null ? "inherit" : String.format("#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
+	}
+
+	public static boolean isShiftOrAltDown(InputEvent evt) {
+		return checkModifiers(evt.getModifiers(), ActionEvent.SHIFT_MASK) || checkModifiers(evt.getModifiers(), ActionEvent.ALT_MASK);
 	}
 
 	public static boolean isShiftOrAltDown(ActionEvent evt) {
@@ -270,6 +276,16 @@ public final class SwingUI {
 		} finally {
 			window.setCursor(Cursor.getDefaultCursor());
 		}
+	}
+
+	public static MouseAdapter mouseClicked(Consumer<MouseEvent> handler) {
+		return new MouseAdapter() {
+
+			@Override
+			public void mouseClicked(MouseEvent evt) {
+				handler.accept(evt);
+			}
+		};
 	}
 
 	public static JButton newButton(String name, Icon icon, Consumer<ActionEvent> action) {
