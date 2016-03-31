@@ -91,10 +91,14 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 
 		// use the first best option and ignore the rest
 		return getCache().castList(SubtitleDescriptor.class).computeIfAbsent(param.toString(), it -> {
-			ByteBuffer post = WebRequest.post(endpoint, param, null);
-			Object response = readJson(UTF_8.decode(post));
+			ByteBuffer bb = WebRequest.post(endpoint, param, null);
+
+			// error response
+			if (bb.remaining() == 1 && bb.get(0) == -1)
+				return emptyList();
 
 			String name = getNameWithoutExtension(file.getName());
+			Object response = readJson(UTF_8.decode(bb));
 
 			return streamJsonObjects(response).flatMap(n -> streamJsonObjects(n, "Files")).map(f -> {
 				String type = getString(f, "Ext");
