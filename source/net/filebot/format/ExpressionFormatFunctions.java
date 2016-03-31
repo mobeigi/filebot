@@ -34,7 +34,7 @@ public class ExpressionFormatFunctions {
 	}
 
 	public static Object any(Object c1, Object c2, Object... cN) {
-		return stream(c1, c2, cN).findFirst().get();
+		return stream(c1, c2, cN).findFirst().orElse(null);
 	}
 
 	public static List<Object> allOf(Object c1, Object c2, Object... cN) {
