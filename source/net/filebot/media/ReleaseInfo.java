@@ -148,7 +148,7 @@ public class ReleaseInfo {
 		// prefer standard value over matched value
 		if (lastMatch != null && paragon != null) {
 			for (String it : paragon) {
-				lastMatch = compile("(?<!\\p{Alnum})" + it.replaceAll("[\\p{Punct}\\s]", ".") + "(?!\\p{Alnum})", CASE_INSENSITIVE).matcher(lastMatch).replaceAll(it);
+				lastMatch = compile("(?<!\\p{Alnum})" + quote(it) + "(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS).matcher(lastMatch).replaceAll(it);
 			}
 		}
 

@@ -38,6 +38,8 @@ public class ReleaseInfoTest {
 		assertEquals("[]_Infinite_Stratos_2_-_01_[]", clean(info.getReleaseGroupTrimPattern(), "[HorribleSubs]_Infinite_Stratos_2_-_01_[HorribleSubs]"));
 		assertEquals("[]_Infinite_Stratos_2_-_01_[]", clean(info.getReleaseGroupPattern(true), "[HorribleSubs]_Infinite_Stratos_2_-_01_[HorribleSubs]"));
 		assertEquals("[]_Infinite_Stratos_2_-_01_[]", clean(info.getReleaseGroupPattern(false), "[HorribleSubs]_Infinite_Stratos_2_-_01_[HorribleSubs]"));
+
+		assertEquals("DVL", info.getReleaseGroup("Movie-DVL"));
 	}
 
 	@Test
