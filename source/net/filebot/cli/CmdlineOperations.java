@@ -1118,6 +1118,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				if (!outputFolder.isAbsolute()) {
 					outputFolder = new File(file.getParentFile(), outputFolder.getPath());
 				}
+				outputFolder = outputFolder.getCanonicalFile(); // normalize weird paths
 
 				log.info(format("Read archive [%s] and extract to [%s]", file.getName(), outputFolder));
 				final FileMapper outputMapper = new FileMapper(outputFolder);
