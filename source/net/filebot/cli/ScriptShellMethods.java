@@ -3,6 +3,7 @@ package net.filebot.cli;
 import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.media.XattrMetaInfo.*;
 
@@ -26,6 +27,7 @@ import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
 
 import groovy.lang.Closure;
+import groovy.lang.Range;
 import net.filebot.MediaTypes;
 import net.filebot.MetaAttributeView;
 import net.filebot.media.MediaDetection;
@@ -44,6 +46,14 @@ public class ScriptShellMethods {
 
 	public static File div(File self, String name) {
 		return new File(self, name);
+	}
+
+	public static String getAt(File self, int index) {
+		return FileUtilities.listPath(self).get(index).getName();
+	}
+
+	public static File getAt(File self, Range<?> range) {
+		return new File(DefaultGroovyMethods.getAt(FileUtilities.listPath(self), range).stream().map(File::getName).collect(joining(File.separator)));
 	}
 
 	public static File resolve(File self, String name) {
