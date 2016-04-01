@@ -1,22 +1,22 @@
 package net.filebot.similarity;
 
 import static java.util.regex.Pattern.*;
+import static net.filebot.util.StringUtilities.*;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Normalization {
 
 	private static final Pattern apostrophe = compile("['`´‘’ʻ]+");
-	private static final Pattern punctuation = compile("[\\p{Punct}\\s]+");
-
-	private static final Pattern space = compile("\\s+");
+	private static final Pattern punctuation = compile("[\\p{Punct}\\p{Space}]+", Pattern.UNICODE_CHARACTER_CLASS);
 	private static final Pattern spaceLikePunctuation = compile("[:?._]");
 
-	private static final Pattern[] brackets = new Pattern[] { compile("\\([^\\(]*\\)"), compile("\\[[^\\[]*\\]"), compile("\\{[^\\{]*\\}") };
 	private static final Pattern trailingParentheses = compile("(?<!^)[(]([^)]*)[)]$");
 	private static final Pattern trailingPunctuation = compile("[!?.]+$");
+	private static final Pattern checksum = compile("[\\(\\[](\\p{XDigit}{8})[\\]\\)]");
 
-	private static final Pattern checksum = compile("[\\(\\[]\\p{XDigit}{8}[\\]\\)]");
+	private static final Pattern[] brackets = new Pattern[] { compile("\\([^\\(]*\\)"), compile("\\[[^\\[]*\\]"), compile("\\{[^\\{]*\\}") };
 
 	private static final char[] doubleQuotes = new char[] { '\'', '\u0060', '\u00b4', '\u2018', '\u2019', '\u02bb' };
 	private static final char[] singleQuotes = new char[] { '\"', '\u201c', '\u201d' };
@@ -55,7 +55,15 @@ public class Normalization {
 	}
 
 	public static String replaceSpace(String name, String replacement) {
-		return space.matcher(name).replaceAll(replacement);
+		return SPACE.matcher(name).replaceAll(replacement);
+	}
+
+	public static String getEmbeddedChecksum(String name) {
+		Matcher m = checksum.matcher(name);
+		if (m.find()) {
+			return m.group(1);
+		}
+		return null;
 	}
 
 	public static String removeEmbeddedChecksum(String name) {
@@ -73,7 +81,7 @@ public class Normalization {
 			return title;
 		}
 
-		String[] words = space.split(title);
+		String[] words = SPACE.split(title);
 		StringBuilder s = new StringBuilder();
 
 		for (int i = 0; i < words.length && s.length() + words[i].length() < limit; i++) {

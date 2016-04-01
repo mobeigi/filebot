@@ -4,6 +4,7 @@ import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.Logging.*;
+import static net.filebot.util.StringUtilities.*;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -571,7 +572,7 @@ public final class FileUtilities {
 	 */
 	public static String validateFileName(CharSequence filename) {
 		// strip invalid characters from file name
-		return ILLEGAL_CHARACTERS.matcher(filename).replaceAll("").replaceAll("\\s+", " ").trim();
+		return SPACE.matcher(ILLEGAL_CHARACTERS.matcher(filename).replaceAll("")).replaceAll(" ").trim();
 	}
 
 	public static boolean isInvalidFileName(CharSequence filename) {

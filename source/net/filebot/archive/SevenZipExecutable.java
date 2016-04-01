@@ -1,5 +1,7 @@
 package net.filebot.archive;
 
+import static net.filebot.util.StringUtilities.*;
+
 import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static net.filebot.Logging.*;
@@ -55,7 +57,7 @@ public class SevenZipExecutable implements ArchiveExtractor {
 			if (returnCode == 0) {
 				return output;
 			} else {
-				throw new IOException(String.format("%s failed with exit code %d: %s", get7zCommand(), returnCode, output.replaceAll("\\s+", " ").trim()));
+				throw new IOException(String.format("%s failed with exit code %d: %s", get7zCommand(), returnCode, SPACE.matcher(output).replaceAll(" ").trim()));
 			}
 		} catch (InterruptedException e) {
 			throw new IOException(String.format("%s timed out", get7zCommand()), e);

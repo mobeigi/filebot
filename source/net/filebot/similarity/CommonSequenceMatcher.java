@@ -2,6 +2,7 @@ package net.filebot.similarity;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static net.filebot.util.StringUtilities.*;
 
 import java.text.CollationKey;
 import java.text.Collator;
@@ -77,7 +78,7 @@ public class CommonSequenceMatcher {
 	}
 
 	public CollationKey[] split(String sequence) {
-		return getCollationKeys(sequence.split("\\s+"));
+		return getCollationKeys(SPACE.split(sequence));
 	}
 
 	private final Map<String, CollationKey> collationKeyDictionary = synchronizedMap(new HashMap<String, CollationKey>(256));

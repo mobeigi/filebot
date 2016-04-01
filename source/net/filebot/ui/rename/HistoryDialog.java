@@ -9,6 +9,7 @@ import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.media.XattrMetaInfo.*;
+import static net.filebot.util.StringUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
@@ -225,7 +226,7 @@ class HistoryDialog extends JDialog {
 				List<HistoryFilter> filterList = new ArrayList<HistoryFilter>();
 
 				// filter by all words
-				for (String word : filterEditor.getText().split("\\s+")) {
+				for (String word : SPACE.split(filterEditor.getText())) {
 					filterList.add(new HistoryFilter(word));
 				}
 

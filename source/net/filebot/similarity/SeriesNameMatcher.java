@@ -209,7 +209,7 @@ public class SeriesNameMatcher {
 	}
 
 	public String matchBySeparator(String name) {
-		Pattern separator = Pattern.compile("[\\s]+[-]+[\\s]+");
+		Pattern separator = Pattern.compile("[\\s]+[-]+[\\s]+", Pattern.UNICODE_CHARACTER_CLASS);
 
 		Matcher matcher = separator.matcher(name);
 		if (matcher.find() && matcher.start() > 0) {

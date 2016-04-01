@@ -117,7 +117,10 @@ public class ExpressionFormatMethods {
 	 * e.g. "Doctor Who" -> "Doctor_Who"
 	 */
 	public static String space(String self, String replacement) {
-		return self.replaceAll("[:?._]", " ").trim().replaceAll("\\s+", replacement);
+		self = self.replaceAll("[:?._]", " ").trim();
+
+		// replace space sequences with a single blank
+		return Normalization.replaceSpace(self, replacement);
 	}
 
 	/**
@@ -126,7 +129,7 @@ public class ExpressionFormatMethods {
 	 * e.g. "Sissi: The Young Empress" -> "Sissi - The Young Empress"
 	 */
 	public static String colon(String self, String replacement) {
-		return self.replaceAll("\\s*[:]\\s*", replacement);
+		return compile("\\s*[:]\\s*", UNICODE_CHARACTER_CLASS).matcher(self).replaceAll(replacement);
 	}
 
 	/**
@@ -151,7 +154,7 @@ public class ExpressionFormatMethods {
 	}
 
 	public static String sortName(String self, String replacement) {
-		return compile("^(The|A|An)\\s(.+)", CASE_INSENSITIVE).matcher(self).replaceFirst(replacement).trim();
+		return compile("^(The|A|An)\\s(.+)", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS).matcher(self).replaceFirst(replacement).trim();
 	}
 
 	public static String sortInitial(String self) {
@@ -268,7 +271,7 @@ public class ExpressionFormatMethods {
 	}
 
 	public static String replaceTrailingBrackets(String self, String replacement) {
-		return self.replaceAll("\\s*[(]([^)]*)[)]$", replacement).trim();
+		return compile("\\s*[(]([^)]*)[)]$", UNICODE_CHARACTER_CLASS).matcher(self).replaceAll(replacement).trim();
 	}
 
 	/**
@@ -285,7 +288,7 @@ public class ExpressionFormatMethods {
 		String[] patterns = new String[] { "\\s*[(](\\w+)[)]$", "\\W+Part (\\w+)\\W*$" };
 
 		for (String pattern : patterns) {
-			Matcher matcher = compile(pattern, CASE_INSENSITIVE).matcher(self);
+			Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS).matcher(self);
 			if (matcher.find()) {
 				return matcher.replaceAll(replacement).trim();
 			}

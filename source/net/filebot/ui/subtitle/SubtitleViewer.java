@@ -3,6 +3,7 @@ package net.filebot.ui.subtitle;
 import static java.awt.Font.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
+import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
@@ -130,34 +131,26 @@ public class SubtitleViewer extends JFrame {
 
 			@Override
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				return super.getTableCellRendererComponent(table, value.toString().replaceAll("\\s+", " "), isSelected, hasFocus, row, column);
+				return super.getTableCellRendererComponent(table, replaceSpace(value.toString(), " "), isSelected, hasFocus, row, column);
 			}
 		});
 
 		// focus around selected time stamp
-		installAction(table, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), new AbstractAction("focus") {
+		installAction(table, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), newAction("focus", evt -> {
+			// disable row filter
+			setTableFilter(null);
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// disable row filter
-				setTableFilter(null);
+			// ensure selected row is visible and roughly in the center of the table
+			Rectangle focus = table.getCellRect(Math.max(table.getSelectedRow() - 7, 0), 0, true);
+			focus.height = table.getSize().height;
+			table.scrollRectToVisible(focus);
+		}));
 
-				// ensure selected row is visible and roughly in the center of the table
-				Rectangle focus = table.getCellRect(Math.max(table.getSelectedRow() - 7, 0), 0, true);
-				focus.height = table.getSize().height;
-				table.scrollRectToVisible(focus);
+		table.addMouseListener(mouseClicked(evt -> {
+			if (SwingUtilities.isLeftMouseButton(evt) && evt.getClickCount() == 2) {
+				table.getActionMap().get("focus").actionPerformed(null);
 			}
-		});
-
-		table.addMouseListener(new MouseInputAdapter() {
-
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
-					table.getActionMap().get("focus").actionPerformed(null);
-				}
-			}
-		});
+		}));
 
 		return table;
 	}

@@ -1350,10 +1350,9 @@ public class MediaDetection {
 	private static class HighPerformanceMatcher extends CommonSequenceMatcher {
 
 		private static final Collator collator = getLenientCollator(Locale.ENGLISH);
-		private static final Pattern space = Pattern.compile("\\s+");
 
 		public static CollationKey[] prepare(String sequence) {
-			String[] words = space.split(sequence);
+			String[] words = SPACE.split(sequence);
 			CollationKey[] keys = new CollationKey[words.length];
 			for (int i = 0; i < words.length; i++) {
 				keys[i] = collator.getCollationKey(words[i]);

@@ -3,6 +3,7 @@ package net.filebot.ui.rename;
 import static java.awt.Font.*;
 import static javax.swing.BorderFactory.*;
 import static net.filebot.Logging.*;
+import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Component;
@@ -205,9 +206,10 @@ public class PresetEditor extends JDialog {
 
 	private RSyntaxTextArea createEditor() {
 		final RSyntaxTextArea editor = new RSyntaxTextArea(new RSyntaxDocument(SyntaxConstants.SYNTAX_STYLE_GROOVY) {
+
 			@Override
 			public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
-				super.insertString(offs, str.replaceAll("\\s", " "), a); // FORCE SINGLE LINE
+				super.insertString(offs, replaceSpace(str, " "), a); // FORCE SINGLE LINE
 			}
 		}, null, 1, 80);
 
