@@ -40,6 +40,7 @@ public class ReleaseInfoTest {
 		assertEquals("[]_Infinite_Stratos_2_-_01_[]", clean(info.getReleaseGroupPattern(false), "[HorribleSubs]_Infinite_Stratos_2_-_01_[HorribleSubs]"));
 
 		assertEquals("DVL", info.getReleaseGroup("Movie-DVL"));
+		assertEquals("iMBT", info.getReleaseGroup("The.Legend.Of.Zorro-iMBT"));
 	}
 
 	@Test
