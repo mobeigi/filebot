@@ -4,6 +4,7 @@ Disallow: /forums/mcp.php
 Disallow: /forums/member
 Disallow: /forums/memberlist.php
 Disallow: /forums/faq.php
+Disallow: /forums/adm/
 
 User-agent: TurnitinBot
 Disallow: /
