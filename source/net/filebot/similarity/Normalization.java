@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 public class Normalization {
 
 	private static final Pattern apostrophe = compile("['`´‘’ʻ]+");
-	private static final Pattern punctuation = compile("[\\p{Punct}\\p{Space}]+", Pattern.UNICODE_CHARACTER_CLASS);
+	private static final Pattern punctuation = compile("[\\p{Punct}\\p{Space}]+", UNICODE_CHARACTER_CLASS);
 	private static final Pattern spaceLikePunctuation = compile("[:?._]");
 
 	private static final Pattern trailingParentheses = compile("(?<!^)[(]([^)]*)[)]$");
@@ -46,7 +46,6 @@ public class Normalization {
 		for (Pattern it : brackets) {
 			name = it.matcher(name).replaceAll(" ");
 		}
-
 		return name;
 	}
 
