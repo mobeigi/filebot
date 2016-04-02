@@ -3,29 +3,29 @@
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 		<meta name="keywords" content="rename tv shows, rename movies, download subtitles, check sfv files" />
-		
+
 		<title>Format Expressions</title>
 		<meta name="description" content="Define your own naming scheme and customize it to your liking. FileBot format expressions give you ultimate control over how FileBot will rename and move your media files. Anything is possible." />
-		
+
 		<meta itemprop="name" content="FileBot Format Expressions" />
 		<meta itemprop="description" content="Define your own naming scheme and customize it to your liking. FileBot format expressions give you ultimate control over how FileBot will rename and move your media files. Anything is possible." />
 		<meta itemprop="image" content="http://www.filebot.net/icon.png" />
-		
+
 		<link rel="stylesheet" href="base.css" type="text/css" />
 		<link rel="stylesheet" href="code.css" type="text/css" />
 		<link rel="icon" href="favicon.png" />
-		
+
 		<!-- google +1 -->
 		<script type="text/javascript">
 		  window.___gcfg = {lang: 'en-GB'};
-		
+
 		  (function() {
 		    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
 		    po.src = 'https://apis.google.com/js/plusone.js';
 		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
 		  })();
 		</script>
-		
+
 		<!-- twitter -->
 		<script type="text/javascript">
 			!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
@@ -41,13 +41,13 @@
 		  js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1";
 		  fjs.parentNode.insertBefore(js, fjs);
 		}(document, 'script', 'facebook-jssdk'));</script>
-		
+
 		<div class="page">
 			<div class="navigation">
 				<div>
 				<ul>
-					<li><a href="https://www.filebot.net/forums/">Forums</a></li>
-					<li><a href="https://www.filebot.net/forums/viewtopic.php?f=3&amp;t=7">FAQ</a></li>
+					<li><a href="http://www.filebot.net/forums/">Forums</a></li>
+					<li><a href="http://www.filebot.net/forums/viewtopic.php?f=3&amp;t=7">FAQ</a></li>
 					<li><a href="http://www.filebot.net/#download">Download</a></li>
 				</ul>
 				</div>
@@ -57,17 +57,17 @@
 				<div class="twitter">
 					<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://www.filebot.net/" data-text="FileBot - The ultimate tv renamer and subtitle downloader" data-via="filebot_renamer" data-lang="en"></a>
 				</div>
-				
+
 				<div class="facebook">
 					<div class="fb-like" data-href="https://www.facebook.com/filebot" data-send="false" data-layout="button_count" data-width="80" data-show-faces="false"></div>
 				</div>
-				
+
 				<div class="plusone">
 					<g:plusone href="http://www.filebot.net/"></g:plusone>
 				</div>
 			</div>
 
-			
+
 			<div class="header">
 				<a href="http://www.filebot.net"><img class="logo" alt="logo" src="images/filebot.logo.svg" width="64" height="64" /></a>
 				<h1>
@@ -75,7 +75,7 @@
 					<span class="description">User defined episode / movie naming scheme</span>
 				</h1>
 			</div>
-			
+
 			<div class="content">
 				<div class="screenshot">
 					<a href="screenshots/format.png" title="Format Dialog" target="_blank">
@@ -87,7 +87,7 @@
 					<p>
 					You can easily define your own episode and movie naming schemes. It uses <a href="http://groovy-lang.org/">Groovy</a> expressions, 
 					which means that you can do pretty much anything, especially if you know a little bit about programming. 
-					You even get media info bindings. You can find <a href="https://www.filebot.net/forums/viewtopic.php?f=5&amp;t=2#p51">predefined format expressions</a> for all kinds of scenarios in the forums. Ready for you to just copy &amp; paste.
+					You even get media info bindings. You can find <a href="http://www.filebot.net/forums/viewtopic.php?f=5&amp;t=2#p51">predefined format expressions</a> for all kinds of scenarios in the forums. Ready for you to just copy &amp; paste.
 					</p>
 					<h2 id="examples">Examples</h2>
 					<p>
@@ -265,7 +265,7 @@
 						</tr>
 						<tr>
 							<td>group</td>
-							<td><a href="https://www.filebot.net/forums/viewtopic.php?f=5&amp;t=4" target="_blank">release group</a></td>
+							<td><a href="http://www.filebot.net/forums/viewtopic.php?f=5&amp;t=4" target="_blank">release group</a></td>
 							<td>ALLiANCE</td>
 						</tr>
 						<tr>
@@ -362,7 +362,7 @@
 							<td>omdb</td>
 							<td><a href="http://www.omdbapi.com/">OMDb</a> info</td>
 							<td>&lt;any movie / series info&gt;</td>
-						</tr>						
+						</tr>
 						<tr>
 							<td>file</td>
 							<td>file object</td>
@@ -394,7 +394,7 @@
 							<td>&lt;any subtitle parameter&gt;</td>
 						</tr>
 					</table>
-					
+
 					<h2 class="reference" id="functions">
 						Function Reference
 						<a href="https://sourceforge.net/p/filebot/code/HEAD/tree/trunk/source/net/filebot/format/ExpressionFormatMethods.java" class="source" target="_blank">source</a>
@@ -442,14 +442,14 @@
 					<code><span class="method">transliterate</span>(<span class="regex">identifier</span>)</code>Apply any <a target="_blank" href="http://userguide.icu-project.org/transforms/general">ICU script transliteration</a>. e.g. "中国".transliterate("han-latin") -> "zhōng guó".
 					</p>
 				</div>
-				
+
 				<p class="suggestion">
-				Need some help getting started? Check the <a href="https://www.filebot.net/forums/viewforum.php?f=5">forums</a>.
+				Need some help getting started? Check the <a href="http://www.filebot.net/forums/viewforum.php?f=5">forums</a>.
 				</p>
-				
+
 				<div class="metrics">
 				</div>
-				
+
 				<div class="footer">
 					<p>Hosted on <a href="http://sourceforge.net/projects/filebot/">sourceforge.net</a> | Creative Commons License: Attribution-NonCommercial-ShareAlike © @{tstamp.year}</p>
 				</div>
