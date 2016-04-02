@@ -1,15 +1,17 @@
 package net.filebot.format;
 
+import static java.nio.charset.StandardCharsets.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.util.RegularExpressions.*;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import groovy.lang.Closure;
@@ -51,9 +53,9 @@ public class ExpressionFormatFunctions {
 
 	public static Map<String, String> csv(String path) throws IOException {
 		Map<String, String> map = new LinkedHashMap<String, String>();
-		for (String line : Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8)) {
-			for (String delim : new String[] { "\t", ";" }) {
-				String[] field = line.split(delim, 2);
+		for (String line : Files.readAllLines(Paths.get(path), UTF_8)) {
+			for (Pattern delim : new Pattern[] { TAB, SEMICOLON }) {
+				String[] field = delim.split(line, 2);
 				if (field.length >= 2) {
 					map.put(field[0], field[1]);
 					break;
@@ -64,7 +66,7 @@ public class ExpressionFormatFunctions {
 	}
 
 	public static List<String> readLines(String path) throws IOException {
-		return Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8);
+		return Files.readAllLines(Paths.get(path), UTF_8);
 	}
 
 }

@@ -2,7 +2,7 @@ package net.filebot.similarity;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
-import static net.filebot.util.StringUtilities.*;
+import static net.filebot.util.RegularExpressions.*;
 
 import java.text.CollationKey;
 import java.text.Collator;

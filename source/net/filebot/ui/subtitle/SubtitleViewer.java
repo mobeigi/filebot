@@ -3,7 +3,9 @@ package net.filebot.ui.subtitle;
 import static java.awt.Font.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.similarity.Normalization.*;
+import static net.filebot.util.RegularExpressions.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
@@ -196,15 +198,7 @@ public class SubtitleViewer extends JFrame {
 
 	private void setTableFilter(String filter) {
 		// filter by words
-		List<SubtitleFilter> filterList = new ArrayList<SubtitleFilter>();
-
-		if (filter != null) {
-			for (String word : filter.split("\\s+")) {
-				if (word.length() > 0) {
-					filterList.add(new SubtitleFilter(word));
-				}
-			}
-		}
+		List<SubtitleFilter> filterList = filter == null ? emptyList() : SPACE.splitAsStream(filter).filter(s -> s.length() > 0).map(SubtitleFilter::new).collect(toList());
 
 		TableRowSorter sorter = (TableRowSorter) subtitleTable.getRowSorter();
 		sorter.setRowFilter(filterList.isEmpty() ? null : RowFilter.andFilter(filterList));

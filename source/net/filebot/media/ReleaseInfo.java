@@ -9,6 +9,7 @@ import static java.util.regex.Pattern.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.RegularExpressions.*;
 import static net.filebot.util.StringUtilities.*;
 
 import java.io.BufferedReader;
@@ -400,37 +401,35 @@ public class ReleaseInfo {
 	}
 
 	public List<File> getMediaRoots() {
-		List<File> roots = new ArrayList<File>();
-		for (String it : getProperty("folder.media.roots").split(":")) {
-			roots.add(new File(it));
-		}
-		return roots;
+		String roots = getProperty("folder.media.roots");
+		return COMMA.splitAsStream(roots).map(File::new).collect(toList());
 	}
 
 	public String[] getSubtitleCategoryTags() {
-		return getProperty("pattern.subtitle.tags").split("\\|");
+		String tags = getProperty("pattern.subtitle.tags");
+		return PIPE.split(tags);
 	}
 
-	protected final Resource<Map<Pattern, String>> seriesMappings = resource("url.series-mappings", Cache.ONE_WEEK, Function.identity(), String[]::new).transform(lines -> {
+	private final Resource<Map<Pattern, String>> seriesMappings = resource("url.series-mappings", Cache.ONE_WEEK, Function.identity(), String[]::new).transform(lines -> {
 		Map<Pattern, String> map = new LinkedHashMap<Pattern, String>(lines.length);
-		stream(lines).map(s -> s.split("\t", 2)).filter(v -> v.length == 2).forEach(v -> {
+		stream(lines).map(s -> TAB.split(s, 2)).filter(v -> v.length == 2).forEach(v -> {
 			Pattern pattern = compile("(?<!\\p{Alnum})(" + v[0] + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
 			map.put(pattern, v[1]);
 		});
 		return unmodifiableMap(map);
 	}).memoize();
 
-	protected final Resource<String[]> releaseGroup = lines("url.release-groups", Cache.ONE_WEEK);
-	protected final Resource<String[]> queryBlacklist = lines("url.query-blacklist", Cache.ONE_WEEK);
-	protected final Resource<String[]> excludeBlacklist = lines("url.exclude-blacklist", Cache.ONE_WEEK);
+	private final Resource<String[]> releaseGroup = lines("url.release-groups", Cache.ONE_WEEK);
+	private final Resource<String[]> queryBlacklist = lines("url.query-blacklist", Cache.ONE_WEEK);
+	private final Resource<String[]> excludeBlacklist = lines("url.exclude-blacklist", Cache.ONE_WEEK);
 
-	protected final Resource<SearchResult[]> tvdbIndex = tsv("url.thetvdb-index", Cache.ONE_WEEK, this::parseSeries, SearchResult[]::new);
-	protected final Resource<SearchResult[]> anidbIndex = tsv("url.anidb-index", Cache.ONE_WEEK, this::parseSeries, SearchResult[]::new);
+	private final Resource<SearchResult[]> tvdbIndex = tsv("url.thetvdb-index", Cache.ONE_WEEK, this::parseSeries, SearchResult[]::new);
+	private final Resource<SearchResult[]> anidbIndex = tsv("url.anidb-index", Cache.ONE_WEEK, this::parseSeries, SearchResult[]::new);
 
-	protected final Resource<Movie[]> movieIndex = tsv("url.movie-list", Cache.ONE_MONTH, this::parseMovie, Movie[]::new);
-	protected final Resource<SubtitleSearchResult[]> osdbIndex = tsv("url.osdb-index", Cache.ONE_MONTH, this::parseSubtitle, SubtitleSearchResult[]::new);
+	private final Resource<Movie[]> movieIndex = tsv("url.movie-list", Cache.ONE_MONTH, this::parseMovie, Movie[]::new);
+	private final Resource<SubtitleSearchResult[]> osdbIndex = tsv("url.osdb-index", Cache.ONE_MONTH, this::parseSubtitle, SubtitleSearchResult[]::new);
 
-	protected final SystemProperty<Duration> refreshDuration = SystemProperty.of("url.refresh", Duration::parse, null);
+	private final SystemProperty<Duration> refreshDuration = SystemProperty.of("url.refresh", Duration::parse, null);
 
 	private SearchResult parseSeries(String[] v) {
 		int id = parseInt(v[0]);
@@ -463,7 +462,7 @@ public class ReleaseInfo {
 	}
 
 	protected <A> Resource<A[]> tsv(String name, Duration expirationTime, Function<String[], A> parse, IntFunction<A[]> generator) {
-		return resource(name, expirationTime, s -> parse.apply(s.split("\t")), generator).memoize();
+		return resource(name, expirationTime, s -> parse.apply(TAB.split(s)), generator).memoize();
 	}
 
 	protected <A> Resource<A[]> resource(String name, Duration expirationTime, Function<String, A> parse, IntFunction<A[]> generator) {

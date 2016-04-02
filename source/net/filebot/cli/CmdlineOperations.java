@@ -14,7 +14,7 @@ import static net.filebot.media.MediaSize.*;
 import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.subtitle.SubtitleUtilities.*;
 import static net.filebot.util.FileUtilities.*;
-import static net.filebot.util.StringUtilities.*;
+import static net.filebot.util.RegularExpressions.*;
 
 import java.io.File;
 import java.io.FileFilter;

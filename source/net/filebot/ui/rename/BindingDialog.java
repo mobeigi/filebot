@@ -1,9 +1,11 @@
 package net.filebot.ui.rename;
 
+import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.media.XattrMetaInfo.*;
+import static net.filebot.util.RegularExpressions.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
@@ -15,7 +17,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.text.Format;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -210,8 +211,8 @@ class BindingDialog extends JDialog {
 	}
 
 	private List<String> getSampleExpressions() {
-		ResourceBundle bundle = ResourceBundle.getBundle(getClass().getName());
-		return Arrays.asList(bundle.getString("expressions").split(","));
+		String expressions = ResourceBundle.getBundle(getClass().getName()).getString("expressions");
+		return COMMA.splitAsStream(expressions).collect(toList());
 	}
 
 	public boolean submit() {

@@ -49,8 +49,8 @@ public class SeriesNameMatcherTest {
 
 	@Test
 	public void firstCommonSequence() {
-		String[] seq1 = "Common Name 1 Any Title".split("\\s");
-		String[] seq2 = "abc xyz Common Name 2 Any Title".split("\\s");
+		String[] seq1 = "Common Name 1 Any Title".split(" ");
+		String[] seq2 = "abc xyz Common Name 2 Any Title".split(" ");
 
 		// check if common sequence can be determined
 		assertArrayEquals(new String[] { "Common", "Name" }, matcher.firstCommonSequence(seq1, seq2, 2, String.CASE_INSENSITIVE_ORDER));

@@ -1,6 +1,6 @@
 package net.filebot.similarity;
 
-import static net.filebot.util.StringUtilities.*;
+import static net.filebot.util.RegularExpressions.*;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;

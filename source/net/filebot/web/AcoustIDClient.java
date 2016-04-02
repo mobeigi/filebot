@@ -3,6 +3,7 @@ package net.filebot.web;
 import static java.nio.charset.StandardCharsets.*;
 import static net.filebot.Logging.*;
 import static net.filebot.util.JsonUtilities.*;
+import static net.filebot.util.RegularExpressions.*;
 import static net.filebot.web.WebRequest.*;
 
 import java.io.File;
@@ -204,8 +205,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 
 		try {
 			while (scanner.hasNextLine()) {
-				String[] value = scanner.nextLine().split("=", 2);
-
+				String[] value = EQUALS.split(scanner.nextLine(), 2);
 				if (value.length != 2)
 					continue;
 

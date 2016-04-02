@@ -3,21 +3,16 @@ package net.filebot.util;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.util.RegularExpressions.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public final class StringUtilities {
-
-	public static final Pattern DIGIT = Pattern.compile("\\d+");
-	public static final Pattern NON_DIGIT = Pattern.compile("\\D+");
-	public static final Pattern PIPE = Pattern.compile("|", Pattern.LITERAL);
-	public static final Pattern SPACE = Pattern.compile("\\s+", Pattern.UNICODE_CHARACTER_CLASS); // French No-Break Space U+00A0
 
 	public static List<Integer> matchIntegers(CharSequence s) {
 		if (s == null || s.length() == 0) {

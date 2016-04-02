@@ -1,10 +1,9 @@
 package net.filebot.archive;
 
-import static net.filebot.util.StringUtilities.*;
-
 import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static net.filebot.Logging.*;
+import static net.filebot.util.RegularExpressions.*;
 
 import java.io.File;
 import java.io.FileFilter;

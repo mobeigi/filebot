@@ -3,6 +3,7 @@ package net.filebot.similarity;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.RegularExpressions.*;
 import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;

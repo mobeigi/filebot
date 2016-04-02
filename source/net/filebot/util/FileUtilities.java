@@ -4,7 +4,7 @@ import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.Logging.*;
-import static net.filebot.util.StringUtilities.*;
+import static net.filebot.util.RegularExpressions.*;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -621,14 +621,12 @@ public final class FileUtilities {
 		return path.replace('\\', '/');
 	}
 
-	private static final Pattern PATH_SEPARATORS = Pattern.compile("\\s*[\\\\/]+\\s*");
-
 	public static String replacePathSeparators(CharSequence path) {
 		return replacePathSeparators(path, " ");
 	}
 
 	public static String replacePathSeparators(CharSequence path, String replacement) {
-		return PATH_SEPARATORS.matcher(path).replaceAll(replacement);
+		return SLASH.matcher(path).replaceAll(replacement);
 	}
 
 	public static String md5(String string) {

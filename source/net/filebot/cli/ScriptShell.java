@@ -1,5 +1,7 @@
 package net.filebot.cli;
 
+import static net.filebot.util.RegularExpressions.*;
+
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -47,8 +49,8 @@ public class ScriptShell {
 
 		// default imports
 		ImportCustomizer imports = new ImportCustomizer();
-		imports.addStarImports(bundle.getString("starImport").split(", "));
-		imports.addStaticStars(bundle.getString("starStaticImport").split(", "));
+		imports.addStarImports(COMMA.split(bundle.getString("starImport")));
+		imports.addStaticStars(COMMA.split(bundle.getString("starStaticImport")));
 		config.addCompilationCustomizers(imports);
 
 		GroovyClassLoader classLoader = new GroovyClassLoader(Thread.currentThread().getContextClassLoader(), config);

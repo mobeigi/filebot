@@ -2,6 +2,7 @@ package net.filebot.web;
 
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
+import static net.filebot.util.RegularExpressions.*;
 import static net.filebot.util.StringUtilities.*;
 import static net.filebot.util.XPathUtilities.*;
 import static net.filebot.web.EpisodeUtilities.*;
@@ -98,14 +99,10 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 				continue;
 			}
 
-			List<String> aliasNames = new ArrayList<String>();
-			for (Node aliasNode : selectNodes("AliasNames", node)) {
-				for (String aliasName : getTextContent(aliasNode).split("\\|")) {
-					if (aliasName.trim().length() > 0) {
-						aliasNames.add(aliasName.trim());
-					}
-				}
-			}
+			// collect alias names
+			List<String> aliasNames = streamNodes("AliasNames", node).flatMap(it -> {
+				return PIPE.splitAsStream(getTextContent(it));
+			}).map(String::trim).filter(s -> s.length() > 0).collect(toList());
 
 			if (!resultSet.containsKey(sid)) {
 				resultSet.put(sid, new SearchResult(sid, seriesName, aliasNames));

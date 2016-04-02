@@ -2,14 +2,15 @@ package net.filebot;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
+import static net.filebot.util.RegularExpressions.*;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.stream.Stream;
 
 public class Language implements Serializable {
 
@@ -96,43 +97,23 @@ public class Language implements Serializable {
 		}
 
 		try {
-			ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
-			String[] values = bundle.getString(code).split("\\t", 3);
-			return new Language(code, values[0], values[1], values[2].split("\\t"));
+			String[] values = TAB.split(getProperty(code), 3);
+			return new Language(code, values[0], values[1], TAB.split(values[2]));
 		} catch (Exception e) {
 			return null;
 		}
 	}
 
 	public static List<Language> getLanguages(String... codes) {
-		Language[] languages = new Language[codes.length];
-
-		for (int i = 0; i < codes.length; i++) {
-			languages[i] = getLanguage(codes[i]);
-		}
-
-		return asList(languages);
+		return stream(codes).map(Language::getLanguage).collect(toList());
 	}
 
 	public static Language getLanguage(Locale locale) {
-		if (locale != null) {
-			String code = locale.getLanguage();
-			for (Language it : availableLanguages()) {
-				if (it.matches(code)) {
-					return it;
-				}
-			}
-		}
-		return null;
+		return locale == null ? null : findLanguage(locale.getLanguage());
 	}
 
-	public static Language findLanguage(String lang) {
-		for (Language it : availableLanguages()) {
-			if (it.matches(lang)) {
-				return it;
-			}
-		}
-		return null;
+	public static Language findLanguage(String language) {
+		return availableLanguages().stream().filter(it -> it.matches(language)).findFirst().orElse(null);
 	}
 
 	public static String getStandardLanguageCode(String lang) {
@@ -144,26 +125,27 @@ public class Language implements Serializable {
 	}
 
 	public static List<Language> availableLanguages() {
-		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
-		return getLanguages(bundle.getString("languages.ui").split(","));
+		String languages = getProperty("languages.ui");
+		return getLanguages(COMMA.split(languages));
 	}
 
 	public static List<Language> commonLanguages() {
-		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
-		return getLanguages(bundle.getString("languages.common").split(","));
+		String languages = getProperty("languages.common");
+		return getLanguages(COMMA.split(languages));
 	}
 
 	public static List<Language> preferredLanguages() {
-		Set<String> codes = new LinkedHashSet<String>();
-
 		// English | System language | common languages
-		codes.add("en");
-		codes.add(Locale.getDefault().getLanguage());
+		Stream<String> codes = Stream.of("en", Locale.getDefault().getLanguage());
 
-		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
-		addAll(codes, bundle.getString("languages.common").split(","));
+		// append common languages
+		codes = Stream.concat(codes, stream(COMMA.split(getProperty("languages.common")))).distinct();
 
-		return getLanguages(codes.toArray(new String[0]));
+		return codes.map(Language::getLanguage).collect(toList());
+	}
+
+	private static String getProperty(String key) {
+		return ResourceBundle.getBundle(Language.class.getName()).getString(key);
 	}
 
 }

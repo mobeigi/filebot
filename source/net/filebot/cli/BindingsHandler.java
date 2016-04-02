@@ -1,6 +1,7 @@
 package net.filebot.cli;
 
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.RegularExpressions.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class BindingsHandler extends MapOptionHandler {
 				return pos;
 			}
 
-			String[] nv = params.getParameter(pos).split("=", 2);
+			String[] nv = EQUALS.split(params.getParameter(pos), 2);
 			if (nv.length < 2) {
 				return pos;
 			}

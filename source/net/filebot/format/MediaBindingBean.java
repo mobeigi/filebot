@@ -12,6 +12,7 @@ import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.subtitle.SubtitleUtilities.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.RegularExpressions.*;
 import static net.filebot.util.StringUtilities.*;
 import static net.filebot.web.EpisodeFormat.*;
 
@@ -364,10 +365,10 @@ public class MediaBindingBean {
 
 	@Define("channels")
 	public String getAudioChannelPositions() {
-		String[] channels = getMediaInfo(StreamKind.Audio, 0, "ChannelPositions/String2", "Channel(s)_Original", "Channel(s)").split("/");
+		String channels = getMediaInfo(StreamKind.Audio, 0, "ChannelPositions/String2", "Channel(s)_Original", "Channel(s)");
 
 		// e.g. 5.1
-		return stream(channels).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add).setScale(1).toPlainString();
+		return SLASH.splitAsStream(channels).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add).setScale(1).toPlainString();
 	}
 
 	@Define("resolution")
@@ -834,7 +835,8 @@ public class MediaBindingBean {
 
 	@Define("mediaType")
 	public List<String> getMediaType() throws Exception {
-		return asList(MediaTypes.getDefault().getMediaType(getExtension()).split("/")); // format engine does not allow / in binding value
+		// format engine does not allow / in binding value
+		return SLASH.splitAsStream(MediaTypes.getDefault().getMediaType(getExtension())).collect(toList());
 	}
 
 	@Define("file")

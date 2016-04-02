@@ -1,5 +1,6 @@
 package net.filebot.subtitle;
 
+import static net.filebot.util.RegularExpressions.*;
 import static net.filebot.util.StringUtilities.*;
 
 import java.util.ArrayList;
