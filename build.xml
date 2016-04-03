@@ -3,6 +3,9 @@
 	<!-- include default inputs (optional) -->
 	<property file="profile.properties" />
 
+	<!-- scp settings -->
+	<property prefix="deploy" file="deploy.properties" />
+
 	<!-- include application properties -->
 	<property file="source/net/filebot/Settings.properties" />
 	<property name="title" value="${application.name}" />
@@ -32,8 +35,6 @@
 	<property name="basedir.release" location="${basedir}/release" />
 	<property name="dir.release" location="${basedir.release}/${title}_${version}" />
 	<property name="dir.cache" location="${basedir}/cache/${title}_${version}" />
-	<property name="frs.release" value="rednoah,filebot@frs.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" />
-	<property name="frs.website" value="rednoah,filebot@web.sourceforge.net:/home/project-web/filebot/htdocs" />
 
 
 	<target name="resolve" description="Retrieve dependencies with Apache Ivy">
@@ -891,13 +892,13 @@
 
 
 	<target name="deploy-release" depends="stage-release" description="Upload to SourceForge.net FRS">
-		<scp todir="${frs.release}" trust="yes" verbose="true" sftp="true" keyfile="sourceforge_id.key">
+		<scp todir="${deploy.release}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
 			<!-- make sure to upload README.md first -->
 			<fileset dir="${basedir.release}" includes="**/README.md">
 				<date datetime="${tstamp.date}" pattern="yyyy-MM-dd" when="after" />
 			</fileset>
 		</scp>
-		<scp todir="${frs.release}" trust="yes" verbose="true" sftp="true" keyfile="sourceforge_id.key">
+		<scp todir="${deploy.release}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
 			<!-- upload starting with parent folders so scp will create the release folder for us -->
 			<fileset dir="${basedir.release}" excludes="**/README.md">
 				<date datetime="${tstamp.date}" pattern="yyyy-MM-dd" when="after" />
@@ -942,7 +943,7 @@
 		</copy>
 
 		<!-- upload -->
-		<scp todir="${frs.website}" trust="yes" verbose="true" sftp="true" keyfile="sourceforge_id.key">
+		<scp todir="${deploy.website}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
 			<fileset dir="${dir.dist}/website">
 				<modified>
 					<param name="cache.cachefile" value="${dir.cache}/scp.properties" />
@@ -970,7 +971,7 @@
 		</package-source>
 
 		<!-- upload -->
-		<scp todir="${frs.website}/syno" trust="yes" verbose="true" sftp="true" keyfile="sourceforge_id.key">
+		<scp todir="${deploy.website}/syno" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
 			<fileset dir="${dir.dist}/website/syno">
 				<include name="*.json" />
 			</fileset>
@@ -1008,7 +1009,7 @@
 
 
 	<target name="upload-data">
-		<scp todir="${frs.website}" trust="yes" verbose="true" sftp="true" keyfile="sourceforge_id.key">
+		<scp todir="${deploy.website}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
 			<fileset dir="${dir.website}">
 				<include name="data/*.txt" />
 				<include name="data/*.xz" />
@@ -1018,8 +1019,8 @@
 
 
 	<target name="deploy-beta-jar" depends="resolve, svn-update, fatjar" description="Build and deploy fatjar for the latest revision">
-		<scp file="${path.fatjar}" remoteTofile="${frs.release}/HEAD/filebot-r${svn.revision}.jar" trust="yes" verbose="true" sftp="true" keyfile="sourceforge_id.key" />
-		<scp file="${path.fatjar}" remoteTofile="${frs.release}/HEAD/FileBot.jar" trust="yes" verbose="true" sftp="true" keyfile="sourceforge_id.key" />
+		<scp file="${path.fatjar}" remoteTofile="${deploy.release}/HEAD/filebot-r${svn.revision}.jar" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}" />
+		<scp file="${path.fatjar}" remoteTofile="${deploy.release}/HEAD/FileBot.jar" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}" />
 	</target>
 
 
