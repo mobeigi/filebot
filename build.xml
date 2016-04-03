@@ -951,7 +951,7 @@
 	</target>
 
 
-	<target name="deploy-package-source" depends="stage-release" description="Update Synology Package Source">
+	<target name="deploy-synology" description="Update Synology Package Source">
 		<taskdef name="package-source" classname="net.filebot.ant.spk.RepositoryTask" classpathref="jars.classpath" />
 
 		<!-- merge all filebot related packages into a single package source file -->
