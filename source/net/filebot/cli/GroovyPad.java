@@ -153,7 +153,7 @@ public class GroovyPad extends JFrame {
 
 	protected ScriptShell createScriptShell() {
 		try {
-			return new ScriptShell(ScriptSource.GITHUB_STABLE.getScriptProvider(null), new HashMap<String, Object>());
+			return new ScriptShell(s -> ScriptSource.GITHUB_STABLE.getScriptProvider(s).getScript(s), new HashMap<String, Object>());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
