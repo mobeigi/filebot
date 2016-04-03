@@ -920,6 +920,7 @@
 				<include name="*.png" />
 				<include name="*.ico" />
 				<include name="*.txt" />
+				<include name="syno/**" />
 				<include name="images/**" />
 				<include name="screenshots/**" />
 				<include name="getting-started/**" />
@@ -953,6 +954,7 @@
 
 	<target name="deploy-synology" description="Update Synology Package Source">
 		<taskdef name="package-source" classname="net.filebot.ant.spk.RepositoryTask" classpathref="jars.classpath" />
+		<mkdir dir="${dir.dist}/website/syno" />
 
 		<!-- merge all filebot related packages into a single package source file -->
 		<package-source file="${dir.dist}/website/syno/index.json">
@@ -969,7 +971,9 @@
 
 		<!-- upload -->
 		<scp todir="${frs.website}/syno" trust="yes" verbose="true" sftp="true" keyfile="sourceforge_id.key">
-			<fileset dir="${dir.dist}/website/syno" />
+			<fileset dir="${dir.dist}/website/syno">
+				<include name="*.json" />
+			</fileset>
 		</scp>
 	</target>
 
