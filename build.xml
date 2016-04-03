@@ -907,11 +907,10 @@
 
 
 	<target name="deploy-website">
-		<taskdef name="package-source" classname="net.filebot.ant.spk.RepositoryTask" classpathref="jars.classpath" />
-
 		<!-- copy static website resources -->
 		<copy todir="${dir.dist}/website" preservelastmodified="yes" verbose="yes">
 			<fileset dir="${dir.website}">
+				<include name=".htaccess" />
 				<include name="*.html" />
 				<include name="*.php" />
 				<include name="*.json" />
@@ -921,8 +920,6 @@
 				<include name="*.png" />
 				<include name="*.ico" />
 				<include name="*.txt" />
-				<include name=".htaccess" />
-				<include name="syno/**" />
 				<include name="images/**" />
 				<include name="screenshots/**" />
 				<include name="getting-started/**" />
@@ -943,6 +940,20 @@
 			</filterset>
 		</copy>
 
+		<!-- upload -->
+		<scp todir="${frs.website}" trust="yes" verbose="true" sftp="true" keyfile="sourceforge_id.key">
+			<fileset dir="${dir.dist}/website">
+				<modified>
+					<param name="cache.cachefile" value="${dir.cache}/scp.properties" />
+				</modified>
+			</fileset>
+		</scp>
+	</target>
+
+
+	<target name="deploy-package-source" depends="stage-release" description="Update Synology Package Source">
+		<taskdef name="package-source" classname="net.filebot.ant.spk.RepositoryTask" classpathref="jars.classpath" />
+
 		<!-- merge all filebot related packages into a single package source file -->
 		<package-source file="${dir.dist}/website/syno/index.json">
 			<keyring file="${dir.installer}/gpg/FileBot.pub" />
@@ -957,17 +968,13 @@
 		</package-source>
 
 		<!-- upload -->
-		<scp todir="${frs.website}" trust="yes" verbose="true" sftp="true" keyfile="sourceforge_id.key">
-			<fileset dir="${dir.dist}/website">
-				<modified>
-					<param name="cache.cachefile" value="${dir.cache}/scp.properties" />
-				</modified>
-			</fileset>
+		<scp todir="${frs.website}/syno" trust="yes" verbose="true" sftp="true" keyfile="sourceforge_id.key">
+			<fileset dir="${dir.dist}/website/syno" />
 		</scp>
 	</target>
 
 
-	<target name="chocolatey-push" description="chocolatey package">
+	<target name="deploy-chocolatey" description="Update Chocolatey Package Source">
 		<!-- prepare sha1 checksums -->
 		<checksum property="x86.msi.sha256" file="${dir.release}/FileBot_${version}_x86.msi" algorithm="SHA-256" />
 		<checksum property="x64.msi.sha256" file="${dir.release}/FileBot_${version}_x64.msi" algorithm="SHA-256" />
@@ -1007,15 +1014,13 @@
 
 
 	<target name="deploy-beta-jar" depends="resolve, svn-update, fatjar" description="Build and deploy fatjar for the latest revision">
-		<!-- deploy fatjar -->
-		<input message="Mark:" addproperty="mark" />
-		<scp file="${path.fatjar}" remoteTofile="${frs.release}/HEAD/filebot-${version}-r${svn.revision}-${mark}.jar" trust="yes" verbose="true" sftp="true" keyfile="sourceforge_id.key" />
+		<scp file="${path.fatjar}" remoteTofile="${frs.release}/HEAD/filebot-r${svn.revision}.jar" trust="yes" verbose="true" sftp="true" keyfile="sourceforge_id.key" />
 		<scp file="${path.fatjar}" remoteTofile="${frs.release}/HEAD/FileBot.jar" trust="yes" verbose="true" sftp="true" keyfile="sourceforge_id.key" />
 	</target>
 
 
 	<target name="deploy-beta-release">
-		<input message="Mark:" addproperty="mark" />
+		<input addproperty="mark" message="Mark:" />
 		<antcall target="deploy-release">
 			<param name="dir.release" location="${basedir.release}/HEAD/${title}_${version}_${mark}" />
 		</antcall>
