@@ -890,7 +890,7 @@
 	</target>
 
 
-	<target name="deploy-release" depends="stage-release, login" description="Upload to SourceForge.net FRS">
+	<target name="deploy-release" depends="stage-release" description="Upload to SourceForge.net FRS">
 		<scp todir="${frs.release}" trust="yes" verbose="true" sftp="true" keyfile="sourceforge_id.key">
 			<!-- make sure to upload README.md first -->
 			<fileset dir="${basedir.release}" includes="**/README.md">
@@ -906,7 +906,7 @@
 	</target>
 
 
-	<target name="deploy-website" depends="login">
+	<target name="deploy-website">
 		<taskdef name="package-source" classname="net.filebot.ant.spk.RepositoryTask" classpathref="jars.classpath" />
 
 		<!-- copy static website resources -->
@@ -996,7 +996,7 @@
 	</target>
 
 
-	<target name="upload-data" depends="login">
+	<target name="upload-data">
 		<scp todir="${frs.website}" trust="yes" verbose="true" sftp="true" keyfile="sourceforge_id.key">
 			<fileset dir="${dir.website}">
 				<include name="data/*.txt" />
@@ -1006,7 +1006,7 @@
 	</target>
 
 
-	<target name="deploy-beta-jar" depends="resolve, svn-update, fatjar, login" description="Build and deploy fatjar for the latest revision">
+	<target name="deploy-beta-jar" depends="resolve, svn-update, fatjar" description="Build and deploy fatjar for the latest revision">
 		<!-- deploy fatjar -->
 		<input message="Mark:" addproperty="mark" />
 		<scp file="${path.fatjar}" remoteTofile="${frs.release}/HEAD/filebot-${version}-r${svn.revision}-${mark}.jar" trust="yes" verbose="true" sftp="true" keyfile="sourceforge_id.key" />
@@ -1019,13 +1019,6 @@
 		<antcall target="deploy-release">
 			<param name="dir.release" location="${basedir.release}/HEAD/${title}_${version}_${mark}" />
 		</antcall>
-	</target>
-
-
-	<target name="login">
-		<!-- ask for sourceforge password -->
-		<input message="Please enter sourceforge username:" addproperty="sf.user" />
-		<input message="Please enter sourceforge password:" addproperty="sf.password" />
 	</target>
 
 
