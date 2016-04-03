@@ -6,7 +6,6 @@ import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URL;
 import java.time.Duration;
 
 import net.filebot.Cache;
@@ -23,7 +22,10 @@ public enum ScriptSource {
 
 		@Override
 		public ScriptProvider getScriptProvider(String input) throws Exception {
-			return getScriptBundle(this, "github.stable", Cache.ONE_WEEK);
+			URI bundle = new URI(getApplicationProperty("github.stable"));
+			byte[] bytes = getCache().bytes(bundle, URI::toURL).expire(Cache.ONE_WEEK).get();
+
+			return new ScriptBundle(bytes, getClass().getResourceAsStream("repository.cer"));
 		}
 
 	},
@@ -37,7 +39,9 @@ public enum ScriptSource {
 
 		@Override
 		public ScriptProvider getScriptProvider(String input) throws Exception {
-			return getScriptBundle(this, "github.master", Cache.ONE_DAY);
+			URI parent = new URI(getApplicationProperty("github.master"));
+
+			return n -> getCache().text(n, s -> parent.resolve(s + ".groovy").toURL()).expire(Cache.ONE_DAY).get();
 		}
 
 	},
@@ -72,10 +76,9 @@ public enum ScriptSource {
 
 		@Override
 		public ScriptProvider getScriptProvider(String input) throws Exception {
-			Cache cache = Cache.getCache(name(), CacheType.Persistent);
 			URI parent = new URI(input).resolve(".");
 
-			return f -> cache.text(f, s -> parent.resolve(s + ".groovy").toURL()).expire(Duration.ZERO).get();
+			return n -> getCache().text(n, s -> parent.resolve(s + ".groovy").toURL()).expire(Duration.ZERO).get();
 		}
 
 	},
@@ -104,15 +107,12 @@ public enum ScriptSource {
 
 	public abstract ScriptProvider getScriptProvider(String input) throws Exception;
 
-	public static ScriptSource findScriptProvider(String input) throws Exception {
-		return stream(values()).filter(s -> s.accept(input) != null).findFirst().get();
+	public Cache getCache() {
+		return Cache.getCache(name(), CacheType.Persistent);
 	}
 
-	private static ScriptProvider getScriptBundle(ScriptSource source, String branch, Duration expirationTime) throws Exception {
-		Cache cache = Cache.getCache(source.name(), CacheType.Persistent);
-		byte[] bytes = cache.bytes("repository.jar", f -> new URL(getApplicationProperty(branch) + f)).expire(expirationTime).get();
-
-		return new ScriptBundle(bytes, source.getClass().getResourceAsStream("repository.cer"));
+	public static ScriptSource findScriptProvider(String input) throws Exception {
+		return stream(values()).filter(s -> s.accept(input) != null).findFirst().get();
 	}
 
 }
