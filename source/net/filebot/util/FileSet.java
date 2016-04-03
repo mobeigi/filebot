@@ -3,6 +3,7 @@ package net.filebot.util;
 import static java.nio.charset.StandardCharsets.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,7 +11,9 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.AbstractSet;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -152,16 +155,12 @@ public class FileSet extends AbstractSet<Path> {
 		files.clear();
 	}
 
-	public void feed(Stream<? extends Object> stream) {
-		stream.forEach(it -> add(getPath(it)));
-	}
-
 	public void load(File f) throws IOException {
-		feed(Files.lines(f.toPath(), UTF_8));
+		streamLines(f).forEach(this::add);
 	}
 
-	public void store(File f) throws IOException {
-		Files.write(f.toPath(), stream().map(it -> (CharSequence) it.toString())::iterator, UTF_8);
+	public void append(File f, Collection<?>... paths) throws IOException {
+		Files.write(f.toPath(), Stream.of(paths).flatMap(Collection::stream).map(this::getPath).filter(it -> !contains(it)).map(Path::toString).collect(toList()), UTF_8, StandardOpenOption.APPEND);
 	}
 
 }

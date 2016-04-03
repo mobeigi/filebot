@@ -256,7 +256,11 @@ public class ScriptShellMethods {
 	}
 
 	public static void createFileIfNotExists(File self) throws IOException {
-		FileUtilities.createFileIfNotExists(self);
+		if (!self.isFile()) {
+			// create parent folder structure if necessary & create file
+			Files.createDirectories(self.getParentFile().toPath());
+			Files.createFile(self.toPath());
+		}
 	}
 
 	public static File relativize(File self, File other) throws IOException {

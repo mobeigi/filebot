@@ -3,16 +3,17 @@ package net.filebot.util;
 import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.util.RegularExpressions.*;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigInteger;
@@ -39,12 +40,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 
@@ -166,45 +167,16 @@ public final class FileUtilities {
 		return Files.createDirectories(folder.toPath()).toFile();
 	}
 
-	public static void createFileIfNotExists(File file) throws IOException {
-		if (!file.isFile()) {
-			// create parent folder structure if necessary & create file
-			Files.createDirectories(file.getParentFile().toPath());
-			Files.createFile(file.toPath());
-		}
+	public static byte[] readFile(File source) throws IOException {
+		return Files.readAllBytes(source.toPath());
 	}
 
-	public static byte[] readFile(File source) throws IOException {
-		long size = source.length();
-		if (size < 0 || size > Integer.MAX_VALUE) {
-			throw new IllegalArgumentException("Unable to read file: " + source);
-		}
-
-		try (InputStream in = new FileInputStream(source)) {
-			byte[] data = new byte[(int) size];
-			int position = 0;
-			int read = 0;
-
-			while (position < data.length && (read = in.read(data, position, data.length - position)) >= 0) {
-				position += read;
-			}
-
-			return data;
-		}
+	public static Stream<String> streamLines(File file) throws IOException {
+		return new BufferedReader(new UnicodeReader(new BufferedInputStream(new FileInputStream(file)), false, UTF_8), BUFFER_SIZE).lines();
 	}
 
 	public static String readTextFile(File file) throws IOException {
-		try (Reader reader = new UnicodeReader(new BufferedInputStream(new FileInputStream(file), BUFFER_SIZE), false, StandardCharsets.UTF_8)) {
-			StringBuilder text = new StringBuilder();
-			char[] buffer = new char[BUFFER_SIZE];
-
-			int read = 0;
-			while ((read = reader.read(buffer)) >= 0) {
-				text.append(buffer, 0, read);
-			}
-
-			return text.toString();
-		}
+		return streamLines(file).collect(joining(System.lineSeparator()));
 	}
 
 	public static File writeFile(ByteBuffer data, File destination) throws IOException {
@@ -212,19 +184,6 @@ public final class FileUtilities {
 			channel.write(data);
 		}
 		return destination;
-	}
-
-	public static List<String[]> readCSV(InputStream source, String charsetName, String pattern) {
-		try (Scanner scanner = new Scanner(source, charsetName)) {
-			Pattern separator = Pattern.compile(pattern);
-			List<String[]> rows = new ArrayList<String[]>(65536);
-
-			while (scanner.hasNextLine()) {
-				rows.add(separator.split(scanner.nextLine()));
-			}
-
-			return rows;
-		}
 	}
 
 	public static Reader createTextReader(File file) throws IOException {
