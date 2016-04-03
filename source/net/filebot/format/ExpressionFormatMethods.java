@@ -72,7 +72,7 @@ public class ExpressionFormatMethods {
 	public static String match(String self, String pattern, int matchGroup) throws Exception {
 		Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS | MULTILINE).matcher(self);
 		if (matcher.find()) {
-			return (matcher.groupCount() > 0 && matchGroup < 0 ? matcher.group(1) : matcher.group(matchGroup < 0 ? 0 : matchGroup)).trim();
+			return matcher.group(matchGroup < 0 ? matcher.groupCount() > 0 ? 1 : 0 : matchGroup).trim();
 		} else {
 			throw new Exception("Pattern not found");
 		}
@@ -82,14 +82,14 @@ public class ExpressionFormatMethods {
 	 * Return a list of all matching patterns or break.
 	 */
 	public static List<String> matchAll(String self, String pattern) throws Exception {
-		return matchAll(self, pattern, 0);
+		return matchAll(self, pattern, -1);
 	}
 
 	public static List<String> matchAll(String self, String pattern, int matchGroup) throws Exception {
 		List<String> matches = new ArrayList<String>();
 		Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS | MULTILINE).matcher(self);
 		while (matcher.find()) {
-			matches.add(matcher.group(matchGroup).trim());
+			matches.add(matcher.group(matchGroup < 0 ? matcher.groupCount() > 0 ? 1 : 0 : matchGroup).trim());
 		}
 
 		if (matches.size() > 0) {
