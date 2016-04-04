@@ -2,7 +2,6 @@ package net.filebot.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 
 public class FastFile extends File {
 
@@ -16,8 +15,8 @@ public class FastFile extends File {
 	private File[] listFiles;
 	private String canonicalPath;
 
-	public FastFile(String path) {
-		super(path);
+	public FastFile(File file) {
+		super(file.getPath());
 	}
 
 	public FastFile(File parent, String child) {
@@ -195,10 +194,6 @@ public class FastFile extends File {
 	@Override
 	public long getUsableSpace() {
 		throw new UnsupportedOperationException();
-	}
-
-	public static FastFile[] create(Collection<File> files) {
-		return files.stream().map(f -> new FastFile(f.getPath())).toArray(FastFile[]::new);
 	}
 
 }

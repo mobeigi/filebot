@@ -240,7 +240,7 @@ public class ScriptShellMethods {
 	}
 
 	public static FastFile memoize(File self) {
-		return new FastFile(self.getPath());
+		return new FastFile(self);
 	}
 
 	public static File moveTo(File self, File destination) throws IOException {

@@ -69,7 +69,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<TreeNo
 			}
 
 			// use fast file to minimize system calls like length(), isDirectory(), isFile(), ...
-			FastFile root = FastFile.create(filter(files, FOLDERS))[0];
+			FastFile root = new FastFile(filter(files, FOLDERS).get(0));
 
 			// publish on EDT
 			TreeNode[] node = { getTreeNode(root) };

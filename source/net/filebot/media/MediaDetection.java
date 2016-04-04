@@ -1,6 +1,5 @@
 package net.filebot.media;
 
-
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
@@ -1400,21 +1399,6 @@ public class MediaDetection {
 		public CollationKey[] split(String sequence) {
 			throw new UnsupportedOperationException("requires ahead-of-time collation");
 		}
-	}
-
-	public static List<File> getMediaUnits(File folder) {
-		if (folder.isHidden()) {
-			return emptyList();
-		}
-
-		if (folder.isDirectory() && !isDiskFolder(folder)) {
-			List<File> children = new ArrayList<File>();
-			for (File f : getChildren(folder)) {
-				children.addAll(getMediaUnits(f));
-			}
-		}
-
-		return singletonList(folder);
 	}
 
 	public static void warmupCachedResources() throws Exception {

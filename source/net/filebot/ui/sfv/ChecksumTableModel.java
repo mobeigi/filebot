@@ -182,7 +182,7 @@ class ChecksumTableModel extends AbstractTableModel {
 			cell.addPropertyChangeListener(progressListener);
 
 			if (!checksumColumns.contains(cell.getRoot())) {
-				checksumColumns.add(new FastFile(cell.getRoot().getPath()));
+				checksumColumns.add(new FastFile(cell.getRoot()));
 			}
 		}
 

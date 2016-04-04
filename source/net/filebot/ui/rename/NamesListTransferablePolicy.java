@@ -2,7 +2,6 @@ package net.filebot.ui.rename;
 
 import static java.awt.datatransfer.DataFlavor.*;
 import static java.util.Arrays.*;
-import static java.util.Collections.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.hash.VerificationUtilities.*;
 import static net.filebot.ui.transfer.FileTransferable.*;
@@ -98,7 +97,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 			loadTorrentFiles(files, values);
 		} else {
 			// load all files from the given folders recursively up do a depth of 32
-			addAll(values, FastFile.create(listFiles(files)));
+			listFiles(files).stream().map(FastFile::new).forEach(values::add);
 		}
 
 		model.addAll(values);

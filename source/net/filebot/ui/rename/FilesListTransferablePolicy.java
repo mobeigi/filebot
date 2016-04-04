@@ -55,7 +55,8 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 		// load files recursively by default
 		load(files, action != TransferAction.LINK, fileset);
 
-		publish(FastFile.create(fileset));
+		// use fast file to minimize system calls like length(), isDirectory(), isFile(), ...
+		publish(fileset.stream().map(FastFile::new).toArray(File[]::new));
 	}
 
 	private void load(List<File> files, boolean recursive, Collection<File> sink) {
