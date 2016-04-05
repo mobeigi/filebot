@@ -274,6 +274,8 @@ public final class FileUtilities {
 	}
 
 	public static String getName(File file) {
+		if (file == null)
+			return null;
 		if (file.getName().isEmpty() || UNC_PREFIX.equals(file.getParent()))
 			return getFolderName(file);
 

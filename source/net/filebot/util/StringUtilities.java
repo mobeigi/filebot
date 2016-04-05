@@ -1,5 +1,6 @@
 package net.filebot.util;
 
+import static java.util.stream.StreamSupport.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
@@ -9,7 +10,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Spliterators.AbstractSpliterator;
+import java.util.function.Consumer;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public final class StringUtilities {
@@ -45,6 +50,10 @@ public final class StringUtilities {
 			}
 		}
 		return null;
+	}
+
+	public static Stream<String> streamMatches(CharSequence s, Pattern pattern) {
+		return stream(new MatcherSpliterator(pattern.matcher(s)), false).map(MatchResult::group);
 	}
 
 	public static String asString(Object object) {
@@ -85,11 +94,24 @@ public final class StringUtilities {
 		return values.map(StringUtilities::asNonEmptyString).filter(Objects::nonNull).collect(joining(delimiter, prefix, suffix));
 	}
 
-	/**
-	 * Dummy constructor to prevent instantiation.
-	 */
-	private StringUtilities() {
-		throw new UnsupportedOperationException();
+	public static class MatcherSpliterator extends AbstractSpliterator<MatchResult> {
+
+		private final Matcher m;
+
+		public MatcherSpliterator(Matcher m) {
+			super(Long.MAX_VALUE, ORDERED | NONNULL | IMMUTABLE);
+			this.m = m;
+		}
+
+		@Override
+		public boolean tryAdvance(Consumer<? super MatchResult> f) {
+			if (!m.find()) {
+				return false;
+			}
+			f.accept(m.toMatchResult());
+			return true;
+		}
+
 	}
 
 }
