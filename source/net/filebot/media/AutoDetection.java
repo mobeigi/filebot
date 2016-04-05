@@ -323,7 +323,7 @@ public class AutoDetection {
 	}
 
 	public enum Type {
-		MOVIE, SERIES, ANIME, MUSIC;
+		Movie, Series, Anime, Music;
 	}
 
 	public static class Group extends EnumMap<Type, Object> implements Comparable<Group> {
@@ -333,40 +333,40 @@ public class AutoDetection {
 		}
 
 		public Object getMovie() {
-			return get(Type.MOVIE);
+			return get(Type.Movie);
 		}
 
 		public Object getSeries() {
-			return get(Type.SERIES);
+			return get(Type.Series);
 		}
 
 		public Object getAnime() {
-			return get(Type.ANIME);
+			return get(Type.Anime);
 		}
 
 		public Object getMusic() {
-			return get(Type.MUSIC);
+			return get(Type.Music);
 		}
 
 		public Group movie(List<Movie> movies) {
-			put(Type.MOVIE, movies == null || movies.isEmpty() ? null : movies.get(0));
+			put(Type.Movie, movies == null || movies.isEmpty() ? null : movies.get(0));
 			return this;
 		}
 
 		public Group series(List<String> names) {
-			put(Type.SERIES, names == null || names.isEmpty() ? null : names.get(0));
+			put(Type.Series, names == null || names.isEmpty() ? null : names.get(0).toLowerCase());
 			return this;
 
 		}
 
 		public Group anime(List<String> names) {
-			put(Type.ANIME, names == null || names.isEmpty() ? null : names.get(0));
+			put(Type.Anime, names == null || names.isEmpty() ? null : names.get(0).toLowerCase());
 			return this;
 
 		}
 
 		public Group music(File f) {
-			put(Type.MUSIC, f == null ? null : f.getParent());
+			put(Type.Music, f == null ? null : f.getParent());
 			return this;
 		}
 
