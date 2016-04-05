@@ -1,34 +1,23 @@
 #!/bin/sh
 
-# symlink to /bin on START and unlink on STOP
-APP_LINK="/usr/local/bin/$SYNOPKG_PKGNAME"
-APP_ROOT="$SYNOPKG_PKGDEST"
-
 case "$1" in
 	start)
-		# When the user clicks the button "Run" to run the package, after the package is installed, or when the DiskStation is turned on.
 		exit 0
 	;;
 
 	stop)
-		# When the user clicks the button "Stop" to stop the running package, before the package is uninstalled, or when the DiskStation is turned off.
 		exit 0
 	;;
-	
+
 	status)
-		# When Package Center is opened to check package status, the Center will send a request to ask the status of the package with this parameter.
-		if [ -e "$APP_LINK" ]; then
-			# 0: package is running
+		if [ -x "/usr/local/bin/$SYNOPKG_PKGNAME" ] && [ -x "$SYNOPKG_PKGDEST/$SYNOPKG_PKGNAME.sh" ]; then
 			exit 0
 		else
-			# 3: package is not running
 			exit 1
 		fi
 	;;
 
 	log)
-		# select most recently modified log file
-		find "$APP_ROOT/data" -name "*.log" -type f -print0 | xargs -0 ls -Alt1 | head -n 1 | sed -e 's/\s\+/\s /g' | cut -d' ' -f7-
 		exit 0
 	;;
 

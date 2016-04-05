@@ -6,10 +6,10 @@ chown -R admin.users "$SYNOPKG_PKGDEST/data"
 
 # create /usr/local/bin/[package] program link
 mkdir -p "/usr/local/bin"
-ln -s "$SYNOPKG_PKGDEST/$SYNOPKG_PKGNAME.sh" "/usr/local/bin/$SYNOPKG_PKGNAME"
+ln -sf "$SYNOPKG_PKGDEST/$SYNOPKG_PKGNAME.sh" "/usr/local/bin/$SYNOPKG_PKGNAME"
 
 # create /usr/local/[package] link
-ln -s "$SYNOPKG_PKGDEST" "/usr/local/$SYNOPKG_PKGNAME"
+ln -sf "$SYNOPKG_PKGDEST" "/usr/local/$SYNOPKG_PKGNAME"
 
 # return successfully
 exit 0
