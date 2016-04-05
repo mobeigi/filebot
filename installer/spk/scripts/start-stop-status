@@ -13,15 +13,11 @@ case "$1" in
 		if [ -x "/usr/local/bin/$SYNOPKG_PKGNAME" ] && [ -x "$SYNOPKG_PKGDEST/$SYNOPKG_PKGNAME.sh" ]; then
 			exit 0
 		else
-			exit 1
+			exit 150
 		fi
 	;;
 
 	log)
 		exit 0
-	;;
-
-	*)
-		exit 1
 	;;
 esac
