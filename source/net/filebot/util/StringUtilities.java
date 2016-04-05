@@ -1,15 +1,16 @@
 package net.filebot.util;
 
-import static java.util.stream.StreamSupport.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
+import static java.util.stream.StreamSupport.*;
 import static net.filebot.util.RegularExpressions.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Spliterators.AbstractSpliterator;
 import java.util.function.Consumer;
 import java.util.regex.MatchResult;
@@ -54,6 +55,15 @@ public final class StringUtilities {
 
 	public static Stream<String> streamMatches(CharSequence s, Pattern pattern) {
 		return stream(new MatcherSpliterator(pattern.matcher(s)), false).map(MatchResult::group);
+	}
+
+	public static boolean find(String s, Pattern pattern) {
+		return pattern.matcher(s).find();
+	}
+
+	public static Optional<String> after(String s, Pattern pattern) {
+		Matcher matcher = pattern.matcher(s);
+		return matcher.find() ? Optional.of(s.substring(matcher.end()).trim()) : Optional.empty();
 	}
 
 	public static String asString(Object object) {
