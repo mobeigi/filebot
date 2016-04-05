@@ -764,8 +764,8 @@ public class MediaDetection {
 
 	public static String reduceMovieName(String name, boolean strict) throws IOException {
 		Matcher matcher = compile(strict ? "^(.+)[\\[\\(]((?:19|20)\\d{2})[\\]\\)]" : "^(.+?)((?:19|20)\\d{2})").matcher(name);
-		if (matcher.find()) {
-			return String.format("%s %s", normalizePunctuation(matcher.group(1)), matcher.group(2));
+		if (matcher.find() && parseMovieYear(matcher.group(2)).size() > 0) {
+			return String.format("%s %s", trimTrailingPunctuation(matcher.group(1)), matcher.group(2));
 		}
 		return null;
 	}
