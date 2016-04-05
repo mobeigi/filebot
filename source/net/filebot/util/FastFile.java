@@ -58,12 +58,12 @@ public class FastFile extends File {
 
 	@Override
 	public File getCanonicalFile() throws IOException {
-		return canonicalFile != null ? canonicalFile : (canonicalFile = new FastFile(super.getCanonicalFile()));
+		return canonicalFile != null ? canonicalFile : (canonicalFile = get(super.getCanonicalFile()));
 	}
 
 	@Override
 	public File getParentFile() {
-		return parentFile != null ? parentFile : (parentFile = new FastFile(super.getParentFile()));
+		return parentFile != null ? parentFile : (parentFile = get(super.getParentFile()));
 	}
 
 	@Override
@@ -207,6 +207,10 @@ public class FastFile extends File {
 	@Override
 	public long getUsableSpace() {
 		throw new UnsupportedOperationException();
+	}
+
+	public static FastFile get(File f) {
+		return f == null ? null : new FastFile(f);
 	}
 
 }
