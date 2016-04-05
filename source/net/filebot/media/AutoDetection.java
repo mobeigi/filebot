@@ -6,6 +6,7 @@ import static java.util.regex.Pattern.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
+import static net.filebot.Settings.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.FileUtilities.*;
@@ -24,6 +25,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
@@ -78,56 +81,39 @@ public class AutoDetection {
 		// sort keys and values
 		Map<Group, Set<File>> groups = new TreeMap<Group, Set<File>>();
 
-		stream(files).parallel().collect(groupingByConcurrent(f -> {
-			Group group = new Group();
+		// can't use parallel stream because default fork/join pool doesn't play well with the security manager
+		ExecutorService executor = Executors.newFixedThreadPool(getPreferredThreadPoolSize());
+
+		stream(files).collect(toMap(f -> f, f -> executor.submit(() -> detectGroup(f)))).forEach((file, group) -> {
 			try {
-				if (forceIgnore.test(f)) {
-					return group;
-				}
-				if (forceMusic.test(f)) {
-					return group.music(f);
-				}
-				if (forceMovie.test(f)) {
-					return group.movie(getMovieMatches(f, false));
-				}
-				if (forceSeries.test(f)) {
-					return group.series(getSeriesMatches(f, false));
-				}
-				if (forceAnime.test(f)) {
-					return group.anime(getSeriesMatches(f, true));
-				}
-				return detectGroup(f);
+				groups.computeIfAbsent(group.get(), k -> new TreeSet<File>()).add(file);
 			} catch (Exception e) {
 				debug.log(Level.SEVERE, e.getMessage(), e);
 			}
-			return group;
-		})).forEach((k, v) -> groups.put(k, new TreeSet<File>(v)));
+		});
 
+		executor.shutdown();
 		return groups;
-	}
-
-	private List<String> getSeriesMatches(File f, boolean anime) throws Exception {
-		List<String> names = detectSeriesNames(singleton(f), anime, locale);
-		if (names.size() > 0) {
-			return names;
-		}
-		List<File> episodes = getVideoFiles(f.getParentFile());
-		if (episodes.size() >= 5) {
-			return detectSeriesNames(episodes, anime, locale);
-		}
-		return emptyList();
-	}
-
-	private List<Movie> getMovieMatches(File file, boolean strict) throws Exception {
-		return MediaDetection.detectMovie(file, WebServices.TheMovieDB, locale, strict);
-	}
-
-	private List<File> getVideoFiles(File parent) {
-		return stream(files).filter(it -> parent.equals(it.getParentFile())).filter(VIDEO_FILES::accept).collect(toList());
 	}
 
 	private Group detectGroup(File f) throws Exception {
 		Group group = new Group();
+
+		if (forceIgnore.test(f)) {
+			return group;
+		}
+		if (forceMusic.test(f)) {
+			return group.music(f);
+		}
+		if (forceMovie.test(f)) {
+			return group.movie(getMovieMatches(f, false));
+		}
+		if (forceSeries.test(f)) {
+			return group.series(getSeriesMatches(f, false));
+		}
+		if (forceAnime.test(f)) {
+			return group.anime(getSeriesMatches(f, true));
+		}
 
 		List<String> s = getSeriesMatches(f, false);
 		List<Movie> m = getMovieMatches(f, false);
@@ -140,8 +126,26 @@ public class AutoDetection {
 			return group.movie(m);
 
 		log.fine(format("%s [series: %s, movie: %s]", f.getName(), s.get(0), m.get(0)));
-
 		return new Rules(f, s, m).apply();
+	}
+
+	private List<String> getSeriesMatches(File f, boolean anime) throws Exception {
+		List<String> names = detectSeriesNames(singleton(f), anime, locale);
+		if (names.isEmpty()) {
+			List<File> episodes = getVideoFiles(f.getParentFile());
+			if (episodes.size() >= 5) {
+				names = detectSeriesNames(episodes, anime, locale);
+			}
+		}
+		return names;
+	}
+
+	private List<Movie> getMovieMatches(File file, boolean strict) throws Exception {
+		return MediaDetection.detectMovie(file, WebServices.TheMovieDB, locale, strict);
+	}
+
+	private List<File> getVideoFiles(File parent) {
+		return stream(files).filter(it -> parent.equals(it.getParentFile())).filter(VIDEO_FILES::accept).collect(toList());
 	}
 
 	private static final Pattern YEAR = Pattern.compile("\\D(?:19|20)\\d{2}\\D");
@@ -319,7 +323,7 @@ public class AutoDetection {
 	}
 
 	public enum Type {
-		Movie, Series, Anime, Music;
+		MOVIE, SERIES, ANIME, MUSIC;
 	}
 
 	public static class Group extends EnumMap<Type, Object> implements Comparable<Group> {
@@ -329,40 +333,40 @@ public class AutoDetection {
 		}
 
 		public Object getMovie() {
-			return get(Type.Movie);
+			return get(Type.MOVIE);
 		}
 
 		public Object getSeries() {
-			return get(Type.Series);
+			return get(Type.SERIES);
 		}
 
 		public Object getAnime() {
-			return get(Type.Anime);
+			return get(Type.ANIME);
 		}
 
 		public Object getMusic() {
-			return get(Type.Music);
+			return get(Type.MUSIC);
 		}
 
 		public Group movie(List<Movie> movies) {
-			put(Type.Movie, movies == null || movies.isEmpty() ? null : movies.get(0));
+			put(Type.MOVIE, movies == null || movies.isEmpty() ? null : movies.get(0));
 			return this;
 		}
 
 		public Group series(List<String> names) {
-			put(Type.Series, names == null || names.isEmpty() ? null : names.get(0));
+			put(Type.SERIES, names == null || names.isEmpty() ? null : names.get(0));
 			return this;
 
 		}
 
 		public Group anime(List<String> names) {
-			put(Type.Anime, names == null || names.isEmpty() ? null : names.get(0));
+			put(Type.ANIME, names == null || names.isEmpty() ? null : names.get(0));
 			return this;
 
 		}
 
 		public Group music(File f) {
-			put(Type.Music, f == null ? null : f.getParent());
+			put(Type.MUSIC, f == null ? null : f.getParent());
 			return this;
 		}
 
