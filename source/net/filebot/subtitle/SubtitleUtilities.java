@@ -97,7 +97,7 @@ public final class SubtitleUtilities {
 		Map<File, List<SubtitleDescriptor>> subtitlesByFile = new HashMap<File, List<SubtitleDescriptor>>();
 
 		for (List<File> byMediaFolder : mapByMediaFolder(fileSet).values()) {
-			for (Entry<String, List<File>> bySeries : mapBySeriesName(byMediaFolder, true, false, Locale.ENGLISH).entrySet()) {
+			for (Entry<String, List<File>> bySeries : mapBySeriesName(byMediaFolder, false, Locale.ENGLISH).entrySet()) {
 				// allow early abort
 				if (Thread.interrupted())
 					throw new InterruptedException();

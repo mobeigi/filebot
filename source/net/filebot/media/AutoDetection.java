@@ -98,9 +98,9 @@ public class AutoDetection {
 	}
 
 	private List<String> detectSeries(File f, boolean anime) throws Exception {
-		List<String> names = detectSeriesNames(singleton(f), !anime, anime, locale);
+		List<String> names = detectSeriesNames(singleton(f), anime, locale);
 		if (names.isEmpty()) {
-			names = detectSeriesNames(getVideoFiles(f.getParentFile()), !anime, anime, locale);
+			names = detectSeriesNames(getVideoFiles(f.getParentFile()), anime, locale);
 		}
 		return names;
 	}

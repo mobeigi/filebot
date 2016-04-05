@@ -1,5 +1,6 @@
 package net.filebot.ui.subtitle.upload;
 
+import static java.util.Collections.*;
 import static net.filebot.Logging.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.ui.SwingUI.*;
@@ -11,7 +12,6 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -162,7 +162,7 @@ public class SubtitleUploadDialog extends JDialog {
 				mapping.setState(Status.Identifying);
 				try {
 					if (MediaDetection.isEpisode(mapping.getVideo().getPath(), true)) {
-						List<String> seriesNames = MediaDetection.detectSeriesNames(Collections.singleton(mapping.getVideo()), true, false, Locale.ENGLISH);
+						List<String> seriesNames = MediaDetection.detectSeriesNames(singleton(mapping.getVideo()), false, Locale.ENGLISH);
 						NAMES: for (String name : seriesNames) {
 							List<SearchResult> options = WebServices.TheTVDB.search(name, Locale.ENGLISH);
 							for (SearchResult entry : options) {

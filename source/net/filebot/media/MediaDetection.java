@@ -181,14 +181,14 @@ public class MediaDetection {
 		return getDateMatcher().match(object.toString());
 	}
 
-	public static Map<Set<File>, Set<String>> mapSeriesNamesByFiles(Collection<File> files, Locale locale, boolean useSeriesIndex, boolean useAnimeIndex) throws Exception {
+	public static Map<Set<File>, Set<String>> mapSeriesNamesByFiles(Collection<File> files, Locale locale, boolean anime) throws Exception {
 		// map series names by folder
 		Map<File, Set<String>> seriesNamesByFolder = new HashMap<File, Set<String>>();
 		Map<File, List<File>> filesByFolder = mapByFolder(files);
 
 		for (Entry<File, List<File>> it : filesByFolder.entrySet()) {
 			Set<String> namesForFolder = new TreeSet<String>(getLenientCollator(locale));
-			namesForFolder.addAll(detectSeriesNames(it.getValue(), useSeriesIndex, useAnimeIndex, locale));
+			namesForFolder.addAll(detectSeriesNames(it.getValue(), anime, locale));
 
 			seriesNamesByFolder.put(it.getKey(), namesForFolder);
 		}
@@ -317,14 +317,8 @@ public class MediaDetection {
 		return match;
 	}
 
-	public static List<String> detectSeriesNames(Collection<File> files, boolean useSeriesIndex, boolean useAnimeIndex, Locale locale) throws Exception {
-		List<IndexEntry<SearchResult>> index = new ArrayList<IndexEntry<SearchResult>>();
-		if (useSeriesIndex)
-			index.addAll(getSeriesIndex());
-		if (useAnimeIndex)
-			index.addAll(getAnimeIndex());
-
-		return detectSeriesNames(files, index, locale);
+	public static List<String> detectSeriesNames(Collection<File> files, boolean anime, Locale locale) throws Exception {
+		return detectSeriesNames(files, anime ? getAnimeIndex() : getSeriesIndex(), locale);
 	}
 
 	public static List<String> detectSeriesNames(Collection<File> files, List<IndexEntry<SearchResult>> index, Locale locale) throws Exception {
@@ -1065,11 +1059,11 @@ public class MediaDetection {
 		return map;
 	}
 
-	public static Map<String, List<File>> mapBySeriesName(Collection<File> files, boolean useSeriesIndex, boolean useAnimeIndex, Locale locale) throws Exception {
+	public static Map<String, List<File>> mapBySeriesName(Collection<File> files, boolean anime, Locale locale) throws Exception {
 		Map<String, List<File>> result = new TreeMap<String, List<File>>(String.CASE_INSENSITIVE_ORDER);
 
 		for (File f : files) {
-			List<String> names = detectSeriesNames(singleton(f), useSeriesIndex, useAnimeIndex, locale);
+			List<String> names = detectSeriesNames(singleton(f), anime, locale);
 			String key = names.isEmpty() ? "" : names.get(0);
 
 			List<File> value = result.get(key);

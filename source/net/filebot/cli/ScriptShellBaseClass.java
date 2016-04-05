@@ -204,19 +204,19 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public String detectSeriesName(Object files) throws Exception {
-		return detectSeriesName(files, true, false);
+		return detectSeriesName(files, false);
 	}
 
 	public String detectAnimeName(Object files) throws Exception {
-		return detectSeriesName(files, false, true);
+		return detectSeriesName(files, true);
 	}
 
-	public String detectSeriesName(Object files, boolean useSeriesIndex, boolean useAnimeIndex) throws Exception {
+	public String detectSeriesName(Object files, boolean anime) throws Exception {
 		List<File> input = FileUtilities.asFileList(files);
 		if (input.isEmpty())
 			return null;
 
-		List<String> names = MediaDetection.detectSeriesNames(input, useSeriesIndex, useAnimeIndex, Locale.ENGLISH);
+		List<String> names = MediaDetection.detectSeriesNames(input, anime, Locale.ENGLISH);
 		return names == null || names.isEmpty() ? null : names.get(0);
 	}
 

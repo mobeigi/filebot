@@ -99,7 +99,7 @@ public class Preset {
 
 		EpisodeListProvider sdb = WebServices.getEpisodeListProvider(database);
 		if (sdb != null) {
-			return new EpisodeListMatcher(sdb, sdb != WebServices.AniDB, sdb == WebServices.AniDB);
+			return new EpisodeListMatcher(sdb, sdb == WebServices.AniDB);
 		}
 
 		MusicIdentificationService adb = WebServices.getMusicIdentificationService(database);

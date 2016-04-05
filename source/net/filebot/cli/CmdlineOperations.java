@@ -170,7 +170,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 
 		// auto-determine optimal batch sets
-		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles, locale, db != AniDB, db == AniDB).entrySet()) {
+		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles, locale, db == AniDB).entrySet()) {
 			List<List<File>> batchSets = new ArrayList<List<File>>();
 
 			if (sameSeriesGroup.getValue() != null && sameSeriesGroup.getValue().size() > 0) {
@@ -187,7 +187,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				// auto-detect series name if not given
 				if (query == null) {
 					// detect series name by common word sequence
-					seriesNames = detectSeriesNames(batch, db != AniDB, db == AniDB, locale);
+					seriesNames = detectSeriesNames(batch, db == AniDB, locale);
 					log.config("Auto-detected query: " + seriesNames);
 				} else {
 					// use --q option

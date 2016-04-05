@@ -54,9 +54,7 @@ import net.filebot.web.SortOrder;
 class EpisodeListMatcher implements AutoCompleteMatcher {
 
 	private EpisodeListProvider provider;
-
-	private boolean useAnimeIndex;
-	private boolean useSeriesIndex;
+	private boolean anime;
 
 	// remember user selections
 	private TypedCache<SearchResult> persistentSelectionMemory;
@@ -64,10 +62,9 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	// only allow one fetch session at a time so later requests can make use of cached results
 	private final Object providerLock = new Object();
 
-	public EpisodeListMatcher(EpisodeListProvider provider, boolean useSeriesIndex, boolean useAnimeIndex) {
+	public EpisodeListMatcher(EpisodeListProvider provider, boolean anime) {
 		this.provider = provider;
-		this.useSeriesIndex = useSeriesIndex;
-		this.useAnimeIndex = useAnimeIndex;
+		this.anime = anime;
 		this.persistentSelectionMemory = Cache.getCache("selection_" + provider.getName(), CacheType.Persistent).cast(SearchResult.class);
 	}
 
@@ -214,14 +211,14 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 
 						@Override
 						public List<Match<File, ?>> call() throws Exception {
-							return matchEpisodeSet(singletonList(file), detectSeriesNames(singleton(file), useSeriesIndex, useAnimeIndex, locale), sortOrder, strict, locale, autodetection, selectionMemory, inputMemory, parent);
+							return matchEpisodeSet(singletonList(file), detectSeriesNames(singleton(file), anime, locale), sortOrder, strict, locale, autodetection, selectionMemory, inputMemory, parent);
 						}
 					});
 				}
 			}
 		} else {
 			// in non-strict mode use the complicated (more powerful but also more error prone) match-batch-by-batch logic
-			for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles, locale, useSeriesIndex, useAnimeIndex).entrySet()) {
+			for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles, locale, anime).entrySet()) {
 				final List<List<File>> batchSets = new ArrayList<List<File>>();
 				final Collection<String> queries = sameSeriesGroup.getValue();
 
@@ -307,7 +304,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 
 		// require user input if auto-detection has failed or has been disabled
 		if (episodes.isEmpty() && !strict) {
-			List<String> detectedSeriesNames = detectSeriesNames(files, useSeriesIndex, useAnimeIndex, locale);
+			List<String> detectedSeriesNames = detectSeriesNames(files, anime, locale);
 			String parentPathHint = normalizePathSeparators(getRelativePathTail(files.get(0).getParentFile(), 2).getPath());
 			String suggestion = detectedSeriesNames.size() > 0 ? join(detectedSeriesNames, "; ") : normalizePunctuation(getName(files.get(0)));
 
