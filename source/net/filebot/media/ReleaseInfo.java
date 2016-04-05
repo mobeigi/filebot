@@ -179,7 +179,7 @@ public class ReleaseInfo {
 			Pattern queryBlacklist = getBlacklistPattern();
 
 			stopwords[b] = new Pattern[] { languageSuffix, languageTag, videoSource, videoTags, videoFormat, resolution, stereoscopic3d };
-			blacklist[b] = new Pattern[] { languageSuffix, releaseGroupTrim, queryBlacklist, languageTag, clutterBracket, releaseGroup, videoSource, videoTags, videoFormat, resolution, stereoscopic3d };
+			blacklist[b] = new Pattern[] { EMBEDDED_CHECKSUM, languageSuffix, releaseGroupTrim, queryBlacklist, languageTag, clutterBracket, releaseGroup, videoSource, videoTags, videoFormat, resolution, stereoscopic3d };
 		}
 
 		return items.stream().map(it -> {
