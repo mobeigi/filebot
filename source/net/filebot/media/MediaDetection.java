@@ -39,6 +39,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -481,45 +482,27 @@ public class MediaDetection {
 	private static final ArrayList<IndexEntry<SearchResult>> seriesIndex = new ArrayList<IndexEntry<SearchResult>>();
 
 	public static List<IndexEntry<SearchResult>> getSeriesIndex() throws IOException {
-		synchronized (seriesIndex) {
-			if (seriesIndex.isEmpty()) {
-				seriesIndex.ensureCapacity(100000);
-				try {
-					for (SearchResult it : releaseInfo.getTheTVDBIndex()) {
-						seriesIndex.addAll(HighPerformanceMatcher.prepare(it));
-					}
-				} catch (Exception e) {
-					// can't load movie index, just try again next time
-					debug.severe("Failed to load series index: " + e);
-
-					// rely on online search
-					return emptyList();
-				}
+		return getIndex(() -> {
+			try {
+				return releaseInfo.getTheTVDBIndex();
+			} catch (Exception e) {
+				debug.severe("Failed to load series index: " + e.getMessage());
+				return new SearchResult[0];
 			}
-			return seriesIndex;
-		}
+		}, HighPerformanceMatcher::prepare, seriesIndex);
 	}
 
 	private static final ArrayList<IndexEntry<SearchResult>> animeIndex = new ArrayList<IndexEntry<SearchResult>>();
 
-	public static List<IndexEntry<SearchResult>> getAnimeIndex() throws IOException {
-		synchronized (animeIndex) {
-			if (animeIndex.isEmpty()) {
-				animeIndex.ensureCapacity(50000);
-				try {
-					for (SearchResult it : releaseInfo.getAnidbIndex()) {
-						animeIndex.addAll(HighPerformanceMatcher.prepare(it));
-					}
-				} catch (Exception e) {
-					// can't load movie index, just try again next time
-					debug.severe("Failed to load anime index: " + e);
-
-					// rely on online search
-					return emptyList();
-				}
+	public static List<IndexEntry<SearchResult>> getAnimeIndex() {
+		return getIndex(() -> {
+			try {
+				return releaseInfo.getAnidbIndex();
+			} catch (Exception e) {
+				debug.severe("Failed to load anime index: " + e.getMessage());
+				return new SearchResult[0];
 			}
-			return animeIndex;
-		}
+		}, HighPerformanceMatcher::prepare, animeIndex);
 	}
 
 	public static List<String> matchSeriesByName(Collection<String> files, int maxStartIndex, List<IndexEntry<SearchResult>> index) throws Exception {
@@ -840,24 +823,26 @@ public class MediaDetection {
 
 	private static final ArrayList<IndexEntry<Movie>> movieIndex = new ArrayList<IndexEntry<Movie>>();
 
-	public static List<IndexEntry<Movie>> getMovieIndex() {
-		synchronized (movieIndex) {
-			if (movieIndex.isEmpty()) {
-				movieIndex.ensureCapacity(100000);
-				try {
-					for (Movie it : releaseInfo.getMovieList()) {
-						movieIndex.addAll(HighPerformanceMatcher.prepare(it));
-					}
-				} catch (Exception e) {
-					// can't load movie index, just try again next time
-					debug.severe("Failed to load movie index: " + e);
-
-					// if we can't use internal index we can only rely on online search
-					return emptyList();
-				}
+	private static <T extends SearchResult> List<IndexEntry<T>> getIndex(Supplier<T[]> function, Function<T, List<IndexEntry<T>>> mapper, ArrayList<IndexEntry<T>> sink) {
+		synchronized (sink) {
+			if (sink.isEmpty()) {
+				T[] index = function.get();
+				sink.ensureCapacity(index.length * 4); // alias names
+				stream(index).map(mapper).forEach(sink::addAll);
 			}
-			return movieIndex;
+			return sink;
 		}
+	}
+
+	public static List<IndexEntry<Movie>> getMovieIndex() {
+		return getIndex(() -> {
+			try {
+				return releaseInfo.getMovieList();
+			} catch (Exception e) {
+				debug.severe("Failed to load movie index: " + e.getMessage());
+				return new Movie[0];
+			}
+		}, HighPerformanceMatcher::prepare, movieIndex);
 	}
 
 	public static List<Movie> matchMovieName(Collection<String> files, boolean strict, int maxStartIndex) {
