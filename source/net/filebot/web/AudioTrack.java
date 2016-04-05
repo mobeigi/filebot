@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 public class AudioTrack implements Serializable {
 
+	protected String database;
+
 	protected String artist;
 	protected String title;
 	protected String album;
@@ -33,15 +35,17 @@ public class AudioTrack implements Serializable {
 		this.trackIndex = other.trackIndex;
 		this.trackCount = other.trackCount;
 		this.mbid = other.mbid;
+		this.database = other.database;
 	}
 
-	public AudioTrack(String artist, String title, String album) {
+	public AudioTrack(String artist, String title, String album, String database) {
 		this.artist = artist;
 		this.title = title;
 		this.album = album;
+		this.database = database;
 	}
 
-	public AudioTrack(String artist, String title, String album, String albumArtist, String trackTitle, SimpleDate albumReleaseDate, Integer mediumIndex, Integer mediumCount, Integer trackIndex, Integer trackCount, String mbid) {
+	public AudioTrack(String artist, String title, String album, String albumArtist, String trackTitle, SimpleDate albumReleaseDate, Integer mediumIndex, Integer mediumCount, Integer trackIndex, Integer trackCount, String mbid, String database) {
 		this.artist = artist;
 		this.title = title;
 		this.album = album;
@@ -53,6 +57,7 @@ public class AudioTrack implements Serializable {
 		this.trackIndex = trackIndex;
 		this.trackCount = trackCount;
 		this.mbid = mbid;
+		this.database = database;
 	}
 
 	public String getArtist() {
@@ -97,6 +102,10 @@ public class AudioTrack implements Serializable {
 
 	public String getMBID() {
 		return mbid;
+	}
+
+	public String getDatabase() {
+		return database;
 	}
 
 	@Override

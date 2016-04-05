@@ -70,7 +70,7 @@ public class ID3Lookup implements MusicIdentificationService {
 							}
 						}
 
-						info.put(f, new AudioTrack(artist, title, album, albumArtist, trackTitle, albumReleaseDate, mediumIndex, mediumCount, trackIndex, trackCount, mbid));
+						info.put(f, new AudioTrack(artist, title, album, albumArtist, trackTitle, albumReleaseDate, mediumIndex, mediumCount, trackIndex, trackCount, mbid, getIdentifier()));
 					}
 				} catch (Throwable e) {
 					debug.warning(e.getMessage());

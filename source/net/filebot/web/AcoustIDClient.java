@@ -120,7 +120,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 					if (artist == null || title == null || releaseGroup.isEmpty())
 						return null;
 
-					AudioTrack audioTrack = new AudioTrack(artist, title, null);
+					AudioTrack audioTrack = new AudioTrack(artist, title, null, getIdentifier());
 					audioTrack.mbid = getString(result, "id");
 
 					String type = getString(releaseGroup, "type");
