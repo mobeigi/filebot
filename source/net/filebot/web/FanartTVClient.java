@@ -46,7 +46,7 @@ public class FanartTVClient implements Datasource {
 		String path = category + '/' + id;
 
 		Cache cache = Cache.getCache(getName(), CacheType.Weekly);
-		Object json = cache.json(path, s -> getResource(s)).expire(Cache.ONE_WEEK);
+		Object json = cache.json(path, s -> getResource(s)).expire(Cache.ONE_WEEK).get();
 
 		return asMap(json).entrySet().stream().flatMap(type -> {
 			return streamJsonObjects(type.getValue()).map(item -> {
