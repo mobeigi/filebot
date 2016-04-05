@@ -400,6 +400,15 @@ public class ReleaseInfo {
 		return clutterFileFilter;
 	}
 
+	private static RegexFileFilter systemFilesFilter;
+
+	public FileFilter getSystemFilesFilter() {
+		if (systemFilesFilter == null) {
+			systemFilesFilter = new RegexFileFilter(compile(getProperty("pattern.system.files"), CASE_INSENSITIVE));
+		}
+		return systemFilesFilter;
+	}
+
 	public List<File> getMediaRoots() {
 		String roots = getProperty("folder.media.roots");
 		return COMMA.splitAsStream(roots).map(File::new).collect(toList());

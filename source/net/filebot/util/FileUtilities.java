@@ -764,7 +764,7 @@ public final class FileUtilities {
 
 		@Override
 		public boolean accept(File dir, String name) {
-			return pattern.matcher(name).find();
+			return pattern.matcher(name).matches();
 		}
 
 		@Override

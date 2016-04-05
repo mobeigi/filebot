@@ -72,6 +72,10 @@ public class MediaDetection {
 
 	public static final ReleaseInfo releaseInfo = new ReleaseInfo();
 
+	public static FileFilter getSystemFilesFilter() {
+		return releaseInfo.getSystemFilesFilter();
+	}
+
 	public static FileFilter getDiskFolderFilter() {
 		return releaseInfo.getDiskFolderFilter();
 	}
