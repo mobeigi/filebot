@@ -196,13 +196,13 @@ public class SeriesNameMatcher {
 		// series name ends at the first season episode pattern
 		String seriesName = seasonEpisodeMatcher.head(name);
 		if (seriesName != null && seriesName.length() > 0) {
-			return normalizePunctuation(seriesName);
+			return seriesName;
 		}
 
 		int datePosition = dateMatcher.find(name, 0);
 		if (datePosition > 0) {
 			// series name ends at the first season episode pattern
-			return normalizePunctuation(name.substring(0, datePosition));
+			return name.substring(0, datePosition);
 		}
 
 		return null;
