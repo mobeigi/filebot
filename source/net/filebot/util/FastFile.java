@@ -5,6 +5,7 @@ import java.io.IOException;
 
 public class FastFile extends File {
 
+	private String name;
 	private Long length;
 	private Long lastModified;
 	private Boolean isDirectory;
@@ -13,7 +14,9 @@ public class FastFile extends File {
 
 	private String[] list;
 	private File[] listFiles;
-	private String canonicalPath;
+
+	private File canonicalFile;
+	private File parentFile;
 
 	public FastFile(File file) {
 		super(file.getPath());
@@ -21,6 +24,11 @@ public class FastFile extends File {
 
 	public FastFile(File parent, String child) {
 		super(parent, child);
+	}
+
+	@Override
+	public String getName() {
+		return name != null ? name : (name = super.getName());
 	}
 
 	@Override
@@ -49,8 +57,13 @@ public class FastFile extends File {
 	}
 
 	@Override
-	public String getCanonicalPath() throws IOException {
-		return canonicalPath != null ? canonicalPath : (canonicalPath = super.getCanonicalPath());
+	public File getCanonicalFile() throws IOException {
+		return canonicalFile != null ? canonicalFile : (canonicalFile = new FastFile(super.getCanonicalFile()));
+	}
+
+	@Override
+	public File getParentFile() {
+		return parentFile != null ? parentFile : (parentFile = new FastFile(super.getParentFile()));
 	}
 
 	@Override
