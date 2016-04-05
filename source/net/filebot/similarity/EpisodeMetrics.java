@@ -590,7 +590,6 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	RegionHint(new SimilarityMetric() {
 
 		private final Pattern hint = compile("[(](\\p{Alpha}+|\\p{Digit}+)[)]$");
-		private final Pattern punctuation = compile("[\\p{Punct}\\p{Space}]+");
 
 		private final SeriesNameMatcher seriesNameMatcher = getSeriesNameMatcher(true);
 
@@ -614,10 +613,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				Set<String> h = new HashSet<String>();
 				for (File f : listPathTail((File) o, 3, true)) {
 					// try to focus on series name
-					String n = f.getName();
-					String sn = seriesNameMatcher.matchByEpisodeIdentifier(n);
-
-					String[] tokens = punctuation.split(sn != null ? sn : n);
+					String fn = f.getName();
+					String sn = seriesNameMatcher.matchByEpisodeIdentifier(fn);
+					String[] tokens = PUNCTUATION_OR_SPACE.split(sn != null ? sn : fn);
 					for (String s : tokens) {
 						if (s.length() > 0) {
 							h.add(s.trim().toLowerCase());
