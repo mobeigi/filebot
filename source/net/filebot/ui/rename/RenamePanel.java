@@ -426,7 +426,7 @@ public class RenamePanel extends JComponent {
 	}
 
 	protected ActionPopup createFetchPopup() {
-		final ActionPopup actionPopup = new ActionPopup("Fetch & Match Data", ResourceManager.getIcon("action.fetch"));
+		ActionPopup actionPopup = new ActionPopup("Fetch & Match Data", ResourceManager.getIcon("action.fetch"));
 
 		actionPopup.addDescription(new JLabel("Episode Mode:"));
 
@@ -448,6 +448,9 @@ public class RenamePanel extends JComponent {
 		for (MusicIdentificationService it : WebServices.getMusicIdentificationServices()) {
 			actionPopup.add(new AutoCompleteAction(it.getName(), it.getIcon(), new MusicMatcher(it)));
 		}
+
+		actionPopup.addDescription(new JLabel("Smart Mode:"));
+		actionPopup.add(new AutoCompleteAction("Autodetect", ResourceManager.getIcon("action.auto"), new AutoDetectMatcher()));
 
 		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("Options:"));

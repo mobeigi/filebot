@@ -44,8 +44,8 @@ public class AutoDetection {
 	private File[] files;
 	private Locale locale;
 
-	public AutoDetection(Collection<File> root, Locale locale) {
-		this.files = resolve(root.stream().map(FastFile::new), getSystemFilesFilter()).toArray(File[]::new);
+	public AutoDetection(Collection<File> root, boolean resolve, Locale locale) {
+		this.files = (resolve ? resolve(root.stream().map(FastFile::new), getSystemFilesFilter()) : root.stream()).toArray(File[]::new);
 		this.locale = locale;
 	}
 
@@ -135,10 +135,10 @@ public class AutoDetection {
 
 		if (isMusic(f))
 			return group.music(f);
-		if (isEpisode(f))
-			return group.series(getSeriesMatches(f, false)); // episode characteristics override movie characteristics (e.g. episodes in Movies folder)
-		if (isMovie(f))
+		if (isMovie(f) && !isEpisode(f)) // episode characteristics override movie characteristics (e.g. episodes in Movies folder)
 			return group.movie(getMovieMatches(f, false));
+		if (isEpisode(f))
+			return group.series(getSeriesMatches(f, false));
 		if (isAnime(f))
 			return group.anime(getSeriesMatches(f, true));
 
