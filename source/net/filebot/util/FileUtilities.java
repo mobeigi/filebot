@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -172,7 +173,14 @@ public final class FileUtilities {
 	}
 
 	public static Stream<String> streamLines(File file) throws IOException {
-		return new BufferedReader(new UnicodeReader(new BufferedInputStream(new FileInputStream(file)), false, UTF_8), BUFFER_SIZE).lines();
+		BufferedReader reader = new BufferedReader(new UnicodeReader(new BufferedInputStream(new FileInputStream(file)), false, UTF_8), BUFFER_SIZE);
+		return reader.lines().onClose(() -> {
+			try {
+				reader.close();
+			} catch (Exception e) {
+				debug.log(Level.SEVERE, "Failed to close file: " + file, e);
+			}
+		});
 	}
 
 	public static String readTextFile(File file) throws IOException {
