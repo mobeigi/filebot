@@ -367,6 +367,9 @@ public class MediaBindingBean {
 	public String getAudioChannelPositions() {
 		String channels = getMediaInfo(StreamKind.Audio, 0, "ChannelPositions/String2", "Channel(s)_Original", "Channel(s)");
 
+		// e.g. ChannelPositions/String2: 3/2/2.1 / 3/2/0.1 (one audio stream may contain multiple multi-channel streams)
+		channels = SPACE.splitAsStream(channels).findFirst().orElse(channels);
+
 		// e.g. 5.1
 		return SLASH.splitAsStream(channels).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add).setScale(1).toPlainString();
 	}
