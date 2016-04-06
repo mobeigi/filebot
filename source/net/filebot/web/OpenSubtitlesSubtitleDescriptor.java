@@ -117,20 +117,28 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor, Seri
 
 	private static int DOWNLOAD_QUOTA = 1000;
 
+	public static synchronized void checkDownloadQuota() throws IllegalStateException {
+		if (DOWNLOAD_QUOTA <= 0) {
+			throw new IllegalStateException("Download-Quota has been exceeded");
+		}
+	}
+
+	private static synchronized void setAndCheckDownloadQuota(int quota) throws IllegalStateException {
+		DOWNLOAD_QUOTA = quota;
+		checkDownloadQuota();
+	}
+
 	@Override
 	public ByteBuffer fetch() throws Exception {
-		if (DOWNLOAD_QUOTA <= 0) {
-			throw new IOException("Download-Quota has been exceeded");
-		}
+		checkDownloadQuota();
 
 		URLConnection c = new URL(getProperty(Property.SubDownloadLink)).openConnection();
 		try (InputStream in = c.getInputStream()) {
 			// check download quota
 			String quota = c.getHeaderField("Download-Quota");
 			if (quota != null) {
-				if ((DOWNLOAD_QUOTA = Integer.parseInt(quota)) <= 0) {
-					throw new IOException("Download-Quota has been exceeded");
-				}
+				setAndCheckDownloadQuota(Integer.parseInt(quota));
+
 				debug.finest(format("Download-Quota: %d", DOWNLOAD_QUOTA));
 			}
 

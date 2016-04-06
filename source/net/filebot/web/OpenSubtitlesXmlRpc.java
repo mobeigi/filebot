@@ -91,6 +91,9 @@ public class OpenSubtitlesXmlRpc {
 	}
 
 	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(Collection<Query> queryList) throws XmlRpcFault {
+		// abort immediately if download quota has been exceeded
+		OpenSubtitlesSubtitleDescriptor.checkDownloadQuota();
+
 		List<OpenSubtitlesSubtitleDescriptor> subtitles = new ArrayList<OpenSubtitlesSubtitleDescriptor>();
 		Map<?, ?> response = invoke("SearchSubtitles", token, queryList);
 

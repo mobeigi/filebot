@@ -391,7 +391,6 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		if (!xmlrpc.isLoggedOn()) {
 			xmlrpc.login(username, password, "en");
 		}
-
 		logoutTimer.set(10, TimeUnit.MINUTES, true);
 	}
 
