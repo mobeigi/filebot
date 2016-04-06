@@ -1,10 +1,13 @@
 package net.filebot.web;
 
+import static net.filebot.Logging.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.util.EnumMap;
 import java.util.Map;
@@ -112,27 +115,33 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor, Seri
 		return Integer.parseInt(getProperty(Property.SubSumCD));
 	}
 
+	private static int DOWNLOAD_QUOTA = 1000;
+
 	@Override
 	public ByteBuffer fetch() throws Exception {
-		URL resource = new URL(getProperty(Property.SubDownloadLink));
-		InputStream stream = resource.openStream();
+		if (DOWNLOAD_QUOTA <= 0) {
+			throw new IOException("Download-Quota has been exceeded");
+		}
 
-		try {
-			ByteBufferOutputStream buffer = new ByteBufferOutputStream(getLength());
-
-			// extract gzipped subtitle on-the-fly
-			try {
-				stream = new GZIPInputStream(stream);
-			} catch (ZipException e) {
-				throw new IOException(String.format("%s: anti-leech limit has been reached", e.getMessage()));
+		URLConnection c = new URL(getProperty(Property.SubDownloadLink)).openConnection();
+		try (InputStream in = c.getInputStream()) {
+			// check download quota
+			String quota = c.getHeaderField("Download-Quota");
+			if (quota != null) {
+				if ((DOWNLOAD_QUOTA = Integer.parseInt(quota)) <= 0) {
+					throw new IOException("Download-Quota has been exceeded");
+				}
+				debug.finest(format("Download-Quota: %d", DOWNLOAD_QUOTA));
 			}
 
-			// fully download
-			buffer.transferFully(stream);
-
+			// read and extract subtitle data
+			ByteBufferOutputStream buffer = new ByteBufferOutputStream(getLength());
+			try {
+				buffer.transferFully(new GZIPInputStream(in));
+			} catch (ZipException e) {
+				throw new IOException("Download-Quota has been exceeded: " + e.getMessage());
+			}
 			return buffer.getByteBuffer();
-		} finally {
-			stream.close();
 		}
 	}
 
