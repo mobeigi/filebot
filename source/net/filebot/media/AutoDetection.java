@@ -6,7 +6,8 @@ import static java.util.regex.Pattern.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
-import static net.filebot.Settings.*;
+import static net.filebot.WebServices.*;
+import static net.filebot.format.ExpressionFormatMethods.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.FileUtilities.*;
@@ -14,6 +15,7 @@ import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -27,13 +29,12 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import net.filebot.WebServices;
-import net.filebot.format.ExpressionFormatMethods;
+import net.filebot.mediainfo.MediaInfo;
+import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.util.FastFile;
 import net.filebot.web.Movie;
@@ -67,22 +68,55 @@ public class AutoDetection {
 		return unmodifiableList(asList(files));
 	}
 
-	private static final Pattern MOVIE_PATTERN = Pattern.compile("[\\\\/]Movies[\\\\/]", CASE_INSENSITIVE);
-	private static final Pattern SERIES_PATTERN = Pattern.compile("[\\\\/](?:TV.Shows|TV.Series)[\\\\/]|tv[sp]-|EP\\d{1,3}|Season\\D?\\d{1,2}|\\d{4}.S\\d{2}", CASE_INSENSITIVE);
-	private static final Pattern ANIME_PATTERN = Pattern.compile("[\\\\/]Anime[\\\\/]|[\\(\\[]\\p{XDigit}{8}[\\]\\)]|[\\[][A-Z]+Subs[\\]]", CASE_INSENSITIVE);
+	private static final Pattern MOVIE_PATTERN = Pattern.compile("Movies", CASE_INSENSITIVE);
+	private static final Pattern SERIES_PATTERN = Pattern.compile("TV.Shows|Season.[0-9]+", CASE_INSENSITIVE);
+	private static final Pattern ANIME_PATTERN = Pattern.compile("Anime", CASE_INSENSITIVE);
 
-	private Predicate<File> forceIgnore = f -> false;
-	private Predicate<File> forceMusic = f -> AUDIO_FILES.accept(f) && !VIDEO_FILES.accept(f);
-	private Predicate<File> forceMovie = f -> find(f.getPath(), MOVIE_PATTERN) || isMovie(f, true);
-	private Predicate<File> forceSeries = f -> find(f.getPath(), SERIES_PATTERN) || isEpisode(f, true);
-	private Predicate<File> forceAnime = f -> find(f.getPath(), ANIME_PATTERN);
+	public boolean isMusic(File f) {
+		return AUDIO_FILES.accept(f) && !VIDEO_FILES.accept(f);
+	}
+
+	public boolean isMovie(File f) {
+		return anyMatch(f.getParentFile(), MOVIE_PATTERN) || MediaDetection.isMovie(f, true);
+	}
+
+	public boolean isEpisode(File f) {
+		return anyMatch(f.getParentFile(), SERIES_PATTERN) || MediaDetection.isEpisode(f, true);
+
+	}
+
+	public boolean isAnime(File f) {
+		if (anyMatch(f.getParentFile(), ANIME_PATTERN) || EMBEDDED_CHECKSUM.matcher(f.getName()).find()) {
+			return true;
+		}
+
+		// check for Japanese audio or characteristic subtitles
+		if (VIDEO_FILES.accept(f) && parseEpisodeNumber(f, false).size() > 0) {
+			try (MediaInfo mi = new MediaInfo().open(f)) {
+				long minutes = Duration.ofMillis(Long.parseLong(mi.get(StreamKind.General, 0, "Duration"))).toMinutes();
+				return minutes < 60 || mi.get(StreamKind.General, 0, "AudioLanguageList").contains("Japanese") && mi.get(StreamKind.General, 0, "TextCodecList").contains("ASS");
+			} catch (Exception e) {
+				debug.warning("Failed to read audio language: " + e.getMessage());
+			}
+		}
+		return false;
+	}
+
+	public boolean anyMatch(File file, Pattern pattern) {
+		for (File f = file; f != null; f = f.getParentFile()) {
+			if (pattern.matcher(f.getName()).matches()) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public Map<Group, Set<File>> group() {
 		// sort keys and values
 		Map<Group, Set<File>> groups = new TreeMap<Group, Set<File>>();
 
 		// can't use parallel stream because default fork/join pool doesn't play well with the security manager
-		ExecutorService executor = Executors.newFixedThreadPool(getPreferredThreadPoolSize());
+		ExecutorService executor = Executors.newWorkStealingPool();
 
 		stream(files).collect(toMap(f -> f, f -> executor.submit(() -> detectGroup(f)))).forEach((file, group) -> {
 			try {
@@ -99,24 +133,18 @@ public class AutoDetection {
 	private Group detectGroup(File f) throws Exception {
 		Group group = new Group();
 
-		if (forceIgnore.test(f)) {
-			return group;
-		}
-		if (forceMusic.test(f)) {
+		if (isMusic(f))
 			return group.music(f);
-		}
-		if (forceMovie.test(f)) {
+		if (isEpisode(f))
+			return group.series(getSeriesMatches(f, false)); // episode characteristics override movie characteristics (e.g. episodes in Movies folder)
+		if (isMovie(f))
 			return group.movie(getMovieMatches(f, false));
-		}
-		if (forceSeries.test(f)) {
-			return group.series(getSeriesMatches(f, false));
-		}
-		if (forceAnime.test(f)) {
+		if (isAnime(f))
 			return group.anime(getSeriesMatches(f, true));
-		}
 
-		List<String> s = getSeriesMatches(f, false);
+		// Movie VS Episode
 		List<Movie> m = getMovieMatches(f, false);
+		List<String> s = getSeriesMatches(f, false);
 
 		if (m.isEmpty() && s.isEmpty())
 			return group;
@@ -125,7 +153,6 @@ public class AutoDetection {
 		if (m.size() > 0 && s.isEmpty())
 			return group.movie(m);
 
-		log.fine(format("%s [series: %s, movie: %s]", f.getName(), s.get(0), m.get(0)));
 		return new Rules(f, s, m).apply();
 	}
 
@@ -141,7 +168,7 @@ public class AutoDetection {
 	}
 
 	private List<Movie> getMovieMatches(File file, boolean strict) throws Exception {
-		return MediaDetection.detectMovie(file, WebServices.TheMovieDB, locale, strict);
+		return MediaDetection.detectMovie(file, TheMovieDB, locale, strict);
 	}
 
 	private List<File> getVideoFiles(File parent) {
@@ -184,7 +211,7 @@ public class AutoDetection {
 		}
 
 		private String normalize(String self) {
-			return self == null ? "" : replaceSpace(normalizePunctuation(ExpressionFormatMethods.ascii(self)).toLowerCase(), " ").trim();
+			return self == null ? "" : replaceSpace(normalizePunctuation(ascii(self)).toLowerCase(), " ").trim();
 		}
 
 		private float getSimilarity(String self, String other) {
@@ -354,13 +381,13 @@ public class AutoDetection {
 		}
 
 		public Group series(List<String> names) {
-			put(Type.Series, names == null || names.isEmpty() ? null : names.get(0).toLowerCase());
+			put(Type.Series, names == null || names.isEmpty() ? null : replaceSpace(normalizePunctuation(names.get(0)).toLowerCase(), " ").trim());
 			return this;
 
 		}
 
 		public Group anime(List<String> names) {
-			put(Type.Anime, names == null || names.isEmpty() ? null : names.get(0).toLowerCase());
+			put(Type.Anime, names == null || names.isEmpty() ? null : replaceSpace(normalizePunctuation(names.get(0)).toLowerCase(), " ").trim());
 			return this;
 
 		}
