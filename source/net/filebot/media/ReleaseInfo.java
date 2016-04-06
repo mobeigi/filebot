@@ -231,15 +231,16 @@ public class ReleaseInfo {
 				}
 
 				// user-specific media roots
+				String username = System.getProperty("user.name", "anonymous");
+
 				for (File mediaRoot : getMediaRoots()) {
 					volumes.addAll(getChildren(mediaRoot, FOLDERS));
 					volumes.add(mediaRoot);
 
 					// add additional user roots if user.home is not set properly or listFiles doesn't work
-					String username = System.getProperty("user.name");
-					if (username != null && username.length() > 0) {
-						volumes.add(new File(mediaRoot, username));
-					}
+					File userRoot = new File(mediaRoot, username);
+					volumes.add(userRoot);
+					volumes.add(new File(userRoot, "Movies")); // ignore default Movie folder on Mac
 				}
 			}
 

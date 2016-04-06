@@ -980,11 +980,12 @@ public class MediaDetection {
 		return formatInfoPattern.matcher(name).replaceAll("");
 	}
 
+	public static boolean isVolumeRoot(File folder) {
+		return folder == null || folder.getName() == null || folder.getName().isEmpty() || releaseInfo.getVolumeRoots().contains(folder);
+	}
+
 	public static boolean isStructureRoot(File folder) throws Exception {
-		if (folder == null || folder.getName() == null || folder.getName().isEmpty() || releaseInfo.getVolumeRoots().contains(folder)) {
-			return true;
-		}
-		return releaseInfo.getStructureRootPattern().matcher(folder.getName()).matches();
+		return isVolumeRoot(folder) || releaseInfo.getStructureRootPattern().matcher(folder.getName()).matches();
 	}
 
 	public static File getStructureRoot(File file) throws Exception {

@@ -69,7 +69,7 @@ public class AutoDetection {
 	}
 
 	private static final Pattern MOVIE_PATTERN = Pattern.compile("Movies", CASE_INSENSITIVE);
-	private static final Pattern SERIES_PATTERN = Pattern.compile("TV.Shows|Season.[0-9]+", CASE_INSENSITIVE);
+	private static final Pattern SERIES_PATTERN = Pattern.compile("TV.Shows|TV.Series|Season.[0-9]+", CASE_INSENSITIVE);
 	private static final Pattern ANIME_PATTERN = Pattern.compile("Anime", CASE_INSENSITIVE);
 
 	public boolean isMusic(File f) {
@@ -103,7 +103,7 @@ public class AutoDetection {
 	}
 
 	public boolean anyMatch(File file, Pattern pattern) {
-		for (File f = file; f != null; f = f.getParentFile()) {
+		for (File f = file; f != null && !MediaDetection.isVolumeRoot(f); f = f.getParentFile()) {
 			if (pattern.matcher(f.getName()).matches()) {
 				return true;
 			}
@@ -135,7 +135,7 @@ public class AutoDetection {
 
 		if (isMusic(f))
 			return group.music(f);
-		if (isMovie(f) && !isEpisode(f)) // episode characteristics override movie characteristics (e.g. episodes in Movies folder)
+		if (isMovie(f)) // episode characteristics override movie characteristics (e.g. episodes in Movies folder)
 			return group.movie(getMovieMatches(f, false));
 		if (isEpisode(f))
 			return group.series(getSeriesMatches(f, false));
