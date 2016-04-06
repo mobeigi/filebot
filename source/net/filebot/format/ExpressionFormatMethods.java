@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 
@@ -72,7 +73,7 @@ public class ExpressionFormatMethods {
 	public static String match(String self, String pattern, int matchGroup) throws Exception {
 		Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS | MULTILINE).matcher(self);
 		if (matcher.find()) {
-			return matcher.group(matchGroup < 0 ? matcher.groupCount() > 0 ? 1 : 0 : matchGroup).trim();
+			return firstCapturingGroup(matcher, matchGroup);
 		} else {
 			throw new Exception("Pattern not found");
 		}
@@ -89,14 +90,27 @@ public class ExpressionFormatMethods {
 		List<String> matches = new ArrayList<String>();
 		Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS | MULTILINE).matcher(self);
 		while (matcher.find()) {
-			matches.add(matcher.group(matchGroup < 0 ? matcher.groupCount() > 0 ? 1 : 0 : matchGroup).trim());
+			matches.add(firstCapturingGroup(matcher, matchGroup));
 		}
 
-		if (matches.size() > 0) {
-			return matches;
-		} else {
+		if (matches.isEmpty()) {
 			throw new Exception("Pattern not found");
 		}
+		return matches;
+	}
+
+	public static String firstCapturingGroup(Matcher self, int matchGroup) throws Exception {
+		int g = matchGroup < 0 ? self.groupCount() > 0 ? 1 : 0 : matchGroup;
+
+		// return the entire match
+		if (g == 0) {
+			return self.group();
+		}
+
+		// otherwise find first non-empty capturing group
+		return IntStream.rangeClosed(g, self.groupCount()).mapToObj(self::group).filter(Objects::nonNull).map(String::trim).filter(s -> s.length() > 0).findFirst().orElseThrow(() -> {
+			return new Exception(String.format("Capturing group %d not found", g));
+		});
 	}
 
 	public static String replaceAll(String self, String pattern) {
