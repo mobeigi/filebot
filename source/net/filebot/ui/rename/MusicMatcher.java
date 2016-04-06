@@ -16,11 +16,11 @@ import net.filebot.web.AudioTrack;
 import net.filebot.web.MusicIdentificationService;
 import net.filebot.web.SortOrder;
 
-class AudioFingerprintMatcher implements AutoCompleteMatcher {
+class MusicMatcher implements AutoCompleteMatcher {
 
 	private MusicIdentificationService[] services;
 
-	public AudioFingerprintMatcher(MusicIdentificationService... services) {
+	public MusicMatcher(MusicIdentificationService... services) {
 		this.services = services;
 	}
 

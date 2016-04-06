@@ -94,7 +94,7 @@ public class Preset {
 	public AutoCompleteMatcher getAutoCompleteMatcher() {
 		MovieIdentificationService mdb = WebServices.getMovieIdentificationService(database);
 		if (mdb != null) {
-			return new MovieHashMatcher(mdb);
+			return new MovieMatcher(mdb);
 		}
 
 		EpisodeListProvider sdb = WebServices.getEpisodeListProvider(database);
@@ -104,7 +104,7 @@ public class Preset {
 
 		MusicIdentificationService adb = WebServices.getMusicIdentificationService(database);
 		if (adb != null) {
-			return new AudioFingerprintMatcher(adb);
+			return new MusicMatcher(adb);
 		}
 
 		if (PlainFileMatcher.getInstance().getIdentifier().equals(database)) {

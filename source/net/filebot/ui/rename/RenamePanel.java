@@ -440,13 +440,13 @@ public class RenamePanel extends JComponent {
 
 		// create action for movie name completion
 		for (MovieIdentificationService it : WebServices.getMovieIdentificationServices()) {
-			actionPopup.add(new AutoCompleteAction(it.getName(), it.getIcon(), new MovieHashMatcher(it)));
+			actionPopup.add(new AutoCompleteAction(it.getName(), it.getIcon(), new MovieMatcher(it)));
 		}
 
 		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("Music Mode:"));
 		for (MusicIdentificationService it : WebServices.getMusicIdentificationServices()) {
-			actionPopup.add(new AutoCompleteAction(it.getName(), it.getIcon(), new AudioFingerprintMatcher(it)));
+			actionPopup.add(new AutoCompleteAction(it.getName(), it.getIcon(), new MusicMatcher(it)));
 		}
 
 		actionPopup.addSeparator();

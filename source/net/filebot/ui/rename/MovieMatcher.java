@@ -51,11 +51,11 @@ import net.filebot.web.MovieIdentificationService;
 import net.filebot.web.MoviePart;
 import net.filebot.web.SortOrder;
 
-class MovieHashMatcher implements AutoCompleteMatcher {
+class MovieMatcher implements AutoCompleteMatcher {
 
 	private final MovieIdentificationService service;
 
-	public MovieHashMatcher(MovieIdentificationService service) {
+	public MovieMatcher(MovieIdentificationService service) {
 		this.service = service;
 	}
 
@@ -394,7 +394,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
 
 				// restore original dialog size
-				Settings prefs = Settings.forPackage(MovieHashMatcher.class);
+				Settings prefs = Settings.forPackage(MovieMatcher.class);
 				int w = Integer.parseInt(prefs.get("dialog.select.w", "280"));
 				int h = Integer.parseInt(prefs.get("dialog.select.h", "300"));
 				selectDialog.setPreferredSize(new Dimension(w, h));
