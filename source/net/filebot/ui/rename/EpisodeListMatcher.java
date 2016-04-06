@@ -184,28 +184,28 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 
 	@Override
-	public List<Match<File, ?>> match(List<File> files, final boolean strict, final SortOrder sortOrder, final Locale locale, final boolean autodetection, final Component parent) throws Exception {
+	public List<Match<File, ?>> match(Collection<File> files, boolean strict, SortOrder sortOrder, Locale locale, boolean autodetection, Component parent) throws Exception {
 		if (files.isEmpty()) {
 			return justFetchEpisodeList(sortOrder, locale, parent);
 		}
 
 		// ignore sample files
-		final List<File> fileset = autodetection ? filter(files, not(getClutterFileFilter())) : files;
+		List<File> fileset = autodetection ? filter(files, not(getClutterFileFilter())) : new ArrayList<File>(files);
 
 		// focus on movie and subtitle files
-		final List<File> mediaFiles = filter(fileset, VIDEO_FILES, SUBTITLE_FILES);
+		List<File> mediaFiles = filter(fileset, VIDEO_FILES, SUBTITLE_FILES);
 
 		// assume that many shows will be matched, do it folder by folder
 		List<Callable<List<Match<File, ?>>>> tasks = new ArrayList<Callable<List<Match<File, ?>>>>();
 
 		// remember user decisions and only bother user once
-		final Map<String, SearchResult> selectionMemory = new TreeMap<String, SearchResult>(CommonSequenceMatcher.getLenientCollator(Locale.ENGLISH));
-		final Map<String, List<String>> inputMemory = new TreeMap<String, List<String>>(CommonSequenceMatcher.getLenientCollator(Locale.ENGLISH));
+		Map<String, SearchResult> selectionMemory = new TreeMap<String, SearchResult>(CommonSequenceMatcher.getLenientCollator(Locale.ENGLISH));
+		Map<String, List<String>> inputMemory = new TreeMap<String, List<String>>(CommonSequenceMatcher.getLenientCollator(Locale.ENGLISH));
 
 		// detect series names and create episode list fetch tasks
 		if (strict) {
 			// in strict mode simply process file-by-file (ignoring all files that don't contain clear SxE patterns)
-			for (final File file : mediaFiles) {
+			for (File file : mediaFiles) {
 				if (parseEpisodeNumber(file, false) != null || parseDate(file) != null) {
 					tasks.add(new Callable<List<Match<File, ?>>>() {
 

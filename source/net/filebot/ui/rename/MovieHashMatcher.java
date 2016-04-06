@@ -1,6 +1,6 @@
 package net.filebot.ui.rename;
 
-import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.Settings.*;
@@ -15,7 +15,6 @@ import java.awt.Dimension;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -35,6 +34,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
 import javax.swing.Action;
@@ -60,13 +60,13 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	}
 
 	@Override
-	public List<Match<File, ?>> match(final List<File> files, final boolean strict, final SortOrder sortOrder, final Locale locale, final boolean autodetect, final Component parent) throws Exception {
+	public List<Match<File, ?>> match(Collection<File> files, boolean strict, SortOrder sortOrder, Locale locale, boolean autodetect, Component parent) throws Exception {
 		if (files.isEmpty()) {
 			return justFetchMovieInfo(locale, parent);
 		}
 
 		// ignore sample files
-		List<File> fileset = autodetect ? filter(files, not(getClutterFileFilter())) : files;
+		List<File> fileset = autodetect ? filter(files, not(getClutterFileFilter())) : new ArrayList<File>(files);
 
 		// handle movie files
 		Set<File> movieFiles = new TreeSet<File>(filter(fileset, VIDEO_FILES));
@@ -255,14 +255,9 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		}
 
 		// restore original order
-		sort(matches, new Comparator<Match<File, ?>>() {
-
-			@Override
-			public int compare(Match<File, ?> o1, Match<File, ?> o2) {
-				return files.indexOf(o1.getValue()) - files.indexOf(o2.getValue());
-			}
-		});
-
+		AtomicInteger index = new AtomicInteger(0);
+		Map<File, Integer> indexMap = files.stream().collect(toMap(f -> f, f -> index.getAndIncrement()));
+		matches.sort((a, b) -> indexMap.get(a.getValue()).compareTo(indexMap.get(b.getValue())));
 		return matches;
 	}
 

@@ -190,7 +190,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 		List<String> command = new ArrayList<String>();
 		command.add(getChromaprintCommand());
 		for (File f : files) {
-			command.add(f.toString());
+			command.add(f.getPath());
 		}
 
 		Process process = null;
