@@ -69,7 +69,7 @@ public class ListPanel extends JComponent {
 
 		list.getRemoveAction().setEnabled(true);
 
-		list.setTransferablePolicy(new FileListTransferablePolicy(list::setTitle, editor::setText, this::createItemSequence));
+		list.setTransferablePolicy(new FileListTransferablePolicy(list::setTitle, this::setFormatTemplate, this::createItemSequence));
 
 		FileBotListExportHandler<ListItem> exportHandler = new FileBotListExportHandler<ListItem>(list, (item, out) -> out.println(item.getFormattedValue()));
 		list.setExportHandler(exportHandler);
@@ -188,6 +188,7 @@ public class ListPanel extends JComponent {
 	}
 
 	private ExpressionFormat format;
+	private String template;
 
 	public ListItem createItem(Object object, int i, int from, int to, List<?> context) {
 		return new ListItem(new IndexedBindingBean(object, i, from, to, context), format);
@@ -217,11 +218,18 @@ public class ListPanel extends JComponent {
 		List<Integer> context = IntStream.rangeClosed(from, to).boxed().collect(toList());
 		List<ListItem> items = context.stream().map(it -> createItem(it, it.intValue(), from, to, context)).collect(toList());
 
-		editor.setText(DEFAULT_SEQUENCE_FORMAT);
+		setFormatTemplate(DEFAULT_SEQUENCE_FORMAT);
 		list.setTitle("Sequence");
 		list.getListComponent().clearSelection();
 		list.getModel().clear();
 		list.getModel().addAll(items);
+	}
+
+	public void setFormatTemplate(String format) {
+		if (template != format) {
+			template = format;
+			editor.setText(format);
+		}
 	}
 
 	@Subscribe
