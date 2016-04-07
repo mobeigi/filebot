@@ -402,8 +402,8 @@ div.screencast:hover .play {
 	float: right;
 	height: 0px;
 	position: relative;
-	right: 0.2em;
-	bottom: 0.8em;
+	right: 4px;
+	bottom: 14px;
 }
 
 #bitcoinate a img {
@@ -415,8 +415,8 @@ div.screencast:hover .play {
 	float: left;
 	height: 0px;
 	position: relative;
-	top: -20px;
-	left: 10px;
+	bottom: 15px;
+	left: 6px;
 }
 
 .message.box {
