@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -368,10 +369,11 @@ public class MediaBindingBean {
 		String channels = getMediaInfo(StreamKind.Audio, 0, "ChannelPositions/String2", "Channel(s)_Original", "Channel(s)");
 
 		// e.g. ChannelPositions/String2: 3/2/2.1 / 3/2/0.1 (one audio stream may contain multiple multi-channel streams)
-		channels = SPACE.splitAsStream(channels).findFirst().orElse(channels);
+		double d = SPACE.splitAsStream(channels).mapToDouble(s -> {
+			return SLASH.splitAsStream(s).mapToDouble(Double::parseDouble).reduce(0, (a, b) -> a + b);
+		}).filter(it -> it > 0).max().getAsDouble();
 
-		// e.g. 5.1
-		return SLASH.splitAsStream(channels).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add).setScale(1).toPlainString();
+		return BigDecimal.valueOf(d).setScale(1, RoundingMode.HALF_UP).toPlainString();
 	}
 
 	@Define("resolution")
