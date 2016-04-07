@@ -626,7 +626,7 @@ public class MediaBindingBean {
 			throw new UnsupportedOperationException("Extended metadata not available");
 		}
 
-		return createMapBindings(new PropertyBindings(metaInfo, null));
+		return createPropertyBindings(metaInfo);
 	}
 
 	@Define("omdb")
@@ -660,7 +660,7 @@ public class MediaBindingBean {
 			throw new UnsupportedOperationException("Extended metadata not available");
 		}
 
-		return createMapBindings(new PropertyBindings(metaInfo, null));
+		return createPropertyBindings(metaInfo);
 	}
 
 	@Define("az")
@@ -696,7 +696,7 @@ public class MediaBindingBean {
 				}
 
 				if (localizedInfo != null) {
-					return createMapBindings(new PropertyBindings(localizedInfo, null));
+					return createPropertyBindings(localizedInfo);
 				}
 			}
 			return undefined(key);
@@ -725,62 +725,37 @@ public class MediaBindingBean {
 
 	@Define("media")
 	public AssociativeScriptObject getGeneralMediaInfo() {
-		return createMapBindings(getMediaInfo().snapshot(StreamKind.General, 0));
-	}
-
-	@Define("video")
-	public AssociativeScriptObject getVideoInfo() {
-		return createMapBindings(getMediaInfo().snapshot(StreamKind.Video, 0));
-	}
-
-	@Define("audio")
-	public AssociativeScriptObject getAudioInfo() {
-		return createMapBindings(getMediaInfo().snapshot(StreamKind.Audio, 0));
-	}
-
-	@Define("text")
-	public AssociativeScriptObject getTextInfo() {
-		return createMapBindings(getMediaInfo().snapshot(StreamKind.Text, 0));
+		return createMediaInfoBindings(StreamKind.General).get(0);
 	}
 
 	@Define("menu")
 	public AssociativeScriptObject getMenuInfo() {
-		return createMapBindings(getMediaInfo().snapshot(StreamKind.Menu, 0));
+		return createMediaInfoBindings(StreamKind.Menu).get(0);
 	}
 
 	@Define("image")
 	public AssociativeScriptObject getImageInfo() {
-		return createMapBindings(getMediaInfo().snapshot(StreamKind.Image, 0));
+		return createMediaInfoBindings(StreamKind.Image).get(0);
 	}
 
-	@Define("videos")
+	@Define("video")
 	public List<AssociativeScriptObject> getVideoInfoList() {
-		return createMapBindingsList(getMediaInfo().snapshot().get(StreamKind.Video));
+		return createMediaInfoBindings(StreamKind.Video);
 	}
 
-	@Define("audios")
+	@Define("audio")
 	public List<AssociativeScriptObject> getAudioInfoList() {
-		return createMapBindingsList(getMediaInfo().snapshot().get(StreamKind.Audio));
+		return createMediaInfoBindings(StreamKind.Audio);
 	}
 
-	@Define("texts")
+	@Define("text")
 	public List<AssociativeScriptObject> getTextInfoList() {
-		return createMapBindingsList(getMediaInfo().snapshot().get(StreamKind.Text));
-	}
-
-	@Define("menus")
-	public List<AssociativeScriptObject> getMenuInfoList() {
-		return createMapBindingsList(getMediaInfo().snapshot().get(StreamKind.Menu));
+		return createMediaInfoBindings(StreamKind.Text);
 	}
 
 	@Define("chapters")
 	public List<AssociativeScriptObject> getChaptersInfoList() {
-		return createMapBindingsList(getMediaInfo().snapshot().get(StreamKind.Chapters));
-	}
-
-	@Define("images")
-	public List<AssociativeScriptObject> getImageInfoList() {
-		return createMapBindingsList(getMediaInfo().snapshot().get(StreamKind.Image));
+		return createMediaInfoBindings(StreamKind.Chapters);
 	}
 
 	@Define("artist")
@@ -1034,6 +1009,7 @@ public class MediaBindingBean {
 
 	private AssociativeScriptObject createBindingObject(File file, Object info, Map<File, ?> context) {
 		MediaBindingBean mediaBindingBean = new MediaBindingBean(info, file, context) {
+
 			@Override
 			@Define(undefined)
 			public <T> T undefined(String name) {
@@ -1043,33 +1019,25 @@ public class MediaBindingBean {
 		return new AssociativeScriptObject(new ExpressionBindings(mediaBindingBean));
 	}
 
-	private AssociativeScriptObject createMapBindings(Map<?, ?> map) {
-		return new AssociativeScriptObject(map) {
+	private AssociativeScriptObject createPropertyBindings(Object object) {
+		return new AssociativeScriptObject(new PropertyBindings(object, null)) {
 
 			@Override
 			public Object getProperty(String name) {
 				Object value = super.getProperty(name);
-
 				if (value == null) {
-					undefined(name);
+					return undefined(name);
 				}
-
-				// auto-clean value of path separators
 				if (value instanceof CharSequence) {
-					return replacePathSeparators(value.toString()).trim();
+					return replacePathSeparators(value.toString()).trim(); // auto-clean value of path separators
 				}
-
 				return value;
 			}
 		};
 	}
 
-	private List<AssociativeScriptObject> createMapBindingsList(List<Map<String, String>> mapList) {
-		List<AssociativeScriptObject> bindings = new ArrayList<AssociativeScriptObject>();
-		for (Map<?, ?> it : mapList) {
-			bindings.add(createMapBindings(it));
-		}
-		return bindings;
+	private List<AssociativeScriptObject> createMediaInfoBindings(StreamKind kind) {
+		return getMediaInfo().snapshot().get(kind).stream().map(AssociativeScriptObject::new).collect(toList());
 	}
 
 	private String getOriginalFileName(File file) {
