@@ -31,6 +31,9 @@ public class ExpressionFormatFunctions {
 				return null;
 			}
 		}
+		if (object instanceof CharSequence && object.toString().isEmpty()) {
+			return null;
+		}
 		return object;
 	}
 
