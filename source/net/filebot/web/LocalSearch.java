@@ -1,107 +1,54 @@
 package net.filebot.web;
 
 import static java.util.Collections.*;
+import static java.util.Comparator.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.similarity.Normalization.*;
 
-import java.util.AbstractList;
-import java.util.AbstractMap.SimpleEntry;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.stream.IntStream;
+
+import com.ibm.icu.text.Transliterator;
 
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
 
-import com.ibm.icu.text.Transliterator;
-
 public class LocalSearch<T> {
 
-	private static final ExecutorService localThreadPool = Executors.newWorkStealingPool();
-
-	private final AbstractStringMetric metric = new QGramsDistance();
+	private AbstractStringMetric metric = new QGramsDistance();
 	private float resultMinimumSimilarity = 0.5f;
 	private int resultSetSize = 20;
 
-	private final Transliterator transliterator = Transliterator.getInstance("Any-Latin;Latin-ASCII;[:Diacritic:]remove");
+	private Transliterator transliterator = Transliterator.getInstance("Any-Latin;Latin-ASCII;[:Diacritic:]remove");
 
-	private final List<T> objects;
-	private final List<Set<String>> fields;
+	private List<T> objects;
+	private List<Set<String>> fields;
 
 	public LocalSearch(Collection<? extends T> data) {
 		objects = new ArrayList<T>(data);
-		fields = new ArrayList<Set<String>>(objects.size());
-
-		for (int i = 0; i < objects.size(); i++) {
-			fields.add(i, getFields(objects.get(i)));
-		}
+		fields = objects.stream().map(this::getFields).collect(toList());
 	}
 
-	public List<T> search(String query) throws ExecutionException, InterruptedException {
-		final String q = normalize(query);
-		List<Callable<Entry<T, Float>>> tasks = new ArrayList<Callable<Entry<T, Float>>>(objects.size());
+	public List<T> search(String q) throws ExecutionException, InterruptedException {
+		String query = normalize(q);
 
-		for (int i = 0; i < objects.size(); i++) {
-			final int index = i;
-			tasks.add(new Callable<Entry<T, Float>>() {
+		return IntStream.range(0, objects.size()).mapToObj(i -> {
+			T object = objects.get(i);
+			Set<String> field = fields.get(i);
 
-				@Override
-				public Entry<T, Float> call() throws Exception {
-					float similarity = 0;
-					boolean match = false;
+			boolean match = field.stream().anyMatch(it -> it.contains(query));
+			double similarity = field.stream().mapToDouble(it -> metric.getSimilarity(query, it)).max().orElse(0);
 
-					for (String field : fields.get(index)) {
-						match |= field.contains(q);
-						similarity = Math.max(metric.getSimilarity(q, field), similarity);
-					}
-
-					return match || similarity > resultMinimumSimilarity ? new SimpleEntry<T, Float>(objects.get(index), similarity) : null;
-				}
-			});
-		}
-
-		final List<Entry<T, Float>> resultSet = new ArrayList<Entry<T, Float>>(objects.size());
-
-		for (Future<Entry<T, Float>> entry : localThreadPool.invokeAll(tasks)) {
-			if (entry.get() != null) {
-				resultSet.add(entry.get());
-			}
-
-			if (Thread.interrupted()) {
-				throw new InterruptedException();
-			}
-		}
-
-		// sort by similarity descending (best matches first)
-		sort(resultSet, new Comparator<Entry<T, Float>>() {
-
-			@Override
-			public int compare(Entry<T, Float> o1, Entry<T, Float> o2) {
-				return o2.getValue().compareTo(o1.getValue());
-			}
-		});
-
-		// view for the first 20 search results
-		return new AbstractList<T>() {
-
-			@Override
-			public T get(int index) {
-				return resultSet.get(index).getKey();
-			}
-
-			@Override
-			public int size() {
-				return Math.min(resultSetSize, resultSet.size());
-			}
-		};
+			return match || similarity > resultMinimumSimilarity ? new SimpleImmutableEntry<T, Double>(object, similarity) : null;
+		}).filter(Objects::nonNull).sorted(reverseOrder(comparing(Entry::getValue))).limit(resultSetSize).map(Entry::getKey).collect(toList());
 	}
 
 	public void setResultMinimumSimilarity(float resultMinimumSimilarity) {
