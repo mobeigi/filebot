@@ -329,7 +329,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 			// start download
 			if (downloadQueue.size() > 0) {
-				downloadService = Executors.newFixedThreadPool(2);
+				downloadService = Executors.newSingleThreadExecutor();
 
 				for (DownloadTask downloadTask : downloadQueue) {
 					downloadTask.getSubtitleBean().setState(StateValue.PENDING);
