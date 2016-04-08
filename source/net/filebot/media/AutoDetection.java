@@ -72,6 +72,9 @@ public class AutoDetection {
 	private static final Pattern SERIES_PATTERN = Pattern.compile("TV.Shows|TV.Series|Season.[0-9]+", CASE_INSENSITIVE);
 	private static final Pattern ANIME_PATTERN = Pattern.compile("Anime", CASE_INSENSITIVE);
 
+	private static final Pattern SERIES_EPISODE_PATTERN = Pattern.compile("^tv[sp]-", CASE_INSENSITIVE);
+	private static final Pattern ANIME_EPISODE_PATTERN = Pattern.compile("^\\[[^\\]]+Subs\\]", CASE_INSENSITIVE);
+
 	public boolean isMusic(File f) {
 		return AUDIO_FILES.accept(f) && !VIDEO_FILES.accept(f);
 	}
@@ -81,17 +84,19 @@ public class AutoDetection {
 	}
 
 	public boolean isEpisode(File f) {
-		return anyMatch(f.getParentFile(), SERIES_PATTERN) || MediaDetection.isEpisode(f, true);
-
+		return MediaDetection.isEpisode(f.getName(), false) && (anyMatch(f.getParentFile(), SERIES_PATTERN) || find(f.getName(), SERIES_EPISODE_PATTERN) || MediaDetection.isEpisode(f, true));
 	}
 
 	public boolean isAnime(File f) {
-		if (anyMatch(f.getParentFile(), ANIME_PATTERN) || EMBEDDED_CHECKSUM.matcher(f.getName()).find()) {
+		if (MediaDetection.parseEpisodeNumber(f.getName(), false).isEmpty()) {
+			return false;
+		}
+		if (anyMatch(f.getParentFile(), ANIME_PATTERN) || find(f.getName(), ANIME_EPISODE_PATTERN) || find(f.getName(), EMBEDDED_CHECKSUM)) {
 			return true;
 		}
 
 		// check for Japanese audio or characteristic subtitles
-		if (VIDEO_FILES.accept(f) && parseEpisodeNumber(f, false).size() > 0) {
+		if (VIDEO_FILES.accept(f)) {
 			try (MediaInfo mi = new MediaInfo().open(f)) {
 				long minutes = Duration.ofMillis(Long.parseLong(mi.get(StreamKind.General, 0, "Duration"))).toMinutes();
 				return minutes < 60 || mi.get(StreamKind.General, 0, "AudioLanguageList").contains("Japanese") && mi.get(StreamKind.General, 0, "TextCodecList").contains("ASS");
@@ -103,6 +108,7 @@ public class AutoDetection {
 	}
 
 	public boolean anyMatch(File file, Pattern pattern) {
+		// episode characteristics override movie characteristics (e.g. episodes in ~/Movies folder which is considered a volume root)
 		for (File f = file; f != null && !MediaDetection.isVolumeRoot(f); f = f.getParentFile()) {
 			if (pattern.matcher(f.getName()).matches()) {
 				return true;
@@ -135,7 +141,7 @@ public class AutoDetection {
 
 		if (isMusic(f))
 			return group.music(f);
-		if (isMovie(f)) // episode characteristics override movie characteristics (e.g. episodes in Movies folder)
+		if (isMovie(f))
 			return group.movie(getMovieMatches(f, false));
 		if (isEpisode(f))
 			return group.series(getSeriesMatches(f, false));
