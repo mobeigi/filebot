@@ -98,7 +98,7 @@ Var MSI_STATUS
 
 Section MAIN
 	DetailPrint "Uninstalling previous versions..."
-	nsExec::Exec `wmic product where name="FileBot" call uninstall /nointeractive`
+	nsExec::Exec `start "wmic" /b cmd.exe /c wmic.exe product where name="FileBot" call uninstall`
 
 	DetailPrint "Downloading latest version..."
 	${if} ${RunningX64}
