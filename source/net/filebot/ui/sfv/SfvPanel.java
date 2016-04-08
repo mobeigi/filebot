@@ -279,6 +279,7 @@ public class SfvPanel extends JComponent {
 					};
 
 					selectDialog.getHeaderLabel().setText("Select checksum column:");
+					selectDialog.pack();
 					selectDialog.setLocationRelativeTo(SfvPanel.this);
 					selectDialog.setVisible(true);
 

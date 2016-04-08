@@ -68,6 +68,7 @@ class MovieEditor implements TableCellEditor {
 		}
 
 		SelectDialog<Movie> dialog = new SelectDialog<Movie>(table, options);
+		dialog.pack();
 		dialog.setLocation(getOffsetLocation(dialog.getOwner()));
 		dialog.setVisible(true);
 		Movie selectedValue = dialog.getSelectedValue();

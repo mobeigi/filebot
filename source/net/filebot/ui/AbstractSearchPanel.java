@@ -367,6 +367,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 			selectDialog.setLocation(getOffsetLocation(selectDialog.getOwner()));
 			selectDialog.setIconImage(getImage(getIcon()));
 			selectDialog.setMinimumSize(new Dimension(250, 150));
+			selectDialog.pack();
 		}
 
 		public long getDuration() {

@@ -8,11 +8,10 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.Collection;
+import java.util.prefs.Preferences;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -27,7 +26,6 @@ import javax.swing.SwingUtilities;
 
 import net.filebot.ResourceManager;
 import net.filebot.util.ui.DefaultFancyListCellRenderer;
-import net.filebot.util.ui.SwingUI;
 import net.filebot.web.SearchResult;
 import net.miginfocom.swing.MigLayout;
 
@@ -36,9 +34,8 @@ public class SelectDialog<T> extends JDialog {
 	private JLabel headerLabel = new JLabel();
 	private JCheckBox autoRepeatCheckBox = new JCheckBox();
 
-	private JList list;
-
-	private Action selectedAction = null;
+	private JList<T> list;
+	private String command = CANCEL;
 
 	public SelectDialog(Component parent, Collection<? extends T> options) {
 		this(parent, options, false, false);
@@ -93,10 +90,9 @@ public class SelectDialog<T> extends JDialog {
 
 		// set default size and location
 		setMinimumSize(new Dimension(220, 240));
-		setSize(new Dimension(240, 260));
 
 		// Shortcut Enter
-		SwingUI.installAction(list, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), selectAction);
+		installAction(list, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), selectAction);
 	}
 
 	protected String convertValueToString(Object value) {
@@ -135,16 +131,12 @@ public class SelectDialog<T> extends JDialog {
 		return autoRepeatCheckBox;
 	}
 
-	public Action getSelectedAction() {
-		return selectedAction;
+	public String getSelectedAction() {
+		return command;
 	}
 
-	@SuppressWarnings("unchecked")
 	public T getSelectedValue() {
-		if (selectedAction != selectAction)
-			return null;
-
-		return (T) list.getSelectedValue();
+		return SELECT.equals(command) ? list.getSelectedValue() : null;
 	}
 
 	public void close() {
@@ -160,32 +152,38 @@ public class SelectDialog<T> extends JDialog {
 		return cancelAction;
 	}
 
-	private final Action selectAction = new AbstractAction("Select", ResourceManager.getIcon("dialog.continue")) {
+	public static final String SELECT = "Select";
+	public static final String CANCEL = "Cancel";
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			selectedAction = this;
-			close();
+	private final Action selectAction = newAction(SELECT, ResourceManager.getIcon("dialog.continue"), evt -> {
+		command = SELECT;
+		close();
+	});
+
+	private final Action cancelAction = newAction(CANCEL, ResourceManager.getIcon("dialog.cancel"), evt -> {
+		command = CANCEL;
+		close();
+	});
+
+	private final MouseAdapter mouseListener = mouseClicked(evt -> {
+		if (SwingUtilities.isLeftMouseButton(evt) && (evt.getClickCount() == 2)) {
+			selectAction.actionPerformed(new ActionEvent(evt.getSource(), ActionEvent.ACTION_PERFORMED, SELECT));
 		}
-	};
+	});
 
-	private final Action cancelAction = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
+	private static final String KEY_REPEAT = "dialog.select.repeat";
+	private static final String KEY_WIDTH = "dialog.select.width";
+	private static final String KEY_HEIGHT = "dialog.select.height";
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			selectedAction = this;
-			close();
-		}
-	};
+	public void saveState(Preferences prefs) {
+		prefs.putBoolean(KEY_REPEAT, autoRepeatCheckBox.isSelected());
+		prefs.putInt(KEY_WIDTH, getWidth());
+		prefs.putInt(KEY_HEIGHT, getHeight());
+	}
 
-	private final MouseAdapter mouseListener = new MouseAdapter() {
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			if (SwingUtilities.isLeftMouseButton(e) && (e.getClickCount() == 2)) {
-				selectAction.actionPerformed(null);
-			}
-		}
-	};
+	public void restoreState(Preferences prefs) {
+		autoRepeatCheckBox.setSelected(prefs.getBoolean(KEY_REPEAT, autoRepeatCheckBox.isSelected()));
+		setSize(prefs.getInt(KEY_WIDTH, getWidth()), prefs.getInt(KEY_HEIGHT, getHeight()));
+	}
 
 }
