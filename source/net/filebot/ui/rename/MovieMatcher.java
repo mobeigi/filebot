@@ -1,9 +1,11 @@
 package net.filebot.ui.rename;
 
+import static java.util.Collections.*;
+import static java.util.Comparator.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
-import static net.filebot.Settings.*;
+import static net.filebot.WebServices.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.similarity.CommonSequenceMatcher.*;
 import static net.filebot.similarity.Normalization.*;
@@ -11,12 +13,10 @@ import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -27,20 +27,16 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
+import java.util.prefs.Preferences;
 
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
-import net.filebot.Settings;
 import net.filebot.similarity.Match;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.similarity.SimilarityMetric;
@@ -149,115 +145,72 @@ class MovieMatcher implements AutoCompleteMatcher {
 		movieMatchFiles.addAll(filter(orphanedFiles, SUBTITLE_FILES)); // run movie detection only on orphaned subtitle files
 
 		// match remaining movies file by file in parallel
-		List<Future<Map<File, Collection<Movie>>>> grabMovieJobs = new ArrayList<Future<Map<File, Collection<Movie>>>>();
-
-		// process in parallel
-		ExecutorService executor = Executors.newFixedThreadPool(getPreferredThreadPoolSize());
-
-		// map all files by movie
-		List<File> remainingFiles = new ArrayList<File>();
-
-		for (File file : movieMatchFiles) {
-			if (movieByFile.get(file) == null) {
-				remainingFiles.add(file);
-			}
-		}
-
-		for (final Collection<File> folder : mapByFolder(remainingFiles).values()) {
-			grabMovieJobs.add(executor.submit(new Callable<Map<File, Collection<Movie>>>() {
-
-				@Override
-				public Map<File, Collection<Movie>> call() throws Exception {
-					Map<File, Collection<Movie>> detection = new LinkedHashMap<File, Collection<Movie>>();
-					for (File f : folder) {
-						if (strict) {
-							// in strict mode, only process movies that follow the name (year) pattern
-							List<Integer> year = parseMovieYear(getRelativePathTail(f, 3).getPath());
-							if (year.size() > 0 && parseEpisodeNumber(f, true) == null) {
-								// allow only movie matches where the the movie year matches the year pattern in the filename
-								List<Movie> matches = new ArrayList<Movie>();
-								for (Movie movie : detectMovie(f, service, locale, strict)) {
-									if (year.contains(movie.getYear())) {
-										matches.add(movie);
-									}
-								}
-								detection.put(f, matches);
-							}
-						} else {
-							// in non-strict mode just allow all options
-							detection.put(f, detectMovie(f, service, locale, strict));
-						}
+		List<Future<Map<File, List<Movie>>>> tasks = movieMatchFiles.stream().filter(f -> movieByFile.get(f) == null).map(f -> {
+			return workerThreadPool.submit(() -> {
+				if (strict) {
+					// in strict mode, only process movies that follow the name (year) pattern
+					List<Integer> year = parseMovieYear(getRelativePathTail(f, 3).getPath());
+					if (year.isEmpty() || isEpisode(f, true)) {
+						return null;
 					}
-					return detection;
+
+					// allow only movie matches where the the movie year matches the year pattern in the filename
+					return singletonMap(f, detectMovie(f, service, locale, strict).stream().filter(m -> year.contains(m.getYear())).collect(toList()));
+				} else {
+					// in non-strict mode just allow all options
+					return singletonMap(f, detectMovie(f, service, locale, strict));
 				}
-			}));
-		}
+			});
+		}).collect(toList());
 
 		// remember user decisions and only bother user once
 		Map<String, Object> memory = new HashMap<String, Object>();
-		memory.put("input", new TreeMap<String, String>(getLenientCollator(locale)));
-		memory.put("selection", new TreeMap<String, String>(getLenientCollator(locale)));
+		memory.put(MEMORY_INPUT, new TreeMap<String, String>(getLenientCollator(locale)));
+		memory.put(MEMORY_SELECTION, new TreeMap<String, String>(getLenientCollator(locale)));
 
-		try {
-			for (Future<Map<File, Collection<Movie>>> detection : grabMovieJobs) {
-				// auto-select movie or ask user
-				for (Entry<File, Collection<Movie>> it : detection.get().entrySet()) {
-					File movieFile = it.getKey();
-					Movie movie = grabMovieName(movieFile, it.getValue(), strict, locale, autodetect, memory, parent);
+		for (Future<Map<File, List<Movie>>> future : tasks) {
+			if (future.get() != null) {
+				for (Entry<File, List<Movie>> it : future.get().entrySet()) {
+					// auto-select movie or ask user
+					Movie movie = grabMovieName(it.getKey(), it.getValue(), strict, locale, autodetect, memory, parent);
+
+					// make sure to use language-specific movie object
 					if (movie != null) {
-						// make sure to use language-specific movie object
-						movieByFile.put(movieFile, service.getMovieDescriptor(movie, locale));
+						movieByFile.put(it.getKey(), service.getMovieDescriptor(movie, locale));
 					}
 				}
 			}
-		} finally {
-			executor.shutdownNow();
 		}
 
 		// map movies to (possibly multiple) files (in natural order)
-		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
-
-		// collect movie part data
-		for (Entry<File, Movie> it : movieByFile.entrySet()) {
-			SortedSet<File> movieParts = filesByMovie.get(it.getValue());
-			if (movieParts == null) {
-				movieParts = new TreeSet<File>();
-				filesByMovie.put(it.getValue(), movieParts);
-			}
-			movieParts.add(it.getKey());
-		}
+		Map<Movie, Set<File>> filesByMovie = movieByFile.entrySet().stream().collect(groupingBy(Entry::getValue, mapping(Entry::getKey, toCollection(TreeSet::new))));
 
 		// collect all File/MoviePart matches
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 
-		for (Entry<Movie, SortedSet<File>> byMovie : filesByMovie.entrySet()) {
-			for (List<File> movieFileListByMediaFolder : mapByMediaFolder(byMovie.getValue()).values()) {
-				for (List<File> fileSet : mapByExtension(movieFileListByMediaFolder).values()) {
+		filesByMovie.forEach((movie, byMovie) -> {
+			mapByMediaFolder(byMovie).forEach((mediaFolder, byFolder) -> {
+				mapByExtension(byFolder).forEach((ext, moviePartFiles) -> {
 					// resolve movie parts
-					for (int i = 0; i < fileSet.size(); i++) {
-						Movie moviePart = byMovie.getKey();
-						if (fileSet.size() > 1) {
-							moviePart = new MoviePart(moviePart, i + 1, fileSet.size());
-						}
-
-						matches.add(new Match<File, Movie>(fileSet.get(i), moviePart.clone()));
+					for (int i = 0; i < moviePartFiles.size(); i++) {
+						Movie moviePart = moviePartFiles.size() == 1 ? movie : new MoviePart(movie, i + 1, moviePartFiles.size());
+						matches.add(new Match<File, Movie>(moviePartFiles.get(i), moviePart.clone()));
 
 						// automatically add matches for derived files
-						List<File> derivates = derivatesByMovieFile.get(fileSet.get(i));
+						List<File> derivates = derivatesByMovieFile.get(moviePartFiles.get(i));
 						if (derivates != null) {
 							for (File derivate : derivates) {
 								matches.add(new Match<File, Movie>(derivate, moviePart.clone()));
 							}
 						}
 					}
-				}
-			}
-		}
+				});
+			});
+		});
 
 		// restore original order
-		AtomicInteger index = new AtomicInteger(0);
-		Map<File, Integer> indexMap = files.stream().collect(toMap(f -> f, f -> index.getAndIncrement()));
-		matches.sort((a, b) -> indexMap.get(a.getValue()).compareTo(indexMap.get(b.getValue())));
+		matches.sort(comparing(Match::getValue, new OriginalOrder<File>(files)));
+
 		return matches;
 	}
 
@@ -266,13 +219,12 @@ class MovieMatcher implements AutoCompleteMatcher {
 		if (!strict && (!autodetect || options.isEmpty()) && !(autodetect && memory.containsKey("repeat"))) {
 			String suggestion = options.isEmpty() ? stripReleaseInfo(getName(movieFile)) : options.iterator().next().getName();
 
-			@SuppressWarnings("unchecked")
-			Map<String, String> inputMemory = (Map<String, String>) memory.get("input");
+			Map<String, String> inputMemory = (Map<String, String>) memory.get(MEMORY_INPUT);
 
 			String input = inputMemory.get(suggestion);
 			if (input == null || suggestion == null || suggestion.isEmpty()) {
 				File movieFolder = guessMovieFolder(movieFile);
-				input = showInputDialog(getQueryInputMessage(movieFile), suggestion != null && suggestion.length() > 0 ? suggestion : getName(movieFile), movieFolder == null ? movieFile.getName() : String.format("%s/%s", movieFolder.getName(), movieFile.getName()), parent);
+				input = showInputDialog(getQueryInputMessage("Enter movie name:", movieFile), suggestion != null && suggestion.length() > 0 ? suggestion : getName(movieFile), movieFolder == null ? movieFile.getName() : String.join(" / ", movieFolder.getName(), movieFile.getName()), parent);
 				inputMemory.put(suggestion, input);
 			}
 
@@ -287,7 +239,7 @@ class MovieMatcher implements AutoCompleteMatcher {
 		return options.isEmpty() ? null : selectMovie(movieFile, strict, null, options, memory, parent);
 	}
 
-	protected String getQueryInputMessage(File file) throws Exception {
+	protected String getQueryInputMessage(String message, File file) throws Exception {
 		File path = getStructurePathTail(file);
 		if (path == null) {
 			path = getRelativePathTail(file, 3);
@@ -304,7 +256,7 @@ class MovieMatcher implements AutoCompleteMatcher {
 		html.append("<br>");
 
 		html.append("<br>");
-		html.append("Please enter movie name:");
+		html.append(message);
 		html.append("</html>");
 		return html.toString();
 	}
@@ -323,18 +275,18 @@ class MovieMatcher implements AutoCompleteMatcher {
 		return name;
 	}
 
-	protected Movie selectMovie(final File movieFile, final boolean strict, final String userQuery, final Collection<Movie> options, final Map<String, Object> memory, final Component parent) throws Exception {
+	protected Movie selectMovie(File movieFile, boolean strict, String userQuery, Collection<Movie> options, Map<String, Object> memory, Component parent) throws Exception {
 		// just auto-pick singleton results
 		if (options.size() == 1) {
 			return options.iterator().next();
 		}
 
 		// 1. movie by filename
-		final String fileQuery = (userQuery != null) ? userQuery : checkedStripReleaseInfo(movieFile, strict);
+		String fileQuery = (userQuery != null) ? userQuery : checkedStripReleaseInfo(movieFile, strict);
 
 		// 2. movie by directory
-		final File movieFolder = guessMovieFolder(movieFile);
-		final String folderQuery = (userQuery != null || movieFolder == null) ? "" : checkedStripReleaseInfo(movieFolder, strict);
+		File movieFolder = guessMovieFolder(movieFile);
+		String folderQuery = (userQuery != null || movieFolder == null) ? "" : checkedStripReleaseInfo(movieFolder, strict);
 
 		// auto-ignore invalid files
 		if (userQuery == null && fileQuery.length() < 2 && folderQuery.length() < 2) {
@@ -350,10 +302,10 @@ class MovieMatcher implements AutoCompleteMatcher {
 		}
 
 		// auto-select most probable search result
-		final List<Movie> probableMatches = new LinkedList<Movie>();
+		List<Movie> probableMatches = new LinkedList<Movie>();
 
-		final SimilarityMetric metric = new NameSimilarityMetric();
-		final float threshold = 0.9f;
+		SimilarityMetric metric = new NameSimilarityMetric();
+		float threshold = 0.9f;
 
 		// find probable matches using name similarity >= 0.9
 		for (Movie result : options) {
@@ -382,72 +334,70 @@ class MovieMatcher implements AutoCompleteMatcher {
 		}
 
 		// show selection dialog on EDT
-		final RunnableFuture<Movie> showSelectDialog = new FutureTask<Movie>(new Callable<Movie>() {
+		RunnableFuture<Movie> showSelectDialog = new FutureTask<Movie>(() -> {
+			// multiple results have been found, user must select one
+			SelectDialog<Movie> selectDialog = new SelectDialog<Movie>(parent, options, true, false);
 
-			@Override
-			public Movie call() throws Exception {
-				// multiple results have been found, user must select one
-				SelectDialog<Movie> selectDialog = new SelectDialog<Movie>(parent, options, true, false);
+			selectDialog.setTitle(folderQuery.isEmpty() ? fileQuery : String.join(" / ", folderQuery, fileQuery));
+			selectDialog.getHeaderLabel().setText(getQueryInputMessage(String.format("Select best match for \"<b>%s</b>\":", fileQuery.length() >= 2 || folderQuery.length() <= 2 ? fileQuery : folderQuery), movieFile));
+			selectDialog.getCancelAction().putValue(Action.NAME, REPEAT_IGNORE);
+			selectDialog.pack();
 
-				selectDialog.setTitle(folderQuery.isEmpty() ? fileQuery : String.format("%s / %s", folderQuery, fileQuery));
-				selectDialog.getHeaderLabel().setText(String.format("Movies matching '%s':", fileQuery.length() >= 2 || folderQuery.length() <= 2 ? fileQuery : folderQuery));
-				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
+			// show dialog
+			selectDialog.restoreState(Preferences.userNodeForPackage(MovieMatcher.class));
+			selectDialog.setLocation(getOffsetLocation(selectDialog.getOwner()));
+			selectDialog.setVisible(true);
 
-				// restore original dialog size
-				Settings prefs = Settings.forPackage(MovieMatcher.class);
-				int w = Integer.parseInt(prefs.get("dialog.select.w", "280"));
-				int h = Integer.parseInt(prefs.get("dialog.select.h", "300"));
-				selectDialog.setPreferredSize(new Dimension(w, h));
-				selectDialog.pack();
+			// remember dialog state
+			selectDialog.saveState(Preferences.userNodeForPackage(MovieMatcher.class));
 
-				// show dialog
-				selectDialog.setLocation(getOffsetLocation(selectDialog.getOwner()));
-				selectDialog.setVisible(true);
-
-				// remember dialog size
-				prefs.put("dialog.select.w", Integer.toString(selectDialog.getWidth()));
-				prefs.put("dialog.select.h", Integer.toString(selectDialog.getHeight()));
-
-				// remember if we should auto-repeat the chosen action in the future
-				if (selectDialog.getAutoRepeatCheckBox().isSelected() || selectDialog.getSelectedAction() == null) {
-					memory.put("repeat", selectDialog.getSelectedValue() != null ? "select" : "ignore");
-				}
-
-				if (selectDialog.getSelectedAction() == null) {
-					throw new CancellationException();
-				}
-
-				// selected value or null if the dialog was canceled by the user
-				return selectDialog.getSelectedValue();
+			// remember if we should auto-repeat the chosen action in the future
+			if (selectDialog.getAutoRepeatCheckBox().isSelected() || selectDialog.getSelectedAction() == null) {
+				memory.put(REPEAT, selectDialog.getSelectedValue() != null ? REPEAT_SELECT : REPEAT_IGNORE);
 			}
+
+			if (selectDialog.getSelectedAction() == null) {
+				throw new CancellationException();
+			}
+
+			// selected value or null if the dialog was canceled by the user
+			return selectDialog.getSelectedValue();
 		});
 
 		// allow only one select dialog at a time
-		@SuppressWarnings("unchecked")
-		Map<String, Movie> selectionMemory = (Map<String, Movie>) memory.get("selection");
-		String selectionKey = fileQuery.length() >= 2 || folderQuery.length() <= 2 ? fileQuery : folderQuery;
+		synchronized (parent) {
+			Map<String, Movie> selectionMemory = (Map<String, Movie>) memory.get(MEMORY_SELECTION);
+			String selectionKey = fileQuery.length() >= 2 || folderQuery.length() <= 2 ? fileQuery : folderQuery;
 
-		if (selectionMemory.containsKey(selectionKey)) {
-			return selectionMemory.get(selectionKey);
+			if (selectionMemory.containsKey(selectionKey)) {
+				return selectionMemory.get(selectionKey);
+			}
+
+			// check auto-selection settings
+			if (REPEAT_SELECT.equals(memory.get(REPEAT))) {
+				return options.iterator().next();
+			}
+			if (REPEAT_IGNORE.equals(memory.get(REPEAT))) {
+				return null;
+			}
+
+			// ask for user input
+			SwingUtilities.invokeAndWait(showSelectDialog);
+
+			// cache selected value
+			selectionMemory.put(selectionKey, showSelectDialog.get());
+			return showSelectDialog.get();
 		}
-
-		// check auto-selection settings
-		if ("select".equals(memory.get("repeat"))) {
-			return options.iterator().next();
-		}
-		if ("ignore".equals(memory.get("repeat"))) {
-			return null;
-		}
-
-		// ask for user input
-		SwingUtilities.invokeAndWait(showSelectDialog);
-
-		// cache selected value
-		selectionMemory.put(selectionKey, showSelectDialog.get());
-		return showSelectDialog.get();
 	}
 
-	public List<Match<File, ?>> justFetchMovieInfo(final Locale locale, final Component parent) throws Exception {
+	private static final String REPEAT = "repeat";
+	private static final String REPEAT_SELECT = "select";
+	private static final String REPEAT_IGNORE = "ignore";
+
+	private static final String MEMORY_INPUT = "input";
+	private static final String MEMORY_SELECTION = "selection";
+
+	public List<Match<File, ?>> justFetchMovieInfo(Locale locale, Component parent) throws Exception {
 		// require user input
 		String input = showInputDialog("Enter movie name:", "", "Fetch Movie Info", parent);
 

@@ -35,7 +35,7 @@ public class SelectDialog<T> extends JDialog {
 	private JCheckBox autoRepeatCheckBox = new JCheckBox();
 
 	private JList<T> list;
-	private String command = CANCEL;
+	private String command = null;
 
 	public SelectDialog(Component parent, Collection<? extends T> options) {
 		this(parent, options, false, false);
