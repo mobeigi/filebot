@@ -32,10 +32,12 @@ class MemoizedResource<R> implements Resource<R> {
 
 	@Override
 	public R get() throws Exception {
-		if (value == null) {
-			value = resource.get();
+		synchronized (resource) {
+			if (value == null) {
+				value = resource.get();
+			}
+			return value;
 		}
-		return value;
 	}
 }
 
