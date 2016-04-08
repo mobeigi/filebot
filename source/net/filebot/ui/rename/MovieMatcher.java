@@ -5,7 +5,6 @@ import static java.util.Comparator.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
-import static net.filebot.WebServices.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.similarity.CommonSequenceMatcher.*;
 import static net.filebot.similarity.Normalization.*;
@@ -28,6 +27,8 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
@@ -145,31 +146,32 @@ class MovieMatcher implements AutoCompleteMatcher {
 		movieMatchFiles.addAll(filter(orphanedFiles, SUBTITLE_FILES)); // run movie detection only on orphaned subtitle files
 
 		// match remaining movies file by file in parallel
-		List<Future<Map<File, List<Movie>>>> tasks = movieMatchFiles.stream().filter(f -> movieByFile.get(f) == null).map(f -> {
-			return workerThreadPool.submit(() -> {
-				if (strict) {
-					// in strict mode, only process movies that follow the name (year) pattern
-					List<Integer> year = parseMovieYear(getRelativePathTail(f, 3).getPath());
-					if (year.isEmpty() || isEpisode(f, true)) {
-						return null;
+		ExecutorService workerThreadPool = Executors.newWorkStealingPool();
+		try {
+			List<Future<Map<File, List<Movie>>>> tasks = movieMatchFiles.stream().filter(f -> movieByFile.get(f) == null).map(f -> {
+				return workerThreadPool.submit(() -> {
+					if (strict) {
+						// in strict mode, only process movies that follow the name (year) pattern
+						List<Integer> year = parseMovieYear(getRelativePathTail(f, 3).getPath());
+						if (year.isEmpty() || isEpisode(f, true)) {
+							return (Map<File, List<Movie>>) EMPTY_MAP;
+						}
+
+						// allow only movie matches where the the movie year matches the year pattern in the filename
+						return singletonMap(f, detectMovie(f, service, locale, strict).stream().filter(m -> year.contains(m.getYear())).collect(toList()));
+					} else {
+						// in non-strict mode just allow all options
+						return singletonMap(f, detectMovie(f, service, locale, strict));
 					}
+				});
+			}).collect(toList());
 
-					// allow only movie matches where the the movie year matches the year pattern in the filename
-					return singletonMap(f, detectMovie(f, service, locale, strict).stream().filter(m -> year.contains(m.getYear())).collect(toList()));
-				} else {
-					// in non-strict mode just allow all options
-					return singletonMap(f, detectMovie(f, service, locale, strict));
-				}
-			});
-		}).collect(toList());
+			// remember user decisions and only bother user once
+			Map<String, Object> memory = new HashMap<String, Object>();
+			memory.put(MEMORY_INPUT, new TreeMap<String, String>(getLenientCollator(locale)));
+			memory.put(MEMORY_SELECTION, new TreeMap<String, String>(getLenientCollator(locale)));
 
-		// remember user decisions and only bother user once
-		Map<String, Object> memory = new HashMap<String, Object>();
-		memory.put(MEMORY_INPUT, new TreeMap<String, String>(getLenientCollator(locale)));
-		memory.put(MEMORY_SELECTION, new TreeMap<String, String>(getLenientCollator(locale)));
-
-		for (Future<Map<File, List<Movie>>> future : tasks) {
-			if (future.get() != null) {
+			for (Future<Map<File, List<Movie>>> future : tasks) {
 				for (Entry<File, List<Movie>> it : future.get().entrySet()) {
 					// auto-select movie or ask user
 					Movie movie = grabMovieName(it.getKey(), it.getValue(), strict, locale, autodetect, memory, parent);
@@ -180,6 +182,8 @@ class MovieMatcher implements AutoCompleteMatcher {
 					}
 				}
 			}
+		} finally {
+			workerThreadPool.shutdownNow();
 		}
 
 		// map movies to (possibly multiple) files (in natural order)

@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.stream.Stream;
@@ -37,19 +39,24 @@ class AutoDetectMatcher implements AutoCompleteMatcher {
 		Map<Group, Set<File>> groups = new AutoDetection(files, false, locale).group();
 
 		// can't use parallel stream because default fork/join pool doesn't play well with the security manager
-		Map<Group, Future<List<Match<File, ?>>>> matches = groups.entrySet().stream().collect(toMap(Entry::getKey, it -> {
-			return workerThreadPool.submit(() -> match(it.getKey(), it.getValue(), strict, order, locale, autodetection, parent));
-		}));
+		ExecutorService workerThreadPool = Executors.newWorkStealingPool();
+		try {
+			Map<Group, Future<List<Match<File, ?>>>> matches = groups.entrySet().stream().collect(toMap(Entry::getKey, it -> {
+				return workerThreadPool.submit(() -> match(it.getKey(), it.getValue(), strict, order, locale, autodetection, parent));
+			}));
 
-		// collect results
-		return matches.entrySet().stream().flatMap(it -> {
-			try {
-				return it.getValue().get().stream();
-			} catch (Exception e) {
-				log.log(Level.WARNING, "Failed to process group: %s" + it.getKey(), e);
-			}
-			return Stream.empty();
-		}).collect(toList());
+			// collect results
+			return matches.entrySet().stream().flatMap(it -> {
+				try {
+					return it.getValue().get().stream();
+				} catch (Exception e) {
+					log.log(Level.WARNING, "Failed to process group: %s" + it.getKey(), e);
+				}
+				return Stream.empty();
+			}).collect(toList());
+		} finally {
+			workerThreadPool.shutdownNow();
+		}
 	}
 
 	private List<Match<File, ?>> match(Group group, Collection<File> files, boolean strict, SortOrder order, Locale locale, boolean autodetection, Component parent) throws Exception {

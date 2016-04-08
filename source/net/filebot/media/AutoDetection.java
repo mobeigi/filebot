@@ -27,6 +27,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -120,13 +122,18 @@ public class AutoDetection {
 		Map<Group, Set<File>> groups = new TreeMap<Group, Set<File>>();
 
 		// can't use parallel stream because default fork/join pool doesn't play well with the security manager
-		stream(files).collect(toMap(f -> f, f -> workerThreadPool.submit(() -> detectGroup(f)))).forEach((file, group) -> {
-			try {
-				groups.computeIfAbsent(group.get(), k -> new TreeSet<File>()).add(file);
-			} catch (Exception e) {
-				debug.log(Level.SEVERE, e.getMessage(), e);
-			}
-		});
+		ExecutorService workerThreadPool = Executors.newWorkStealingPool();
+		try {
+			stream(files).collect(toMap(f -> f, f -> workerThreadPool.submit(() -> detectGroup(f)))).forEach((file, group) -> {
+				try {
+					groups.computeIfAbsent(group.get(), k -> new TreeSet<File>()).add(file);
+				} catch (Exception e) {
+					debug.log(Level.SEVERE, e.getMessage(), e);
+				}
+			});
+		} finally {
+			workerThreadPool.shutdownNow();
+		}
 
 		return groups;
 	}

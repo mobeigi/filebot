@@ -24,6 +24,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
@@ -51,7 +53,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	private boolean anime;
 
 	// only allow one fetch session at a time so later requests can make use of cached results
-	private final Object providerLock = new Object();
+	private Object providerLock = new Object();
 
 	public EpisodeListMatcher(EpisodeListProvider provider, boolean anime) {
 		this.provider = provider;
@@ -141,7 +143,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 						return provider.getEpisodeList(selectedSearchResult, sortOrder, locale);
 					}
 				}
-				return new ArrayList<Episode>();
+				return (List<Episode>) EMPTY_LIST;
 			});
 		}).collect(toList());
 
@@ -169,38 +171,44 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		Map<String, SearchResult> selectionMemory = new TreeMap<String, SearchResult>(CommonSequenceMatcher.getLenientCollator(Locale.ENGLISH));
 		Map<String, List<String>> inputMemory = new TreeMap<String, List<String>>(CommonSequenceMatcher.getLenientCollator(Locale.ENGLISH));
 
-		// detect series names and create episode list fetch tasks
-		List<Future<List<Match<File, ?>>>> tasks = new ArrayList<Future<List<Match<File, ?>>>>();
-
-		if (strict) {
-			// in strict mode simply process file-by-file (ignoring all files that don't contain clear SxE patterns)
-			mediaFiles.stream().filter(f -> isEpisode(f, false)).map(f -> {
-				return workerThreadPool.submit(() -> {
-					return matchEpisodeSet(singletonList(f), detectSeriesNames(singleton(f), anime, locale), sortOrder, strict, locale, autodetection, selectionMemory, inputMemory, parent);
-				});
-			}).forEach(tasks::add);
-		} else {
-			// in non-strict mode use the complicated (more powerful but also more error prone) match-batch-by-batch logic
-			mapSeriesNamesByFiles(mediaFiles, locale, anime).forEach((f, n) -> {
-				// 1. handle series name batch set all at once -> only 1 batch set
-				// 2. files don't seem to belong to any series -> handle folder per folder -> multiple batch sets
-				Collection<List<File>> batches = n != null && n.size() > 0 ? singleton(new ArrayList<File>(f)) : mapByFolder(f).values();
-
-				batches.stream().map(b -> {
-					return workerThreadPool.submit(() -> {
-						return matchEpisodeSet(b, n, sortOrder, strict, locale, autodetection, selectionMemory, inputMemory, parent);
-					});
-				}).forEach(tasks::add);
-			});
-		}
-
 		// merge episode matches
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
-		for (Future<List<Match<File, ?>>> future : tasks) {
-			// make sure each episode has unique object data
-			for (Match<File, ?> it : future.get()) {
-				matches.add(new Match<File, Episode>(it.getValue(), ((Episode) it.getCandidate()).clone()));
+
+		ExecutorService workerThreadPool = Executors.newWorkStealingPool();
+		try {
+			// detect series names and create episode list fetch tasks
+			List<Future<List<Match<File, ?>>>> tasks = new ArrayList<Future<List<Match<File, ?>>>>();
+
+			if (strict) {
+				// in strict mode simply process file-by-file (ignoring all files that don't contain clear SxE patterns)
+				mediaFiles.stream().filter(f -> isEpisode(f, false)).map(f -> {
+					return workerThreadPool.submit(() -> {
+						return matchEpisodeSet(singletonList(f), detectSeriesNames(singleton(f), anime, locale), sortOrder, strict, locale, autodetection, selectionMemory, inputMemory, parent);
+					});
+				}).forEach(tasks::add);
+			} else {
+				// in non-strict mode use the complicated (more powerful but also more error prone) match-batch-by-batch logic
+				mapSeriesNamesByFiles(mediaFiles, locale, anime).forEach((f, n) -> {
+					// 1. handle series name batch set all at once -> only 1 batch set
+					// 2. files don't seem to belong to any series -> handle folder per folder -> multiple batch sets
+					Collection<List<File>> batches = n != null && n.size() > 0 ? singleton(new ArrayList<File>(f)) : mapByFolder(f).values();
+
+					batches.stream().map(b -> {
+						return workerThreadPool.submit(() -> {
+							return matchEpisodeSet(b, n, sortOrder, strict, locale, autodetection, selectionMemory, inputMemory, parent);
+						});
+					}).forEach(tasks::add);
+				});
 			}
+
+			for (Future<List<Match<File, ?>>> future : tasks) {
+				// make sure each episode has unique object data
+				for (Match<File, ?> it : future.get()) {
+					matches.add(new Match<File, Episode>(it.getValue(), ((Episode) it.getCandidate()).clone()));
+				}
+			}
+		} finally {
+			workerThreadPool.shutdownNow();
 		}
 
 		// handle derived files

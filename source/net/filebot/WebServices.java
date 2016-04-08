@@ -107,7 +107,6 @@ public final class WebServices {
 	}
 
 	public static final ExecutorService requestThreadPool = Executors.newCachedThreadPool();
-	public static final ExecutorService workerThreadPool = Executors.newWorkStealingPool(getPreferredThreadPoolSize());
 
 	public static class TheTVDBClientWithLocalSearch extends TheTVDBClient {
 
