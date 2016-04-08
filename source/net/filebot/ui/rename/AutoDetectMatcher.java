@@ -8,7 +8,6 @@ import static net.filebot.WebServices.*;
 
 import java.awt.Component;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -16,9 +15,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 import net.filebot.media.AutoDetection;
 import net.filebot.media.AutoDetection.Group;
@@ -38,21 +37,19 @@ class AutoDetectMatcher implements AutoCompleteMatcher {
 		Map<Group, Set<File>> groups = new AutoDetection(files, false, locale).group();
 
 		// can't use parallel stream because default fork/join pool doesn't play well with the security manager
-		ExecutorService executor = Executors.newWorkStealingPool();
-		List<Match<File, ?>> result = new ArrayList<Match<File, ?>>();
+		Map<Group, Future<List<Match<File, ?>>>> matches = groups.entrySet().stream().collect(toMap(Entry::getKey, it -> {
+			return workerThreadPool.submit(() -> match(it.getKey(), it.getValue(), strict, order, locale, autodetection, parent));
+		}));
 
-		groups.entrySet().stream().collect(toMap(Entry::getKey, it -> {
-			return executor.submit(() -> match(it.getKey(), it.getValue(), strict, order, locale, autodetection, parent));
-		})).forEach((group, matches) -> {
+		// collect results
+		return matches.entrySet().stream().flatMap(it -> {
 			try {
-				result.addAll(matches.get());
+				return it.getValue().get().stream();
 			} catch (Exception e) {
-				log.log(Level.WARNING, "Failed to process group: " + group, e);
+				log.log(Level.WARNING, "Failed to process group: %s" + it.getKey(), e);
 			}
-		});
-
-		executor.shutdown();
-		return result;
+			return Stream.empty();
+		}).collect(toList());
 	}
 
 	private List<Match<File, ?>> match(Group group, Collection<File> files, boolean strict, SortOrder order, Locale locale, boolean autodetection, Component parent) throws Exception {

@@ -28,8 +28,8 @@ public class AnidbClientTest {
 
 	@Test
 	public void getAnimeTitles() throws Exception {
-		List<SearchResult> animeTitles = anidb.getAnimeTitles();
-		assertTrue(animeTitles.size() > 8000);
+		SearchResult[] animeTitles = anidb.getAnimeTitles();
+		assertTrue(animeTitles.length > 8000);
 	}
 
 	@Test

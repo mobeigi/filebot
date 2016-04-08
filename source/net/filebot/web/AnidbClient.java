@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,6 +34,7 @@ import org.w3c.dom.Node;
 
 import net.filebot.Cache;
 import net.filebot.CacheType;
+import net.filebot.Resource;
 import net.filebot.ResourceManager;
 
 public class AnidbClient extends AbstractEpisodeListProvider {
@@ -80,16 +80,14 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		return fetchSearchResult(query, locale);
 	}
 
+	// local AniDB search index
+	private final Resource<LocalSearch<SearchResult>> localIndex = Resource.lazy(() -> {
+		return new LocalSearch<SearchResult>(getAnimeTitles(), SearchResult::getEffectiveNames);
+	}).memoize();
+
 	@Override
 	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception {
-		LocalSearch<SearchResult> index = new LocalSearch<SearchResult>(getAnimeTitles()) {
-
-			@Override
-			protected Set<String> getFields(SearchResult it) {
-				return set(it.getEffectiveNames());
-			}
-		};
-		return new ArrayList<SearchResult>(index.search(query));
+		return localIndex.get().search(query);
 	}
 
 	@Override
@@ -183,7 +181,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	/**
 	 * This method is overridden in {@link net.filebot.WebServices.AnidbClientWithLocalSearch} to fetch the Anime Index from our own host and not anidb.net
 	 */
-	public synchronized List<SearchResult> getAnimeTitles() throws Exception {
+	public synchronized SearchResult[] getAnimeTitles() throws Exception {
 		// get data file (unzip and cache)
 		byte[] bytes = getCache("root").bytes("anime-titles.dat.gz", n -> new URL("http://anidb.net/api/" + n)).get();
 
@@ -230,24 +228,20 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		}
 
 		// build up a list of all possible AniDB search results
-		List<SearchResult> anime = new ArrayList<SearchResult>(entriesByAnime.size());
-
-		entriesByAnime.forEach((aid, triples) -> {
-			List<String> names = triples.stream().sorted((a, b) -> {
+		return entriesByAnime.entrySet().stream().map(it -> {
+			List<String> names = it.getValue().stream().sorted((a, b) -> {
 				for (int i = 0; i < a.length; i++) {
 					if (!a[i].equals(b[i])) {
 						return ((Comparable) a[i]).compareTo(b[i]);
 					}
 				}
 				return 0;
-			}).map(it -> (String) it[2]).collect(toList());
+			}).map(n -> n[2].toString()).collect(toList());
 
 			String primaryTitle = names.get(0);
 			List<String> aliasNames = names.subList(1, names.size());
-			anime.add(new SearchResult(aid, primaryTitle, aliasNames));
-		});
-
-		return anime;
+			return new SearchResult(it.getKey(), primaryTitle, aliasNames);
+		}).toArray(SearchResult[]::new);
 	}
 
 }

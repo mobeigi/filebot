@@ -11,7 +11,6 @@ import static net.filebot.util.FileUtilities.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -69,7 +68,7 @@ public final class WebServices {
 	public static final ID3Lookup MediaInfoID3 = new ID3Lookup();
 
 	public static EpisodeListProvider[] getEpisodeListProviders() {
-		return new EpisodeListProvider[] { TheTVDB, TheMovieDB_TV, AniDB, TVmaze };
+		return new EpisodeListProvider[] { TheTVDB, AniDB, TheMovieDB_TV, TVmaze };
 	}
 
 	public static MovieIdentificationService[] getMovieIdentificationServices() {
@@ -108,6 +107,7 @@ public final class WebServices {
 	}
 
 	public static final ExecutorService requestThreadPool = Executors.newCachedThreadPool();
+	public static final ExecutorService workerThreadPool = Executors.newWorkStealingPool(getPreferredThreadPoolSize());
 
 	public static class TheTVDBClientWithLocalSearch extends TheTVDBClient {
 
@@ -115,29 +115,10 @@ public final class WebServices {
 			super(apikey);
 		}
 
-		// index of local thetvdb data dump
-		private static LocalSearch<SearchResult> localIndex;
-
-		public synchronized LocalSearch<SearchResult> getLocalIndex() throws Exception {
-			if (localIndex == null) {
-				// fetch data dump
-				SearchResult[] data = releaseInfo.getTheTVDBIndex();
-
-				// index data dump
-				localIndex = new LocalSearch<SearchResult>(asList(data)) {
-
-					@Override
-					protected Set<String> getFields(SearchResult object) {
-						return set(object.getEffectiveNames());
-					}
-				};
-
-				// make local search more restrictive
-				localIndex.setResultMinimumSimilarity(0.7f);
-			}
-
-			return localIndex;
-		}
+		// local TheTVDB search index
+		private final Resource<LocalSearch<SearchResult>> localIndex = Resource.lazy(() -> {
+			return new LocalSearch<SearchResult>(releaseInfo.getTheTVDBIndex(), SearchResult::getEffectiveNames);
+		}).memoize();
 
 		private SearchResult merge(SearchResult prime, List<SearchResult> group) {
 			int id = prime.getId();
@@ -150,7 +131,7 @@ public final class WebServices {
 		public List<SearchResult> fetchSearchResult(final String query, final Locale locale) throws Exception {
 			// run local search and API search in parallel
 			Future<List<SearchResult>> apiSearch = requestThreadPool.submit(() -> TheTVDBClientWithLocalSearch.super.fetchSearchResult(query, locale));
-			Future<List<SearchResult>> localSearch = requestThreadPool.submit(() -> getLocalIndex().search(query));
+			Future<List<SearchResult>> localSearch = requestThreadPool.submit(() -> localIndex.get().search(query));
 
 			// combine alias names into a single search results, and keep API search name as primary name
 			Collection<SearchResult> result = StreamEx.of(apiSearch.get()).append(localSearch.get()).groupingBy(SearchResult::getId, collectingAndThen(toList(), group -> merge(group.get(0), group))).values();
@@ -166,8 +147,8 @@ public final class WebServices {
 		}
 
 		@Override
-		public List<SearchResult> getAnimeTitles() throws Exception {
-			return asList(releaseInfo.getAnidbIndex());
+		public SearchResult[] getAnimeTitles() throws Exception {
+			return releaseInfo.getAnidbIndex();
 		}
 	}
 
@@ -177,34 +158,15 @@ public final class WebServices {
 			super(name, version);
 		}
 
-		// index of local OpenSubtitles data dump
-		private static LocalSearch<SubtitleSearchResult> localIndex;
-
-		public synchronized LocalSearch<SubtitleSearchResult> getLocalIndex() throws Exception {
-			if (localIndex == null) {
-				// fetch data dump
-				SubtitleSearchResult[] data = releaseInfo.getOpenSubtitlesIndex();
-
-				// index data dump
-				localIndex = new LocalSearch<SubtitleSearchResult>(asList(data)) {
-
-					@Override
-					protected Set<String> getFields(SubtitleSearchResult object) {
-						return set(object.getEffectiveNames());
-					}
-				};
-			}
-
-			return localIndex;
-		}
+		// local OpenSubtitles search index
+		private final Resource<LocalSearch<SubtitleSearchResult>> localIndex = Resource.lazy(() -> {
+			return new LocalSearch<SubtitleSearchResult>(releaseInfo.getOpenSubtitlesIndex(), SearchResult::getEffectiveNames);
+		}).memoize();
 
 		@Override
-		public synchronized List<SubtitleSearchResult> search(final String query) throws Exception {
-			List<SubtitleSearchResult> results = getLocalIndex().search(query);
-
-			return sortBySimilarity(results, singleton(query), new MetricAvg(getSeriesMatchMetric(), getMovieMatchMetric()));
+		public List<SubtitleSearchResult> search(final String query) throws Exception {
+			return sortBySimilarity(localIndex.get().search(query), singleton(query), new MetricAvg(getSeriesMatchMetric(), getMovieMatchMetric()));
 		}
-
 	}
 
 	/**
