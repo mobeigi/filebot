@@ -9,8 +9,8 @@
 		<summary>The ultimate TV and Movie Renamer / Subtitle Downloader</summary>
 		<description>FileBot is the ultimate tool for renaming your movies, tv shows or anime and even downloading subtitles. It's smart, streamlined for simplicity and just works. Putting the super-efficient UI aside, it's also got a full-featured command-line interface and scripting engine for all sorts of automation. Anything is possible.</description>
 		<projectUrl>http://www.filebot.net/</projectUrl>
-		<tags>rename, batch rename, media, music, tv show, movie, subtitle, htpc, kodi, xbmc, plex, OpenSubtitles</tags>
-		<copyright>2015 Reinhard Pointner</copyright>
+		<tags>rename movie tv anime subtitles music htpc kodi plex OpenSubtitles</tags>
+		<copyright>2016 Reinhard Pointner</copyright>
 		<licenseUrl>http://www.gnu.org/licenses/gpl-2.0.html</licenseUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<iconUrl>http://app.filebot.net/icon.png</iconUrl>
