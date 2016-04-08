@@ -104,7 +104,7 @@ public class RenamePanel extends JComponent {
 	private static final PreferencesEntry<String> persistentMusicFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.music");
 	private static final PreferencesEntry<String> persistentFileFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.file");
 
-	private static final PreferencesEntry<String> persistentLastFormatState = Settings.forPackage(RenamePanel.class).entry("rename.last.format.state");
+	private static final PreferencesEntry<String> persistentLastFormatState = Settings.forPackage(RenamePanel.class).entry("rename.last.format.state").defaultValue(Mode.Episode.name());
 	private static final PreferencesEntry<String> persistentPreferredMatchMode = Settings.forPackage(RenamePanel.class).entry("rename.match.mode").defaultValue(MATCH_MODE_OPPORTUNISTIC);
 	private static final PreferencesEntry<String> persistentPreferredLanguage = Settings.forPackage(RenamePanel.class).entry("rename.language").defaultValue("en");
 	private static final PreferencesEntry<String> persistentPreferredEpisodeOrder = Settings.forPackage(RenamePanel.class).entry("rename.episode.order").defaultValue("Airdate");
@@ -565,13 +565,11 @@ public class RenamePanel extends JComponent {
 			} else if (lockOnBinding.getInfoObject() instanceof File) {
 				initMode = Mode.File;
 			} else {
-				// ignore objects that cannot be formatted
-				return;
+				return; // ignore objects that cannot be formatted
 			}
 		} else {
-			// restore previous mode
 			try {
-				initMode = Mode.valueOf(persistentLastFormatState.getValue());
+				initMode = Mode.valueOf(persistentLastFormatState.getValue()); // restore previous mode
 			} catch (Exception e) {
 				debug.log(Level.WARNING, e.getMessage(), e);
 			}
@@ -607,36 +605,28 @@ public class RenamePanel extends JComponent {
 		}
 	}
 
-	protected final Action clearFilesAction = new AbstractAction("Clear All", ResourceManager.getIcon("action.clear")) {
-
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			if (isShiftOrAltDown(evt)) {
-				renameModel.files().clear();
-			} else {
-				renameModel.clear();
-			}
+	protected final Action clearFilesAction = newAction("Clear All", ResourceManager.getIcon("action.clear"), evt -> {
+		if (isShiftOrAltDown(evt)) {
+			renameModel.files().clear();
+		} else {
+			renameModel.clear();
 		}
-	};
+	});
 
-	protected final Action openHistoryAction = new AbstractAction("Open History", ResourceManager.getIcon("action.report")) {
+	protected final Action openHistoryAction = newAction("Open History", ResourceManager.getIcon("action.report"), evt -> {
+		try {
+			History model = HistorySpooler.getInstance().getCompleteHistory();
 
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			try {
-				History model = HistorySpooler.getInstance().getCompleteHistory();
+			HistoryDialog dialog = new HistoryDialog(getWindow(RenamePanel.this));
+			dialog.setLocationRelativeTo(RenamePanel.this);
+			dialog.setModel(model);
 
-				HistoryDialog dialog = new HistoryDialog(getWindow(RenamePanel.this));
-				dialog.setLocationRelativeTo(RenamePanel.this);
-				dialog.setModel(model);
-
-				// show and block
-				dialog.setVisible(true);
-			} catch (Exception e) {
-				log.log(Level.WARNING, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
-			}
+			// show and block
+			dialog.setVisible(true);
+		} catch (Exception e) {
+			log.log(Level.WARNING, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
 		}
-	};
+	});
 
 	@Subscribe
 	public void handle(Transferable transferable) throws Exception {
