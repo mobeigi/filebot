@@ -18,8 +18,6 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -804,17 +802,12 @@ public class RenamePanel extends JComponent {
 
 		public AutoCompleteAction(String name, Icon icon, AutoCompleteMatcher matcher) {
 			super(name, icon);
-
 			this.matcher = matcher;
 
 			// disable action while episode list matcher is working
-			namesList.addPropertyChangeListener(LOADING_PROPERTY, new PropertyChangeListener() {
-
-				@Override
-				public void propertyChange(PropertyChangeEvent evt) {
-					// disable action while loading is in progress
-					setEnabled(!(Boolean) evt.getNewValue());
-				}
+			namesList.addPropertyChangeListener(LOADING_PROPERTY, evt -> {
+				// disable action while loading is in progress
+				setEnabled(!(Boolean) evt.getNewValue());
 			});
 		}
 
@@ -896,7 +889,6 @@ public class RenamePanel extends JComponent {
 
 			// auto-match in progress
 			namesList.firePropertyChange(LOADING_PROPERTY, false, true);
-
 			worker.execute();
 		}
 
