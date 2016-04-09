@@ -4,6 +4,7 @@ package net.filebot.ui.rename;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
+import static net.filebot.Settings.*;
 import static net.filebot.WebServices.*;
 
 import java.awt.Component;
@@ -13,7 +14,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,7 +39,7 @@ class AutoDetectMatcher implements AutoCompleteMatcher {
 		Map<Group, Set<File>> groups = new AutoDetection(files, false, locale).group();
 
 		// can't use parallel stream because default fork/join pool doesn't play well with the security manager
-		ExecutorService workerThreadPool = Executors.newWorkStealingPool();
+		ExecutorService workerThreadPool = Executors.newFixedThreadPool(getPreferredThreadPoolSize());
 		try {
 			Map<Group, Future<List<Match<File, ?>>>> matches = groups.entrySet().stream().collect(toMap(Entry::getKey, it -> {
 				return workerThreadPool.submit(() -> match(it.getKey(), it.getValue(), strict, order, locale, autodetection, parent));
@@ -50,7 +50,7 @@ class AutoDetectMatcher implements AutoCompleteMatcher {
 				try {
 					return it.getValue().get().stream();
 				} catch (Exception e) {
-					log.log(Level.WARNING, "Failed to process group: %s" + it.getKey(), e);
+					log.log(Level.WARNING, "Failed to process group: " + it.getKey(), e);
 				}
 				return Stream.empty();
 			}).collect(toList());
@@ -60,8 +60,8 @@ class AutoDetectMatcher implements AutoCompleteMatcher {
 	}
 
 	private List<Match<File, ?>> match(Group group, Collection<File> files, boolean strict, SortOrder order, Locale locale, boolean autodetection, Component parent) throws Exception {
-		if (group.values().stream().filter(Objects::nonNull).count() == 1) {
-			for (Type key : group.keySet()) {
+		if (group.types().length == 1) {
+			for (Type key : group.types()) {
 				switch (key) {
 				case Movie:
 					return movie.match(files, strict, order, locale, autodetection, parent);

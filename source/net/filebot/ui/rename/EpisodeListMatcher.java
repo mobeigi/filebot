@@ -4,6 +4,7 @@ import static java.util.Collections.*;
 import static java.util.Comparator.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.MediaTypes.*;
+import static net.filebot.Settings.*;
 import static net.filebot.WebServices.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.similarity.CommonSequenceMatcher.*;
@@ -175,7 +176,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		// merge episode matches
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 
-		ExecutorService workerThreadPool = Executors.newWorkStealingPool();
+		ExecutorService workerThreadPool = Executors.newFixedThreadPool(getPreferredThreadPoolSize());
 		try {
 			// detect series names and create episode list fetch tasks
 			List<Future<List<Match<File, ?>>>> tasks = new ArrayList<Future<List<Match<File, ?>>>>();

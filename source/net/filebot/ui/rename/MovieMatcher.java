@@ -5,6 +5,7 @@ import static java.util.Comparator.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
+import static net.filebot.Settings.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.similarity.CommonSequenceMatcher.*;
 import static net.filebot.similarity.Normalization.*;
@@ -147,7 +148,7 @@ class MovieMatcher implements AutoCompleteMatcher {
 		movieMatchFiles.addAll(filter(orphanedFiles, SUBTITLE_FILES)); // run movie detection only on orphaned subtitle files
 
 		// match remaining movies file by file in parallel
-		ExecutorService workerThreadPool = Executors.newWorkStealingPool();
+		ExecutorService workerThreadPool = Executors.newFixedThreadPool(getPreferredThreadPoolSize());
 		try {
 			List<Future<Map<File, List<Movie>>>> tasks = movieMatchFiles.stream().filter(f -> movieByFile.get(f) == null).map(f -> {
 				return workerThreadPool.submit(() -> {
@@ -344,7 +345,7 @@ class MovieMatcher implements AutoCompleteMatcher {
 			// multiple results have been found, user must select one
 			SelectDialog<Movie> selectDialog = new SelectDialog<Movie>(parent, options, true, false);
 
-			selectDialog.setTitle(folderQuery.isEmpty() ? fileQuery : String.join(" / ", folderQuery, fileQuery));
+			selectDialog.setTitle(service.getName());
 			selectDialog.getHeaderLabel().setText(getQueryInputMessage(String.format("Select best match for \"<b>%s</b>\":", fileQuery.length() >= 2 || folderQuery.length() <= 2 ? fileQuery : folderQuery), movieFile));
 			selectDialog.getCancelAction().putValue(Action.NAME, AutoSelection.Skip.toString());
 			selectDialog.pack();

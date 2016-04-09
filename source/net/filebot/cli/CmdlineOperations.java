@@ -123,8 +123,8 @@ public class CmdlineOperations implements CmdlineInterface {
 		List<File> results = new ArrayList<File>();
 
 		for (Entry<Group, Set<File>> it : auto.group().entrySet()) {
-			if (it.getKey().values().stream().filter(Objects::nonNull).count() == 1) {
-				for (Type key : it.getKey().keySet()) {
+			if (it.getKey().types().length == 1) {
+				for (Type key : it.getKey().types()) {
 					switch (key) {
 					case Movie:
 						results.addAll(renameMovie(it.getValue(), action, conflictAction, outputDir, format, TheMovieDB, query, filter, locale, strict));

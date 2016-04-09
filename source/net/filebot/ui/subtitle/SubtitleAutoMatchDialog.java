@@ -223,7 +223,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 			}
 		};
 
-		queryService = Executors.newFixedThreadPool(1);
+		queryService = Executors.newSingleThreadExecutor();
 		queryService.submit(queryTask);
 	}
 

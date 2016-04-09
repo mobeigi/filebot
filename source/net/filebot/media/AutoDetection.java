@@ -6,6 +6,7 @@ import static java.util.regex.Pattern.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
+import static net.filebot.Settings.*;
 import static net.filebot.WebServices.*;
 import static net.filebot.format.ExpressionFormatMethods.*;
 import static net.filebot.media.MediaDetection.*;
@@ -122,7 +123,7 @@ public class AutoDetection {
 		Map<Group, Set<File>> groups = new TreeMap<Group, Set<File>>();
 
 		// can't use parallel stream because default fork/join pool doesn't play well with the security manager
-		ExecutorService workerThreadPool = Executors.newWorkStealingPool();
+		ExecutorService workerThreadPool = Executors.newFixedThreadPool(getPreferredThreadPoolSize());
 		try {
 			stream(files).collect(toMap(f -> f, f -> workerThreadPool.submit(() -> detectGroup(f)))).forEach((file, group) -> {
 				try {
@@ -403,6 +404,10 @@ public class AutoDetection {
 		public Group music(File f) {
 			put(Type.Music, f == null ? null : f.getParent());
 			return this;
+		}
+
+		public Type[] types() {
+			return entrySet().stream().filter(it -> it.getValue() != null).map(it -> it.getKey()).toArray(Type[]::new);
 		}
 
 		@Override
