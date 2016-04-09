@@ -1,5 +1,6 @@
 # redirect donate.html
 redirect 302 /donate.html https://app.filebot.net/donate.php
+redirect 302 /manual.html https://www.filebot.net/forums/viewtopic.php?f=3&t=7#p7
 
 # redirect filebot.sourceforge.net to www.filebot.net
 RewriteEngine on

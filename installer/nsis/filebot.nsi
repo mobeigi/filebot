@@ -115,7 +115,8 @@ Section MAIN
 		DetailPrint "Optimizing..."
 		nsExec::ExecToLog `"C:\Program Files\FileBot\filebot.exe" -script "g:println net.filebot.Settings.getApplicationIdentifier(); println 'JRE: ' + Settings.getJavaRuntimeIdentifier(); println String.format('JVM: %d-bit %s', com.sun.jna.Platform.is64Bit() ? 64 : 32, System.getProperty('java.vm.name')); java.util.prefs.Preferences.userRoot(); net.filebot.CacheManager.getInstance().clearAll(); net.filebot.media.MediaDetection.warmupCachedResources();" --log OFF`
 		DetailPrint "Done. Before you get started, please have a look at the FAQ."
-		ExecShell open `http://www.filebot.net/forums/viewtopic.php?f=3&t=7`
+		ExecShell open `https://app.filebot.net/getting-started/index.html`
+		ExecShell open `https://app.filebot.net/manual.html`
 	${else}
 		DetailPrint "msiexec error $MSI_STATUS"
 		DetailPrint "Installation failed. Please download the .msi package manually."
