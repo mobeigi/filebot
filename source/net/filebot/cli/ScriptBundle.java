@@ -15,19 +15,21 @@ import java.util.jar.JarInputStream;
 
 import com.google.common.io.ByteStreams;
 
+import net.filebot.Resource;
+
 public class ScriptBundle implements ScriptProvider {
 
-	private byte[] bytes;
+	private Resource<byte[]> bundle;
 	private Certificate certificate;
 
-	public ScriptBundle(byte[] bytes, InputStream certificate) throws CertificateException {
-		this.bytes = bytes;
+	public ScriptBundle(Resource<byte[]> bundle, InputStream certificate) throws CertificateException {
+		this.bundle = bundle.memoize();
 		this.certificate = CertificateFactory.getInstance("X.509").generateCertificate(certificate);
 	}
 
 	@Override
 	public String getScript(String name) throws Exception {
-		try (JarInputStream jar = new JarInputStream(new ByteArrayInputStream(bytes), true)) {
+		try (JarInputStream jar = new JarInputStream(new ByteArrayInputStream(bundle.get()), true)) {
 			for (JarEntry f = jar.getNextJarEntry(); f != null; f = jar.getNextJarEntry()) {
 				if (f.isDirectory() || !f.getName().startsWith(name) || !f.getName().substring(name.length()).equals(".groovy"))
 					continue;

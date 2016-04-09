@@ -10,6 +10,7 @@ import java.time.Duration;
 
 import net.filebot.Cache;
 import net.filebot.CacheType;
+import net.filebot.Resource;
 
 public enum ScriptSource {
 
@@ -22,10 +23,10 @@ public enum ScriptSource {
 
 		@Override
 		public ScriptProvider getScriptProvider(String input) throws Exception {
-			URI bundle = new URI(getApplicationProperty("github.stable"));
-			byte[] bytes = getCache().bytes(bundle, URI::toURL).expire(Cache.ONE_WEEK).get();
+			URI resource = new URI(getApplicationProperty("github.stable"));
+			Resource<byte[]> bundle = getCache().bytes(resource, URI::toURL).expire(Cache.ONE_WEEK);
 
-			return new ScriptBundle(bytes, getClass().getResourceAsStream("repository.cer"));
+			return new ScriptBundle(bundle, getClass().getResourceAsStream("repository.cer"));
 		}
 
 	},
