@@ -5,7 +5,7 @@ $type = $_GET['type'];
 
 $root = 'https://downloads.sourceforge.net/project/filebot/filebot/';
 $folder = $root.'FileBot_'.$version;
-$file = 'undefined';
+$file = '';
 
 if ($type == 'nsis') {
 	$folder = $root.'LATEST';
@@ -13,17 +13,17 @@ if ($type == 'nsis') {
 } else if ($type == 'jar') {
 	$folder = $root.'HEAD';
 	$file = 'FileBot.jar';
-} else if ($type == 'msi')
+} else if ($type == 'msi') {
 	$file = 'FileBot_'.$version.'_'.$arch.'.msi';
-else if ($type == 'deb')
+} else if ($type == 'deb') {
 	$file =  'filebot_'.$version.'_'.$arch.'.deb';
-else if ($type == 'app')
+} else if ($type == 'app') {
 	$file = 'FileBot_'.$version.'-brew.tar.bz2';
-else if ($type == 'portable')
+} else if ($type == 'portable') {
 	$file = 'FileBot_'.$version.'-portable.zip';
-else if ($type == 'ipkg')
+} else if ($type == 'ipkg') {
 	$file = 'filebot_'.$version.'_noarch.ipk';
-
+}
 
 header('HTTP/1.1 302 Found');
 header('Location: '.$folder.'/'.$file);
