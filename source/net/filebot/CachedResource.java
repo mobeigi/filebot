@@ -85,6 +85,10 @@ public class CachedResource<K, R> implements Resource<R> {
 					return element.getObjectValue();
 				}
 
+				if (data == null) {
+					throw new IllegalStateException(String.format("Response data is null: %s => %s", key, url));
+				}
+
 				return parse.transform(data);
 			} catch (IOException e) {
 				debug.warning(format("Fetch failed: %s", e.getMessage()));
