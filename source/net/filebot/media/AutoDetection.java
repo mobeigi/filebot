@@ -89,7 +89,7 @@ public class AutoDetection {
 	}
 
 	public boolean isAnime(File f) {
-		if (MediaDetection.parseEpisodeNumber(f.getName(), false).isEmpty()) {
+		if (MediaDetection.parseEpisodeNumber(f.getName(), false) == null) {
 			return false;
 		}
 		if (anyMatch(f.getParentFile(), ANIME_PATTERN) || find(f.getName(), ANIME_EPISODE_PATTERN) || find(f.getName(), EMBEDDED_CHECKSUM)) {

@@ -54,7 +54,12 @@ import net.filebot.web.SortOrder;
 
 class MovieMatcher implements AutoCompleteMatcher {
 
-	private final MovieIdentificationService service;
+	private MovieIdentificationService service;
+
+	// remember user decisions and only bother user once
+	private Set<AutoSelection> autoSelectionMode = EnumSet.noneOf(AutoSelection.class);
+	private Map<String, Movie> selectionMemory = new TreeMap<String, Movie>(getLenientCollator(Locale.ENGLISH));
+	private Map<String, String> inputMemory = new TreeMap<String, String>(getLenientCollator(Locale.ENGLISH));
 
 	public MovieMatcher(MovieIdentificationService service) {
 		this.service = service;
@@ -170,15 +175,10 @@ class MovieMatcher implements AutoCompleteMatcher {
 				});
 			}).collect(toList());
 
-			// remember user decisions and only bother user once
-			Set<AutoSelection> selectionMode = EnumSet.noneOf(AutoSelection.class);
-			Map<String, Movie> selectionMemory = new TreeMap<String, Movie>(getLenientCollator(locale));
-			Map<String, String> inputMemory = new TreeMap<String, String>(getLenientCollator(locale));
-
 			for (Future<Map<File, List<Movie>>> future : tasks) {
 				for (Entry<File, List<Movie>> it : future.get().entrySet()) {
 					// auto-select movie or ask user
-					Movie movie = grabMovieName(it.getKey(), it.getValue(), strict, locale, autodetect, selectionMode, selectionMemory, inputMemory, parent);
+					Movie movie = grabMovieName(it.getKey(), it.getValue(), strict, locale, autodetect, parent);
 
 					// make sure to use language-specific movie object
 					if (movie != null) {
@@ -222,7 +222,7 @@ class MovieMatcher implements AutoCompleteMatcher {
 		return matches;
 	}
 
-	protected Movie grabMovieName(File movieFile, Collection<Movie> options, boolean strict, Locale locale, boolean autodetect, Set<AutoSelection> autoSelectionMode, Map<String, Movie> selectionMemory, Map<String, String> inputMemory, Component parent) throws Exception {
+	protected Movie grabMovieName(File movieFile, Collection<Movie> options, boolean strict, Locale locale, boolean autodetect, Component parent) throws Exception {
 		// allow manual user input
 		synchronized (selectionMemory) {
 			if (!strict && (!autodetect || options.isEmpty()) && !(autodetect && autoSelectionMode.size() > 0)) {
@@ -231,27 +231,29 @@ class MovieMatcher implements AutoCompleteMatcher {
 
 				if (input == null || suggestion == null || suggestion.isEmpty()) {
 					File movieFolder = guessMovieFolder(movieFile);
-					input = showInputDialog(getQueryInputMessage("Please identify the following files:", "Enter movie name:", movieFile), suggestion != null && suggestion.length() > 0 ? suggestion : getName(movieFile), movieFolder == null ? movieFile.getName() : String.join(" / ", movieFolder.getName(), movieFile.getName()), parent);
+					synchronized (parent) {
+						input = showInputDialog(getQueryInputMessage("Please identify the following files:", "Enter movie name:", movieFile), suggestion != null && suggestion.length() > 0 ? suggestion : getName(movieFile), movieFolder == null ? movieFile.getName() : String.join(" / ", movieFolder.getName(), movieFile.getName()), parent);
+					}
 					inputMemory.put(suggestion, input);
 				}
 
 				if (input != null && input.length() > 0) {
 					options = service.searchMovie(input, locale);
 					if (options.size() > 0) {
-						return selectMovie(movieFile, strict, input, options, autoSelectionMode, selectionMemory, parent);
+						return selectMovie(movieFile, strict, input, options, parent);
 					}
 				}
 			}
 		}
 
-		return options.isEmpty() ? null : selectMovie(movieFile, strict, null, options, autoSelectionMode, selectionMemory, parent);
+		return options.isEmpty() ? null : selectMovie(movieFile, strict, null, options, parent);
 	}
 
 	protected String getQueryInputMessage(String header, String message, File file) throws Exception {
 		StringBuilder html = new StringBuilder(512);
 		html.append("<html>");
 		if (header != null) {
-			html.append(header).append("<br>");
+			html.append(escapeHTML(header)).append("<br>");
 		}
 
 		html.append("<nobr>");
@@ -268,7 +270,7 @@ class MovieMatcher implements AutoCompleteMatcher {
 
 		html.append("<br>");
 		if (message != null) {
-			html.append(message);
+			html.append(escapeHTML(message));
 		}
 		html.append("</html>");
 		return html.toString();
@@ -288,7 +290,7 @@ class MovieMatcher implements AutoCompleteMatcher {
 		return name;
 	}
 
-	protected Movie selectMovie(File movieFile, boolean strict, String userQuery, Collection<Movie> options, Set<AutoSelection> autoSelectionMode, Map<String, Movie> selectionMemory, Component parent) throws Exception {
+	protected Movie selectMovie(File movieFile, boolean strict, String userQuery, Collection<Movie> options, Component parent) throws Exception {
 		// just auto-pick singleton results
 		if (options.size() == 1) {
 			return options.iterator().next();
@@ -356,7 +358,7 @@ class MovieMatcher implements AutoCompleteMatcher {
 			SelectDialog<Movie> selectDialog = new SelectDialog<Movie>(parent, options, true, false, header);
 
 			selectDialog.setTitle(service.getName());
-			selectDialog.getMessageLabel().setText("<html>Select best match for \"<b>" + query + "</b>\":</html>");
+			selectDialog.getMessageLabel().setText("<html>Select best match for \"<b>" + escapeHTML(query) + "</b>\":</html>");
 			selectDialog.getCancelAction().putValue(Action.NAME, "Skip");
 			selectDialog.pack();
 
