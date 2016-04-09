@@ -97,9 +97,6 @@ Var MSI_STATUS
 
 
 Section MAIN
-	DetailPrint "Uninstalling previous versions..."
-	nsExec::Exec `start "wmic" /b cmd.exe /c wmic.exe product where name="FileBot" call uninstall`
-
 	DetailPrint "Downloading latest version..."
 	${if} ${RunningX64}
 		inetc::get /USERAGENT "nsis" /caption "Downloading FileBot (64-bit)" "https://app.filebot.net/download.php?type=msi&arch=x64" "$PLUGINSDIR\FileBot.msi" /end
@@ -114,13 +111,10 @@ Section MAIN
 	${if} $MSI_STATUS == "0"
 		DetailPrint "Optimizing..."
 		nsExec::ExecToLog `"C:\Program Files\FileBot\filebot.exe" -script "g:println net.filebot.Settings.getApplicationIdentifier(); println 'JRE: ' + Settings.getJavaRuntimeIdentifier(); println String.format('JVM: %d-bit %s', com.sun.jna.Platform.is64Bit() ? 64 : 32, System.getProperty('java.vm.name')); java.util.prefs.Preferences.userRoot(); net.filebot.CacheManager.getInstance().clearAll(); net.filebot.media.MediaDetection.warmupCachedResources();" --log OFF`
-		DetailPrint "Done. Before you get started, please have a look at the FAQ."
-		ExecShell open `https://app.filebot.net/getting-started/index.html`
-		ExecShell open `https://app.filebot.net/manual.html`
+		DetailPrint "Done."
 	${else}
 		DetailPrint "msiexec error $MSI_STATUS"
 		DetailPrint "Installation failed. Please download the .msi package manually."
-		ExecShell open `https://app.filebot.net/download.php`
 		Abort
 	${endif}
 SectionEnd
