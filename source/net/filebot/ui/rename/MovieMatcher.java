@@ -15,6 +15,7 @@ import java.awt.Component;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -167,14 +168,14 @@ class MovieMatcher implements AutoCompleteMatcher {
 			}).collect(toList());
 
 			// remember user decisions and only bother user once
-			Map<String, Object> memory = new HashMap<String, Object>();
-			memory.put(MEMORY_INPUT, new TreeMap<String, String>(getLenientCollator(locale)));
-			memory.put(MEMORY_SELECTION, new TreeMap<String, String>(getLenientCollator(locale)));
+			Set<AutoSelection> selectionMode = EnumSet.noneOf(AutoSelection.class);
+			Map<String, Movie> selectionMemory = new TreeMap<String, Movie>(getLenientCollator(locale));
+			Map<String, String> inputMemory = new TreeMap<String, String>(getLenientCollator(locale));
 
 			for (Future<Map<File, List<Movie>>> future : tasks) {
 				for (Entry<File, List<Movie>> it : future.get().entrySet()) {
 					// auto-select movie or ask user
-					Movie movie = grabMovieName(it.getKey(), it.getValue(), strict, locale, autodetect, memory, parent);
+					Movie movie = grabMovieName(it.getKey(), it.getValue(), strict, locale, autodetect, selectionMode, selectionMemory, inputMemory, parent);
 
 					// make sure to use language-specific movie object
 					if (movie != null) {
@@ -218,43 +219,44 @@ class MovieMatcher implements AutoCompleteMatcher {
 		return matches;
 	}
 
-	protected Movie grabMovieName(File movieFile, Collection<Movie> options, boolean strict, Locale locale, boolean autodetect, Map<String, Object> memory, Component parent) throws Exception {
+	protected Movie grabMovieName(File movieFile, Collection<Movie> options, boolean strict, Locale locale, boolean autodetect, Set<AutoSelection> autoSelectionMode, Map<String, Movie> selectionMemory, Map<String, String> inputMemory, Component parent) throws Exception {
 		// allow manual user input
-		if (!strict && (!autodetect || options.isEmpty()) && !(autodetect && memory.containsKey("repeat"))) {
-			String suggestion = options.isEmpty() ? stripReleaseInfo(getName(movieFile)) : options.iterator().next().getName();
+		synchronized (selectionMemory) {
+			if (!strict && (!autodetect || options.isEmpty()) && !(autodetect && autoSelectionMode.size() > 0)) {
+				String suggestion = options.isEmpty() ? stripReleaseInfo(getName(movieFile)) : options.iterator().next().getName();
+				String input = inputMemory.get(suggestion);
 
-			Map<String, String> inputMemory = (Map<String, String>) memory.get(MEMORY_INPUT);
+				if (input == null || suggestion == null || suggestion.isEmpty()) {
+					File movieFolder = guessMovieFolder(movieFile);
+					input = showInputDialog(getQueryInputMessage("Enter movie name:", movieFile), suggestion != null && suggestion.length() > 0 ? suggestion : getName(movieFile), movieFolder == null ? movieFile.getName() : String.join(" / ", movieFolder.getName(), movieFile.getName()), parent);
+					inputMemory.put(suggestion, input);
+				}
 
-			String input = inputMemory.get(suggestion);
-			if (input == null || suggestion == null || suggestion.isEmpty()) {
-				File movieFolder = guessMovieFolder(movieFile);
-				input = showInputDialog(getQueryInputMessage("Enter movie name:", movieFile), suggestion != null && suggestion.length() > 0 ? suggestion : getName(movieFile), movieFolder == null ? movieFile.getName() : String.join(" / ", movieFolder.getName(), movieFile.getName()), parent);
-				inputMemory.put(suggestion, input);
-			}
-
-			if (input != null) {
-				options = service.searchMovie(input, locale);
-				if (options.size() > 0) {
-					return selectMovie(movieFile, strict, input, options, memory, parent);
+				if (input != null && input.length() > 0) {
+					options = service.searchMovie(input, locale);
+					if (options.size() > 0) {
+						return selectMovie(movieFile, strict, input, options, autoSelectionMode, selectionMemory, parent);
+					}
 				}
 			}
 		}
 
-		return options.isEmpty() ? null : selectMovie(movieFile, strict, null, options, memory, parent);
+		return options.isEmpty() ? null : selectMovie(movieFile, strict, null, options, autoSelectionMode, selectionMemory, parent);
 	}
 
 	protected String getQueryInputMessage(String message, File file) throws Exception {
+		StringBuilder html = new StringBuilder(512);
+		html.append("<html>");
+		html.append("Failed to identify some of the following files:").append("<br>");
+
+		html.append("<nobr>");
+		html.append("• ");
+
 		File path = getStructurePathTail(file);
 		if (path == null) {
 			path = getRelativePathTail(file, 3);
 		}
 
-		StringBuilder html = new StringBuilder(512);
-		html.append("<html>");
-		html.append("Unable to identify the following files:").append("<br>");
-
-		html.append("<nobr>");
-		html.append("• ");
 		new TextColorizer().colorizePath(html, path, file.isFile());
 		html.append("</nobr>");
 		html.append("<br>");
@@ -279,7 +281,7 @@ class MovieMatcher implements AutoCompleteMatcher {
 		return name;
 	}
 
-	protected Movie selectMovie(File movieFile, boolean strict, String userQuery, Collection<Movie> options, Map<String, Object> memory, Component parent) throws Exception {
+	protected Movie selectMovie(File movieFile, boolean strict, String userQuery, Collection<Movie> options, Set<AutoSelection> autoSelectionMode, Map<String, Movie> selectionMemory, Component parent) throws Exception {
 		// just auto-pick singleton results
 		if (options.size() == 1) {
 			return options.iterator().next();
@@ -344,7 +346,7 @@ class MovieMatcher implements AutoCompleteMatcher {
 
 			selectDialog.setTitle(folderQuery.isEmpty() ? fileQuery : String.join(" / ", folderQuery, fileQuery));
 			selectDialog.getHeaderLabel().setText(getQueryInputMessage(String.format("Select best match for \"<b>%s</b>\":", fileQuery.length() >= 2 || folderQuery.length() <= 2 ? fileQuery : folderQuery), movieFile));
-			selectDialog.getCancelAction().putValue(Action.NAME, REPEAT_IGNORE);
+			selectDialog.getCancelAction().putValue(Action.NAME, AutoSelection.Skip.toString());
 			selectDialog.pack();
 
 			// show dialog
@@ -357,7 +359,7 @@ class MovieMatcher implements AutoCompleteMatcher {
 
 			// remember if we should auto-repeat the chosen action in the future
 			if (selectDialog.getAutoRepeatCheckBox().isSelected() || selectDialog.getSelectedAction() == null) {
-				memory.put(REPEAT, selectDialog.getSelectedValue() != null ? REPEAT_SELECT : REPEAT_IGNORE);
+				autoSelectionMode.add(selectDialog.getSelectedValue() == null ? AutoSelection.Skip : AutoSelection.First);
 			}
 
 			if (selectDialog.getSelectedAction() == null) {
@@ -369,37 +371,33 @@ class MovieMatcher implements AutoCompleteMatcher {
 		});
 
 		// allow only one select dialog at a time
-		synchronized (parent) {
-			Map<String, Movie> selectionMemory = (Map<String, Movie>) memory.get(MEMORY_SELECTION);
+		synchronized (selectionMemory) {
 			String selectionKey = fileQuery.length() >= 2 || folderQuery.length() <= 2 ? fileQuery : folderQuery;
-
 			if (selectionMemory.containsKey(selectionKey)) {
 				return selectionMemory.get(selectionKey);
 			}
 
 			// check auto-selection settings
-			if (REPEAT_SELECT.equals(memory.get(REPEAT))) {
+			if (autoSelectionMode.contains(AutoSelection.First)) {
 				return options.iterator().next();
 			}
-			if (REPEAT_IGNORE.equals(memory.get(REPEAT))) {
+			if (autoSelectionMode.contains(AutoSelection.Skip)) {
 				return null;
 			}
 
-			// ask for user input
-			SwingUtilities.invokeAndWait(showSelectDialog);
+			synchronized (parent) {
+				SwingUtilities.invokeAndWait(showSelectDialog);
 
-			// cache selected value
-			selectionMemory.put(selectionKey, showSelectDialog.get());
-			return showSelectDialog.get();
+				// cache selected value
+				selectionMemory.put(selectionKey, showSelectDialog.get());
+				return showSelectDialog.get();
+			}
 		}
 	}
 
-	private static final String REPEAT = "repeat";
-	private static final String REPEAT_SELECT = "select";
-	private static final String REPEAT_IGNORE = "ignore";
-
-	private static final String MEMORY_INPUT = "input";
-	private static final String MEMORY_SELECTION = "selection";
+	private enum AutoSelection {
+		First, Skip;
+	}
 
 	public List<Match<File, ?>> justFetchMovieInfo(Locale locale, Component parent) throws Exception {
 		// require user input

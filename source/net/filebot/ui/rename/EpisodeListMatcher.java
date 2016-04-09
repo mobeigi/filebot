@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.WebServices.*;
 import static net.filebot.media.MediaDetection.*;
+import static net.filebot.similarity.CommonSequenceMatcher.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
@@ -38,7 +39,6 @@ import javax.swing.SwingUtilities;
 import net.filebot.Cache;
 import net.filebot.Cache.TypedCache;
 import net.filebot.CacheType;
-import net.filebot.similarity.CommonSequenceMatcher;
 import net.filebot.similarity.EpisodeMatcher;
 import net.filebot.similarity.Match;
 import net.filebot.ui.SelectDialog;
@@ -51,9 +51,6 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 
 	private EpisodeListProvider provider;
 	private boolean anime;
-
-	// only allow one fetch session at a time so later requests can make use of cached results
-	private Object providerLock = new Object();
 
 	public EpisodeListMatcher(EpisodeListProvider provider, boolean anime) {
 		this.provider = provider;
@@ -107,8 +104,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			return selectDialog.getSelectedValue();
 		});
 
-		// allow only one select dialog at a time
-		synchronized (parent) {
+		synchronized (selectionMemory) {
 			if (selectionMemory.containsKey(query)) {
 				return selectionMemory.get(query);
 			}
@@ -121,38 +117,43 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 				}
 			}
 
-			// ask user
-			SwingUtilities.invokeAndWait(showSelectDialog);
-			SearchResult userSelection = showSelectDialog.get();
+			// allow only one select dialog at a time
+			synchronized (parent) {
+				SwingUtilities.invokeAndWait(showSelectDialog);
+				SearchResult userSelection = showSelectDialog.get();
 
-			// remember selected value
-			selectionMemory.put(query, userSelection);
-			return userSelection;
+				// remember selected value
+				selectionMemory.put(query, userSelection);
+				return userSelection;
+			}
 		}
 	}
 
 	protected Set<Episode> fetchEpisodeSet(List<File> files, Collection<String> querySet, SortOrder sortOrder, Locale locale, Map<String, SearchResult> selectionMemory, boolean autodetection, Component parent) throws Exception {
-		// detect series names and fetch episode lists in parallel
-		List<Future<List<Episode>>> tasks = querySet.stream().map(q -> {
-			return requestThreadPool.submit(() -> {
-				// select search result
-				List<SearchResult> results = provider.search(q, locale);
-				if (results.size() > 0) {
-					SearchResult selectedSearchResult = selectSearchResult(files, q, results, selectionMemory, autodetection, parent);
-					if (selectedSearchResult != null) {
-						return provider.getEpisodeList(selectedSearchResult, sortOrder, locale);
+		// only allow one fetch session at a time so later requests can make use of cached results
+		synchronized (this) {
+			// detect series names and fetch episode lists in parallel
+			List<Future<List<Episode>>> tasks = querySet.stream().map(q -> {
+				return requestThreadPool.submit(() -> {
+					// select search result
+					List<SearchResult> results = provider.search(q, locale);
+					if (results.size() > 0) {
+						SearchResult selectedSearchResult = selectSearchResult(files, q, results, selectionMemory, autodetection, parent);
+						if (selectedSearchResult != null) {
+							return provider.getEpisodeList(selectedSearchResult, sortOrder, locale);
+						}
 					}
-				}
-				return (List<Episode>) EMPTY_LIST;
-			});
-		}).collect(toList());
+					return (List<Episode>) EMPTY_LIST;
+				});
+			}).collect(toList());
 
-		// merge all episodes
-		Set<Episode> episodes = new LinkedHashSet<Episode>();
-		for (Future<List<Episode>> it : tasks) {
-			episodes.addAll(it.get());
+			// merge all episodes
+			Set<Episode> episodes = new LinkedHashSet<Episode>();
+			for (Future<List<Episode>> it : tasks) {
+				episodes.addAll(it.get());
+			}
+			return episodes;
 		}
-		return episodes;
 	}
 
 	@Override
@@ -168,8 +169,8 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		List<File> mediaFiles = filter(fileset, VIDEO_FILES, SUBTITLE_FILES);
 
 		// remember user decisions and only bother user once
-		Map<String, SearchResult> selectionMemory = new TreeMap<String, SearchResult>(CommonSequenceMatcher.getLenientCollator(Locale.ENGLISH));
-		Map<String, List<String>> inputMemory = new TreeMap<String, List<String>>(CommonSequenceMatcher.getLenientCollator(Locale.ENGLISH));
+		Map<String, SearchResult> selectionMemory = new TreeMap<String, SearchResult>(getLenientCollator(Locale.ENGLISH));
+		Map<String, List<String>> inputMemory = new TreeMap<String, List<String>>(getLenientCollator(Locale.ENGLISH));
 
 		// merge episode matches
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
@@ -241,9 +242,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		if (autodetection) {
 			if (queries != null && queries.size() > 0) {
 				// only allow one fetch session at a time so later requests can make use of cached results
-				synchronized (providerLock) {
-					episodes = fetchEpisodeSet(files, queries, sortOrder, locale, selectionMemory, autodetection, parent);
-				}
+				episodes = fetchEpisodeSet(files, queries, sortOrder, locale, selectionMemory, autodetection, parent);
 			}
 		}
 
@@ -253,18 +252,15 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			String parentPathHint = normalizePathSeparators(getRelativePathTail(files.get(0).getParentFile(), 2).getPath());
 			String suggestion = detectedSeriesNames.size() > 0 ? join(detectedSeriesNames, "; ") : normalizePunctuation(getName(files.get(0)));
 
-			List<String> input;
 			synchronized (inputMemory) {
-				input = inputMemory.get(suggestion);
+				List<String> input = inputMemory.get(suggestion);
 				if (input == null || suggestion == null || suggestion.isEmpty()) {
 					input = showMultiValueInputDialog(getQueryInputMessage("Enter series name:", files), suggestion, parentPathHint, parent);
 					inputMemory.put(suggestion, input);
 				}
-			}
 
-			if (input != null && input.size() > 0) {
-				// only allow one fetch session at a time so later requests can make use of cached results
-				synchronized (providerLock) {
+				if (input != null && input.size() > 0) {
+					// only allow one fetch session at a time so later requests can make use of cached results
 					episodes = fetchEpisodeSet(files, input, sortOrder, locale, new HashMap<String, SearchResult>(), false, parent);
 				}
 			}
@@ -334,11 +330,9 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		if (input.size() > 0) {
-			synchronized (providerLock) {
-				Set<Episode> episodes = fetchEpisodeSet(emptyList(), input, sortOrder, locale, new HashMap<String, SearchResult>(), false, parent);
-				for (Episode it : episodes) {
-					matches.add(new Match<File, Episode>(null, it));
-				}
+			Set<Episode> episodes = fetchEpisodeSet(emptyList(), input, sortOrder, locale, new HashMap<String, SearchResult>(), false, parent);
+			for (Episode it : episodes) {
+				matches.add(new Match<File, Episode>(null, it));
 			}
 		}
 		return matches;
