@@ -934,11 +934,13 @@ public class MediaDetection {
 		addUniqueQuerySet(exactMatches, normalize, Function.identity(), unique);
 
 		// remove blacklisted terms and remove duplicates
+		List<String> extra = stream(guessMatches).flatMap(Collection::stream).filter(t -> {
+			return !unique.containsKey(normalize.apply(t));
+		}).collect(toList());
+
 		Set<String> terms = new LinkedHashSet<String>();
-		for (Collection<String> it : guessMatches) {
-			terms.addAll(stripReleaseInfo(it, true));
-			terms.addAll(stripReleaseInfo(it, false));
-		}
+		terms.addAll(stripReleaseInfo(extra, true));
+		terms.addAll(stripReleaseInfo(extra, false));
 		addUniqueQuerySet(stripBlacklistedTerms(terms), normalize, normalize, unique);
 
 		return new ArrayList<String>(unique.values());
