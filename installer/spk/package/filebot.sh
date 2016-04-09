@@ -17,8 +17,13 @@ WORKING_DIR=`pwd`
 PRG_DIR=`dirname "$PRG"`
 APP_ROOT=`cd "$PRG_DIR" && pwd`
 
-# restore original working dir
-cd "$WORKING_DIR"
+# restore original working dir (which may be /root and yield permission denied)
+if [ -x "$WORKING_DIR" ]; then
+	cd "$WORKING_DIR"
+else
+	cd "/volume1"
+fi
+
 
 # make sure required environment variables are set
 if [ -z "$USER" ]; then
