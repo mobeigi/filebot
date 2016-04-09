@@ -224,7 +224,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		@Override
 		protected void configureSelectDialog(SelectDialog<SearchResult> selectDialog) {
 			super.configureSelectDialog(selectDialog);
-			selectDialog.getHeaderLabel().setText("Select a Show:");
+			selectDialog.getMessageLabel().setText("Select a Show:");
 		}
 
 	}

@@ -3,6 +3,7 @@ package net.filebot.ui.rename;
 import static java.util.Collections.*;
 import static java.util.Comparator.*;
 import static java.util.stream.Collectors.*;
+import static javax.swing.BorderFactory.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.Settings.*;
 import static net.filebot.WebServices.*;
@@ -35,6 +36,7 @@ import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 
 import javax.swing.Action;
+import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import net.filebot.Cache;
@@ -62,13 +64,13 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		return Cache.getCache("selection_" + provider.getName(), CacheType.Persistent).cast(SearchResult.class);
 	}
 
-	protected SearchResult selectSearchResult(List<File> files, String query, List<SearchResult> searchResults, Map<String, SearchResult> selectionMemory, boolean autodetection, Component parent) throws Exception {
-		if (searchResults.size() == 1) {
-			return searchResults.get(0);
+	protected SearchResult selectSearchResult(List<File> files, String query, List<SearchResult> options, Map<String, SearchResult> selectionMemory, boolean autodetection, Component parent) throws Exception {
+		if (options.size() == 1) {
+			return options.get(0);
 		}
 
 		// auto-select most probable search result
-		List<SearchResult> probableMatches = getProbableMatches(query, searchResults, true, true);
+		List<SearchResult> probableMatches = getProbableMatches(query, options, true, true);
 
 		// auto-select first and only probable search result
 		if (probableMatches.size() == 1) {
@@ -77,11 +79,14 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 
 		// show selection dialog on EDT
 		RunnableFuture<SearchResult> showSelectDialog = new FutureTask<SearchResult>(() -> {
+			JLabel header = new JLabel(getQueryInputMessage("Failed to identify some of the following files:", null, getFilesForQuery(files, query)));
+			header.setBorder(createCompoundBorder(createTitledBorder(""), createEmptyBorder(3, 3, 3, 3)));
+
 			// multiple results have been found, user must select one
-			SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(parent, searchResults, true, false);
+			SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(parent, options, true, false, header);
 			selectDialog.setTitle(provider.getName());
-			selectDialog.getHeaderLabel().setText(getQueryInputMessage(String.format("Select best match for \"<b>%s</b>\":", query), getFilesForQuery(files, query)));
-			selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
+			selectDialog.getMessageLabel().setText("<html>Select best match for \"<b>" + query + "</b>\":</html>");
+			selectDialog.getCancelAction().putValue(Action.NAME, "Skip");
 			selectDialog.pack();
 
 			// show dialog
@@ -137,9 +142,10 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			List<Future<List<Episode>>> tasks = querySet.stream().map(q -> {
 				return requestThreadPool.submit(() -> {
 					// select search result
-					List<SearchResult> results = provider.search(q, locale);
-					if (results.size() > 0) {
-						SearchResult selectedSearchResult = selectSearchResult(files, q, results, selectionMemory, autodetection, parent);
+					List<SearchResult> options = provider.search(q, locale);
+
+					if (options.size() > 0) {
+						SearchResult selectedSearchResult = selectSearchResult(files, q, options, selectionMemory, autodetection, parent);
 						if (selectedSearchResult != null) {
 							return provider.getEpisodeList(selectedSearchResult, sortOrder, locale);
 						}
@@ -237,7 +243,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 
 	public List<Match<File, ?>> matchEpisodeSet(List<File> files, Collection<String> queries, SortOrder sortOrder, boolean strict, Locale locale, boolean autodetection, Map<String, SearchResult> selectionMemory, Map<String, List<String>> inputMemory, Component parent) throws Exception {
-		Set<Episode> episodes = emptySet();
+		Collection<Episode> episodes = emptySet();
 
 		// detect series name and fetch episode list
 		if (autodetection) {
@@ -250,13 +256,12 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		// require user input if auto-detection has failed or has been disabled
 		if (episodes.isEmpty() && !strict) {
 			List<String> detectedSeriesNames = detectSeriesNames(files, anime, locale);
-			String parentPathHint = normalizePathSeparators(getRelativePathTail(files.get(0).getParentFile(), 2).getPath());
 			String suggestion = detectedSeriesNames.size() > 0 ? join(detectedSeriesNames, "; ") : normalizePunctuation(getName(files.get(0)));
 
 			synchronized (inputMemory) {
 				List<String> input = inputMemory.get(suggestion);
 				if (input == null || suggestion == null || suggestion.isEmpty()) {
-					input = showMultiValueInputDialog(getQueryInputMessage("Enter series name:", files), suggestion, parentPathHint, parent);
+					input = showMultiValueInputDialog(getQueryInputMessage("Please identify the following files:", "Enter series name:", files), suggestion, provider.getName(), parent);
 					inputMemory.put(suggestion, input);
 				}
 
@@ -292,14 +297,15 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		return selection.size() > 0 ? selection : files;
 	}
 
-	protected String getQueryInputMessage(String message, Collection<File> files) throws Exception {
+	protected String getQueryInputMessage(String header, String message, Collection<File> files) throws Exception {
 		List<File> selection = files.stream().sorted(comparing(File::length).reversed()).limit(5).collect(toList());
 
 		StringBuilder html = new StringBuilder(512);
 		html.append("<html>");
 		if (selection.size() > 0) {
-			html.append("Failed to identify some of the following files:").append("<br>");
-
+			if (header != null) {
+				html.append(header).append("<br>");
+			}
 			for (File file : sortByUniquePath(selection)) {
 				html.append("<nobr>");
 				html.append("• ");
@@ -313,14 +319,14 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 				html.append("</nobr>");
 				html.append("<br>");
 			}
-
 			if (selection.size() < files.size()) {
 				html.append("• ").append("…").append("<br>");
 			}
-
 			html.append("<br>");
 		}
-		html.append(message);
+		if (message != null) {
+			html.append(message);
+		}
 		html.append("</html>");
 		return html.toString();
 	}
@@ -331,7 +337,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		if (input.size() > 0) {
-			Set<Episode> episodes = fetchEpisodeSet(emptyList(), input, sortOrder, locale, new HashMap<String, SearchResult>(), false, parent);
+			Collection<Episode> episodes = fetchEpisodeSet(emptyList(), input, sortOrder, locale, new HashMap<String, SearchResult>(), false, parent);
 			for (Episode it : episodes) {
 				matches.add(new Match<File, Episode>(null, it));
 			}

@@ -31,17 +31,17 @@ import net.miginfocom.swing.MigLayout;
 
 public class SelectDialog<T> extends JDialog {
 
-	private JLabel headerLabel = new JLabel();
+	private JLabel messageLabel = new JLabel();
 	private JCheckBox autoRepeatCheckBox = new JCheckBox();
 
 	private JList<T> list;
 	private String command = null;
 
 	public SelectDialog(Component parent, Collection<? extends T> options) {
-		this(parent, options, false, false);
+		this(parent, options, false, false, null);
 	}
 
-	public SelectDialog(Component parent, Collection<? extends T> options, boolean autoRepeatEnabled, boolean autoRepeatSelected) {
+	public SelectDialog(Component parent, Collection<? extends T> options, boolean autoRepeatEnabled, boolean autoRepeatSelected, JComponent header) {
 		super(getWindow(parent), "Select", ModalityType.DOCUMENT_MODAL);
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -69,9 +69,12 @@ public class SelectDialog<T> extends JDialog {
 		list.addMouseListener(mouseListener);
 
 		JComponent c = (JComponent) getContentPane();
-		c.setLayout(new MigLayout("insets 1.5mm 1.5mm 2.7mm 1.5mm, nogrid, fill", "", "[pref!][fill][pref!]"));
+		c.setLayout(new MigLayout("insets 1.5mm 1.5mm 2.7mm 1.5mm, nogrid, fill", "", header == null ? "[pref!][fill][pref!]" : "[pref!][pref!][fill][pref!]"));
 
-		c.add(headerLabel, "wmin 150px, growx, wrap");
+		if (header != null) {
+			c.add(header, "wmin 150px, growx, wrap");
+		}
+		c.add(messageLabel, "wmin 150px, growx, wrap");
 		c.add(new JScrollPane(list), "wmin 150px, hmin 150px, grow, wrap 2mm");
 
 		c.add(new JButton(selectAction), "align center, id select");
@@ -122,8 +125,8 @@ public class SelectDialog<T> extends JDialog {
 		return html.toString();
 	}
 
-	public JLabel getHeaderLabel() {
-		return headerLabel;
+	public JLabel getMessageLabel() {
+		return messageLabel;
 	}
 
 	public JCheckBox getAutoRepeatCheckBox() {

@@ -3,6 +3,7 @@ package net.filebot.ui.rename;
 import static java.util.Collections.*;
 import static java.util.Comparator.*;
 import static java.util.stream.Collectors.*;
+import static javax.swing.BorderFactory.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.Settings.*;
@@ -38,6 +39,7 @@ import java.util.logging.Level;
 import java.util.prefs.Preferences;
 
 import javax.swing.Action;
+import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import net.filebot.similarity.Match;
@@ -229,7 +231,7 @@ class MovieMatcher implements AutoCompleteMatcher {
 
 				if (input == null || suggestion == null || suggestion.isEmpty()) {
 					File movieFolder = guessMovieFolder(movieFile);
-					input = showInputDialog(getQueryInputMessage("Enter movie name:", movieFile), suggestion != null && suggestion.length() > 0 ? suggestion : getName(movieFile), movieFolder == null ? movieFile.getName() : String.join(" / ", movieFolder.getName(), movieFile.getName()), parent);
+					input = showInputDialog(getQueryInputMessage("Please identify the following files:", "Enter movie name:", movieFile), suggestion != null && suggestion.length() > 0 ? suggestion : getName(movieFile), movieFolder == null ? movieFile.getName() : String.join(" / ", movieFolder.getName(), movieFile.getName()), parent);
 					inputMemory.put(suggestion, input);
 				}
 
@@ -245,10 +247,12 @@ class MovieMatcher implements AutoCompleteMatcher {
 		return options.isEmpty() ? null : selectMovie(movieFile, strict, null, options, autoSelectionMode, selectionMemory, parent);
 	}
 
-	protected String getQueryInputMessage(String message, File file) throws Exception {
+	protected String getQueryInputMessage(String header, String message, File file) throws Exception {
 		StringBuilder html = new StringBuilder(512);
 		html.append("<html>");
-		html.append("Failed to identify some of the following files:").append("<br>");
+		if (header != null) {
+			html.append(header).append("<br>");
+		}
 
 		html.append("<nobr>");
 		html.append("• ");
@@ -263,7 +267,9 @@ class MovieMatcher implements AutoCompleteMatcher {
 		html.append("<br>");
 
 		html.append("<br>");
-		html.append(message);
+		if (message != null) {
+			html.append(message);
+		}
 		html.append("</html>");
 		return html.toString();
 	}
@@ -342,12 +348,16 @@ class MovieMatcher implements AutoCompleteMatcher {
 
 		// show selection dialog on EDT
 		RunnableFuture<Movie> showSelectDialog = new FutureTask<Movie>(() -> {
+			String query = fileQuery.length() >= 2 || folderQuery.length() <= 2 ? fileQuery : folderQuery;
+			JLabel header = new JLabel(getQueryInputMessage("Failed to identify some of the following files:", null, movieFile));
+			header.setBorder(createCompoundBorder(createTitledBorder(""), createEmptyBorder(3, 3, 3, 3)));
+
 			// multiple results have been found, user must select one
-			SelectDialog<Movie> selectDialog = new SelectDialog<Movie>(parent, options, true, false);
+			SelectDialog<Movie> selectDialog = new SelectDialog<Movie>(parent, options, true, false, header);
 
 			selectDialog.setTitle(service.getName());
-			selectDialog.getHeaderLabel().setText(getQueryInputMessage(String.format("Select best match for \"<b>%s</b>\":", fileQuery.length() >= 2 || folderQuery.length() <= 2 ? fileQuery : folderQuery), movieFile));
-			selectDialog.getCancelAction().putValue(Action.NAME, AutoSelection.Skip.toString());
+			selectDialog.getMessageLabel().setText("<html>Select best match for \"<b>" + query + "</b>\":</html>");
+			selectDialog.getCancelAction().putValue(Action.NAME, "Skip");
 			selectDialog.pack();
 
 			// show dialog
