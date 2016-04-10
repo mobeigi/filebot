@@ -6,9 +6,6 @@ redirect 302 /manual.html https://www.filebot.net/forums/viewtopic.php?f=3&t=7#p
 RewriteEngine on
 
 RewriteCond %{HTTP_HOST} =filebot.net [NC]
-RewriteRule ^scripts\/(.*)$ https://github.com/filebot/scripts/blob/devel/$1 [R=301,L]
-
-RewriteCond %{HTTP_HOST} =filebot.net [NC]
 RewriteRule ^(.*)$ http://www.filebot.net/$1 [R=301,L]
 
 RewriteCond %{HTTP_HOST} =filebot.sourceforge.net [NC]
