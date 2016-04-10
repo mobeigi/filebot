@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
@@ -90,7 +89,7 @@ public class TMDbTVClient extends AbstractEpisodeListProvider {
 				return null;
 			}
 
-			Set<String> alternativeTitles = tmdb.getAlternativeTitles("tv/" + id, "results", name, originalName, extendedInfo);
+			String[] alternativeTitles = tmdb.getAlternativeTitles("tv/" + id, "results", name, originalName, extendedInfo);
 
 			return new SearchResult(id, name, alternativeTitles);
 		}).filter(Objects::nonNull).collect(toList());

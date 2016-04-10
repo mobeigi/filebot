@@ -107,13 +107,13 @@ public class TMDbClient implements MovieIdentificationService {
 				title = originalTitle;
 			}
 
-			Set<String> alternativeTitles = getAlternativeTitles("movie/" + id, "titles", title, originalTitle, extendedInfo);
+			String[] alternativeTitles = getAlternativeTitles("movie/" + id, "titles", title, originalTitle, extendedInfo);
 
-			return new Movie(title, alternativeTitles.toArray(new String[0]), year, -1, id, locale);
+			return new Movie(title, alternativeTitles, year, -1, id, locale);
 		}).filter(Objects::nonNull).collect(toList());
 	}
 
-	protected Set<String> getAlternativeTitles(String path, String key, String title, String originalTitle, boolean extendedInfo) {
+	protected String[] getAlternativeTitles(String path, String key, String title, String originalTitle, boolean extendedInfo) {
 		Set<String> alternativeTitles = new LinkedHashSet<String>();
 		if (originalTitle != null) {
 			alternativeTitles.add(originalTitle);
@@ -133,7 +133,7 @@ public class TMDbClient implements MovieIdentificationService {
 		// make sure main title is not in the set of alternative titles
 		alternativeTitles.remove(title);
 
-		return alternativeTitles;
+		return alternativeTitles.toArray(new String[0]);
 	}
 
 	public URI getMoviePageLink(int tmdbid) {
