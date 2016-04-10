@@ -14,7 +14,7 @@ fetch()
 			gunzip -k -f "$FILE"
 		fi
 		if [[ "${FILE##*.}" == "zip" ]]; then
-			unzip -o "$FILE"
+			7z e -y "$FILE"
 		fi
 	fi
 }
