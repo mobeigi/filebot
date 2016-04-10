@@ -19,8 +19,16 @@ class OriginalOrder<T> implements Comparator<T> {
 	}
 
 	@Override
-	public int compare(T a, T b) {
-		return index.get(a).compareTo(index.get(b));
+	public int compare(T o1, T o2) {
+		Integer a = index.get(o1);
+		Integer b = index.get(o2);
+
+		if (a == null)
+			return b == null ? 0 : 1;
+		if (b == null)
+			return -1;
+
+		return a.compareTo(b);
 	}
 
 }
