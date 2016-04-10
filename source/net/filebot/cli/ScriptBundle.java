@@ -2,6 +2,7 @@ package net.filebot.cli;
 
 import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
+import static java.util.stream.Collectors.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
@@ -10,6 +11,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -50,6 +52,12 @@ public class ScriptBundle implements ScriptProvider {
 
 		// script does not exist
 		throw new FileNotFoundException("Script not found: " + name);
+	}
+
+	public Map<String, String> getManifest() throws Exception {
+		try (JarInputStream jar = new JarInputStream(new ByteArrayInputStream(bundle.get()), true)) {
+			return jar.getManifest().getMainAttributes().entrySet().stream().collect(toMap(it -> it.getKey().toString(), it -> it.getValue().toString()));
+		}
 	}
 
 }
