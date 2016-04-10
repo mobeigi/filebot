@@ -248,7 +248,11 @@ tvdb_updates.values().each{ update ->
 					}
 
 					// scrape extra alias titles from webpage (not supported yet by API)
-					def jsoup = org.jsoup.Jsoup.connect("http://thetvdb.com/?tab=series&id=${update.id}").get()
+					def html = Cache.getCache('thetvdb_series_page', CacheType.Persistent).text(update.id) { 
+						return new URL("http://thetvdb.com/?tab=series&id=${it}")
+					}.expire(Cache.ONE_MONTH).get()
+
+					def jsoup = org.jsoup.Jsoup.parse(html)
 					def akaseries = jsoup.select('#akaseries table tr table tr')
 												.findAll{ it.select('td').any{ it.text() ==~ /en/ } }
 												.findResults{ it.select('td').first().text() }
