@@ -83,7 +83,6 @@ public class SelectDialog<T> extends JDialog {
 		// add repeat button
 		if (autoRepeatEnabled) {
 			autoRepeatCheckBox.setSelected(autoRepeatSelected);
-			autoRepeatCheckBox.setToolTipText("Remember");
 			autoRepeatCheckBox.setCursor(getPredefinedCursor(HAND_CURSOR));
 			autoRepeatCheckBox.setIcon(ResourceManager.getIcon("button.repeat"));
 			autoRepeatCheckBox.setSelectedIcon(ResourceManager.getIcon("button.repeat.selected"));

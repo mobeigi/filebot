@@ -2,6 +2,7 @@
 package net.filebot.ui.rename;
 
 import static java.util.Collections.*;
+import static java.util.Comparator.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
@@ -50,10 +51,10 @@ class AutoDetectMatcher implements AutoCompleteMatcher {
 				try {
 					return it.getValue().get().stream();
 				} catch (Exception e) {
-					log.log(Level.WARNING, "Failed to process group: " + it.getKey(), e);
+					log.log(Level.WARNING, "Failed group: " + it.getKey(), e);
+					return Stream.empty();
 				}
-				return Stream.empty();
-			}).collect(toList());
+			}).sorted(comparing(Match::getValue, new OriginalOrder<File>(files))).collect(toList());
 		} finally {
 			workerThreadPool.shutdownNow();
 		}
