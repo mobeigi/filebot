@@ -5,6 +5,7 @@ import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.CachedResource.*;
 import static net.filebot.Logging.*;
+import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.JsonUtilities.*;
 import static net.filebot.util.StringUtilities.*;
 import static net.filebot.web.WebRequest.*;
@@ -602,11 +603,11 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 
 		public String get(Object key) {
-			return fields.get(PersonProperty.valueOf(key.toString()));
+			return get(PersonProperty.valueOf(key.toString()));
 		}
 
 		public String get(PersonProperty key) {
-			return fields.get(key);
+			return replaceSpace(fields.get(key), " ").trim();
 		}
 
 		public String getName() {
