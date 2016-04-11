@@ -1,5 +1,5 @@
 <?php
-$version = isset($_GET['version']) ? $_GET['version'] : '@{version}'; // default version is hard-coded via deployment script
+$version = isset($_GET['version']) ? $_GET['version'] : '@{version}';	// default version is hard-coded via deployment script
 $arch = $_GET['arch'];
 $type = $_GET['type'];
 
@@ -23,6 +23,8 @@ if ($type == 'nsis') {
 	$file = 'FileBot_'.$version.'-portable.zip';
 } else if ($type == 'ipkg') {
 	$file = 'filebot_'.$version.'_noarch.ipk';
+} else {
+	$folder = 'https://sourceforge.net/projects/filebot/files/filebot/FileBot_'.$version.'/';	// redirect to latest release folder by default
 }
 
 header('HTTP/1.1 302 Found');
