@@ -105,16 +105,21 @@ Section MAIN
 	${endif}
 
 	DetailPrint "Installing latest version..."
-	nsExec::Exec `msiexec.exe /passive /norestart /i "$PLUGINSDIR\FileBot.msi"`
+	nsExec::Exec `msiexec /passive /norestart /i "$PLUGINSDIR\FileBot.msi"`
 	Pop $MSI_STATUS # grab return value
 
 	${if} $MSI_STATUS == "0"
 		DetailPrint "Optimizing..."
-		nsExec::ExecToLog `"C:\Program Files\FileBot\filebot.exe" -script "g:println net.filebot.Settings.getApplicationIdentifier(); println 'JRE: ' + Settings.getJavaRuntimeIdentifier(); println String.format('JVM: %d-bit %s', com.sun.jna.Platform.is64Bit() ? 64 : 32, System.getProperty('java.vm.name')); java.util.prefs.Preferences.userRoot(); net.filebot.CacheManager.getInstance().clearAll(); net.filebot.media.MediaDetection.warmupCachedResources();" --log OFF`
+		nsExec::ExecToLog `"C:\Program Files\FileBot\filebot.exe" -script "g:println Settings.applicationIdentifier; println 'JRE: '+Settings.javaRuntimeIdentifier; println 'JVM: '+(com.sun.jna.Platform.is64Bit() ? 64 : 32)+'-bit '+System.getProperty('java.vm.name'); java.util.prefs.Preferences.userRoot(); CacheManager.getInstance().clearAll(); MediaDetection.warmupCachedResources();" --log OFF`
 		DetailPrint "Done."
 	${else}
 		DetailPrint "msiexec error $MSI_STATUS"
-		DetailPrint "Installation failed. Please download the .msi package manually."
+		${if} ${RunningX64}
+			DetailPrint "Installation failed. Please download the x64 msi package yourself."
+		${else}
+			DetailPrint "Installation failed. Please download the x86 msi package yourself."
+		${endif}
+		nsExec::Exec `cmd /c start https://app.filebot.net/download.php?type=folder`
 		Abort
 	${endif}
 SectionEnd
