@@ -43,7 +43,7 @@ public class ArgumentProcessor {
 		}
 
 		// script failed with exception -> exit with non-zero exit code (and use positive code to avoid issues with launch4j launcher)
-		log.finest("Failure (°_°)");
+		log.finest("Failure (°_°)" + System.lineSeparator());
 		return 1;
 	}
 
