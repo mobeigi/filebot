@@ -582,7 +582,7 @@ public class TMDbClient implements MovieIdentificationService {
 	public static class Person implements Serializable {
 
 		public static enum PersonProperty {
-			name, character, job
+			name, character, job, department
 		}
 
 		protected Map<PersonProperty, String> fields;
@@ -621,6 +621,10 @@ public class TMDbClient implements MovieIdentificationService {
 
 		public String getJob() {
 			return get(PersonProperty.job);
+		}
+
+		public String getDepartment() {
+			return get(PersonProperty.department);
 		}
 
 		public boolean isActor() {
