@@ -607,7 +607,8 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 
 		public String get(PersonProperty key) {
-			return replaceSpace(fields.get(key), " ").trim();
+			// replace null with empty string and normalize spaces
+			return replaceSpace(Objects.toString(fields.get(key), ""), " ").trim();
 		}
 
 		public String getName() {
