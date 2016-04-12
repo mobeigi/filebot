@@ -51,6 +51,20 @@ public final class Logging {
 		return () -> String.format(format, args);
 	}
 
+	public static Supplier<String> trace(Throwable t) {
+		return () -> {
+			StringBuilder s = new StringBuilder();
+			s.append(t.getClass().getSimpleName()).append(": ");
+			s.append(t.getMessage());
+
+			StackTraceElement[] trace = StackTraceUtils.sanitizeRootCause(t).getStackTrace();
+			if (trace != null && trace.length > 0) {
+				s.append(" at ").append(trace[0]);
+			}
+			return s.toString();
+		};
+	}
+
 	public static class ConsoleHandler extends Handler {
 
 		@Override

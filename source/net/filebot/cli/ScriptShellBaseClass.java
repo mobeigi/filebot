@@ -30,7 +30,6 @@ import java.util.logging.Logger;
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
 
-import org.codehaus.groovy.runtime.StackTraceUtils;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 
 import com.sun.jna.Platform;
@@ -137,10 +136,18 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public void printException(Throwable t, boolean severe) {
+		Level level = severe ? Level.SEVERE : Level.WARNING;
+
+		// print full stacktrace in debug mode
+		if (debug.isLoggable(level)) {
+			debug.log(level, t, t::getMessage);
+			return;
+		}
+
 		if (severe) {
-			log.log(Level.SEVERE, String.format("%s: %s", t.getClass().getSimpleName(), t.getMessage()), StackTraceUtils.deepSanitize(t));
+			log.log(level, trace(t));
 		} else {
-			log.log(Level.WARNING, String.format("%s: %s", t.getClass().getSimpleName(), t.getMessage()));
+			log.log(level, t, t::getMessage);
 		}
 	}
 
