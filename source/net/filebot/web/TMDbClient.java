@@ -628,7 +628,7 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 
 		public boolean isActor() {
-			return getJob() == null;
+			return fields.containsKey(PersonProperty.character);
 		}
 
 		public boolean isDirector() {
