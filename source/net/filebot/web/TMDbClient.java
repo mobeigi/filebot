@@ -300,9 +300,9 @@ public class TMDbClient implements MovieIdentificationService {
 		String cacheName = locale.getLanguage().isEmpty() ? getName() : getName() + "_" + locale;
 
 		Cache etagStorage = Cache.getCache(cacheName + "_etag", CacheType.Monthly);
-		Fetch fetchIfNoneMatch = fetchIfNoneMatch(url -> etagStorage.get(key), (url, etag) -> etagStorage.put(key, etag));
-
 		Cache cache = Cache.getCache(cacheName, CacheType.Monthly);
+
+		Fetch fetchIfNoneMatch = fetchIfNoneMatch(url -> cache.get(key) == null ? null : etagStorage.get(key), (url, etag) -> etagStorage.put(key, etag));
 		Object json = cache.json(key, s -> getResource(s, locale)).fetch(withPermit(fetchIfNoneMatch, r -> limit.acquirePermit())).expire(Cache.ONE_WEEK).get();
 
 		if (asMap(json).isEmpty()) {
