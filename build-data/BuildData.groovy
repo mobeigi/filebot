@@ -291,6 +291,8 @@ tvdb.keySet().toList().each{ id ->
 }
 tvdb.values().findResults{ it.collect{ it.toString().replace('\t', '').trim() }.join('\t') }.join('\n').saveAs(tvdb_txt)
 
+// additional custom mappings
+def extraAliasNames = csv("${dir_data}/add-series-alias.txt")
 
 def thetvdb_index = []
 tvdb.values().each{ r ->
@@ -299,18 +301,17 @@ tvdb.values().each{ r ->
 	def votes = r[4]
 	def names = r.subList(5, r.size())
 
-	if ((votes >= 5 && rating >= 4) || (votes >= 2 && rating >= 6) || (votes >= 1 && rating >= 10)) {
+	def alias = extraAliasNames[names[0]]
+	if (alias) {
+		log.fine "Add alias ${names[0]} => ${alias}"
+		names += alias
+	}
+
+	if (alias !=null || (votes >= 5 && rating >= 4) || (votes >= 2 && rating >= 6) || (votes >= 1 && rating >= 10)) {
 		getNamePermutations(names).each{ n ->
 			thetvdb_index << [tvdb_id, n]
 		}
 	}
-}
-
-// additional custom mappings
-new File("${dir_data}/add-series-alias.txt").splitEachLine(/\t+/, 'UTF-8') { row ->
-	def se = thetvdb_index.find{ row[0] == it[1] && !it.contains(row[1]) }
-	if (se == null) die("Unabled to find series '${row[0]}': '${row[1]}'")
-	thetvdb_index << [se[0], row[1]]
 }
 
 thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/\s+/, ' ').trim()] }.findAll{ !(it[1] =~ /(?i:duplicate|Series.Not.Permitted)/ || it[1] =~ /\d{6,}/ || it[1].startsWith('*') || it[1].endsWith('*') || it[1].length() < 2) }
@@ -378,8 +379,8 @@ pack(osdb_out, osdb*.join('\t'))
 
 
 // BUILD anidb index
-def anidb = new AnidbClient('filebot', 6).getAnimeTitles()
-def animeExcludes = new HashSet()
+def anidb = new AnidbClient('filebot', 6).getAnimeTitles() as List
+def animeExcludes = [] as Set
 
 // exclude anime movies from anime index
 new File('anime-list.xml').eachLine('UTF-8') {
