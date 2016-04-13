@@ -7,6 +7,7 @@ import static java.util.Collections.*;
 import static java.util.ResourceBundle.*;
 import static java.util.regex.Pattern.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.Settings.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.RegularExpressions.*;
@@ -44,6 +45,7 @@ import org.tukaani.xz.XZInputStream;
 import net.filebot.Cache;
 import net.filebot.CacheType;
 import net.filebot.Resource;
+import net.filebot.Settings.ApplicationFolder;
 import net.filebot.util.FileUtilities.RegexFileFilter;
 import net.filebot.util.SystemProperty;
 import net.filebot.web.Movie;
@@ -219,28 +221,32 @@ public class ReleaseInfo {
 			Set<File> volumes = new HashSet<File>();
 
 			// user root folder
-			volumes.add(new File(System.getProperty("user.home")));
+			volumes.add(ApplicationFolder.UserHome.get());
 
 			// Windows / Linux / Mac system roots
 			volumes.addAll(getFileSystemRoots());
 
+			// Linux / Mac
 			if (File.separator.equals("/")) {
 				// Linux and Mac system root folders
-				for (File root : getFileSystemRoots()) {
-					volumes.addAll(getChildren(root, FOLDERS));
+				for (File userFolder : volumes.toArray(new File[0])) {
+					volumes.addAll(getChildren(userFolder, FOLDERS));
 				}
-
-				// user-specific media roots
-				String username = System.getProperty("user.name", "anonymous");
 
 				for (File mediaRoot : getMediaRoots()) {
 					volumes.addAll(getChildren(mediaRoot, FOLDERS));
 					volumes.add(mediaRoot);
+				}
+			}
 
-					// add additional user roots if user.home is not set properly or listFiles doesn't work
-					File userRoot = new File(mediaRoot, username);
-					volumes.add(userRoot);
-					volumes.add(new File(userRoot, "Movies")); // ignore default Movie folder on Mac
+			// Mac
+			if (isMacSandbox()) {
+				File realUserHome = ApplicationFolder.UserHome.get();
+				File sandboxUserHome = new File(System.getProperty("user.home"));
+
+				// e.g. ignore default Movie folder on Mac
+				for (File userFolder : getChildren(sandboxUserHome, FOLDERS)) {
+					volumes.add(new File(realUserHome, userFolder.getName()));
 				}
 			}
 
