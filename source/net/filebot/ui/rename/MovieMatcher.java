@@ -256,17 +256,12 @@ class MovieMatcher implements AutoCompleteMatcher {
 			html.append(escapeHTML(header)).append("<br>");
 		}
 
-		html.append("<nobr>");
-		html.append("• ");
-
 		File path = getStructurePathTail(file);
 		if (path == null) {
 			path = getRelativePathTail(file, 3);
 		}
-
-		new TextColorizer().colorizePath(html, path, file.isFile());
-		html.append("</nobr>");
-		html.append("<br>");
+		TextColorizer colorizer = new TextColorizer("<nobr>• ", "</nobr><br>");
+		colorizer.colorizePath(html, path, file.isFile());
 
 		html.append("<br>");
 		if (message != null) {

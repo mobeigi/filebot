@@ -305,18 +305,14 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			if (header != null) {
 				html.append(escapeHTML(header)).append("<br>");
 			}
-			for (File file : sortByUniquePath(selection)) {
-				html.append("<nobr>");
-				html.append("• ");
 
+			TextColorizer colorizer = new TextColorizer("<nobr>• ", "</nobr><br>");
+			for (File file : sortByUniquePath(selection)) {
 				File path = getStructurePathTail(file);
 				if (path == null) {
 					path = getRelativePathTail(file, 3);
 				}
-
-				new TextColorizer().colorizePath(html, path, true);
-				html.append("</nobr>");
-				html.append("<br>");
+				colorizer.colorizePath(html, path, true);
 			}
 			if (selection.size() < files.size()) {
 				html.append("• ").append("…").append("<br>");

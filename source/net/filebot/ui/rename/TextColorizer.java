@@ -14,19 +14,29 @@ public class TextColorizer {
 	private Color pathRainbowBeginColor;
 	private Color pathRainbowEndColor;
 
+	private String before;
+	private String after;
+
 	public TextColorizer() {
-		this(new Color(0xCC3300), new Color(0x008080));
+		this("<html><nobr>", "</nobr></html>");
 	}
 
-	public TextColorizer(Color pathRainbowBeginColor, Color pathRainbowEndColor) {
+	public TextColorizer(String before, String after) {
+		this(before, after, new Color(0xCC3300), new Color(0x008080));
+	}
+
+	public TextColorizer(String before, String after, Color pathRainbowBeginColor, Color pathRainbowEndColor) {
+		this.before = before;
+		this.after = after;
 		this.pathRainbowBeginColor = pathRainbowBeginColor;
 		this.pathRainbowEndColor = pathRainbowEndColor;
 	}
 
 	public StringBuilder colorizePath(StringBuilder html, File file, boolean hasExtension) {
-		List<File> path = listPath(file);
+		html.append(before);
 
 		// colorize parent path
+		List<File> path = listPath(file);
 		for (int i = 0; i < path.size() - 1; i++) {
 			float f = (path.size() <= 2) ? 1 : (float) i / (path.size() - 2);
 			Color c = interpolateHSB(pathRainbowBeginColor, pathRainbowEndColor, f);
@@ -44,7 +54,7 @@ public class TextColorizer {
 			html.append(file.getName());
 		}
 
-		return html;
+		return html.append(after);
 	}
 
 }
