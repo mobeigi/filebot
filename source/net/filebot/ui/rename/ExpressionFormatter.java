@@ -1,8 +1,12 @@
 package net.filebot.ui.rename;
 
+import static net.filebot.Logging.*;
+import static net.filebot.media.MediaDetection.*;
+
 import java.io.File;
 import java.text.Format;
 import java.util.Map;
+import java.util.logging.Level;
 
 import javax.script.ScriptException;
 
@@ -25,7 +29,6 @@ class ExpressionFormatter implements MatchFormatter {
 		this.expression = expression;
 		this.preview = preview;
 		this.target = target;
-
 	}
 
 	@Override
@@ -48,14 +51,39 @@ class ExpressionFormatter implements MatchFormatter {
 
 		// evaluate the expression using the given bindings
 		Object bindingBean = new MediaBindingBean(match.getValue(), (File) match.getCandidate(), (Map) context);
-		String result = format.format(bindingBean).trim();
+		String destination = format.format(bindingBean).trim();
 
 		// if result is empty, check for script exceptions
-		if (result.isEmpty() && format.caughtScriptException() != null) {
+		if (destination.isEmpty() && format.caughtScriptException() != null) {
 			throw format.caughtScriptException();
 		}
 
-		return result;
+		return getPath((File) match.getCandidate(), destination);
+	}
+
+	private String getPath(File source, String destination) {
+		if (source == null) {
+			return destination;
+		}
+
+		// resolve against parent folder
+		File parent = new File(destination).getParentFile();
+		if (parent == null || parent.isAbsolute() || parent.getPath().startsWith(".")) {
+			return destination;
+		}
+
+		// try to resolve against structure root folder by default
+		try {
+			File structureRoot = getStructureRoot(source);
+			if (structureRoot != null) {
+				return new File(structureRoot, destination).getPath();
+			}
+		} catch (Exception e) {
+			debug.log(Level.SEVERE, "Failed to resolve structure root: " + source, e);
+		}
+
+		// resolve against parent folder by default
+		return destination;
 	}
 
 }
