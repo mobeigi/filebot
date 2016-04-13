@@ -2,6 +2,7 @@ package net.filebot.ui.rename;
 
 import static net.filebot.Logging.*;
 import static net.filebot.media.MediaDetection.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.text.Format;
@@ -75,8 +76,13 @@ class ExpressionFormatter implements MatchFormatter {
 		// try to resolve against structure root folder by default
 		try {
 			File structureRoot = getStructureRoot(source);
-			if (structureRoot != null) {
-				return new File(structureRoot, destination).getPath();
+			File destinationRoot = listPath(parent).get(0);
+			while (structureRoot != null) {
+				// try to merge overlapping path sections
+				if (!structureRoot.getName().equals(destinationRoot.getName())) {
+					return new File(structureRoot, destination).getPath();
+				}
+				structureRoot = structureRoot.getParentFile();
 			}
 		} catch (Exception e) {
 			debug.log(Level.SEVERE, "Failed to resolve structure root: " + source, e);

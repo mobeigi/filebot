@@ -35,6 +35,7 @@ import net.miginfocom.swing.MigLayout;
 class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 
 	private RenameModel renameModel;
+	private String home;
 
 	private TypeRenderer typeRenderer = new TypeRenderer();
 
@@ -46,12 +47,13 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 
 	private TextColorizer textColorizer = new TextColorizer();
 
-	public RenameListCellRenderer(RenameModel renameModel) {
+	public RenameListCellRenderer(RenameModel renameModel, File home) {
 		super(new Insets(4, 7, 4, 7));
 
 		this.renameModel = renameModel;
-		setHighlightingEnabled(false);
+		this.home = home.getPath();
 
+		setHighlightingEnabled(false);
 		setLayout(new MigLayout("insets 0, fill", "align left", "align center"));
 		this.add(typeRenderer, "gap rel:push, hidemode 3");
 	}
@@ -169,14 +171,15 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	}
 
 	protected String formatPath(File file) {
+		if (file.getPath().startsWith(home)) {
+			return "~" + normalizePathSeparators(file.getPath().substring(home.length()));
+		}
 		return normalizePathSeparators(file.getPath());
 	}
 
 	protected String colorizePath(File file, boolean hasExtension) {
-		StringBuilder html = new StringBuilder(512);
-		html.append("<html><nobr>");
-		textColorizer.colorizePath(html, file, hasExtension);
-		html.append("</nobr></html>");
+		StringBuilder html = new StringBuilder(256);
+		textColorizer.colorizePath(html, new File(formatPath(file)), hasExtension);
 		return html.toString();
 	}
 
@@ -185,7 +188,6 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		if (!f.isAbsolute()) {
 			f = new File(targetDir, f.getPath()); // resolve path against target folder
 		}
-
 		return f.getAbsoluteFile();
 	}
 
