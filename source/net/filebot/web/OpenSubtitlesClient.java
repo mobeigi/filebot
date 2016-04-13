@@ -5,6 +5,7 @@ import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.JsonUtilities.*;
 import static net.filebot.web.OpenSubtitlesHasher.*;
 
 import java.io.File;
@@ -220,6 +221,14 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 					return Query.forHash(hash, f.length(), getLanguageFilter(language));
 				} catch (Exception e) {
 					debug.log(Level.SEVERE, "Failed to compute hash", e);
+				}
+			} else {
+				// debug dummy files, e.g. {hash: 1ed67c43e4a3b09f, size: 992272721}
+				try {
+					Map<?, ?> json = asMap(readJson(readTextFile(f)));
+					return Query.forHash(json.get("hash").toString(), Long.parseLong(json.get("size").toString()), getLanguageFilter(language));
+				} catch (Exception e) {
+					debug.finest(e::toString);
 				}
 			}
 			return null;
