@@ -76,13 +76,13 @@ class ExpressionFormatter implements MatchFormatter {
 		// try to resolve against structure root folder by default
 		try {
 			File structureRoot = getStructureRoot(source);
-			File destinationRoot = listPath(parent).get(0);
-			while (structureRoot != null) {
-				// try to merge overlapping path sections
-				if (!structureRoot.getName().equals(destinationRoot.getName())) {
-					return new File(structureRoot, destination).getPath();
+			if (structureRoot != null) {
+				for (File f : listPath(parent)) {
+					if (isStructureRoot(f)) {
+						structureRoot = structureRoot.getParentFile();
+					}
 				}
-				structureRoot = structureRoot.getParentFile();
+				return new File(structureRoot, destination).getPath();
 			}
 		} catch (Exception e) {
 			debug.log(Level.SEVERE, "Failed to resolve structure root: " + source, e);
