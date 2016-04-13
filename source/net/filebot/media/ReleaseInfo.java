@@ -220,17 +220,21 @@ public class ReleaseInfo {
 		if (volumeRoots == null) {
 			Set<File> volumes = new HashSet<File>();
 
+			File userHome = ApplicationFolder.UserHome.get();
+			List<File> roots = getFileSystemRoots();
+
 			// user root folder
-			volumes.add(ApplicationFolder.UserHome.get());
+			volumes.add(userHome);
+			volumes.addAll(getChildren(userHome, FOLDERS));
 
 			// Windows / Linux / Mac system roots
-			volumes.addAll(getFileSystemRoots());
+			volumes.addAll(roots);
 
 			// Linux / Mac
 			if (File.separator.equals("/")) {
 				// Linux and Mac system root folders
-				for (File userFolder : volumes.toArray(new File[0])) {
-					volumes.addAll(getChildren(userFolder, FOLDERS));
+				for (File root : roots) {
+					volumes.addAll(getChildren(root, FOLDERS));
 				}
 
 				for (File mediaRoot : getMediaRoots()) {
@@ -241,12 +245,11 @@ public class ReleaseInfo {
 
 			// Mac
 			if (isMacSandbox()) {
-				File realUserHome = ApplicationFolder.UserHome.get();
 				File sandboxUserHome = new File(System.getProperty("user.home"));
 
 				// e.g. ignore default Movie folder on Mac
 				for (File userFolder : getChildren(sandboxUserHome, FOLDERS)) {
-					volumes.add(new File(realUserHome, userFolder.getName()));
+					volumes.add(new File(userHome, userFolder.getName()));
 				}
 			}
 

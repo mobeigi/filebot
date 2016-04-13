@@ -1,9 +1,11 @@
 package net.filebot.ui.rename;
 
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static javax.swing.JOptionPane.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
+import static net.filebot.media.MediaDetection.*;
 import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
@@ -16,12 +18,14 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.AbstractList;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -116,18 +120,12 @@ class RenameAction extends AbstractAction {
 				}
 			}
 
-			// write metadata into xattr if xattr is enabled
-			if (useExtendedFileAttributes() || useCreationDate()) {
-				for (Match<Object, File> match : matches) {
-					File file = match.getCandidate();
-					Object meta = match.getValue();
-					if (renameMap.containsKey(file) && meta != null) {
-						File destination = resolve(file, renameMap.get(file));
-						if (destination.isFile()) {
-							xattr.setMetaInfo(destination, meta, file.getName());
-						}
-					}
-				}
+			// store xattr
+			storeMetaInfo(renameMap, matches);
+
+			// delete empty folders
+			if (action == StandardRenameAction.MOVE) {
+				deleteEmptyFolders(renameMap);
 			}
 		} catch (ExecutionException e) {
 			// ignore, handled in rename worker
@@ -136,6 +134,52 @@ class RenameAction extends AbstractAction {
 		}
 
 		window.setCursor(Cursor.getDefaultCursor());
+	}
+
+	private void storeMetaInfo(Map<File, File> renameMap, List<Match<Object, File>> matches) {
+		// write metadata into xattr if xattr is enabled
+		for (Match<Object, File> match : matches) {
+			File file = match.getCandidate();
+			Object meta = match.getValue();
+			if (renameMap.containsKey(file) && meta != null) {
+				File destination = resolve(file, renameMap.get(file));
+				if (destination.isFile()) {
+					xattr.setMetaInfo(destination, meta, file.getName());
+				}
+			}
+		}
+	}
+
+	private void deleteEmptyFolders(Map<File, File> renameMap) {
+		// collect newly empty folders
+		Set<File> deleteSet = new LinkedHashSet<File>();
+
+		renameMap.forEach((s, d) -> {
+			File sourceFolder = s.getParentFile();
+			File destinationFolder = resolve(s, d).getParentFile();
+
+			if (!destinationFolder.getPath().startsWith(sourceFolder.getPath())) {
+				int relativePathSize = listPath(d).size() - 1;
+				for (int i = 0; i < relativePathSize && sourceFolder != null && !isVolumeRoot(sourceFolder); sourceFolder = sourceFolder.getParentFile(), i++) {
+					File[] children = sourceFolder.listFiles();
+					if (children == null || !stream(children).allMatch(f -> f.isHidden() || deleteSet.contains(f))) {
+						return;
+					}
+
+					stream(children).forEach(deleteSet::add);
+					deleteSet.add(sourceFolder);
+				}
+			}
+		});
+
+		for (File f : deleteSet) {
+			try {
+				debug.finest(format("Delete empty folder: %s", f));
+				Files.delete(f.toPath());
+			} catch (Exception e) {
+				debug.warning(e::toString);
+			}
+		}
 	}
 
 	public boolean isNativeActionSupported(StandardRenameAction action) {
@@ -337,7 +381,7 @@ class RenameAction extends AbstractAction {
 			}
 
 			// collect renamed types
-			final List<Class<?>> types = new ArrayList<Class<?>>();
+			List<Class<?>> types = new ArrayList<Class<?>>();
 
 			// remove renamed matches
 			for (File source : renameLog.keySet()) {
