@@ -122,7 +122,7 @@ class RenameAction extends AbstractAction {
 					File file = match.getCandidate();
 					Object meta = match.getValue();
 					if (renameMap.containsKey(file) && meta != null) {
-						File destination = resolveDestination(file, renameMap.get(file), false);
+						File destination = resolve(file, renameMap.get(file));
 						if (destination.isFile()) {
 							xattr.setMetaInfo(destination, meta, file.getName());
 						}
@@ -149,7 +149,7 @@ class RenameAction extends AbstractAction {
 	private Map<File, File> checkRenamePlan(List<Entry<File, File>> renamePlan, Window parent) throws IOException {
 		// ask for user permissions to output paths
 		if (isMacSandbox()) {
-			if (!MacAppUtilities.askUnlockFolders(parent, renamePlan.stream().flatMap(e -> Stream.of(e.getKey(), resolveDestination(e.getKey(), e.getValue()))).map(f -> new File(f.getAbsolutePath())).collect(Collectors.toList()))) {
+			if (!MacAppUtilities.askUnlockFolders(parent, renamePlan.stream().flatMap(e -> Stream.of(e.getKey(), resolve(e.getKey(), e.getValue()))).map(f -> new File(f.getAbsolutePath())).collect(Collectors.toList()))) {
 				return emptyMap();
 			}
 		}
@@ -161,13 +161,7 @@ class RenameAction extends AbstractAction {
 
 		for (Entry<File, File> mapping : renamePlan) {
 			File source = mapping.getKey();
-			File destination = mapping.getValue();
-
-			// resolve destination
-			if (!destination.isAbsolute()) {
-				// same folder, different name
-				destination = new File(source.getParentFile(), destination.getPath());
-			}
+			File destination = resolve(source, mapping.getValue());
 
 			try {
 				if (renameMap.containsKey(source))
@@ -176,7 +170,7 @@ class RenameAction extends AbstractAction {
 				if (destinationSet.contains(destination))
 					throw new IllegalArgumentException("Conflict detected: " + mapping.getValue().getPath());
 
-				if (destination.exists() && !resolveDestination(mapping.getKey(), mapping.getValue(), false).equals(mapping.getKey()))
+				if (destination.exists() && !resolve(mapping.getKey(), mapping.getValue()).equals(mapping.getKey()))
 					throw new IllegalArgumentException("File already exists: " + mapping.getValue().getPath());
 
 				if (getExtension(destination) == null && destination.isFile())
@@ -313,7 +307,7 @@ class RenameAction extends AbstractAction {
 
 					// rename file, throw exception on failure
 					File source = mapping.getKey();
-					File destination = resolveDestination(mapping.getKey(), mapping.getValue(), false);
+					File destination = resolve(mapping.getKey(), mapping.getValue());
 					boolean isSameFile = source.equals(destination);
 					if (!isSameFile || (isSameFile && !source.getName().equals(destination.getName()))) {
 						action.rename(source, destination);
@@ -381,7 +375,7 @@ class RenameAction extends AbstractAction {
 			Map<File, File> todo = new LinkedHashMap<File, File>();
 			for (Entry<File, File> mapping : renameMap.entrySet()) {
 				File source = mapping.getKey();
-				File destination = resolveDestination(mapping.getKey(), mapping.getValue(), false);
+				File destination = resolve(mapping.getKey(), mapping.getValue());
 				if (!source.equals(destination)) {
 					todo.put(source, destination);
 				}
@@ -397,7 +391,7 @@ class RenameAction extends AbstractAction {
 			} finally {
 				// check status of renamed files
 				for (Entry<File, File> it : renameMap.entrySet()) {
-					if (resolveDestination(it.getKey(), it.getValue(), false).exists()) {
+					if (resolve(it.getKey(), it.getValue()).exists()) {
 						renameLog.put(it.getKey(), it.getValue());
 					}
 				}

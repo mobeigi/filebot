@@ -601,7 +601,7 @@ public class CmdlineOperations implements CmdlineInterface {
 					// resolve destination
 					if (!destination.isAbsolute()) {
 						// same folder, different name
-						destination = resolveDestination(source, destination, false);
+						destination = resolve(source, destination);
 					}
 
 					if (!destination.equals(source) && destination.exists() && renameAction != StandardRenameAction.TEST) {

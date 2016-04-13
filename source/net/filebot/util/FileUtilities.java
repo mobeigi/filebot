@@ -57,7 +57,7 @@ public final class FileUtilities {
 
 	public static File moveRename(File source, File destination) throws IOException {
 		// resolve destination
-		destination = resolveDestination(source, destination, true);
+		destination = resolveDestination(source, destination);
 
 		if (source.isDirectory()) {
 			// move folder
@@ -81,7 +81,7 @@ public final class FileUtilities {
 
 	public static File copyAs(File source, File destination) throws IOException {
 		// resolve destination
-		destination = resolveDestination(source, destination, true);
+		destination = resolveDestination(source, destination);
 
 		if (source.isDirectory()) {
 			// copy folder
@@ -93,28 +93,21 @@ public final class FileUtilities {
 		return Files.copy(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING).toFile();
 	}
 
-	public static File resolveDestination(File source, File destination) {
+	public static File resolve(File source, File destination) {
 		// resolve destination
 		if (!destination.isAbsolute()) {
 			// same folder, different name
 			destination = new File(source.getParentFile(), destination.getPath());
 		}
-
 		return destination;
 	}
 
-	public static File resolveDestination(File source, File destination, boolean mkdirs) throws IOException {
+	public static File resolveDestination(File source, File destination) throws IOException {
 		// resolve destination
-		if (!destination.isAbsolute()) {
-			// same folder, different name
-			destination = new File(source.getParentFile(), destination.getPath());
-		}
+		destination = resolve(source, destination);
 
-		// create parent folder if necessary
-		if (mkdirs) {
-			// make sure that the folder structure is created, and throw exception if the folder structure can't be created
-			Files.createDirectories(destination.getParentFile().toPath());
-		}
+		// create parent folder if necessary and make sure that the folder structure is created, and throw exception if the folder structure can't be created
+		Files.createDirectories(destination.getParentFile().toPath());
 
 		return destination;
 	}

@@ -20,7 +20,7 @@ public enum NativeRenameAction implements RenameAction {
 
 	@Override
 	public File rename(File src, File dst) {
-		dst = resolveDestination(src, dst);
+		dst = resolve(src, dst);
 		rename(singletonMap(src, dst));
 		return dst;
 	}
@@ -33,7 +33,7 @@ public enum NativeRenameAction implements RenameAction {
 		int i = 0;
 		for (Entry<File, File> it : map.entrySet()) {
 			src[i] = it.getKey().getAbsolutePath();
-			dst[i] = resolveDestination(it.getKey(), it.getValue()).getAbsolutePath();
+			dst[i] = resolve(it.getKey(), it.getValue()).getAbsolutePath();
 			i++;
 		}
 
