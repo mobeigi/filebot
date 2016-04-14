@@ -10,6 +10,7 @@ import static net.filebot.Settings.*;
 import static net.filebot.WebServices.*;
 import static net.filebot.format.ExpressionFormatMethods.*;
 import static net.filebot.media.MediaDetection.*;
+import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
@@ -38,6 +39,7 @@ import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.util.FastFile;
+import net.filebot.web.Episode;
 import net.filebot.web.Movie;
 
 public class AutoDetection {
@@ -85,19 +87,29 @@ public class AutoDetection {
 	}
 
 	public boolean isEpisode(File f) {
-		return MediaDetection.isEpisode(f.getName(), false) && (anyMatch(f.getParentFile(), SERIES_PATTERN) || find(f.getName(), SERIES_EPISODE_PATTERN) || MediaDetection.isEpisode(f, true));
+		if (MediaDetection.isEpisode(f.getName(), false) && (anyMatch(f.getParentFile(), SERIES_PATTERN) || find(f.getName(), SERIES_EPISODE_PATTERN))) {
+			return true;
+		}
+
+		if (MediaDetection.isEpisode(f.getPath(), true)) {
+			return true;
+		}
+
+		Object metaInfo = xattr.getMetaInfo(f);
+		return metaInfo instanceof Episode && !AniDB.getIdentifier().equals(((Episode) metaInfo).getSeriesInfo().getDatabase());
 	}
 
 	public boolean isAnime(File f) {
 		if (MediaDetection.parseEpisodeNumber(f.getName(), false) == null) {
 			return false;
 		}
+
 		if (anyMatch(f.getParentFile(), ANIME_PATTERN) || find(f.getName(), ANIME_EPISODE_PATTERN) || find(f.getName(), EMBEDDED_CHECKSUM)) {
 			return true;
 		}
 
-		// check for Japanese audio or characteristic subtitles
 		if (VIDEO_FILES.accept(f)) {
+			// check for Japanese audio or characteristic subtitles
 			try (MediaInfo mi = new MediaInfo().open(f)) {
 				long minutes = Duration.ofMillis(Long.parseLong(mi.get(StreamKind.General, 0, "Duration"))).toMinutes();
 				return minutes < 60 || mi.get(StreamKind.General, 0, "AudioLanguageList").contains("Japanese") && mi.get(StreamKind.General, 0, "TextCodecList").contains("ASS");
@@ -105,7 +117,9 @@ public class AutoDetection {
 				debug.warning("Failed to read audio language: " + e.getMessage());
 			}
 		}
-		return false;
+
+		Object metaInfo = xattr.getMetaInfo(f);
+		return metaInfo instanceof Episode && AniDB.getIdentifier().equals(((Episode) metaInfo).getSeriesInfo().getDatabase());
 	}
 
 	public boolean anyMatch(File file, Pattern pattern) {

@@ -120,21 +120,27 @@ public class MediaDetection {
 	}
 
 	public static boolean isEpisode(File file, boolean strict) {
-		if (xattr.getMetaInfo(file) instanceof Episode)
-			return true;
+		Object metaInfo = xattr.getMetaInfo(file);
+		if (metaInfo != null) {
+			return metaInfo instanceof Episode;
+		}
 
 		return MediaDetection.isEpisode(String.join("/", file.getParent(), file.getName()), strict);
 	}
 
 	public static boolean isMovie(File file, boolean strict) {
-		if (xattr.getMetaInfo(file) instanceof Movie)
-			return true;
+		Object metaInfo = xattr.getMetaInfo(file);
+		if (metaInfo != null) {
+			return metaInfo instanceof Movie;
+		}
 
-		if (isEpisode(file, strict))
+		if (isEpisode(file, strict)) {
 			return false;
+		}
 
-		if (matchMovieName(asList(file.getName(), file.getParent()), strict, 0).size() > 0)
+		if (matchMovieName(asList(file.getName(), file.getParent()), strict, 0).size() > 0) {
 			return true;
+		}
 
 		// check for valid imdb id patterns
 		return grepImdbId(file.getPath()).stream().map(Movie::new).filter(m -> {
@@ -1003,18 +1009,21 @@ public class MediaDetection {
 		return null;
 	}
 
-	public static File getStructurePathTail(File file) throws Exception {
+	public static List<String> listStructurePathTail(File file) throws Exception {
 		LinkedList<String> relativePath = new LinkedList<String>();
-
-		// iterate path in reverse
-		for (File it : listPathTail(file, Integer.MAX_VALUE, true)) {
+		for (File it : listPathTail(file, FILE_WALK_MAX_DEPTH, true)) {
 			if (isStructureRoot(it))
 				break;
 
+			// iterate path in reverse
 			relativePath.addFirst(it.getName());
 		}
+		return relativePath;
+	}
 
-		return relativePath.isEmpty() ? null : new File(join(relativePath, File.separator));
+	public static File getStructurePathTail(File file) throws Exception {
+		List<String> relativePath = listStructurePathTail(file);
+		return relativePath.isEmpty() ? null : new File(String.join(File.separator, relativePath));
 	}
 
 	public static Map<File, List<File>> mapByMediaFolder(Collection<File> files) {
