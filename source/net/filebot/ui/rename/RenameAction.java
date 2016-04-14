@@ -11,7 +11,7 @@ import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
-import java.awt.Cursor;
+import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -25,11 +25,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
@@ -75,104 +75,115 @@ class RenameAction extends AbstractAction {
 
 	@Override
 	public void actionPerformed(ActionEvent evt) {
-		Window window = getWindow(evt.getSource());
 		try {
-			if (model.files().isEmpty() || model.values().isEmpty()) {
-				log.info("Nothing to rename. Please add some files and fetch naming data first.");
-				return;
-			}
-
-			Map<File, File> renameMap = checkRenamePlan(validate(model.getRenameMap(), window), window);
-			if (renameMap.isEmpty()) {
-				return;
-			}
-
-			// start processing
-			List<Match<Object, File>> matches = new ArrayList<Match<Object, File>>(model.matches());
-			StandardRenameAction action = (StandardRenameAction) getValue(RENAME_ACTION);
-
-			window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
-			if (useNativeShell() && isNativeActionSupported(action)) {
-				RenameJob renameJob = new NativeRenameJob(renameMap, NativeRenameAction.valueOf(action.name()));
-				renameJob.execute();
-				try {
-					renameJob.get(); // wait for native operation to finish or be cancelled
-				} catch (CancellationException e) {
-					// ignore
+			Window window = getWindow(evt.getSource());
+			withWaitCursor(window, () -> {
+				if (model.files().isEmpty() || model.values().isEmpty()) {
+					log.info("Nothing to rename. Please add some files and fetch naming data first.");
+					return;
 				}
-			} else {
-				RenameJob renameJob = new RenameJob(renameMap, action);
-				renameJob.execute();
 
-				try {
-					// wait a for little while (renaming might finish in less than a second)
-					renameJob.get(2, TimeUnit.SECONDS);
-				} catch (TimeoutException ex) {
-					// move/renaming will probably take a while
-					ProgressDialog dialog = createProgressDialog(window, renameJob);
-					dialog.setLocation(getOffsetLocation(dialog.getOwner()));
-					dialog.setIndeterminate(true);
-
-					// display progress dialog and stop blocking EDT
-					window.setCursor(Cursor.getDefaultCursor());
-					dialog.setVisible(true);
+				Map<File, File> renameMap = checkRenamePlan(validate(model.getRenameMap(), window), window);
+				if (renameMap.isEmpty()) {
+					return;
 				}
-			}
 
-			// store xattr
-			storeMetaInfo(renameMap, matches);
+				// start processing
+				List<Match<Object, File>> matches = new ArrayList<Match<Object, File>>(model.matches());
+				StandardRenameAction action = (StandardRenameAction) getValue(RENAME_ACTION);
 
-			// delete empty folders
-			if (action == StandardRenameAction.MOVE) {
-				deleteEmptyFolders(renameMap);
-			}
+				if (useNativeShell() && isNativeActionSupported(action)) {
+					RenameJob renameJob = new NativeRenameJob(renameMap, NativeRenameAction.valueOf(action.name()));
+					renameJob.execute();
+
+					// wait for native operation to finish or be cancelled
+					try {
+						renameJob.get();
+					} catch (CancellationException e) {
+						debug.finest(e::toString);
+					}
+				} else {
+					RenameJob renameJob = new RenameJob(renameMap, action);
+					renameJob.execute();
+
+					// wait a little while (renaming might finish in less than a second)
+					try {
+						renameJob.get(2, TimeUnit.SECONDS);
+					} catch (TimeoutException e) {
+						// display progress dialog because move/rename might take a while
+						ProgressDialog dialog = createProgressDialog(window, renameJob);
+						dialog.setModalityType(ModalityType.APPLICATION_MODAL);
+						dialog.setLocation(getOffsetLocation(dialog.getOwner()));
+						dialog.setIndeterminate(true);
+						dialog.setVisible(true);
+					}
+				}
+
+				// store xattr
+				storeMetaInfo(renameMap, matches);
+
+				// delete empty folders
+				if (action == StandardRenameAction.MOVE) {
+					deleteEmptyFolders(renameMap);
+				}
+			});
 		} catch (ExecutionException e) {
 			// ignore, handled in rename worker
 		} catch (Throwable e) {
 			log.log(Level.WARNING, e.getMessage(), e);
 		}
-
-		window.setCursor(Cursor.getDefaultCursor());
 	}
 
 	private void storeMetaInfo(Map<File, File> renameMap, List<Match<Object, File>> matches) {
 		// write metadata into xattr if xattr is enabled
 		for (Match<Object, File> match : matches) {
 			File file = match.getCandidate();
-			Object meta = match.getValue();
-			if (renameMap.containsKey(file) && meta != null) {
-				File destination = resolve(file, renameMap.get(file));
+			Object info = match.getValue();
+			File destination = renameMap.get(file);
+			if (info != null && destination != null) {
+				destination = resolve(file, destination);
 				if (destination.isFile()) {
-					xattr.setMetaInfo(destination, meta, file.getName());
+					String original = file.getName();
+					debug.finest(format("Store xattr: [%s, %s] => %s", info, original, destination));
+					xattr.setMetaInfo(destination, info, original);
 				}
 			}
 		}
 	}
 
 	private void deleteEmptyFolders(Map<File, File> renameMap) {
-		// collect newly empty folders
-		Set<File> deleteSet = new LinkedHashSet<File>();
+		// collect empty folders and files in reverse order
+		Set<File> empty = new TreeSet<File>(reverseOrder());
 
 		renameMap.forEach((s, d) -> {
 			File sourceFolder = s.getParentFile();
 			File destinationFolder = resolve(s, d).getParentFile();
 
-			if (!destinationFolder.getPath().startsWith(sourceFolder.getPath())) {
-				int relativePathSize = listPath(d).size() - 1;
-				for (int i = 0; i < relativePathSize && sourceFolder != null && !isVolumeRoot(sourceFolder); sourceFolder = sourceFolder.getParentFile(), i++) {
-					File[] children = sourceFolder.listFiles();
-					if (children == null || !stream(children).allMatch(f -> f.isHidden() || deleteSet.contains(f))) {
-						return;
-					}
+			// destination folder is the source, or is inside the source folder
+			if (destinationFolder.getPath().startsWith(sourceFolder.getPath())) {
+				return;
+			}
 
-					stream(children).forEach(deleteSet::add);
-					deleteSet.add(sourceFolder);
+			// guess affected folder depth
+			int relativePathSize = 0;
+			try {
+				relativePathSize = listStructurePathTail(s).size();
+			} catch (Exception e) {
+				debug.warning(e::toString);
+			}
+
+			for (int i = 0; i < relativePathSize && !isVolumeRoot(sourceFolder); sourceFolder = sourceFolder.getParentFile(), i++) {
+				File[] children = sourceFolder.listFiles();
+				if (children == null || !stream(children).allMatch(f -> empty.contains(f) || f.isHidden())) {
+					return;
 				}
+
+				stream(children).forEach(empty::add);
+				empty.add(sourceFolder);
 			}
 		});
 
-		for (File f : deleteSet) {
+		for (File f : empty) {
 			try {
 				debug.finest(format("Delete empty folder: %s", f));
 				Files.delete(f.toPath());
