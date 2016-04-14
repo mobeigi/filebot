@@ -78,6 +78,9 @@ class ExpressionFormatter implements MatchFormatter {
 			File structureRoot = getStructureRoot(source);
 			if (structureRoot != null) {
 				for (File f : listPath(parent)) {
+					if (isVolumeRoot(structureRoot)) {
+						break;
+					}
 					if (isStructureRoot(f)) {
 						structureRoot = structureRoot.getParentFile();
 					}
