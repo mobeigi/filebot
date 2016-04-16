@@ -7,13 +7,16 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.w3c.dom.Document;
 
@@ -173,10 +176,14 @@ public class CachedResource<K, R> implements Resource<R> {
 	}
 
 	public static Fetch fetchIfModified() {
+		return fetchIfModified(Collections::emptyMap);
+	}
+
+	public static Fetch fetchIfModified(Supplier<Map<String, String>> requestParameters) {
 		return (url, lastModified) -> {
+			debug.fine(WebRequest.log(url, lastModified, null));
 			try {
-				debug.fine(WebRequest.log(url, lastModified, null));
-				return WebRequest.fetchIfModified(url, lastModified);
+				return WebRequest.fetch(url, lastModified, null, requestParameters.get(), null);
 			} catch (FileNotFoundException e) {
 				return fileNotFound(url, e);
 			}
@@ -185,25 +192,22 @@ public class CachedResource<K, R> implements Resource<R> {
 
 	public static Fetch fetchIfNoneMatch(Function<URL, Object> etagRetrieve, BiConsumer<URL, String> etagStore) {
 		return (url, lastModified) -> {
-			// record ETag response header
-			Map<String, List<String>> responseHeaders = new HashMap<String, List<String>>();
 			Object etagValue = etagRetrieve.apply(url);
-
+			debug.fine(WebRequest.log(url, lastModified, etagValue));
 			try {
-				debug.fine(WebRequest.log(url, lastModified, etagValue));
-				if (etagValue != null) {
-					return WebRequest.fetch(url, 0, etagValue, null, responseHeaders);
-				} else {
-					return WebRequest.fetch(url, lastModified, null, null, responseHeaders);
-				}
+				return WebRequest.fetch(url, etagValue == null ? lastModified : 0, etagValue, null, storeETag(url, etagStore));
 			} catch (FileNotFoundException e) {
 				return fileNotFound(url, e);
-			} finally {
-				WebRequest.getETag(responseHeaders).ifPresent(etag -> {
-					debug.finest(format("Store ETag: %s", etag));
-					etagStore.accept(url, etag);
-				});
 			}
+		};
+	}
+
+	private static Consumer<Map<String, List<String>>> storeETag(URL url, BiConsumer<URL, String> etagStore) {
+		return (responseHeaders) -> {
+			WebRequest.getETag(responseHeaders).ifPresent(etag -> {
+				debug.finest(format("Store ETag: %s", etag));
+				etagStore.accept(url, etag);
+			});
 		};
 	}
 

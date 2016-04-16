@@ -28,13 +28,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterInputStream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -56,12 +56,15 @@ import net.filebot.util.ByteBufferOutputStream;
 
 public final class WebRequest {
 
+	private static final String ENCODING_GZIP = "gzip";
+	private static final String CHARSET_UTF8 = "UTF-8";
+
 	public static Reader getReader(URLConnection connection) throws IOException {
 		try {
-			connection.addRequestProperty("Accept-Encoding", "gzip,deflate");
-			connection.addRequestProperty("Accept-Charset", "UTF-8,ISO-8859-1");
+			connection.addRequestProperty("Accept-Encoding", ENCODING_GZIP);
+			connection.addRequestProperty("Accept-Charset", CHARSET_UTF8);
 		} catch (IllegalStateException e) {
-			// too bad, can't request gzipped document anymore
+			debug.log(Level.WARNING, e, e::toString);
 		}
 
 		Charset charset = getCharset(connection.getContentType());
@@ -69,10 +72,8 @@ public final class WebRequest {
 
 		InputStream inputStream = connection.getInputStream();
 
-		if ("gzip".equalsIgnoreCase(encoding))
+		if (ENCODING_GZIP.equalsIgnoreCase(encoding)) {
 			inputStream = new GZIPInputStream(inputStream);
-		else if ("deflate".equalsIgnoreCase(encoding)) {
-			inputStream = new InflaterInputStream(inputStream, new Inflater(true));
 		}
 
 		return new InputStreamReader(inputStream, charset);
@@ -110,7 +111,7 @@ public final class WebRequest {
 		return fetch(resource, ifModifiedSince, null, null, null);
 	}
 
-	public static ByteBuffer fetch(URL url, long ifModifiedSince, Object etag, Map<String, String> requestParameters, Map<String, List<String>> responseParameters) throws IOException {
+	public static ByteBuffer fetch(URL url, long ifModifiedSince, Object etag, Map<String, String> requestParameters, Consumer<Map<String, List<String>>> responseParameters) throws IOException {
 		URLConnection connection = url.openConnection();
 
 		if (ifModifiedSince > 0) {
@@ -121,38 +122,33 @@ public final class WebRequest {
 		}
 
 		try {
-			connection.addRequestProperty("Accept-Encoding", "gzip,deflate");
-			connection.addRequestProperty("Accept-Charset", "UTF-8");
+			connection.addRequestProperty("Accept-Encoding", ENCODING_GZIP);
+			connection.addRequestProperty("Accept-Charset", CHARSET_UTF8);
 		} catch (IllegalStateException e) {
-			// too bad, can't request gzipped data
+			debug.log(Level.WARNING, e, e::toString);
 		}
 
 		if (requestParameters != null) {
-			for (Entry<String, String> parameter : requestParameters.entrySet()) {
-				connection.addRequestProperty(parameter.getKey(), parameter.getValue());
-			}
+			requestParameters.forEach(connection::addRequestProperty);
 		}
 
 		int contentLength = connection.getContentLength();
 		String encoding = connection.getContentEncoding();
 
-		InputStream in = connection.getInputStream();
-		if ("gzip".equalsIgnoreCase(encoding))
-			in = new GZIPInputStream(in);
-		else if ("deflate".equalsIgnoreCase(encoding)) {
-			in = new InflaterInputStream(in, new Inflater(true));
+		InputStream inputStream = connection.getInputStream();
+		if (ENCODING_GZIP.equalsIgnoreCase(encoding)) {
+			inputStream = new GZIPInputStream(inputStream);
 		}
 
 		// store response headers
 		if (responseParameters != null) {
-			responseParameters.putAll(connection.getHeaderFields());
+			responseParameters.accept(connection.getHeaderFields());
 		}
 
-		ByteBufferOutputStream buffer = new ByteBufferOutputStream(contentLength >= 0 ? contentLength : 4 * 1024);
-
+		ByteBufferOutputStream buffer = new ByteBufferOutputStream(contentLength >= 0 ? contentLength : BUFFER_SIZE);
 		try {
 			// read all
-			buffer.transferFully(in);
+			buffer.transferFully(inputStream);
 		} catch (IOException e) {
 			// if the content length is not known in advance an IOException (Premature EOF)
 			// is always thrown after all the data has been read
@@ -160,7 +156,7 @@ public final class WebRequest {
 				throw e;
 			}
 		} finally {
-			in.close();
+			inputStream.close();
 		}
 
 		// no data, e.g. If-Modified-Since requests
@@ -173,7 +169,7 @@ public final class WebRequest {
 
 	public static ByteBuffer post(URL url, Map<String, ?> parameters, Map<String, String> requestParameters) throws IOException {
 		byte[] postData = encodeParameters(parameters, true).getBytes("UTF-8");
-		if (requestParameters != null && "gzip".equals(requestParameters.get("Content-Encoding"))) {
+		if (requestParameters != null && ENCODING_GZIP.equals(requestParameters.get("Content-Encoding"))) {
 			postData = gzip(postData);
 		}
 		return post(url, postData, "application/x-www-form-urlencoded", requestParameters);
@@ -184,6 +180,7 @@ public final class WebRequest {
 
 		connection.addRequestProperty("Content-Length", String.valueOf(postData.length));
 		connection.addRequestProperty("Content-Type", contentType);
+
 		connection.setRequestMethod("POST");
 		connection.setDoOutput(true);
 
@@ -202,17 +199,15 @@ public final class WebRequest {
 		int contentLength = connection.getContentLength();
 		String encoding = connection.getContentEncoding();
 
-		InputStream in = connection.getInputStream();
-		if ("gzip".equalsIgnoreCase(encoding))
-			in = new GZIPInputStream(in);
-		else if ("deflate".equalsIgnoreCase(encoding)) {
-			in = new InflaterInputStream(in, new Inflater(true));
+		InputStream inputStream = connection.getInputStream();
+		if (ENCODING_GZIP.equalsIgnoreCase(encoding)) {
+			inputStream = new GZIPInputStream(inputStream);
 		}
 
 		ByteBufferOutputStream buffer = new ByteBufferOutputStream(contentLength >= 0 ? contentLength : BUFFER_SIZE);
 		try {
 			// read all
-			buffer.transferFully(in);
+			buffer.transferFully(inputStream);
 		} catch (IOException e) {
 			// if the content length is not known in advance an IOException (Premature EOF)
 			// is always thrown after all the data has been read
@@ -220,7 +215,7 @@ public final class WebRequest {
 				throw e;
 			}
 		} finally {
-			in.close();
+			inputStream.close();
 		}
 
 		return buffer.getByteBuffer();
@@ -252,9 +247,9 @@ public final class WebRequest {
 
 	private static byte[] gzip(byte[] data) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(data.length);
-		GZIPOutputStream gzip = new GZIPOutputStream(out);
-		gzip.write(data);
-		gzip.close();
+		try (GZIPOutputStream gzip = new GZIPOutputStream(out)) {
+			gzip.write(data);
+		}
 		return out.toByteArray();
 	}
 

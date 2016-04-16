@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 import com.cedarsoftware.util.io.JsonObject;
 import com.cedarsoftware.util.io.JsonReader;
+import com.cedarsoftware.util.io.JsonWriter;
 
 public class JsonUtilities {
 
@@ -21,6 +22,10 @@ public class JsonUtilities {
 			return EMPTY_MAP;
 		}
 		return JsonReader.jsonToJava(json.toString(), singletonMap(JsonReader.USE_MAPS, true));
+	}
+
+	public static String asJsonString(Object object) {
+		return JsonWriter.objectToJson(object);
 	}
 
 	public static Map<?, ?> asMap(Object node) {
