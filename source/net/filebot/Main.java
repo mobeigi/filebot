@@ -57,8 +57,8 @@ import net.filebot.ui.PanelBuilder;
 import net.filebot.ui.SinglePanelFrame;
 import net.filebot.ui.transfer.FileTransferable;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
-import net.filebot.util.ui.SwingEventBus;
 import net.filebot.util.TeePrintStream;
+import net.filebot.util.ui.SwingEventBus;
 import net.miginfocom.swing.MigLayout;
 
 public class Main {
@@ -465,10 +465,12 @@ public class Main {
 			// open file channel and lock
 			FileChannel logChannel = FileChannel.open(logFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
 			if (args.logLock) {
-				if (args.getLogLevel() == Level.ALL) {
+				try {
 					log.config("Locking " + logFile);
+					logChannel.lock();
+				} catch (Exception e) {
+					throw new IOException("Failed to acquire lock: " + logFile, e);
 				}
-				logChannel.lock();
 			}
 
 			OutputStream out = Channels.newOutputStream(logChannel);
