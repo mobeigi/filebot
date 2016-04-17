@@ -53,6 +53,10 @@ public class Artwork implements Serializable {
 		return rating;
 	}
 
+	public boolean matches(String tag) {
+		return stream(category).anyMatch(tag::equals);
+	}
+
 	@Override
 	public int hashCode() {
 		return url.hashCode();
