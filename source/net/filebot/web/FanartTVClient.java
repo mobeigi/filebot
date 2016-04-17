@@ -1,6 +1,8 @@
 package net.filebot.web;
 
+import static java.util.Arrays.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.Logging.*;
 import static net.filebot.util.JsonUtilities.*;
 
 import java.io.Serializable;
@@ -9,6 +11,8 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.logging.Level;
 
 import javax.swing.Icon;
 
@@ -16,7 +20,7 @@ import net.filebot.Cache;
 import net.filebot.CacheType;
 import net.filebot.web.FanartTVClient.FanartDescriptor.FanartProperty;
 
-public class FanartTVClient implements Datasource {
+public class FanartTVClient implements Datasource, ArtworkProvider {
 
 	private String apikey;
 
@@ -147,6 +151,29 @@ public class FanartTVClient implements Datasource {
 		public String toString() {
 			return properties.toString();
 		}
+	}
+
+	@Override
+	public List<Artwork> getArtwork(int id, String category, Locale locale) throws Exception {
+		Cache cache = Cache.getCache(getName(), CacheType.Weekly);
+		Object json = cache.json(category + '/' + id, s -> getResource(s)).expire(Cache.ONE_WEEK).get();
+
+		return asMap(json).entrySet().stream().flatMap(type -> {
+			return streamJsonObjects(type.getValue()).map(it -> {
+				try {
+					String url = getString(it, "url");
+					String lang = getString(it, "lang");
+					Double likes = getDecimal(it, "likes");
+					String season = getString(it, "season");
+					String discType = getString(it, "disc_type");
+
+					return new Artwork(this, asList(category, type.getKey().toString(), season, discType), new URL(url), new Locale(lang), likes == null ? 0 : likes);
+				} catch (Exception e) {
+					debug.log(Level.WARNING, e, e::getMessage);
+					return null;
+				}
+			});
+		}).filter(Objects::nonNull).collect(toList());
 	}
 
 }

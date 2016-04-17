@@ -11,7 +11,6 @@ import static net.filebot.util.StringUtilities.*;
 import static net.filebot.web.EpisodeUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
-import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 import javax.swing.Icon;
@@ -30,7 +30,7 @@ import net.filebot.Cache;
 import net.filebot.CacheType;
 import net.filebot.ResourceManager;
 
-public class TheTVDBClient2 extends AbstractEpisodeListProvider {
+public class TheTVDBClient2 extends AbstractEpisodeListProvider implements ArtworkProvider {
 
 	private String apikey;
 
@@ -60,7 +60,7 @@ public class TheTVDBClient2 extends AbstractEpisodeListProvider {
 	}
 
 	protected Object requestJson(String path, Locale locale, Duration expirationTime) throws Exception {
-		Cache cache = Cache.getCache(locale == null ? getName() : getName() + "_" + locale.getLanguage(), CacheType.Monthly);
+		Cache cache = Cache.getCache(locale == null || locale == Locale.ROOT ? getName() : getName() + "_" + locale.getLanguage(), CacheType.Monthly);
 		return cache.json(path, this::getEndpoint).fetch(fetchIfModified(() -> getRequestHeader(locale))).expire(expirationTime).get();
 	}
 
@@ -224,71 +224,26 @@ public class TheTVDBClient2 extends AbstractEpisodeListProvider {
 		return URI.create("http://www.thetvdb.com/?tab=seasonall&id=" + searchResult.getId());
 	}
 
-	public List<Image> getImages(SearchResult series, String keyType) throws Exception {
-		Object json = requestJson("series/" + series.getId() + "/images/query?keyType=" + keyType, null, Cache.ONE_WEEK);
+	@Override
+	public List<Artwork> getArtwork(int id, String category, Locale locale) throws Exception {
+		Object json = requestJson("series/" + id + "/images/query?keyType=" + category, locale, Cache.ONE_WEEK);
+
+		// TheTVDB API v2 does not have a dedicated banner mirror
+		URL mirror = new URL("http://thetvdb.com/banners/");
 
 		return streamJsonObjects(json, "data").map(it -> {
-			Integer id = getInteger(it, "id");
-			String subKey = getString(it, "subKey");
-			String fileName = getString(it, "fileName");
-			String resolution = getString(it, "resolution");
-			Double rating = getDecimal(getString(it, "ratingsInfo"), "average");
+			try {
+				String subKey = getString(it, "subKey");
+				String fileName = getString(it, "fileName");
+				String resolution = getString(it, "resolution");
+				Double rating = getDecimal(getString(it, "ratingsInfo"), "average");
 
-			return new Image(id, keyType, subKey, fileName, resolution, rating);
-		}).collect(toList());
-	}
-
-	public static class Image implements Serializable {
-
-		private Integer id;
-		private String keyType;
-		private String subKey;
-		private String fileName;
-		private String resolution;
-		private Double rating;
-
-		protected Image() {
-			// used by serializer
-		}
-
-		public Image(Integer id, String keyType, String subKey, String fileName, String resolution, Double rating) {
-			this.id = id;
-			this.keyType = keyType;
-			this.subKey = subKey;
-			this.fileName = fileName;
-			this.resolution = resolution;
-			this.rating = rating;
-		}
-
-		public Integer getId() {
-			return id;
-		}
-
-		public String getKeyType() {
-			return keyType;
-		}
-
-		public String getSubKey() {
-			return subKey;
-		}
-
-		public String getFileName() {
-			return fileName;
-		}
-
-		public String getResolution() {
-			return resolution;
-		}
-
-		public Double getRating() {
-			return rating;
-		}
-
-		@Override
-		public String toString() {
-			return "[id=" + id + ", keyType=" + keyType + ", subKey=" + subKey + ", fileName=" + fileName + ", resolution=" + resolution + ", rating=" + rating + "]";
-		}
-
+				return new Artwork(this, asList(category, subKey, resolution), new URL(mirror, fileName), locale, rating == null ? 0 : rating);
+			} catch (Exception e) {
+				debug.log(Level.WARNING, e, e::getMessage);
+				return null;
+			}
+		}).filter(Objects::nonNull).collect(toList());
 	}
 
 }

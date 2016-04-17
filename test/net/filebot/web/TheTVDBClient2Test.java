@@ -8,8 +8,6 @@ import java.util.Locale;
 
 import org.junit.Test;
 
-import net.filebot.web.TheTVDBClient2.Image;
-
 public class TheTVDBClient2Test {
 
 	TheTVDBClient2 thetvdb = new TheTVDBClient2("BA864DEE427E384A");
@@ -140,12 +138,10 @@ public class TheTVDBClient2Test {
 
 	@Test
 	public void getImages() throws Exception {
-		Image i = thetvdb.getImages(buffy, "fanart").get(0);
+		Artwork i = thetvdb.getArtwork(buffy.getId(), "fanart", Locale.ENGLISH).get(0);
 
-		assertEquals("fanart", i.getKeyType());
-		assertEquals(null, i.getSubKey());
-		assertEquals("1280x720", i.getResolution());
-		assertEquals("fanart/original/70327-1.jpg", i.getFileName());
+		assertEquals("[fanart, null, 1280x720]", i.getCategory().toString());
+		assertEquals("http://thetvdb.com/banners/fanart/original/70327-1.jpg", i.getUrl().toString());
 	}
 
 }
