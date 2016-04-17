@@ -412,7 +412,7 @@ public class MediaBindingBean {
 	}
 
 	@Define("original")
-	public String getOriginalFileName() throws Exception {
+	public String getOriginalFileName() {
 		return getOriginalFileName(getMediaFile());
 	}
 

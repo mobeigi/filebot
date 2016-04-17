@@ -10,7 +10,6 @@ import static net.filebot.Settings.*;
 import static net.filebot.WebServices.*;
 import static net.filebot.hash.VerificationUtilities.*;
 import static net.filebot.media.MediaDetection.*;
-import static net.filebot.media.MediaSize.*;
 import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.subtitle.SubtitleUtilities.*;
 import static net.filebot.util.FileUtilities.*;
@@ -61,6 +60,7 @@ import net.filebot.media.AutoDetection;
 import net.filebot.media.AutoDetection.Group;
 import net.filebot.media.AutoDetection.Type;
 import net.filebot.media.MediaDetection;
+import net.filebot.media.VideoQuality;
 import net.filebot.media.XattrMetaInfoProvider;
 import net.filebot.similarity.CommonSequenceMatcher;
 import net.filebot.similarity.EpisodeMatcher;
@@ -609,7 +609,7 @@ public class CmdlineOperations implements CmdlineInterface {
 							throw new CmdlineException("File already exists: " + destination);
 						}
 
-						if (conflictAction == ConflictAction.OVERRIDE || (conflictAction == ConflictAction.AUTO && VIDEO_SIZE_ORDER.compare(source, destination) > 0)) {
+						if (conflictAction == ConflictAction.OVERRIDE || (conflictAction == ConflictAction.AUTO && VideoQuality.isBetter(source, destination))) {
 							if (!destination.delete()) {
 								log.log(Level.SEVERE, "Failed to override file: " + destination);
 							}
