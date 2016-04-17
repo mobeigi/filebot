@@ -54,9 +54,9 @@ public class TheTVDBClient2 extends AbstractEpisodeListProvider implements Artwo
 		return true;
 	}
 
-	protected Object requestJson(String path, Object post) throws Exception {
+	protected Object postJson(String path, Object json) throws Exception {
 		// curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' 'https://api.thetvdb.com/login' --data '{"apikey":"XXXXX"}'
-		ByteBuffer response = post(getEndpoint(path), asJsonString(post).getBytes(UTF_8), "application/json", null);
+		ByteBuffer response = post(getEndpoint(path), asJsonString(json).getBytes(UTF_8), "application/json", null);
 		return readJson(UTF_8.decode(response));
 	}
 
@@ -71,7 +71,7 @@ public class TheTVDBClient2 extends AbstractEpisodeListProvider implements Artwo
 
 	private Map<String, String> getRequestHeader(Locale locale) {
 		Map<String, String> header = new LinkedHashMap<String, String>(3);
-		if (locale != null) {
+		if (locale != null && locale != Locale.ROOT) {
 			header.put("Accept-Language", locale.getLanguage());
 		}
 		header.put("Accept", "application/json");
@@ -85,10 +85,9 @@ public class TheTVDBClient2 extends AbstractEpisodeListProvider implements Artwo
 
 	private String getAuthorizationToken() {
 		synchronized (tokenExpireDuration) {
-			System.out.println("EXPIRE: " + tokenExpireInstant);
 			if (token == null || (tokenExpireInstant != null && Instant.now().isAfter(tokenExpireInstant))) {
 				try {
-					Object json = requestJson("login", singletonMap("apikey", apikey));
+					Object json = postJson("login", singletonMap("apikey", apikey));
 					token = getString(json, "token");
 					tokenExpireInstant = Instant.now().plus(tokenExpireDuration);
 				} catch (Exception e) {
@@ -100,7 +99,7 @@ public class TheTVDBClient2 extends AbstractEpisodeListProvider implements Artwo
 	}
 
 	protected String[] languages() throws Exception {
-		Object response = requestJson("languages", Cache.ONE_MONTH);
+		Object response = requestJson("languages", Locale.ROOT, Cache.ONE_MONTH);
 		return streamJsonObjects(response, "data").map(it -> getString(it, "abbreviation")).toArray(String[]::new);
 	}
 
@@ -221,7 +220,7 @@ public class TheTVDBClient2 extends AbstractEpisodeListProvider implements Artwo
 			throw new IllegalArgumentException("Illegal IMDbID ID: " + imdbid);
 		}
 
-		List<SearchResult> result = search("search/series", singletonMap("imdbId", imdbid), locale, Cache.ONE_MONTH);
+		List<SearchResult> result = search("search/series", singletonMap("imdbId", String.format("tt%07d", imdbid)), locale, Cache.ONE_MONTH);
 		return result.size() > 0 ? result.get(0) : null;
 	}
 

@@ -136,7 +136,7 @@ public class TheTVDBClient2Test {
 	public void getImages() throws Exception {
 		Artwork i = thetvdb.getArtwork(buffy.getId(), "fanart", Locale.ENGLISH).get(0);
 
-		assertEquals("[fanart, null, 1280x720]", i.getCategory().toString());
+		assertEquals("[fanart, 1280x720]", i.getCategory().toString());
 		assertEquals("http://thetvdb.com/banners/fanart/original/70327-1.jpg", i.getUrl().toString());
 	}
 
