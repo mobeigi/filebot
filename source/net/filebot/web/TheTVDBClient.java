@@ -8,7 +8,6 @@ import static net.filebot.util.XPathUtilities.*;
 import static net.filebot.web.EpisodeUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
-import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -18,8 +17,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.stream.Stream;
 
 import javax.swing.Icon;
 
@@ -30,10 +32,8 @@ import net.filebot.Cache;
 import net.filebot.Cache.TypedCache;
 import net.filebot.CacheType;
 import net.filebot.ResourceManager;
-import net.filebot.util.FileUtilities;
-import net.filebot.web.TheTVDBClient.BannerDescriptor.BannerProperty;
 
-public class TheTVDBClient extends AbstractEpisodeListProvider {
+public class TheTVDBClient extends AbstractEpisodeListProvider implements ArtworkProvider {
 
 	private final Map<MirrorType, String> mirrors = MirrorType.newMap();
 
@@ -324,164 +324,31 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		return URI.create("http://www.thetvdb.com/?tab=seasonall&id=" + searchResult.getId());
 	}
 
-	/**
-	 * Search for a series banner matching the given parameters
-	 *
-	 * @see http://thetvdb.com/wiki/index.php/API:banners.xml
-	 */
-	public BannerDescriptor getBanner(SearchResult series, Map<?, ?> filterDescriptor) throws Exception {
-		EnumMap<BannerProperty, String> filter = new EnumMap<BannerProperty, String>(BannerProperty.class);
-		for (Entry<?, ?> it : filterDescriptor.entrySet()) {
-			if (it.getValue() != null) {
-				filter.put(BannerProperty.valueOf(it.getKey().toString()), it.getValue().toString());
+	@Override
+	public List<Artwork> getArtwork(int id, String category, Locale locale) throws Exception {
+		Document dom = getXmlResource(MirrorType.XML, "series/" + id + "/banners.xml");
+		URL mirror = getResource(MirrorType.BANNER, "");
+
+		return streamNodes("//Banner", dom).map(node -> {
+			try {
+				String type = getTextContent("BannerType", node);
+				String subKey = getTextContent("BannerType2", node);
+				String fileName = getTextContent("BannerPath", node);
+				String season = getTextContent("Season", node);
+				String language = getTextContent("Language", node);
+				Double rating = getDecimal(getTextContent("Rating", node));
+
+				return new Artwork(this, Stream.of(type, subKey, season), new URL(mirror, fileName), language == null ? null : new Locale(language), rating);
+			} catch (Exception e) {
+				debug.log(Level.WARNING, e, e::getMessage);
+				return null;
 			}
-		}
-
-		// search for a banner matching the selector
-		for (BannerDescriptor it : getBannerList(series)) {
-			if (it.fields.entrySet().containsAll(filter.entrySet())) {
-				return it;
-			}
-		}
-
-		return null;
-	}
-
-	public List<BannerDescriptor> getBannerList(SearchResult series) throws Exception {
-		return getBannerCache().computeIfAbsent(series.getId(), it -> {
-			Document dom = getXmlResource(MirrorType.XML, "series/" + series.getId() + "/banners.xml");
-
-			String bannerMirror = getResource(MirrorType.BANNER, "").toString();
-
-			return streamNodes("//Banner", dom).map(n -> {
-				Map<BannerProperty, String> map = getEnumMap(n, BannerProperty.class);
-				map.put(BannerProperty.BannerMirror, bannerMirror);
-
-				return new BannerDescriptor(map);
-			}).filter(m -> m.getUrl() != null).collect(toList());
-		});
+		}).filter(Objects::nonNull).filter(it -> it.getCategory().contains(category)).collect(toList());
 	}
 
 	protected TypedCache<SearchResult> getLookupCache(String type, Locale language) {
 		// lookup should always yield the same results so we can cache it for longer
 		return Cache.getCache(getName() + "_" + "lookup" + "_" + type + "_" + language, CacheType.Monthly).cast(SearchResult.class);
-	}
-
-	protected TypedCache<List<BannerDescriptor>> getBannerCache() {
-		// banners do not change that often so we can cache them for longer
-		return Cache.getCache(getName() + "_" + "banner", CacheType.Weekly).castList(BannerDescriptor.class);
-	}
-
-	public static class BannerDescriptor implements Serializable {
-
-		public static enum BannerProperty {
-			id, BannerMirror, BannerPath, BannerType, BannerType2, Season, Colors, Language, Rating, RatingCount, SeriesName, ThumbnailPath, VignettePath
-		}
-
-		protected Map<BannerProperty, String> fields;
-
-		protected BannerDescriptor() {
-			// used by serializer
-		}
-
-		protected BannerDescriptor(Map<BannerProperty, String> fields) {
-			this.fields = new EnumMap<BannerProperty, String>(fields);
-		}
-
-		public String get(Object key) {
-			return fields.get(BannerProperty.valueOf(key.toString()));
-		}
-
-		public String get(BannerProperty key) {
-			return fields.get(key);
-		}
-
-		public URL getBannerMirrorUrl(String path) {
-			try {
-				return new URL(new URL(get(BannerProperty.BannerMirror)), path);
-			} catch (Exception e) {
-				debug.finest(format("Bad banner url: %s", e));
-				return null;
-			}
-		}
-
-		public URL getUrl() {
-			return getBannerMirrorUrl(get(BannerProperty.BannerPath));
-		}
-
-		public String getExtension() {
-			return FileUtilities.getExtension(get(BannerProperty.BannerPath));
-		}
-
-		public Integer getId() {
-			try {
-				return new Integer(get(BannerProperty.id));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public String getBannerType() {
-			return get(BannerProperty.BannerType);
-		}
-
-		public String getBannerType2() {
-			return get(BannerProperty.BannerType2);
-		}
-
-		public Integer getSeason() {
-			try {
-				return new Integer(get(BannerProperty.Season));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public String getColors() {
-			return get(BannerProperty.Colors);
-		}
-
-		public Locale getLocale() {
-			try {
-				return new Locale(get(BannerProperty.Language));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public Double getRating() {
-			try {
-				return new Double(get(BannerProperty.Rating));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public Integer getRatingCount() {
-			try {
-				return new Integer(get(BannerProperty.RatingCount));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public boolean hasSeriesName() {
-			return Boolean.parseBoolean(get(BannerProperty.SeriesName));
-		}
-
-		public URL getThumbnailUrl() {
-			return getBannerMirrorUrl(get(BannerProperty.ThumbnailPath));
-		}
-
-		public URL getVignetteUrl() {
-			return getBannerMirrorUrl(get(BannerProperty.VignettePath));
-		}
-
-		@Override
-		public String toString() {
-			return fields.toString();
-		}
-
 	}
 
 }

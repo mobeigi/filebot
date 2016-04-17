@@ -3,14 +3,11 @@ package net.filebot.web;
 import static org.junit.Assert.*;
 
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import org.junit.Test;
 
-import net.filebot.web.TheTVDBClient.BannerDescriptor;
 import net.filebot.web.TheTVDBClient.MirrorType;
 
 public class TheTVDBClientTest {
@@ -146,28 +143,14 @@ public class TheTVDBClientTest {
 
 	@Test
 	public void getBanner() throws Exception {
-		Map<String, String> filter = new HashMap<String, String>();
-		filter.put("BannerType", "season");
-		filter.put("BannerType2", "seasonwide");
-		filter.put("Season", "7");
-		filter.put("Language", "en");
+		Artwork banner = thetvdb.getArtwork(buffy.getId(), "season", Locale.ROOT).stream().filter(it -> {
+			return it.getCategory().contains("season") && it.getCategory().contains("seasonwide") && it.getCategory().contains("7") && it.getLanguage().equals("en");
+		}).findFirst().get();
 
-		BannerDescriptor banner = thetvdb.getBanner(buffy, filter);
-
-		assertEquals(857660, banner.getId(), 0);
-		assertEquals("season", banner.getBannerType());
-		assertEquals("seasonwide", banner.getBannerType2());
+		assertEquals("season", banner.getCategory().get(0));
+		assertEquals("seasonwide", banner.getCategory().get(1));
 		assertEquals("http://thetvdb.com/banners/seasonswide/70327-7.jpg", banner.getUrl().toString());
 		assertEquals(99712, WebRequest.fetch(banner.getUrl()).remaining(), 0);
-	}
-
-	@Test
-	public void getBannerList() throws Exception {
-		List<BannerDescriptor> banners = thetvdb.getBannerList(buffy);
-
-		assertEquals("fanart", banners.get(0).getBannerType());
-		assertEquals("1280x720", banners.get(0).getBannerType2());
-		assertEquals(460058, WebRequest.fetch(banners.get(0).getUrl()).remaining());
 	}
 
 }
