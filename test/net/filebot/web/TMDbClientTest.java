@@ -15,7 +15,6 @@ import org.junit.Test;
 import net.filebot.Cache;
 import net.filebot.CacheType;
 import net.filebot.CachedResource;
-import net.filebot.web.TMDbClient.Artwork;
 import net.filebot.web.TMDbClient.MovieInfo;
 
 public class TMDbClientTest {
@@ -89,9 +88,9 @@ public class TMDbClientTest {
 
 	@Test
 	public void getArtwork() throws Exception {
-		List<Artwork> artwork = tmdb.getArtwork("tt0418279");
-		assertEquals("backdrops", artwork.get(0).getCategory());
-		assertEquals("https://image.tmdb.org/t/p/original/ac0HwGJIU3GxjjGujlIjLJmAGPR.jpg", artwork.get(0).getUrl().toString());
+		Artwork a = tmdb.getArtwork(16320, "backdrops", Locale.ROOT).get(0);
+		assertEquals("[backdrops, 1920x1080]", a.getCategory().toString());
+		assertEquals("https://image.tmdb.org/t/p/original/424MxHQe5Hfu92hTeRvZb5Giv0X.jpg", a.getUrl().toString());
 	}
 
 	@Ignore

@@ -238,7 +238,7 @@ public class TheTVDBClient2 extends AbstractEpisodeListProvider implements Artwo
 				String resolution = getString(it, "resolution");
 				Double rating = getDecimal(getString(it, "ratingsInfo"), "average");
 
-				return new Artwork(this, asList(category, subKey, resolution), new URL(mirror, fileName), locale, rating == null ? 0 : rating);
+				return new Artwork(this, Stream.of(category, subKey, resolution), new URL(mirror, fileName), locale, rating);
 			} catch (Exception e) {
 				debug.log(Level.WARNING, e, e::getMessage);
 				return null;

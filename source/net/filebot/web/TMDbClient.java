@@ -39,7 +39,7 @@ import net.filebot.ResourceManager;
 import net.filebot.web.TMDbClient.MovieInfo.MovieProperty;
 import net.filebot.web.TMDbClient.Person.PersonProperty;
 
-public class TMDbClient implements MovieIdentificationService {
+public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 
 	private static final String host = "api.themoviedb.org";
 	private static final String version = "3";
@@ -270,28 +270,26 @@ public class TMDbClient implements MovieIdentificationService {
 		return new MovieInfo(fields, alternativeTitles, genres, certifications, spokenLanguages, productionCountries, productionCompanies, cast, trailers);
 	}
 
-	public List<Artwork> getArtwork(String id) throws Exception {
-		// http://api.themoviedb.org/3/movie/11/images
+	@Override
+	public List<Artwork> getArtwork(int id, String category, Locale locale) throws Exception {
 		Object config = request("configuration", emptyMap(), Locale.ROOT, REQUEST_LIMIT);
-		String baseUrl = getString(getMap(config, "images"), "secure_base_url");
+		URL baseUrl = new URL(getString(getMap(config, "images"), "secure_base_url"));
 
 		Object images = request("movie/" + id + "/images", emptyMap(), Locale.ROOT, REQUEST_LIMIT);
 
-		return Stream.of("backdrops", "posters").flatMap(section -> {
-			Stream<Artwork> artwork = streamJsonObjects(images, section).map(it -> {
-				try {
-					String url = baseUrl + "original" + getString(it, "file_path");
-					int width = getDecimal(it, "width").intValue();
-					int height = getDecimal(it, "height").intValue();
-					String lang = getString(it, "iso_639_1");
-					return new Artwork(section, new URL(url), width, height, lang);
-				} catch (Exception e) {
-					debug.warning(format("Bad artwork: %s => %s", it, e));
-					return null;
-				}
-			});
-			return artwork;
-		}).collect(toList());
+		return streamJsonObjects(images, category).map(it -> {
+			try {
+				String path = "original" + getString(it, "file_path");
+				String width = getString(it, "width");
+				String height = getString(it, "height");
+				Locale language = getStringValue(it, "iso_639_1", Locale::new);
+
+				return new Artwork(this, Stream.of(category, String.join("x", width, height)), new URL(baseUrl, path), language, null);
+			} catch (Exception e) {
+				debug.log(Level.WARNING, e, e::getMessage);
+				return null;
+			}
+		}).filter(Objects::nonNull).collect(toList());
 	}
 
 	protected Object request(String resource, Map<String, Object> parameters, Locale locale, final FloodLimit limit) throws Exception {
@@ -642,50 +640,6 @@ public class TMDbClient implements MovieIdentificationService {
 		@Override
 		public String toString() {
 			return fields.toString();
-		}
-	}
-
-	public static class Artwork {
-
-		private String category;
-		private String language;
-
-		private int width;
-		private int height;
-
-		private URL url;
-
-		public Artwork(String category, URL url, int width, int height, String language) {
-			this.category = category;
-			this.url = url;
-			this.width = width;
-			this.height = height;
-			this.language = language;
-		}
-
-		public String getCategory() {
-			return category;
-		}
-
-		public String getLanguage() {
-			return language;
-		}
-
-		public int getWidth() {
-			return width;
-		}
-
-		public int getHeight() {
-			return height;
-		}
-
-		public URL getUrl() {
-			return url;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("{category: %s, width: %s, height: %s, language: %s, url: %s}", category, width, height, language, url);
 		}
 	}
 

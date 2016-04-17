@@ -5,8 +5,11 @@ import static java.util.Collections.*;
 
 import java.io.Serializable;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 public class Artwork implements Serializable {
 
@@ -22,12 +25,12 @@ public class Artwork implements Serializable {
 		// used by serializer
 	}
 
-	public Artwork(Datasource database, List<String> category, URL url, Locale language, double rating) {
+	public Artwork(Datasource database, Stream<?> category, URL url, Locale language, Double rating) {
 		this.database = database.getIdentifier();
-		this.category = category.toArray(new String[0]);
+		this.category = category.filter(Objects::nonNull).map(Object::toString).toArray(String[]::new);
 		this.url = url;
-		this.language = language.getLanguage();
-		this.rating = rating;
+		this.language = language == null || language.getLanguage().isEmpty() ? null : language.getLanguage();
+		this.rating = rating == null ? 0 : rating;
 	}
 
 	public String getDatabase() {
@@ -66,7 +69,7 @@ public class Artwork implements Serializable {
 
 	@Override
 	public String toString() {
-		return asList(database, asList(category), url, language, rating).toString();
+		return asList(String.join("/", category), language, new DecimalFormat("0.##").format(rating), url).toString();
 	}
 
 }
