@@ -15,6 +15,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -79,18 +80,23 @@ public class TheTVDBClient2 extends AbstractEpisodeListProvider implements Artwo
 	}
 
 	private String token = null;
+	private Instant tokenExpireInstant = null;
+	private Duration tokenExpireDuration = Duration.ofHours(1);
 
-	private synchronized String getAuthorizationToken() {
-		// curl -v -X GET --header 'Accept: application/json' --header 'Authorization: Bearer TOKEN' 'https://api.thetvdb.com/languages'
-		if (token == null) {
-			try {
-				Object json = requestJson("login", singletonMap("apikey", apikey));
-				token = getString(json, "token");
-			} catch (Exception e) {
-				throw new IllegalStateException("Failed to retrieve authorization token: " + e.getMessage(), e);
+	private String getAuthorizationToken() {
+		synchronized (tokenExpireDuration) {
+			System.out.println("EXPIRE: " + tokenExpireInstant);
+			if (token == null || (tokenExpireInstant != null && Instant.now().isAfter(tokenExpireInstant))) {
+				try {
+					Object json = requestJson("login", singletonMap("apikey", apikey));
+					token = getString(json, "token");
+					tokenExpireInstant = Instant.now().plus(tokenExpireDuration);
+				} catch (Exception e) {
+					throw new IllegalStateException("Failed to retrieve authorization token: " + e.getMessage(), e);
+				}
 			}
+			return token;
 		}
-		return token;
 	}
 
 	protected String[] languages() throws Exception {

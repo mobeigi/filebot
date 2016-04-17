@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class TheTVDBClient2Test {
 
-	TheTVDBClient2 thetvdb = new TheTVDBClient2("BA864DEE427E384A");
+	static TheTVDBClient2 thetvdb = new TheTVDBClient2("BA864DEE427E384A");
 
 	SearchResult buffy = new SearchResult(70327, "Buffy the Vampire Slayer");
 	SearchResult wonderfalls = new SearchResult(78845, "Wonderfalls");
@@ -123,15 +123,11 @@ public class TheTVDBClient2Test {
 
 	@Test
 	public void getSeriesInfo() throws Exception {
-		TheTVDBSeriesInfo it = (TheTVDBSeriesInfo) thetvdb.getSeriesInfo(80348, Locale.ENGLISH);
+		SeriesInfo it = thetvdb.getSeriesInfo(80348, Locale.ENGLISH);
 
 		assertEquals(80348, it.getId(), 0);
-		assertEquals("TV-PG", it.getContentRating());
-		assertEquals("2007-09-24", it.getFirstAired().toString());
 		assertEquals("Action", it.getGenres().get(0));
-		assertEquals("tt0934814", it.getImdbId());
 		assertEquals("en", it.getLanguage());
-		assertEquals(987, it.getOverview().length());
 		assertEquals("45", it.getRuntime().toString());
 		assertEquals("Chuck", it.getName());
 	}
