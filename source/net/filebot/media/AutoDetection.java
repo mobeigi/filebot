@@ -75,7 +75,8 @@ public class AutoDetection {
 	private static final Pattern SERIES_PATTERN = Pattern.compile("TV.Shows|TV.Series|Season.[0-9]+", CASE_INSENSITIVE);
 	private static final Pattern ANIME_PATTERN = Pattern.compile("Anime", CASE_INSENSITIVE);
 
-	private static final Pattern SERIES_EPISODE_PATTERN = Pattern.compile("^tv[sp]-", CASE_INSENSITIVE);
+	private static final Pattern EPISODE_PATTERN = Pattern.compile("E\\d{2,3}|EP\\d{1,3}", CASE_INSENSITIVE);
+	private static final Pattern SERIES_EPISODE_PATTERN = Pattern.compile("^tv[sp]\\p{Punct}", CASE_INSENSITIVE);
 	private static final Pattern ANIME_EPISODE_PATTERN = Pattern.compile("^\\[[^\\]]+Subs\\]", CASE_INSENSITIVE);
 
 	public boolean isMusic(File f) {
@@ -92,6 +93,10 @@ public class AutoDetection {
 		}
 
 		if (MediaDetection.isEpisode(f.getPath(), true)) {
+			return true;
+		}
+
+		if (find(f.getName(), EPISODE_PATTERN) && !isAnime(f)) {
 			return true;
 		}
 
