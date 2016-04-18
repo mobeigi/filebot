@@ -716,9 +716,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		// 7 pass: prefer episodes that were aired closer to the last modified date of the file
 		// 8 pass: resolve remaining collisions via absolute string similarity
 		if (includeFileMetrics) {
-			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, SeriesNameBalancer, SeriesName, RegionHint, Numeric, NumericSequence, SpecialNumber, SeriesRating, VoteRate, TimeStamp, FilePathBalancer, FilePath };
+			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, SeriesNameBalancer, SeriesName, RegionHint, SpecialNumber, Numeric, NumericSequence, SeriesRating, VoteRate, TimeStamp, FilePathBalancer, FilePath };
 		} else {
-			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, SeriesNameBalancer, SeriesName, RegionHint, Numeric, NumericSequence, SpecialNumber, SeriesRating, VoteRate, TimeStamp, FilePathBalancer, FilePath };
+			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, SeriesNameBalancer, SeriesName, RegionHint, SpecialNumber, Numeric, NumericSequence, SeriesRating, VoteRate, TimeStamp, FilePathBalancer, FilePath };
 		}
 	}
 
