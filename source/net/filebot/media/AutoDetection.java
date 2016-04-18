@@ -75,7 +75,7 @@ public class AutoDetection {
 	private static final Pattern SERIES_PATTERN = Pattern.compile("TV.Shows|TV.Series|Season.[0-9]+", CASE_INSENSITIVE);
 	private static final Pattern ANIME_PATTERN = Pattern.compile("Anime", CASE_INSENSITIVE);
 
-	private static final Pattern EPISODE_PATTERN = Pattern.compile("E\\d{2,3}|EP\\d{1,3}", CASE_INSENSITIVE);
+	private static final Pattern EPISODE_PATTERN = Pattern.compile("E[P]?\\d{1,3}", CASE_INSENSITIVE);
 	private static final Pattern SERIES_EPISODE_PATTERN = Pattern.compile("^tv[sp]\\p{Punct}", CASE_INSENSITIVE);
 	private static final Pattern ANIME_EPISODE_PATTERN = Pattern.compile("^\\[[^\\]]+Subs\\]", CASE_INSENSITIVE);
 
@@ -93,10 +93,6 @@ public class AutoDetection {
 		}
 
 		if (MediaDetection.isEpisode(f.getPath(), true)) {
-			return true;
-		}
-
-		if (find(f.getName(), EPISODE_PATTERN) && !isAnime(f)) {
 			return true;
 		}
 
@@ -169,6 +165,10 @@ public class AutoDetection {
 			return group.series(getSeriesMatches(f, false));
 		if (isAnime(f))
 			return group.anime(getSeriesMatches(f, true));
+
+		// ignore movie matches if filename looks like an episode
+		if (find(f.getName(), EPISODE_PATTERN))
+			return group.series(getSeriesMatches(f, false));
 
 		// Movie VS Episode
 		List<Movie> m = getMovieMatches(f, false);
