@@ -4,7 +4,6 @@ import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.util.JsonUtilities.*;
-import static net.filebot.web.EpisodeUtilities.*;
 import static net.filebot.web.TMDbClient.*;
 
 import java.net.URI;
@@ -135,9 +134,6 @@ public class TMDbTVClient extends AbstractEpisodeListProvider {
 				}
 			});
 		}
-
-		// episodes my not be ordered by DVD episode number
-		episodes.sort(episodeComparator());
 
 		// add specials at the end
 		episodes.addAll(specials);
