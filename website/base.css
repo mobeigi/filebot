@@ -388,6 +388,10 @@ div.screencast:hover .play {
 	text-align: center;
 }
 
+.metrics a {
+	margin: 2px;
+}
+
 .footer p {
 	font-size: xx-small;
 	text-align: center;
