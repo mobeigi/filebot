@@ -11,6 +11,7 @@ import java.util.logging.Level;
 
 import javax.script.ScriptException;
 
+import net.filebot.Settings.ApplicationFolder;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.similarity.Match;
@@ -69,8 +70,13 @@ class ExpressionFormatter implements MatchFormatter {
 
 		// resolve against parent folder
 		File parent = new File(destination).getParentFile();
-		if (parent == null || parent.isAbsolute() || parent.getPath().startsWith(".")) {
+		if (parent == null || parent.isAbsolute() || destination.startsWith(".")) {
 			return destination;
+		}
+
+		// resolve against home folder
+		if (destination.startsWith("~")) {
+			return ApplicationFolder.UserHome.resolve(destination.substring(1)).getAbsolutePath();
 		}
 
 		// try to resolve against structure root folder by default
@@ -85,7 +91,7 @@ class ExpressionFormatter implements MatchFormatter {
 						structureRoot = structureRoot.getParentFile();
 					}
 				}
-				return new File(structureRoot, destination).getPath();
+				return new File(structureRoot, destination).getAbsolutePath();
 			}
 		} catch (Exception e) {
 			debug.log(Level.SEVERE, "Failed to resolve structure root: " + source, e);
