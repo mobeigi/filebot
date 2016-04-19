@@ -8,7 +8,7 @@ $folder = $root.'FileBot_'.$version;
 $file = '';
 
 if ($type == 'nsis') {
-	$folder = 'https://github.com/filebot/filebot-installer/releases/download/v1.0/';
+	$folder = 'https://github.com/filebot/filebot-installer/releases/download/v1.0';
 	$file = 'FileBot-setup.exe';
 } else if ($type == 'jar') {
 	$folder = $root.'HEAD';
@@ -24,7 +24,7 @@ if ($type == 'nsis') {
 } else if ($type == 'ipkg') {
 	$file = 'filebot_'.$version.'_noarch.ipk';
 } else {
-	$folder = 'https://sourceforge.net/projects/filebot/files/filebot/FileBot_'.$version.'/';	// redirect to latest release folder by default
+	$folder = 'https://sourceforge.net/projects/filebot/files/filebot/FileBot_'.$version;	// redirect to latest release folder by default
 }
 
 header('HTTP/1.1 302 Found');
