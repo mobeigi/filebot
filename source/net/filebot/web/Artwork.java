@@ -53,8 +53,8 @@ public class Artwork implements Serializable {
 		return rating;
 	}
 
-	public boolean matches(String tag) {
-		return stream(category).anyMatch(tag::equals);
+	public boolean matches(String... tags) {
+		return stream(tags).filter(Objects::nonNull).allMatch(tag -> stream(category).anyMatch(tag::equals));
 	}
 
 	@Override

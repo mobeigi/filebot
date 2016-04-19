@@ -138,6 +138,8 @@ public class TheTVDBClient2Test {
 
 		assertEquals("[fanart, 1280x720]", i.getCategory().toString());
 		assertEquals("http://thetvdb.com/banners/fanart/original/70327-1.jpg", i.getUrl().toString());
+		assertTrue(i.matches("fanart", "1280x720"));
+		assertFalse(i.matches("fanart", "1280x720", "1"));
 	}
 
 }
