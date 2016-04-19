@@ -45,8 +45,8 @@ public class Artwork implements Serializable {
 		return url;
 	}
 
-	public String getLanguage() {
-		return language;
+	public Locale getLanguage() {
+		return language == null ? null : new Locale(language);
 	}
 
 	public double getRating() {
@@ -54,7 +54,9 @@ public class Artwork implements Serializable {
 	}
 
 	public boolean matches(String... tags) {
-		return stream(tags).filter(Objects::nonNull).allMatch(tag -> stream(category).anyMatch(tag::equals));
+		return stream(tags).filter(Objects::nonNull).allMatch(tag -> {
+			return stream(category).anyMatch(tag::equalsIgnoreCase) || tag.equalsIgnoreCase(language);
+		});
 	}
 
 	@Override
