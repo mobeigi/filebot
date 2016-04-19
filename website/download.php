@@ -8,7 +8,7 @@ $folder = $root.'FileBot_'.$version;
 $file = '';
 
 if ($type == 'nsis') {
-	$folder = $root.'LATEST';
+	$folder = 'https://github.com/filebot/filebot-installer/releases/download/v1.0/';
 	$file = 'FileBot-setup.exe';
 } else if ($type == 'jar') {
 	$folder = $root.'HEAD';
