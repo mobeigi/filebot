@@ -53,9 +53,9 @@ public class Artwork implements Serializable {
 		return rating;
 	}
 
-	public boolean matches(String... tags) {
-		return stream(tags).filter(Objects::nonNull).allMatch(tag -> {
-			return stream(tags).anyMatch(tag::equalsIgnoreCase) || tag.equalsIgnoreCase(language);
+	public boolean matches(Object... tags) {
+		return stream(tags).filter(Objects::nonNull).map(Object::toString).allMatch(tag -> {
+			return stream(this.tags).anyMatch(tag::equalsIgnoreCase) || tag.equalsIgnoreCase(language);
 		});
 	}
 
