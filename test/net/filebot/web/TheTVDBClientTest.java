@@ -144,11 +144,11 @@ public class TheTVDBClientTest {
 	@Test
 	public void getBanner() throws Exception {
 		Artwork banner = thetvdb.getArtwork(buffy.getId(), "season", Locale.ROOT).stream().filter(it -> {
-			return it.getCategory().contains("season") && it.getCategory().contains("seasonwide") && it.getCategory().contains("7") && it.getLanguage().equals("en");
+			return it.getTags().contains("season") && it.getTags().contains("seasonwide") && it.getTags().contains("7") && it.getLanguage().equals("en");
 		}).findFirst().get();
 
-		assertEquals("season", banner.getCategory().get(0));
-		assertEquals("seasonwide", banner.getCategory().get(1));
+		assertEquals("season", banner.getTags().get(0));
+		assertEquals("seasonwide", banner.getTags().get(1));
 		assertEquals("http://thetvdb.com/banners/seasonswide/70327-7.jpg", banner.getUrl().toString());
 		assertEquals(99712, WebRequest.fetch(banner.getUrl()).remaining(), 0);
 	}

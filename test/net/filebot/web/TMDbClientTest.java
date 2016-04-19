@@ -89,7 +89,7 @@ public class TMDbClientTest {
 	@Test
 	public void getArtwork() throws Exception {
 		Artwork a = tmdb.getArtwork(16320, "backdrops", Locale.ROOT).get(0);
-		assertEquals("[backdrops, 1920x1080]", a.getCategory().toString());
+		assertEquals("[backdrops, 1920x1080]", a.getTags().toString());
 		assertEquals("https://image.tmdb.org/t/p/original/424MxHQe5Hfu92hTeRvZb5Giv0X.jpg", a.getUrl().toString());
 	}
 

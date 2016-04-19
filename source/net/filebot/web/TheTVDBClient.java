@@ -343,7 +343,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 				debug.log(Level.WARNING, e, e::getMessage);
 				return null;
 			}
-		}).filter(Objects::nonNull).filter(it -> it.getCategory().contains(category)).collect(toList());
+		}).filter(Objects::nonNull).filter(it -> it.getTags().contains(category)).collect(toList());
 	}
 
 	protected TypedCache<SearchResult> getLookupCache(String type, Locale language) {

@@ -15,7 +15,7 @@ public class Artwork implements Serializable {
 
 	private String database;
 
-	private String[] category;
+	private String[] tags;
 	private URL url;
 
 	private String language;
@@ -25,9 +25,9 @@ public class Artwork implements Serializable {
 		// used by serializer
 	}
 
-	public Artwork(Datasource database, Stream<?> category, URL url, Locale language, Double rating) {
+	public Artwork(Datasource database, Stream<?> tags, URL url, Locale language, Double rating) {
 		this.database = database.getIdentifier();
-		this.category = category.filter(Objects::nonNull).map(Object::toString).toArray(String[]::new);
+		this.tags = tags.filter(Objects::nonNull).map(Object::toString).toArray(String[]::new);
 		this.url = url;
 		this.language = language == null || language.getLanguage().isEmpty() ? null : language.getLanguage();
 		this.rating = rating == null ? 0 : rating;
@@ -37,8 +37,8 @@ public class Artwork implements Serializable {
 		return database;
 	}
 
-	public List<String> getCategory() {
-		return unmodifiableList(asList(category));
+	public List<String> getTags() {
+		return unmodifiableList(asList(tags));
 	}
 
 	public URL getUrl() {
@@ -55,7 +55,7 @@ public class Artwork implements Serializable {
 
 	public boolean matches(String... tags) {
 		return stream(tags).filter(Objects::nonNull).allMatch(tag -> {
-			return stream(category).anyMatch(tag::equalsIgnoreCase) || tag.equalsIgnoreCase(language);
+			return stream(tags).anyMatch(tag::equalsIgnoreCase) || tag.equalsIgnoreCase(language);
 		});
 	}
 
@@ -75,7 +75,7 @@ public class Artwork implements Serializable {
 
 	@Override
 	public String toString() {
-		return asList(String.join("/", category), language, new DecimalFormat("0.##").format(rating), url).toString();
+		return asList(String.join("/", tags), language, new DecimalFormat("0.##").format(rating), url).toString();
 	}
 
 }
