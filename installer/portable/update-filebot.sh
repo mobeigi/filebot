@@ -30,4 +30,4 @@ echo "Update $JAR_FILE"
 curl -L -o "$JAR_FILE" -z "$JAR_FILE" "https://downloads.sourceforge.net/project/filebot/filebot/HEAD/FileBot.jar"
 
 echo "Update $SH_FILE"
-curl -L -o "$SH_FILE" -z "$SH_FILE" "https://svn.code.sf.net/p/filebot/code/trunk/installer/portable/filebot.sh"
+curl -L -o "$SH_FILE" -z "$SH_FILE" "https://raw.githubusercontent.com/filebot/filebot/master/installer/portable/filebot.sh"
