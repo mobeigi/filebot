@@ -115,7 +115,7 @@
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Built-Date" value="${tstamp.date}" />
-				<attribute name="Built-Revision" value="${svn.revision}" />
+				<attribute name="Built-Revision" value="${revision}" />
 				<attribute name="Application-Name" value="${title}" />
 				<attribute name="Application-Version" value="${version}" />
 				<attribute name="Main-Class" value="net.filebot.Main" />
@@ -376,16 +376,16 @@
 		</antcall>
 	</target>
 
-	<target name="appbundle-maspkg" depends="svn-update, fatjar">
+	<target name="appbundle-maspkg" depends="update, fatjar">
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="jars.classpath" />
 
 		<property name="path.app" value="${application.name}.app" />
-		<property name="path.pkg" value="${application.executable}_${version}_r${svn.revision}.pkg" />
+		<property name="path.pkg" value="${application.executable}_${version}_r${revision}.pkg" />
 
 		<property name="jre.version" value="jdk1.8.0_74.jdk" />
 		<property name="jre.path" value="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Home" />
 
-		<bundleapp minimumsystemversion="10.8" executablename="${application.executable}AppLauncher" version="${svn.revision}" outputdirectory="${dir.dist}" name="${application.name}" displayname="${application.name}" shortversion="${version}" identifier="${application.identifier}" mainclassname="net.filebot.Main" icon="${application.icon}" copyright="${tstamp.year} Point Planck" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
+		<bundleapp minimumsystemversion="10.8" executablename="${application.executable}AppLauncher" version="${revision}" outputdirectory="${dir.dist}" name="${application.name}" displayname="${application.name}" shortversion="${version}" identifier="${application.identifier}" mainclassname="net.filebot.Main" icon="${application.icon}" copyright="${tstamp.year} Point Planck" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<arch name="x86_64" />
@@ -499,12 +499,12 @@
 	</target>
 
 
-	<target name="ubuntu-debsrc" depends="svn-update, fatjar">
+	<target name="ubuntu-debsrc" depends="update, fatjar">
 		<property name="jre.version" value="jdk-8u66" />
 		<property name="jre.dir" value="${basedir}/jre" />
 
-		<property name="path.tarbin" location="${dir.dist}/filebot-${version}-r${svn.revision}-tarbin.tar.gz" />
-		<property name="path.debsrc" location="${dir.dist}/filebot-${version}-r${svn.revision}-debsrc.tar.gz" />
+		<property name="path.tarbin" location="${dir.dist}/filebot-${version}-r${revision}-tarbin.tar.gz" />
+		<property name="path.debsrc" location="${dir.dist}/filebot-${version}-r${revision}-debsrc.tar.gz" />
 		<property name="dir.debsrc" location="${dir.dist}/debian-source-package/filebot/filebot-${version}" />
 
 		<!-- collect binary content -->
@@ -810,7 +810,7 @@
 		<!-- update application properties -->
 		<replace dir="${dir.build}" encoding="UTF-8" summary="yes">
 			<include name="**/*.properties" />
-			<replacefilter token="@{svn.revision}" value="${svn.revision}" />
+			<replacefilter token="@{revision}" value="${revision}" />
 			<replacefilter token="@{version}" value="${version}" />
 		</replace>
 	</target>
@@ -849,16 +849,18 @@
 	</target>
 
 
-	<target name="svn-update">
-		<taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="jars.classpath" />
-		<groovy outputproperty="svn.revision" fork="yes" failonerror="yes">
-			print 'svn update'.execute().text.split(/\D+/).last().toInteger()
-		</groovy>
-		<echo>Revision: ${svn.revision}</echo>
+	<target name="update">
+		<exec executable="git" failonerror="true">
+			<arg line="pull" />
+		</exec>
+		<exec executable="git" outputproperty="revision" failonerror="true">
+			<arg line="rev-list --count master" />
+		</exec>
+		<echo>Revision: ${revision}</echo>
 	</target>
 
 
-	<target name="stage-release" depends="resolve, svn-update, fatjar, portable, spk, ipkg, deb, msi, appbundle">
+	<target name="stage-release" depends="resolve, update, fatjar, portable, spk, ipkg, deb, msi, appbundle">
 		<delete dir="${dir.release}" />
 		<mkdir dir="${dir.release}" />
 
@@ -1013,8 +1015,8 @@
 	</target>
 
 
-	<target name="deploy-beta-jar" depends="resolve, svn-update, fatjar" description="Build and deploy fatjar for the latest revision">
-		<scp file="${path.fatjar}" remoteTofile="${deploy.release}/HEAD/filebot-r${svn.revision}.jar" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}" />
+	<target name="deploy-beta-jar" depends="resolve, update, fatjar" description="Build and deploy fatjar for the latest revision">
+		<scp file="${path.fatjar}" remoteTofile="${deploy.release}/HEAD/filebot-r${revision}.jar" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}" />
 		<scp file="${path.fatjar}" remoteTofile="${deploy.release}/HEAD/FileBot.jar" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}" />
 	</target>
 
