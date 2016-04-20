@@ -1,3 +1,4 @@
+
 package net.filebot.web;
 
 import java.util.concurrent.ScheduledFuture;
@@ -5,10 +6,13 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import net.filebot.util.DefaultThreadFactory;
+
 public class FloodLimit {
 
+	private static final ScheduledThreadPoolExecutor TIMER = new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("FloodLimitTimer", Thread.NORM_PRIORITY, true));
+
 	private final Semaphore permits;
-	private final ScheduledThreadPoolExecutor timer = new ScheduledThreadPoolExecutor(1);
 
 	private final long releaseDelay;
 	private final TimeUnit timeUnit;
@@ -21,20 +25,7 @@ public class FloodLimit {
 
 	public ScheduledFuture<?> acquirePermit() throws InterruptedException {
 		permits.acquire();
-		return timer.schedule(new ReleasePermit(), releaseDelay, timeUnit);
+		return TIMER.schedule(permits::release, releaseDelay, timeUnit);
 	}
 
-	public void releaseNow(ScheduledFuture<?> future) {
-		if (future.cancel(false)) {
-			permits.release();
-		}
-	}
-
-	private class ReleasePermit implements Runnable {
-
-		@Override
-		public void run() {
-			permits.release();
-		}
-	}
 }
