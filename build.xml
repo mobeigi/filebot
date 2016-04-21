@@ -113,9 +113,8 @@
 		<!-- main jar -->
 		<jar destfile="${dir.dist}/filebot.jar">
 			<manifest>
-				<attribute name="Built-By" value="${user.name}" />
-				<attribute name="Built-Date" value="${tstamp.date}" />
-				<attribute name="Built-Revision" value="${revision}" />
+				<attribute name="Build-Date" value="${tstamp.date}" />
+				<attribute name="Build-Revision" value="${revision}" />
 				<attribute name="Application-Name" value="${title}" />
 				<attribute name="Application-Version" value="${version}" />
 				<attribute name="Main-Class" value="net.filebot.Main" />
@@ -850,6 +849,9 @@
 
 
 	<target name="update">
+		<exec executable="git" failonerror="true">
+			<arg line="git reset --hard" />
+		</exec>
 		<exec executable="git" failonerror="true">
 			<arg line="pull" />
 		</exec>
