@@ -686,18 +686,25 @@ public class MediaBindingBean {
 		// match AniDB episode to TheTVDB episode
 		if (WebServices.AniDB.getIdentifier().equals(seriesInfo.getDatabase())) {
 			Locale locale = new Locale(seriesInfo.getLanguage());
-			List<SearchResult> series = WebServices.TheTVDB.search(seriesInfo.getName(), locale);
-			if (series.size() > 0) {
-				List<Episode> airdateEpisodeList = WebServices.TheTVDB.getEpisodeList(series.get(0), SortOrder.Airdate, locale);
+			List<Episode> episode = getEpisodes();
+
+			for (SearchResult series : WebServices.TheTVDB.search(seriesInfo.getName(), locale)) {
+				// sanity check search result
+				if (!series.getEffectiveNames().contains(seriesInfo.getName()))
+					continue;
+
+				List<Episode> airdateEpisodeList = WebServices.TheTVDB.getEpisodeList(series, SortOrder.Airdate, locale);
 
 				// match by absolute number or airdate if possible, default to absolute number otherwise
-				Episode[] episodes = getEpisodes().stream().map(abs -> {
+				List<Episode> airdateEpisode = episode.stream().flatMap(abs -> {
 					return airdateEpisodeList.stream().filter(sxe -> abs.getSpecial() == null && sxe.getSpecial() == null).filter(sxe -> {
-						return abs.getAbsolute() != null && abs.getAbsolute().equals(sxe.getAbsolute()) || abs.getAirdate() != null && abs.getAirdate().equals(sxe.getAirdate());
-					}).findFirst().orElse(abs);
-				}).toArray(Episode[]::new);
+						return abs.getAbsolute() != null && abs.getAbsolute().equals(sxe.getAbsolute());
+					});
+				}).collect(toList());
 
-				return episodes.length == 1 ? episodes[0] : new MultiEpisode(episodes);
+				if (airdateEpisode.size() == episode.size()) {
+					return airdateEpisode.size() == 1 ? airdateEpisode.get(0) : new MultiEpisode(airdateEpisode);
+				}
 			}
 		}
 

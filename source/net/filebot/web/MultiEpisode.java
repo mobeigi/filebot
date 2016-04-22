@@ -19,6 +19,11 @@ public class MultiEpisode extends Episode {
 		this.episodes = episodes.clone();
 	}
 
+	public MultiEpisode(List<Episode> episodes) {
+		super(episodes.get(0));
+		this.episodes = episodes.toArray(new Episode[0]);
+	}
+
 	public List<Episode> getEpisodes() {
 		return unmodifiableList(asList(episodes));
 	}
