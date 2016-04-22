@@ -238,7 +238,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			header.setBorder(createCompoundBorder(createTitledBorder(""), createEmptyBorder(3, 3, 3, 3)));
 
 			// multiple results have been found, user must select one
-			SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(parent, options, true, false, header);
+			SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(parent, options, true, false, header.getText().isEmpty() ? null : header);
 			selectDialog.setTitle(provider.getName());
 			selectDialog.getMessageLabel().setText("<html>Select best match for \"<b>" + escapeHTML(query) + "</b>\":</html>");
 			selectDialog.getCancelAction().putValue(Action.NAME, "Skip");
@@ -298,27 +298,29 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 
 	protected String getQueryInputMessage(String header, String message, Collection<File> files) throws Exception {
 		List<File> selection = files.stream().sorted(comparing(File::length).reversed()).limit(5).collect(toList());
+		if (selection.isEmpty()) {
+			return "";
+		}
 
 		StringBuilder html = new StringBuilder(512);
 		html.append("<html>");
-		if (selection.size() > 0) {
-			if (header != null) {
-				html.append(escapeHTML(header)).append("<br>");
-			}
-
-			TextColorizer colorizer = new TextColorizer("<nobr>• ", "</nobr><br>");
-			for (File file : sortByUniquePath(selection)) {
-				File path = getStructurePathTail(file);
-				if (path == null) {
-					path = getRelativePathTail(file, 3);
-				}
-				colorizer.colorizePath(html, path, true);
-			}
-			if (selection.size() < files.size()) {
-				html.append("• ").append("…").append("<br>");
-			}
-			html.append("<br>");
+		if (header != null) {
+			html.append(escapeHTML(header)).append("<br>");
 		}
+
+		TextColorizer colorizer = new TextColorizer("<nobr>• ", "</nobr><br>");
+		for (File file : sortByUniquePath(selection)) {
+			File path = getStructurePathTail(file);
+			if (path == null) {
+				path = getRelativePathTail(file, 3);
+			}
+			colorizer.colorizePath(html, path, true);
+		}
+		if (selection.size() < files.size()) {
+			html.append("• ").append("…").append("<br>");
+		}
+		html.append("<br>");
+
 		if (message != null) {
 			html.append(escapeHTML(message));
 		}
