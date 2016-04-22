@@ -3,6 +3,7 @@ package net.filebot.format;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.format.Define.*;
 import static net.filebot.format.ExpressionFormatMethods.*;
@@ -60,6 +61,7 @@ import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.Movie;
 import net.filebot.web.MoviePart;
 import net.filebot.web.MultiEpisode;
+import net.filebot.web.SearchResult;
 import net.filebot.web.SeriesInfo;
 import net.filebot.web.SimpleDate;
 import net.filebot.web.SortOrder;
@@ -160,6 +162,11 @@ public class MediaBindingBean {
 
 	@Define("s00e00")
 	public String getS00E00() {
+		try {
+			return SeasonEpisode.formatS00E00(getSeasonEpisode()); // try to convert absolute numbers to SxE numbers
+		} catch (Exception e) {
+			debug.warning(e::toString);
+		}
 		return SeasonEpisode.formatS00E00(getEpisode());
 	}
 
@@ -670,6 +677,32 @@ public class MediaBindingBean {
 		} catch (Exception e) {
 			return sortInitial(getName());
 		}
+	}
+
+	@Define("abs2sxe")
+	public Episode getSeasonEpisode() throws Exception {
+		SeriesInfo seriesInfo = getEpisode().getSeriesInfo();
+
+		// match AniDB episode to TheTVDB episode
+		if (WebServices.AniDB.getIdentifier().equals(seriesInfo.getDatabase())) {
+			Locale locale = new Locale(seriesInfo.getLanguage());
+			List<SearchResult> series = WebServices.TheTVDB.search(seriesInfo.getName(), locale);
+			if (series.size() > 0) {
+				List<Episode> airdateEpisodeList = WebServices.TheTVDB.getEpisodeList(series.get(0), SortOrder.Airdate, locale);
+
+				// match by absolute number or airdate if possible, default to absolute number otherwise
+				Episode[] episodes = getEpisodes().stream().map(abs -> {
+					return airdateEpisodeList.stream().filter(sxe -> abs.getSpecial() == null && sxe.getSpecial() == null).filter(sxe -> {
+						return abs.getAbsolute() != null && abs.getAbsolute().equals(sxe.getAbsolute()) || abs.getAirdate() != null && abs.getAirdate().equals(sxe.getAirdate());
+					}).findFirst().orElse(abs);
+				}).toArray(Episode[]::new);
+
+				return episodes.length == 1 ? episodes[0] : new MultiEpisode(episodes);
+			}
+		}
+
+		// return episode object as is by default
+		return getEpisode();
 	}
 
 	@Define("episodelist")
