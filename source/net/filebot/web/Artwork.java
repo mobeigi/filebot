@@ -54,6 +54,10 @@ public class Artwork implements Serializable {
 	}
 
 	public boolean matches(Object... tags) {
+		if (tags == null || tags.length == 0) {
+			return true;
+		}
+
 		return stream(tags).filter(Objects::nonNull).map(Object::toString).allMatch(tag -> {
 			return stream(this.tags).anyMatch(tag::equalsIgnoreCase) || tag.equalsIgnoreCase(language);
 		});
