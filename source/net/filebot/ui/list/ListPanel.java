@@ -204,7 +204,7 @@ public class ListPanel extends JComponent {
 	}
 
 	public void createItemSequence(List<?> objects) {
-		List<ListItem> items = IntStream.range(1, objects.size()).mapToObj(i -> createItem(objects.get(i), i, 0, objects.size(), objects)).collect(toList());
+		List<ListItem> items = IntStream.range(0, objects.size()).mapToObj(i -> createItem(objects.get(i), i + 1, 1, objects.size(), objects)).collect(toList());
 
 		list.getListComponent().clearSelection();
 		list.getModel().clear();
