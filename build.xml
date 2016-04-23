@@ -381,7 +381,7 @@
 		<property name="path.app" value="${application.name}.app" />
 		<property name="path.pkg" value="${application.executable}_${version}_r${revision}.pkg" />
 
-		<property name="jre.version" value="jdk1.8.0_74.jdk" />
+		<property name="jre.version" value="jdk1.8.0_92.jdk" />
 		<property name="jre.path" value="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Home" />
 
 		<bundleapp minimumsystemversion="10.8" executablename="${application.executable}AppLauncher" version="${revision}" outputdirectory="${dir.dist}" name="${application.name}" displayname="${application.name}" shortversion="${version}" identifier="${application.identifier}" mainclassname="net.filebot.Main" icon="${application.icon}" copyright="${tstamp.year} Point Planck" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
@@ -499,7 +499,7 @@
 
 
 	<target name="ubuntu-debsrc" depends="update, fatjar">
-		<property name="jre.version" value="jdk-8u66" />
+		<property name="jre.version" value="jdk-8u92" />
 		<property name="jre.dir" value="${basedir}/jre" />
 
 		<property name="path.tarbin" location="${dir.dist}/filebot-${version}-r${revision}-tarbin.tar.gz" />
