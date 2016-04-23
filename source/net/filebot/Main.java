@@ -3,21 +3,18 @@ package net.filebot;
 import static java.awt.GraphicsEnvironment.*;
 import static java.util.Arrays.*;
 import static java.util.stream.Collectors.*;
-import static javax.swing.JOptionPane.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.XPathUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
-import java.awt.Desktop;
 import java.awt.Dialog.ModalityType;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -36,7 +33,6 @@ import java.util.logging.Level;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -55,6 +51,7 @@ import net.filebot.ui.MainFrame;
 import net.filebot.ui.NotificationHandler;
 import net.filebot.ui.PanelBuilder;
 import net.filebot.ui.SinglePanelFrame;
+import net.filebot.ui.SupportDialog;
 import net.filebot.ui.transfer.FileTransferable;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.TeePrintStream;
@@ -210,17 +207,7 @@ public class Main {
 
 				// make sure any long running operations are done now and not later on the shutdown hook thread
 				HistorySpooler.getInstance().commit();
-
-				// show donation / review reminders to power users (more than 2000 renames)
-				int renameCount = HistorySpooler.getInstance().getPersistentHistoryTotalSize();
-
-				if (renameCount > 2000 && Math.random() <= 0.777) {
-					if (isAppStore()) {
-						showAppStoreReviewReminder();
-					} else {
-						showDonationReminder();
-					}
-				}
+				SupportDialog.maybeShow();
 
 				System.exit(0);
 			}
@@ -309,57 +296,6 @@ public class Main {
 
 			// open Getting Started
 			SwingUtilities.invokeLater(() -> GettingStartedStage.start());
-		}
-	}
-
-	private static void showDonationReminder() {
-		PreferencesEntry<String> donation = Settings.forPackage(Main.class).entry("donation").defaultValue("0");
-		int donationRev = Integer.parseInt(donation.getValue());
-		int currentRev = getApplicationRevisionNumber();
-		if (donationRev >= currentRev) {
-			return;
-		}
-
-		String message = String.format("<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider a donation to me and my work. It will help to<br>make FileBot even better!<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", HistorySpooler.getInstance().getPersistentHistoryTotalSize());
-		String[] actions = { "Donate! :)", donationRev > 0 ? "Not this time" : "Later" };
-		JOptionPane pane = new JOptionPane(message, INFORMATION_MESSAGE, YES_NO_OPTION, ResourceManager.getIcon("message.donate"), actions, actions[0]);
-		pane.createDialog(null, "Please Donate").setVisible(true);
-
-		if (pane.getValue() == actions[0]) {
-			openURI(getDonateURL());
-			donation.setValue(String.valueOf(currentRev));
-		} else {
-			if (donationRev > 0 && donationRev < currentRev) {
-				donation.setValue(String.valueOf(currentRev));
-			}
-		}
-	}
-
-	private static void showAppStoreReviewReminder() {
-		PreferencesEntry<String> donation = Settings.forPackage(Main.class).entry("review").defaultValue("0");
-		int donationRev = Integer.parseInt(donation.getValue());
-		if (donationRev > 0) {
-			return;
-		}
-
-		// make sure review reminder is shown at most once (per machine)
-		int currentRev = getApplicationRevisionNumber();
-		donation.setValue(String.valueOf(currentRev));
-
-		String message = String.format("<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider writing a nice little review on the %s.<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", getAppStoreName(), HistorySpooler.getInstance().getPersistentHistoryTotalSize());
-		String[] actions = { "Review! I like FileBot. :)", "Never! Don't bother me again." };
-		JOptionPane pane = new JOptionPane(message, INFORMATION_MESSAGE, YES_NO_OPTION, ResourceManager.getIcon("window.icon.large"), actions, actions[0]);
-		pane.createDialog(null, "Please rate FileBot").setVisible(true);
-		if (pane.getValue() == actions[0]) {
-			openURI(getAppStoreLink());
-		}
-	}
-
-	private static void openURI(String uri) {
-		try {
-			Desktop.getDesktop().browse(URI.create(uri));
-		} catch (Exception e) {
-			debug.log(Level.SEVERE, "Failed to open URI: " + uri, e);
 		}
 	}
 
