@@ -1,12 +1,7 @@
 package net.filebot.ui;
 
-import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.util.ui.SwingUI.*;
-
-import java.awt.Desktop;
-import java.net.URI;
-import java.util.logging.Level;
 
 import javax.swing.Action;
 import javax.swing.JMenu;
@@ -47,13 +42,7 @@ public class FileBotMenuBar {
 	}
 
 	private static Action createLink(final String title, final String uri) {
-		return newAction(title, null, evt -> {
-			try {
-				Desktop.getDesktop().browse(URI.create(uri));
-			} catch (Exception e) {
-				debug.log(Level.SEVERE, "Failed to open URI: " + uri, e);
-			}
-		});
+		return newAction(title, null, evt -> openURI(uri));
 	}
 
 }

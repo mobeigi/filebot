@@ -2,10 +2,12 @@ package net.filebot.util.ui;
 
 import static java.util.Collections.*;
 import static javax.swing.JOptionPane.*;
+import static net.filebot.Logging.*;
 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics2D;
@@ -20,10 +22,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
@@ -47,6 +51,14 @@ import javax.swing.undo.UndoManager;
 import net.filebot.Settings;
 
 public final class SwingUI {
+
+	public static void openURI(String uri) {
+		try {
+			Desktop.getDesktop().browse(URI.create(uri));
+		} catch (Exception e) {
+			debug.log(Level.SEVERE, "Failed to open URI: " + uri, e);
+		}
+	}
 
 	public static void checkEventDispatchThread() {
 		if (!SwingUtilities.isEventDispatchThread()) {

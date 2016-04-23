@@ -11,7 +11,6 @@ import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
@@ -22,7 +21,6 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.net.URI;
 import java.text.Format;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -360,22 +358,13 @@ public class FormatDialog extends JDialog {
 
 	private JComponent createSyntaxPanel(Mode mode) {
 		JPanel panel = new JPanel(new MigLayout("fill, nogrid"));
-
 		panel.setBorder(createLineBorder(new Color(0xACA899)));
 		panel.setBackground(new Color(0xFFFFE1));
 		panel.setOpaque(true);
 
-		panel.add(new LinkButton(new AbstractAction(ResourceBundle.getBundle(FormatDialog.class.getName()).getString(mode.key() + ".syntax")) {
-
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				try {
-					Desktop.getDesktop().browse(URI.create(ResourceBundle.getBundle(FormatDialog.class.getName()).getString("help.url")));
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}));
+		panel.add(new LinkButton(newAction(ResourceBundle.getBundle(FormatDialog.class.getName()).getString(mode.key() + ".syntax"), evt -> {
+			openURI(ResourceBundle.getBundle(FormatDialog.class.getName()).getString("help.url"));
+		})));
 
 		return panel;
 	}
