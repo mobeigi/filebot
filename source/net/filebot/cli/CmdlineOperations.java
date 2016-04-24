@@ -510,7 +510,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		// check audio files against all services
 		for (int i = 0; i < services.length && remaining.size() > 0; i++) {
-			log.config(format("Rename music using %s", services[i]));
+			log.config(format("Rename music using %s", services[i].getIdentifier()));
 			services[i].lookup(remaining).forEach((file, music) -> {
 				if (music != null) {
 					matches.add(new Match<File, AudioTrack>(file, music.clone()));
