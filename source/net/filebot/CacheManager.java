@@ -42,7 +42,7 @@ public class CacheManager {
 		if (!manager.cacheExists(name)) {
 			manager.addCache(new net.sf.ehcache.Cache(type.getConfiguration(name)));
 		}
-		return new Cache(manager.getCache(name));
+		return new Cache(manager.getCache(name), type);
 	}
 
 	public synchronized void clearAll() {

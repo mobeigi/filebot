@@ -33,7 +33,6 @@ import javax.swing.Icon;
 
 import net.filebot.Cache;
 import net.filebot.CacheType;
-import net.filebot.CachedResource.Fetch;
 import net.filebot.Language;
 import net.filebot.ResourceManager;
 import net.filebot.web.TMDbClient.MovieInfo.MovieProperty;
@@ -297,11 +296,8 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		String key = parameters.isEmpty() ? resource : resource + '?' + encodeParameters(parameters, true);
 		String cacheName = locale.getLanguage().isEmpty() ? getName() : getName() + "_" + locale;
 
-		Cache etagStorage = Cache.getCache(cacheName + "_etag", CacheType.Monthly);
 		Cache cache = Cache.getCache(cacheName, CacheType.Monthly);
-
-		Fetch fetchIfNoneMatch = fetchIfNoneMatch(url -> cache.get(key) == null ? null : etagStorage.get(key), (url, etag) -> etagStorage.put(key, etag));
-		Object json = cache.json(key, s -> getResource(s, locale)).fetch(withPermit(fetchIfNoneMatch, r -> limit.acquirePermit())).expire(Cache.ONE_WEEK).get();
+		Object json = cache.json(key, k -> getResource(k, locale)).fetch(withPermit(fetchIfNoneMatch(url -> key, cache), r -> limit.acquirePermit())).expire(Cache.ONE_WEEK).get();
 
 		if (asMap(json).isEmpty()) {
 			throw new FileNotFoundException(String.format("Resource is empty: %s => %s", json, getResource(key, locale)));

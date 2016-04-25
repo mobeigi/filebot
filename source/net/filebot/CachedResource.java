@@ -15,6 +15,7 @@ import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.w3c.dom.Document;
@@ -189,21 +190,41 @@ public class CachedResource<K, R> implements Resource<R> {
 		};
 	}
 
+	public static Fetch fetchIfNoneMatch(Transform<URL, ?> key, Cache cache) {
+		// create cache with the same config
+		Cache etagStorage = Cache.getCache(cache.getName() + "_etag", cache.getCacheType());
+
+		// make sure value cache contains key, otherwise ignore previously stored etag
+		return fetchIfNoneMatch(url -> {
+			try {
+				return cache.get(key.transform(url)) == null ? null : etagStorage.get(key.transform(url));
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}, (url, etag) -> {
+			try {
+				etagStorage.put(key.transform(url), etag);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+	}
+
 	public static Fetch fetchIfNoneMatch(Function<URL, Object> etagRetrieve, BiConsumer<URL, String> etagStore) {
 		return (url, lastModified) -> {
 			Object etagValue = etagRetrieve.apply(url);
 			debug.fine(WebRequest.log(url, lastModified, etagValue));
 			try {
-				return WebRequest.fetch(url, etagValue == null ? lastModified : 0, etagValue, null, storeETag(url, etagStore));
+				return WebRequest.fetch(url, etagValue == null ? lastModified : 0, etagValue, null, storeETag(url, etagStore, etag -> !etag.equals(etagValue)));
 			} catch (FileNotFoundException e) {
 				return fileNotFound(url, e);
 			}
 		};
 	}
 
-	private static Consumer<Map<String, List<String>>> storeETag(URL url, BiConsumer<URL, String> etagStore) {
+	private static Consumer<Map<String, List<String>>> storeETag(URL url, BiConsumer<URL, String> etagStore, Predicate<String> etagFilter) {
 		return (responseHeaders) -> {
-			WebRequest.getETag(responseHeaders).ifPresent(etag -> {
+			WebRequest.getETag(responseHeaders).filter(etagFilter).ifPresent(etag -> {
 				debug.finest(format("Store ETag: %s", etag));
 				etagStore.accept(url, etag);
 			});

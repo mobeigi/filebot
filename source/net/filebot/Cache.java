@@ -45,9 +45,19 @@ public class Cache {
 	}
 
 	private final net.sf.ehcache.Cache cache;
+	private final CacheType cacheType;
 
-	public Cache(net.sf.ehcache.Cache cache) {
+	public Cache(net.sf.ehcache.Cache cache, CacheType cacheType) {
 		this.cache = cache;
+		this.cacheType = cacheType;
+	}
+
+	public String getName() {
+		return cache.getName();
+	}
+
+	public CacheType getCacheType() {
+		return cacheType;
 	}
 
 	public Object get(Object key) {
@@ -123,15 +133,15 @@ public class Cache {
 	}
 
 	public <V> TypedCache<V> typed(Function<Object, V> read, Function<V, Object> write) {
-		return new TypedCache<V>(cache, read, write);
+		return new TypedCache<V>(cache, cacheType, read, write);
 	}
 
 	public <V> TypedCache<V> cast(Class<V> cls) {
-		return new TypedCache<V>(cache, it -> cls.cast(it), it -> it);
+		return new TypedCache<V>(cache, cacheType, it -> cls.cast(it), it -> it);
 	}
 
 	public <V> TypedCache<List<V>> castList(Class<V> cls) {
-		return new TypedCache<List<V>>(cache, it -> it == null ? null : stream((Object[]) it).map(cls::cast).collect(toList()), it -> it == null ? null : it.toArray());
+		return new TypedCache<List<V>>(cache, cacheType, it -> it == null ? null : stream((Object[]) it).map(cls::cast).collect(toList()), it -> it == null ? null : it.toArray());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -140,8 +150,8 @@ public class Cache {
 		private final Function<Object, V> read;
 		private final Function<V, Object> write;
 
-		public TypedCache(net.sf.ehcache.Cache cache, Function<Object, V> read, Function<V, Object> write) {
-			super(cache);
+		public TypedCache(net.sf.ehcache.Cache cache, CacheType cacheType, Function<Object, V> read, Function<V, Object> write) {
+			super(cache, cacheType);
 			this.read = read;
 			this.write = write;
 		}
