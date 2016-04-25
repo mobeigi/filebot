@@ -1,6 +1,7 @@
 package net.filebot.cli;
 
 import static java.util.Arrays.*;
+import static net.filebot.CachedResource.*;
 import static net.filebot.Settings.*;
 import static net.filebot.util.FileUtilities.*;
 
@@ -42,7 +43,8 @@ public enum ScriptSource {
 		public ScriptProvider getScriptProvider(String input) throws Exception {
 			URI parent = new URI(getApplicationProperty("github.master"));
 
-			return n -> getCache().text(n, s -> parent.resolve(s + ".groovy").toURL()).expire(Cache.ONE_DAY).get();
+			// NOTE: GitHub only supports If-None-Match (If-Modified-Since is ignored)
+			return n -> getCache().text(n, s -> parent.resolve(s + ".groovy").toURL()).fetch(fetchIfNoneMatch(url -> n, getCache())).expire(Cache.ONE_DAY).get();
 		}
 
 	},
