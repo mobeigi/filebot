@@ -75,14 +75,14 @@ class RenameAction extends AbstractAction {
 
 	@Override
 	public void actionPerformed(ActionEvent evt) {
+		if (model.names().isEmpty() || model.files().isEmpty()) {
+			log.info("Nothing to rename. New Names is empty. Please <Fetch Data> first.");
+			return;
+		}
+
 		try {
 			Window window = getWindow(evt.getSource());
 			withWaitCursor(window, () -> {
-				if (model.files().isEmpty() || model.values().isEmpty()) {
-					log.info("Nothing to rename. New Names is empty.");
-					return;
-				}
-
 				Map<File, File> renameMap = checkRenamePlan(validate(model.getRenameMap(), window), window);
 				if (renameMap.isEmpty()) {
 					return;

@@ -16,8 +16,6 @@ import java.awt.Insets;
 import java.awt.Window;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -252,25 +250,21 @@ public class RenamePanel extends JComponent {
 		});
 
 		// reveal file location on double click
-		filesList.getListComponent().addMouseListener(new MouseAdapter() {
-
-			@Override
-			public void mouseClicked(MouseEvent evt) {
-				if (evt.getClickCount() == 2) {
-					getWindow(evt.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					try {
-						JList list = (JList) evt.getSource();
-						if (list.getSelectedIndex() >= 0) {
-							UserFiles.revealFiles(list.getSelectedValuesList());
-						}
-					} catch (Exception e) {
-						debug.log(Level.WARNING, e.getMessage(), e);
-					} finally {
-						getWindow(evt.getSource()).setCursor(Cursor.getDefaultCursor());
+		filesList.getListComponent().addMouseListener(mouseClicked(evt -> {
+			if (evt.getClickCount() == 2) {
+				getWindow(evt.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				try {
+					JList list = (JList) evt.getSource();
+					if (list.getSelectedIndex() >= 0) {
+						UserFiles.revealFiles(list.getSelectedValuesList());
 					}
+				} catch (Exception e) {
+					debug.log(Level.WARNING, e.getMessage(), e);
+				} finally {
+					getWindow(evt.getSource()).setCursor(Cursor.getDefaultCursor());
 				}
 			}
-		});
+		}));
 
 		// reveal file location on double click
 		namesList.getListComponent().addMouseListener(mouseClicked(evt -> {
