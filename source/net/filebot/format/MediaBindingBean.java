@@ -909,19 +909,14 @@ public class MediaBindingBean {
 
 	@Define("defines")
 	public Map<String, String> getUserDefinedArguments() throws IOException {
-		return Settings.getApplicationArguments().defines;
+		return unmodifiableMap(Settings.getApplicationArguments().defines);
 	}
 
 	@Define("label")
 	public String getUserDefinedLabel() throws IOException {
-		for (Entry<String, String> it : getUserDefinedArguments().entrySet()) {
-			if (it.getKey().endsWith("label")) {
-				if (it.getValue() != null && it.getValue().length() > 0) {
-					return it.getValue();
-				}
-			}
-		}
-		return null;
+		return getUserDefinedArguments().entrySet().stream().filter(it -> {
+			return it.getKey().endsWith("label") && it.getValue() != null && it.getValue().length() > 0;
+		}).map(it -> it.getValue()).findFirst().orElse(null);
 	}
 
 	@Define("i")
@@ -931,13 +926,7 @@ public class MediaBindingBean {
 
 	@Define("di")
 	public Integer getDuplicateIndex() {
-		List<Object> duplicates = new ArrayList<Object>();
-		for (Object it : context.values()) {
-			if (getInfoObject().equals(it)) {
-				duplicates.add(it);
-			}
-		}
-		return 1 + identityIndexOf(duplicates, getInfoObject());
+		return 1 + identityIndexOf(context.values().stream().filter(it -> getInfoObject().equals(it)).collect(toList()), getInfoObject());
 	}
 
 	@Define("plex")
@@ -1034,8 +1023,9 @@ public class MediaBindingBean {
 		Iterator<?> itr = c.iterator();
 		for (int i = 0; itr.hasNext(); i++) {
 			Object next = itr.next();
-			if (o == next)
+			if (o == next) {
 				return i;
+			}
 		}
 		return null;
 	}
