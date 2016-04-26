@@ -79,7 +79,7 @@ class RenameAction extends AbstractAction {
 			Window window = getWindow(evt.getSource());
 			withWaitCursor(window, () -> {
 				if (model.files().isEmpty() || model.values().isEmpty()) {
-					log.info("Nothing to rename. Please add some files and fetch naming data first.");
+					log.info("Nothing to rename. New Names is empty.");
 					return;
 				}
 

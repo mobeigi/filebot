@@ -312,46 +312,42 @@ public class RenamePanel extends JComponent {
 		add(new LoadingOverlayPane(namesList, namesList, "37px", "30px"), "grow, sizegroupx list");
 
 		// manual force name via F2
-		installAction(namesList.getListComponent(), getKeyStroke(VK_F2, 0), new AbstractAction("Force Name") {
+		installAction(namesList.getListComponent(), getKeyStroke(VK_F2, 0), newAction("Force Name", evt -> {
+			try {
+				if (namesList.getModel().isEmpty()) {
+					withWaitCursor(evt.getSource(), () -> {
+						// try to read xattr from all files
+						Map<File, Object> xattr = WebServices.XattrMetaData.getMetaData(renameModel.files());
 
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				try {
-					if (namesList.getModel().isEmpty()) {
-						withWaitCursor(evt.getSource(), () -> {
-							// try to read xattr from all files
-							Map<File, Object> xattr = WebServices.XattrMetaData.getMetaData(renameModel.files());
+						// upper list is based on xattr metadata
+						List<File> files = new ArrayList<File>(xattr.keySet());
+						List<Object> objects = new ArrayList<Object>(xattr.values());
 
-							// upper list is based on xattr metadata
-							List<File> files = new ArrayList<File>(xattr.keySet());
-							List<Object> objects = new ArrayList<Object>(xattr.values());
-
-							// lower list is just the fallback file object
-							renameModel.files().stream().filter(f -> !xattr.containsKey(f)).forEach(f -> {
-								files.add(f);
-								objects.add(f);
-							});
-
-							renameModel.clear();
-							renameModel.addAll(objects, files);
+						// lower list is just the fallback file object
+						renameModel.files().stream().filter(f -> !xattr.containsKey(f)).forEach(f -> {
+							files.add(f);
+							objects.add(f);
 						});
-					} else {
-						int index = namesList.getListComponent().getSelectedIndex();
-						if (index >= 0) {
-							File file = (File) filesList.getListComponent().getModel().getElementAt(index);
-							String generatedName = namesList.getListComponent().getModel().getElementAt(index).toString();
 
-							String forcedName = showInputDialog("Enter Name:", generatedName, "Enter Name", RenamePanel.this);
-							if (forcedName != null && forcedName.length() > 0) {
-								renameModel.matches().set(index, new Match<Object, File>(forcedName, file));
-							}
+						renameModel.clear();
+						renameModel.addAll(objects, files);
+					});
+				} else {
+					int index = namesList.getListComponent().getSelectedIndex();
+					if (index >= 0) {
+						File file = (File) filesList.getListComponent().getModel().getElementAt(index);
+						String generatedName = namesList.getListComponent().getModel().getElementAt(index).toString();
+
+						String forcedName = showInputDialog("Enter Name:", generatedName, "Enter Name", RenamePanel.this);
+						if (forcedName != null && forcedName.length() > 0) {
+							renameModel.matches().set(index, new Match<Object, File>(forcedName, file));
 						}
 					}
-				} catch (Exception e) {
-					debug.log(Level.WARNING, e.getMessage(), e);
 				}
+			} catch (Exception e) {
+				debug.log(Level.WARNING, e.getMessage(), e);
 			}
-		});
+		}));
 	}
 
 	private boolean isMatchModeStrict() {
@@ -374,51 +370,47 @@ public class RenamePanel extends JComponent {
 			actionPopup.addSeparator();
 		}
 
-		actionPopup.add(new AbstractAction("Edit Presets", ResourceManager.getIcon("script.add")) {
+		actionPopup.add(newAction("Edit Presets", ResourceManager.getIcon("script.add"), evt -> {
+			try {
+				String newPresetOption = "New Preset …";
+				List<String> presetNames = new ArrayList<String>(persistentPresets.keySet());
+				presetNames.add(newPresetOption);
 
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				try {
-					String newPresetOption = "New Preset …";
-					List<String> presetNames = new ArrayList<String>(persistentPresets.keySet());
-					presetNames.add(newPresetOption);
+				String selection = (String) showInputDialog(getWindow(evt.getSource()), "Edit or create a preset:", "Edit Preset", PLAIN_MESSAGE, null, presetNames.toArray(), newPresetOption);
+				if (selection == null)
+					return;
 
-					String selection = (String) showInputDialog(getWindow(evt.getSource()), "Edit or create a preset:", "Edit Preset", PLAIN_MESSAGE, null, presetNames.toArray(), newPresetOption);
-					if (selection == null)
+				Preset preset = null;
+				if (selection == newPresetOption) {
+					selection = (String) showInputDialog(getWindow(evt.getSource()), "Preset Name:", newPresetOption, PLAIN_MESSAGE, null, null, "My Preset");
+					if (selection == null || selection.trim().isEmpty())
 						return;
 
-					Preset preset = null;
-					if (selection == newPresetOption) {
-						selection = (String) showInputDialog(getWindow(evt.getSource()), "Preset Name:", newPresetOption, PLAIN_MESSAGE, null, null, "My Preset");
-						if (selection == null || selection.trim().isEmpty())
-							return;
-
-						preset = new Preset(selection.trim(), null, null, null, null, null, null, null, null);
-					} else {
-						preset = (Preset) JsonReader.jsonToJava(persistentPresets.get(selection.toString()));
-					}
-
-					PresetEditor presetEditor = new PresetEditor(getWindow(evt.getSource()));
-					presetEditor.setLocation(getOffsetLocation(presetEditor.getOwner()));
-					presetEditor.setPreset(preset);
-					presetEditor.setVisible(true);
-
-					switch (presetEditor.getResult()) {
-					case SET:
-						preset = presetEditor.getPreset();
-						persistentPresets.put(selection, JsonWriter.objectToJson(preset));
-						break;
-					case DELETE:
-						persistentPresets.remove(selection);
-						break;
-					case CANCEL:
-						break;
-					}
-				} catch (Exception e) {
-					debug.log(Level.WARNING, e.toString());
+					preset = new Preset(selection.trim(), null, null, null, null, null, null, null, null);
+				} else {
+					preset = (Preset) JsonReader.jsonToJava(persistentPresets.get(selection.toString()));
 				}
+
+				PresetEditor presetEditor = new PresetEditor(getWindow(evt.getSource()));
+				presetEditor.setLocation(getOffsetLocation(presetEditor.getOwner()));
+				presetEditor.setPreset(preset);
+				presetEditor.setVisible(true);
+
+				switch (presetEditor.getResult()) {
+				case SET:
+					preset = presetEditor.getPreset();
+					persistentPresets.put(selection, JsonWriter.objectToJson(preset));
+					break;
+				case DELETE:
+					persistentPresets.remove(selection);
+					break;
+				case CANCEL:
+					break;
+				}
+			} catch (Exception e) {
+				debug.log(Level.WARNING, e.toString());
 			}
-		});
+		}));
 
 		return actionPopup;
 	}
@@ -447,89 +439,82 @@ public class RenamePanel extends JComponent {
 			actionPopup.add(new AutoCompleteAction(it.getName(), it.getIcon(), new MusicMatcher(it)));
 		}
 
+		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("Smart Mode:"));
 		actionPopup.add(new AutoCompleteAction("Autodetect", ResourceManager.getIcon("action.auto"), new AutoDetectMatcher()));
 
 		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("Options:"));
 
-		actionPopup.add(new AbstractAction("Edit Format", ResourceManager.getIcon("action.format")) {
+		actionPopup.add(newAction("Edit Format", ResourceManager.getIcon("action.format"), evt -> {
+			showFormatEditor(null);
+		}));
 
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				showFormatEditor(null);
-			}
-		});
+		actionPopup.add(newAction("Preferences", ResourceManager.getIcon("action.preferences"), evt -> {
+			String[] modes = new String[] { MATCH_MODE_OPPORTUNISTIC, MATCH_MODE_STRICT };
+			JComboBox modeCombo = new JComboBox(modes);
 
-		actionPopup.add(new AbstractAction("Preferences", ResourceManager.getIcon("action.preferences")) {
+			List<Language> languages = new ArrayList<Language>();
+			languages.addAll(Language.preferredLanguages()); // add preferred languages first
+			languages.addAll(Language.availableLanguages()); // then others
 
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				String[] modes = new String[] { MATCH_MODE_OPPORTUNISTIC, MATCH_MODE_STRICT };
-				JComboBox modeCombo = new JComboBox(modes);
+			JComboBox orderCombo = new JComboBox(SortOrder.values());
+			JList languageList = new JList(languages.toArray());
+			languageList.setCellRenderer(new DefaultListCellRenderer() {
 
-				List<Language> languages = new ArrayList<Language>();
-				languages.addAll(Language.preferredLanguages()); // add preferred languages first
-				languages.addAll(Language.availableLanguages()); // then others
-
-				JComboBox orderCombo = new JComboBox(SortOrder.values());
-				JList languageList = new JList(languages.toArray());
-				languageList.setCellRenderer(new DefaultListCellRenderer() {
-
-					@Override
-					public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-						super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-						if (value != null) {
-							setText(((Language) value).getName());
-							setIcon(ResourceManager.getFlagIcon(((Language) value).getCode()));
-						}
-						return this;
+				@Override
+				public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+					super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+					if (value != null) {
+						setText(((Language) value).getName());
+						setIcon(ResourceManager.getFlagIcon(((Language) value).getCode()));
 					}
-				});
+					return this;
+				}
+			});
 
-				// restore current preference values
-				try {
-					modeCombo.setSelectedItem(persistentPreferredMatchMode.getValue());
-					for (Language language : languages) {
-						if (language.getCode().equals(persistentPreferredLanguage.getValue())) {
-							languageList.setSelectedValue(language, true);
-							break;
-						}
+			// restore current preference values
+			try {
+				modeCombo.setSelectedItem(persistentPreferredMatchMode.getValue());
+				for (Language language : languages) {
+					if (language.getCode().equals(persistentPreferredLanguage.getValue())) {
+						languageList.setSelectedValue(language, true);
+						break;
 					}
-					orderCombo.setSelectedItem(SortOrder.forName(persistentPreferredEpisodeOrder.getValue()));
-				} catch (Exception e) {
-					debug.log(Level.WARNING, e.getMessage(), e);
 				}
-
-				JScrollPane spModeCombo = new JScrollPane(modeCombo, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-				spModeCombo.setBorder(new CompoundBorder(new TitledBorder("Match Mode"), spModeCombo.getBorder()));
-				JScrollPane spLanguageList = new JScrollPane(languageList);
-				spLanguageList.setBorder(new CompoundBorder(new TitledBorder("Language"), spLanguageList.getBorder()));
-				JScrollPane spOrderCombo = new JScrollPane(orderCombo, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-				spOrderCombo.setBorder(new CompoundBorder(new TitledBorder("Episode Order"), spOrderCombo.getBorder()));
-
-				// fix background issues on OSX
-				spModeCombo.setOpaque(false);
-				spLanguageList.setOpaque(false);
-				spOrderCombo.setOpaque(false);
-
-				JPanel message = new JPanel(new MigLayout("fill, flowy, insets 0"));
-				message.add(spModeCombo, "grow, hmin 24px");
-				message.add(spLanguageList, "grow, hmin 50px");
-				message.add(spOrderCombo, "grow, hmin 24px");
-				JOptionPane pane = new JOptionPane(message, PLAIN_MESSAGE, OK_CANCEL_OPTION);
-				pane.createDialog(getWindowAncestor(RenamePanel.this), "Preferences").setVisible(true);
-
-				if (pane.getValue() != null && pane.getValue().equals(OK_OPTION)) {
-					persistentPreferredMatchMode.setValue((String) modeCombo.getSelectedItem());
-					persistentPreferredLanguage.setValue(((Language) languageList.getSelectedValue()).getCode());
-					persistentPreferredEpisodeOrder.setValue(((SortOrder) orderCombo.getSelectedItem()).name());
-
-					// update UI
-					matchAction.setMatchMode(isMatchModeStrict());
-				}
+				orderCombo.setSelectedItem(SortOrder.forName(persistentPreferredEpisodeOrder.getValue()));
+			} catch (Exception e) {
+				debug.log(Level.WARNING, e.getMessage(), e);
 			}
-		});
+
+			JScrollPane spModeCombo = new JScrollPane(modeCombo, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			spModeCombo.setBorder(new CompoundBorder(new TitledBorder("Match Mode"), spModeCombo.getBorder()));
+			JScrollPane spLanguageList = new JScrollPane(languageList);
+			spLanguageList.setBorder(new CompoundBorder(new TitledBorder("Language"), spLanguageList.getBorder()));
+			JScrollPane spOrderCombo = new JScrollPane(orderCombo, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			spOrderCombo.setBorder(new CompoundBorder(new TitledBorder("Episode Order"), spOrderCombo.getBorder()));
+
+			// fix background issues on OSX
+			spModeCombo.setOpaque(false);
+			spLanguageList.setOpaque(false);
+			spOrderCombo.setOpaque(false);
+
+			JPanel message = new JPanel(new MigLayout("fill, flowy, insets 0"));
+			message.add(spModeCombo, "grow, hmin 24px");
+			message.add(spLanguageList, "grow, hmin 50px");
+			message.add(spOrderCombo, "grow, hmin 24px");
+			JOptionPane pane = new JOptionPane(message, PLAIN_MESSAGE, OK_CANCEL_OPTION);
+			pane.createDialog(getWindowAncestor(RenamePanel.this), "Preferences").setVisible(true);
+
+			if (pane.getValue() != null && pane.getValue().equals(OK_OPTION)) {
+				persistentPreferredMatchMode.setValue((String) modeCombo.getSelectedItem());
+				persistentPreferredLanguage.setValue(((Language) languageList.getSelectedValue()).getCode());
+				persistentPreferredEpisodeOrder.setValue(((SortOrder) orderCombo.getSelectedItem()).name());
+
+				// update UI
+				matchAction.setMatchMode(isMatchModeStrict());
+			}
+		}));
 
 		return actionPopup;
 	}
