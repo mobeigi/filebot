@@ -77,15 +77,12 @@ class ValidateDialog extends JDialog {
 			}
 		});
 
-		JLabel label = new JLabel("Some names contain invalid characters:");
+		JLabel label = new JLabel("Some filenames contain invalid characters:");
 
 		JComponent content = (JComponent) getContentPane();
-
 		content.setLayout(new MigLayout("insets dialog, nogrid, fill", "", "[pref!][fill][pref!]"));
-
 		content.add(label, "wrap");
 		content.add(new JScrollPane(list), "grow, wrap 2mm");
-
 		content.add(new JButton(validateAction), "align center");
 		content.add(new JButton(continueAction), "gap related");
 		content.add(new JButton(cancelAction), "gap 12mm");

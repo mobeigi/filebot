@@ -391,14 +391,10 @@ class RenameAction extends AbstractAction {
 				}
 			}
 
-			// collect renamed types
-			List<Class<?>> types = new ArrayList<Class<?>>();
-
 			// remove renamed matches
 			for (File source : renameLog.keySet()) {
 				// find index of source file
 				int index = model.files().indexOf(source);
-				types.add(model.values().get(index).getClass());
 
 				// remove complete match
 				model.matches().remove(index);
