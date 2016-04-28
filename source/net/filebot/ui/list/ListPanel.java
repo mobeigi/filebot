@@ -8,6 +8,8 @@ import static net.filebot.util.ui.SwingUI.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.util.List;
 import java.util.ListIterator;
@@ -18,12 +20,15 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenu;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JSpinner;
 import javax.swing.JSpinner.NumberEditor;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -39,6 +44,7 @@ import net.filebot.ResourceManager;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.ui.FileBotList;
 import net.filebot.ui.FileBotListExportHandler;
+import net.filebot.ui.PanelBuilder;
 import net.filebot.ui.transfer.LoadAction;
 import net.filebot.ui.transfer.SaveAction;
 import net.filebot.ui.transfer.TransferablePolicy;
@@ -46,6 +52,7 @@ import net.filebot.ui.transfer.TransferablePolicy.TransferAction;
 import net.filebot.util.ui.DefaultFancyListCellRenderer;
 import net.filebot.util.ui.LazyDocumentListener;
 import net.filebot.util.ui.PrototypeCellValueUpdater;
+import net.filebot.util.ui.SwingEventBus;
 import net.miginfocom.swing.MigLayout;
 
 public class ListPanel extends JComponent {
@@ -68,13 +75,31 @@ public class ListPanel extends JComponent {
 		list.getListComponent().getModel().addListDataListener(new PrototypeCellValueUpdater(list.getListComponent(), ""));
 
 		list.getRemoveAction().setEnabled(true);
-
 		list.setTransferablePolicy(new FileListTransferablePolicy(list::setTitle, this::setFormatTemplate, this::createItemSequence));
 
 		FileBotListExportHandler<ListItem> exportHandler = new FileBotListExportHandler<ListItem>(list, (item, out) -> out.println(item.getFormattedValue()));
 		list.setExportHandler(exportHandler);
 		list.getTransferHandler().setClipboardHandler(exportHandler);
 
+		// context menu
+		JPopupMenu popup = new JPopupMenu("List");
+		JMenu menu = new JMenu("Send to");
+		for (PanelBuilder panel : PanelBuilder.textHandlerSequence()) {
+			menu.add(newAction(panel.getName(), panel.getIcon(), evt -> {
+				String text = list.getExportHandler().export();
+				SwingEventBus.getInstance().post(panel);
+				invokeLater(200, () -> SwingEventBus.getInstance().post(new StringSelection(text)));
+			}));
+		}
+		popup.add(menu);
+		popup.addSeparator();
+		popup.add(newAction("Copy", ResourceManager.getIcon("rename.action.copy"), evt -> {
+			list.getTransferHandler().getClipboardHandler().exportToClipboard(this, Toolkit.getDefaultToolkit().getSystemClipboard(), TransferHandler.COPY);
+		}));
+		popup.add(new SaveAction(list.getExportHandler()));
+		list.getListComponent().setComponentPopupMenu(popup);
+
+		// cell renderer
 		list.getListComponent().setCellRenderer(new DefaultFancyListCellRenderer() {
 
 			@Override

@@ -27,6 +27,14 @@ public abstract class TextFileExportHandler implements TransferableExportHandler
 		}
 	}
 
+	public String export() {
+		StringWriter buffer = new StringWriter();
+		try (PrintWriter out = new PrintWriter(buffer)) {
+			export(out);
+		}
+		return buffer.toString();
+	}
+
 	@Override
 	public int getSourceActions(JComponent c) {
 		return canExport() ? TransferHandler.COPY_OR_MOVE : TransferHandler.NONE;
@@ -34,11 +42,7 @@ public abstract class TextFileExportHandler implements TransferableExportHandler
 
 	@Override
 	public Transferable createTransferable(JComponent c) {
-		StringWriter buffer = new StringWriter();
-		try (PrintWriter out = new PrintWriter(buffer)) {
-			export(out);
-		}
-		return new TextFileTransferable(getDefaultFileName(), buffer.toString());
+		return new TextFileTransferable(getDefaultFileName(), export());
 	}
 
 	@Override

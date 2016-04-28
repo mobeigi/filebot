@@ -31,4 +31,8 @@ public interface PanelBuilder {
 		return new PanelBuilder[] { new RenamePanelBuilder(), new SfvPanelBuilder(), new ListPanelBuilder() };
 	}
 
+	public static PanelBuilder[] textHandlerSequence() {
+		return new PanelBuilder[] { new RenamePanelBuilder() };
+	}
+
 }
