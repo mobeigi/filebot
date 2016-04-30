@@ -148,11 +148,9 @@ public class MediaBindingBean {
 
 	@Define("es")
 	public List<Integer> getEpisodeNumbers() {
-		List<Integer> n = new ArrayList<Integer>();
-		for (Episode it : getEpisodes()) {
-			n.add(it.getEpisode() == null ? it.getSpecial() == null ? -1 : it.getSpecial() : it.getEpisode());
-		}
-		return n;
+		return getEpisodes().stream().map(it -> {
+			return it.getEpisode() == null ? it.getSpecial() == null ? -1 : it.getSpecial() : it.getEpisode();
+		}).collect(toList());
 	}
 
 	@Define("sxe")
@@ -679,13 +677,24 @@ public class MediaBindingBean {
 		}
 	}
 
+	@Define("anime")
+	public boolean isAnimeEpisode() {
+		return WebServices.AniDB.getIdentifier().equals(getEpisode().getSeriesInfo().getDatabase());
+	}
+
+	@Define("regular")
+	public boolean isRegularEpisode() {
+		return getEpisodes().stream().allMatch(it -> it.getEpisode() != null && it.getSpecial() == null);
+	}
+
 	@Define("abs2sxe")
 	public Episode getSeasonEpisode() throws Exception {
-		SeriesInfo seriesInfo = getEpisode().getSeriesInfo();
-
 		// match AniDB episode to TheTVDB episode
-		if (WebServices.AniDB.getIdentifier().equals(seriesInfo.getDatabase())) {
+		if (isAnimeEpisode()) {
+			SeriesInfo seriesInfo = getEpisode().getSeriesInfo();
 			Locale locale = new Locale(seriesInfo.getLanguage());
+
+			// episode may be a multi-episode
 			List<Episode> episode = getEpisodes();
 
 			for (SearchResult series : WebServices.TheTVDB.search(seriesInfo.getName(), locale)) {
