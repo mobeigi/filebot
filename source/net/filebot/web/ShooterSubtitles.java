@@ -41,13 +41,18 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 	}
 
 	@Override
-	public URI getLink() {
-		return URI.create("http://shooter.cn");
+	public Icon getIcon() {
+		return ResourceManager.getIcon("search.shooter");
 	}
 
 	@Override
-	public Icon getIcon() {
-		return ResourceManager.getIcon("search.shooter");
+	public String getIdentifier() {
+		return "Shooter";
+	}
+
+	@Override
+	public URI getLink() {
+		return URI.create("http://shooter.cn");
 	}
 
 	public Cache getCache() {

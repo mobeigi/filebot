@@ -3,9 +3,7 @@ package net.filebot.web;
 import java.net.URI;
 import java.util.List;
 
-import javax.swing.Icon;
-
-public interface SubtitleProvider {
+public interface SubtitleProvider extends Datasource {
 
 	public List<SubtitleSearchResult> search(String query) throws Exception;
 
@@ -15,10 +13,6 @@ public interface SubtitleProvider {
 
 	public URI getSubtitleListLink(SubtitleSearchResult searchResult, String languageName);
 
-	public String getName();
-
 	public URI getLink();
-
-	public Icon getIcon();
 
 }

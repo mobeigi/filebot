@@ -6,17 +6,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.swing.Icon;
-
-public interface VideoHashSubtitleService {
+public interface VideoHashSubtitleService extends Datasource {
 
 	public Map<File, List<SubtitleDescriptor>> getSubtitleList(File[] videoFiles, String languageName) throws Exception;
 
-	public String getName();
-
 	public URI getLink();
-
-	public Icon getIcon();
 
 	public CheckResult checkSubtitle(File videoFile, File subtitleFile) throws Exception;
 

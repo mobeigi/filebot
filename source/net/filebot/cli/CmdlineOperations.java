@@ -74,6 +74,7 @@ import net.filebot.vfs.FileInfo;
 import net.filebot.vfs.MemoryFile;
 import net.filebot.vfs.SimpleFileInfo;
 import net.filebot.web.AudioTrack;
+import net.filebot.web.Datasource;
 import net.filebot.web.Episode;
 import net.filebot.web.EpisodeFormat;
 import net.filebot.web.EpisodeListProvider;
@@ -702,7 +703,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			try {
 				log.fine("Looking up subtitles by hash via " + service.getName());
 				Map<File, List<SubtitleDescriptor>> options = lookupSubtitlesByHash(service, remainingVideos, language.getName(), false, strict);
-				Map<File, File> downloads = downloadSubtitleBatch(service.getName(), options, outputFormat, outputEncoding, naming);
+				Map<File, File> downloads = downloadSubtitleBatch(service, options, outputFormat, outputEncoding, naming);
 				remainingVideos.removeAll(downloads.keySet());
 				subtitleFiles.addAll(downloads.values());
 			} catch (Exception e) {
@@ -718,7 +719,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			try {
 				log.fine(format("Looking up subtitles by name via %s", service.getName()));
 				Map<File, List<SubtitleDescriptor>> options = findSubtitlesByName(service, remainingVideos, language.getName(), query, false, strict);
-				Map<File, File> downloads = downloadSubtitleBatch(service.getName(), options, outputFormat, outputEncoding, naming);
+				Map<File, File> downloads = downloadSubtitleBatch(service, options, outputFormat, outputEncoding, naming);
 				remainingVideos.removeAll(downloads.keySet());
 				subtitleFiles.addAll(downloads.values());
 			} catch (Exception e) {
@@ -807,7 +808,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 	}
 
-	private Map<File, File> downloadSubtitleBatch(String service, Map<File, List<SubtitleDescriptor>> subtitles, SubtitleFormat outputFormat, Charset outputEncoding, SubtitleNaming naming) {
+	private Map<File, File> downloadSubtitleBatch(Datasource service, Map<File, List<SubtitleDescriptor>> subtitles, SubtitleFormat outputFormat, Charset outputEncoding, SubtitleNaming naming) {
 		Map<File, File> downloads = new LinkedHashMap<File, File>();
 
 		// fetch subtitle
@@ -815,7 +816,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			if (options.size() > 0) {
 				SubtitleDescriptor subtitle = options.get(0);
 				try {
-					downloads.put(movie, downloadSubtitle(subtitle, movie, outputFormat, outputEncoding, naming));
+					downloads.put(movie, downloadSubtitle(service, subtitle, movie, outputFormat, outputEncoding, naming));
 				} catch (Exception e) {
 					log.warning(format("Failed to download %s: %s", subtitle.getPath(), e.getMessage()));
 				}
@@ -825,9 +826,9 @@ public class CmdlineOperations implements CmdlineInterface {
 		return downloads;
 	}
 
-	private File downloadSubtitle(SubtitleDescriptor descriptor, File movieFile, SubtitleFormat outputFormat, Charset outputEncoding, SubtitleNaming naming) throws Exception {
+	private File downloadSubtitle(Datasource service, SubtitleDescriptor descriptor, File movieFile, SubtitleFormat outputFormat, Charset outputEncoding, SubtitleNaming naming) throws Exception {
 		// fetch subtitle archive
-		log.config(format("Fetching [%s]", descriptor.getPath()));
+		log.config(format("Fetching [%s] subtitles [%s] from [%s]", descriptor.getLanguageName(), descriptor.getPath(), service.getName()));
 		MemoryFile subtitleFile = fetchSubtitle(descriptor);
 
 		// subtitle filename is based on movie filename
@@ -839,7 +840,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				ext = outputFormat.getFilter().extension(); // adjust extension of the output file
 			}
 
-			log.finest(format("Export [%s] as: %s / %s", subtitleFile.getName(), outputFormat, outputEncoding.displayName(Locale.ROOT)));
+			log.finest(format("Export [%s] as [%s / %s]", subtitleFile.getName(), outputFormat, outputEncoding.displayName(Locale.ROOT)));
 			data = exportSubtitles(subtitleFile, outputFormat, 0, outputEncoding);
 		}
 
