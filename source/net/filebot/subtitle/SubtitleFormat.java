@@ -1,10 +1,8 @@
 
 package net.filebot.subtitle;
 
-
 import net.filebot.MediaTypes;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
-
 
 public enum SubtitleFormat {
 
@@ -42,9 +40,8 @@ public enum SubtitleFormat {
 
 	public abstract SubtitleReader newReader(Readable readable);
 
-
 	public ExtensionFileFilter getFilter() {
-		return MediaTypes.getDefaultFilter("subtitle/" + this.name());
+		return MediaTypes.getDefaultFilter("subtitle/" + name());
 	}
 
 }

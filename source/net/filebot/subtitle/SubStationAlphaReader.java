@@ -11,7 +11,8 @@ public class SubStationAlphaReader extends SubtitleReader {
 
 	private final DateFormat timeFormat = new SubtitleTimeFormat();
 	private final Pattern newline = Pattern.compile(Pattern.quote("\\n"), Pattern.CASE_INSENSITIVE);
-	private final Pattern tag = Pattern.compile("[{]\\\\[^}]+[}]");
+	private final Pattern tags = Pattern.compile("[{]\\\\[^}]+[}]");
+	private final Pattern drawingTags = Pattern.compile("\\\\[p][0-4]"); // ignore drawing commands (http://docs.aegisub.org/3.2/ASS_Tags/#drawing-commands)
 
 	private String[] format;
 	private int formatIndexStart;
@@ -81,12 +82,16 @@ public class SubStationAlphaReader extends SubtitleReader {
 		long end = timeFormat.parse(values[formatIndexEnd].trim()).getTime();
 		String text = values[formatIndexText].trim();
 
+		// ignore drawing instructions
+		if (drawingTags.matcher(text).find())
+			return null;
+
 		return new SubtitleElement(start, end, resolve(text));
 	}
 
 	protected String resolve(String text) {
 		// remove tags
-		text = tag.matcher(text).replaceAll("");
+		text = tags.matcher(text).replaceAll("");
 
 		// resolve line breaks
 		return newline.matcher(text).replaceAll("\n");
