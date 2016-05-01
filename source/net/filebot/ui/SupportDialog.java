@@ -22,8 +22,11 @@ public enum SupportDialog {
 		}
 
 		@Override
-		String[] getActions() {
-			return new String[] { "Donate! :)", "Maybe next time." };
+		String[] getActions(boolean first) {
+			if (first)
+				return new String[] { "Donate! :)", "Nope! Maybe next time." };
+			else
+				return new String[] { "Donate again! :)", "Nope! Not this time." };
 		}
 
 		@Override
@@ -51,8 +54,11 @@ public enum SupportDialog {
 		}
 
 		@Override
-		String[] getActions() {
-			return new String[] { "Review! I like FileBot. :)", "Nope! Maybe next time." };
+		String[] getActions(boolean first) {
+			if (first)
+				return new String[] { "Write a Review! :)", "Nope! Maybe next time." };
+			else
+				return new String[] { "Update my Review! :)", "Nope! Not this time." };
 		}
 
 		@Override
@@ -82,7 +88,7 @@ public enum SupportDialog {
 		}
 
 		String message = getMessage(renameCount);
-		String[] actions = getActions();
+		String[] actions = getActions(supportRev <= 0);
 		JOptionPane pane = new JOptionPane(message, INFORMATION_MESSAGE, YES_NO_OPTION, getIcon(), actions, actions[0]);
 		pane.createDialog(null, getTitle()).setVisible(true);
 
@@ -97,7 +103,7 @@ public enum SupportDialog {
 
 	abstract String getMessage(int renameCount);
 
-	abstract String[] getActions();
+	abstract String[] getActions(boolean first);
 
 	abstract Icon getIcon();
 
