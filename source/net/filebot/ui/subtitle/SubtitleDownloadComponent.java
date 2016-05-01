@@ -18,6 +18,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -40,16 +41,6 @@ import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
-import net.filebot.ResourceManager;
-import net.filebot.Settings;
-import net.filebot.subtitle.SubtitleFormat;
-import net.filebot.ui.subtitle.SubtitlePackage.Download.Phase;
-import net.filebot.ui.transfer.DefaultTransferHandler;
-import net.filebot.util.ExceptionUtilities;
-import net.filebot.util.ui.ListView;
-import net.filebot.util.ui.SwingUI;
-import net.filebot.vfs.MemoryFile;
-import net.miginfocom.swing.MigLayout;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.FilterList;
@@ -62,6 +53,17 @@ import ca.odell.glazedlists.matchers.MatcherEditor;
 import ca.odell.glazedlists.swing.DefaultEventListModel;
 import ca.odell.glazedlists.swing.DefaultEventSelectionModel;
 import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
+import net.filebot.ResourceManager;
+import net.filebot.Settings;
+import net.filebot.UserFiles;
+import net.filebot.subtitle.SubtitleFormat;
+import net.filebot.ui.subtitle.SubtitlePackage.Download.Phase;
+import net.filebot.ui.transfer.DefaultTransferHandler;
+import net.filebot.util.ExceptionUtilities;
+import net.filebot.util.ui.ListView;
+import net.filebot.util.ui.SwingUI;
+import net.filebot.vfs.MemoryFile;
+import net.miginfocom.swing.MigLayout;
 
 class SubtitleDownloadComponent extends JComponent {
 
@@ -300,7 +302,7 @@ class SubtitleDownloadComponent extends JComponent {
 			// just use default values when we can't use a JFC with accessory component (also Swing OSX LaF doesn't seem to support JFileChooser::setAccessory)
 			if (Settings.isMacApp()) {
 				// COCOA || AWT
-				selectedOutputFolder = showOpenDialogSelectFolder(null, "Export Subtitles to folder", new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Export"));
+				selectedOutputFolder = showOpenDialogSelectFolder(null, "Export Subtitles to Folder (SubRip / UTF-8)", new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Export"));
 			} else {
 				// Swing
 				SubtitleFileChooser sfc = new SubtitleFileChooser();
@@ -314,6 +316,8 @@ class SubtitleDownloadComponent extends JComponent {
 			}
 
 			if (selectedOutputFolder != null) {
+				List<File> output = new ArrayList<File>();
+
 				for (Object object : selection) {
 					MemoryFile file = (MemoryFile) object;
 
@@ -323,7 +327,11 @@ class SubtitleDownloadComponent extends JComponent {
 
 					SubtitleFormat targetFormat = selectedFormat.getFilter().accept(file.getName()) ? null : selectedFormat; // check if format conversion is necessary
 					writeFile(exportSubtitles(file, targetFormat, selectedTimingOffset, selectedEncoding), destination);
+					output.add(destination);
 				}
+
+				// reveal exported files
+				UserFiles.revealFiles(output);
 			}
 		} catch (Exception e) {
 			log.log(Level.WARNING, e.getMessage(), e);
@@ -439,38 +447,12 @@ class SubtitleDownloadComponent extends JComponent {
 					list.setSelectedIndex(index);
 				}
 
-				final Object[] selection = list.getSelectedValuesList().toArray();
-
+				Object[] selection = list.getSelectedValuesList().toArray();
 				if (selection.length > 0) {
 					JPopupMenu contextMenu = new JPopupMenu();
-
-					// Open
-					contextMenu.add(new AbstractAction("Preview", ResourceManager.getIcon("action.find")) {
-
-						@Override
-						public void actionPerformed(ActionEvent evt) {
-							open(selection);
-						}
-					});
-
-					// Save As...
-					contextMenu.add(new AbstractAction("Save As...", ResourceManager.getIcon("action.save")) {
-
-						@Override
-						public void actionPerformed(ActionEvent evt) {
-							save(selection);
-						}
-					});
-
-					// Export...
-					contextMenu.add(new AbstractAction("Export...", ResourceManager.getIcon("action.export")) {
-
-						@Override
-						public void actionPerformed(ActionEvent evt) {
-							export(selection);
-						}
-					});
-
+					contextMenu.add(newAction("Preview", ResourceManager.getIcon("action.find"), evt -> open(selection))); // Open
+					contextMenu.add(newAction("Save As...", ResourceManager.getIcon("action.save"), evt -> save(selection))); // Save As...
+					contextMenu.add(newAction("Export...", ResourceManager.getIcon("action.export"), evt -> export(selection))); // Export...
 					contextMenu.show(e.getComponent(), e.getX(), e.getY());
 				}
 			}
