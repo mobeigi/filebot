@@ -55,7 +55,6 @@ import ca.odell.glazedlists.swing.DefaultEventSelectionModel;
 import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
-import net.filebot.UserFiles;
 import net.filebot.subtitle.SubtitleFormat;
 import net.filebot.ui.subtitle.SubtitlePackage.Download.Phase;
 import net.filebot.ui.transfer.DefaultTransferHandler;
@@ -316,7 +315,7 @@ class SubtitleDownloadComponent extends JComponent {
 			}
 
 			if (selectedOutputFolder != null) {
-				List<File> output = new ArrayList<File>();
+				List<File> outputFiles = new ArrayList<File>();
 
 				for (Object object : selection) {
 					MemoryFile file = (MemoryFile) object;
@@ -327,11 +326,12 @@ class SubtitleDownloadComponent extends JComponent {
 
 					SubtitleFormat targetFormat = selectedFormat.getFilter().accept(file.getName()) ? null : selectedFormat; // check if format conversion is necessary
 					writeFile(exportSubtitles(file, targetFormat, selectedTimingOffset, selectedEncoding), destination);
-					output.add(destination);
+
+					outputFiles.add(destination);
 				}
 
 				// reveal exported files
-				UserFiles.revealFiles(output);
+				revealFiles(outputFiles);
 			}
 		} catch (Exception e) {
 			log.log(Level.WARNING, e.getMessage(), e);
