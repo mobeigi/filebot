@@ -8,7 +8,6 @@ import javax.swing.Icon;
 import javax.swing.JOptionPane;
 
 import net.filebot.HistorySpooler;
-import net.filebot.Main;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
@@ -74,7 +73,7 @@ public enum SupportDialog {
 	};
 
 	public void show(int renameCount) {
-		PreferencesEntry<String> support = Settings.forPackage(Main.class).entry("support.revision").defaultValue("0");
+		PreferencesEntry<String> support = Settings.forPackage(SupportDialog.class).entry("support.revision").defaultValue("0");
 		int supportRev = Integer.parseInt(support.getValue());
 		int currentRev = getApplicationRevisionNumber();
 
