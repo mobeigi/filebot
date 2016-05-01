@@ -95,15 +95,14 @@ class SubtitleAutoMatchDialog extends JDialog {
 		preferredSubtitleNaming.setSelectedItem(SubtitleNaming.MATCH_VIDEO_ADD_LANGUAGE_TAG);
 
 		JComponent content = (JComponent) getContentPane();
-		content.setLayout(new MigLayout("fill, insets dialog, nogrid", "", "[fill][pref!]"));
+		content.setLayout(new MigLayout("fill, insets 12 15 7 15, nogrid", "", "[fill][pref!]"));
 
 		content.add(new JScrollPane(subtitleMappingTable), "grow, wrap");
 		content.add(hashMatcherServicePanel, "gap after rel");
 		content.add(nameMatcherServicePanel, "gap after indent*2");
 
-		JLabel namingLabel = new JLabel("Subtitle Naming:");
-		namingLabel.setHorizontalAlignment(JLabel.RIGHT);
-		content.add(namingLabel, "gap after rel, grow");
+		preferredSubtitleNaming.setBorder(createCompoundBorder(createTitledBorder("Subtitle Naming"), preferredSubtitleNaming.getBorder()));
+		content.add(new JLabel(), "grow"); // SPACER
 		content.add(preferredSubtitleNaming, "gap after indent*2");
 
 		content.add(new JButton(downloadAction), "tag ok");
