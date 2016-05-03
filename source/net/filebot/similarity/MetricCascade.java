@@ -1,5 +1,7 @@
 package net.filebot.similarity;
 
+import static java.util.Arrays.*;
+
 public class MetricCascade implements SimilarityMetric {
 
 	private final SimilarityMetric[] cascade;
@@ -24,6 +26,11 @@ public class MetricCascade implements SimilarityMetric {
 			}
 		}
 		return f;
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + ' ' + asList(cascade);
 	}
 
 }

@@ -1,5 +1,7 @@
 package net.filebot.similarity;
 
+import static java.util.Arrays.*;
+
 public class MetricAvg implements SimilarityMetric {
 
 	private final SimilarityMetric[] metrics;
@@ -19,6 +21,11 @@ public class MetricAvg implements SimilarityMetric {
 			f += metric.getSimilarity(o1, o2);
 		}
 		return f / metrics.length;
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + ' ' + asList(metrics);
 	}
 
 }
