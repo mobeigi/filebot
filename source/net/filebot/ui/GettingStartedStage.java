@@ -2,11 +2,11 @@ package net.filebot.ui;
 
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
+import static net.filebot.util.ui.SwingUI.*;
 
-import java.awt.Desktop;
 import java.lang.reflect.Field;
-import java.net.URI;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -18,6 +18,9 @@ import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
@@ -27,7 +30,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import net.filebot.ResourceManager;
-import net.filebot.Settings;
 
 public class GettingStartedStage {
 
@@ -37,24 +39,45 @@ public class GettingStartedStage {
 
 		// initialize and show webview
 		Platform.setImplicitExit(false);
+
 		Platform.runLater(() -> {
-			Stage stage = new Stage();
-			stage.setResizable(false);
-
-			if (isMacApp()) {
-				// Mac OS X specific configuration
-				stage.initStyle(StageStyle.DECORATED);
-				stage.initModality(Modality.NONE);
+			// libjfxwebkit.dylib cannot be deployed on the MAS due to deprecated dependencies
+			if (isMacSandbox()) {
+				ask();
 			} else {
-				// Windows / Linux specific configuration
-				stage.initStyle(StageStyle.UTILITY);
-				stage.initModality(Modality.NONE);
-				stage.getIcons().addAll(ResourceManager.getApplicationIconURLs().stream().map((url) -> new Image(url.toString())).collect(Collectors.toList()));
+				create().show();
 			}
-
-			GettingStartedStage view = new GettingStartedStage(stage);
-			view.show();
 		});
+	}
+
+	private static void ask() {
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("FileBot");
+		alert.setHeaderText("Hello! Do you need help Getting Started?");
+		alert.setContentText("If have you never used FileBot before, please have a look at the video tutorials first.");
+
+		Optional<ButtonType> result = alert.showAndWait();
+		if (result.get() == ButtonType.OK) {
+			openURI(getEmbeddedHelpURL());
+		}
+	}
+
+	private static GettingStartedStage create() {
+		Stage stage = new Stage();
+		stage.setResizable(false);
+
+		if (isMacApp()) {
+			// Mac OS X specific configuration
+			stage.initStyle(StageStyle.DECORATED);
+			stage.initModality(Modality.NONE);
+		} else {
+			// Windows / Linux specific configuration
+			stage.initStyle(StageStyle.UTILITY);
+			stage.initModality(Modality.NONE);
+			stage.getIcons().addAll(ResourceManager.getApplicationIconURLs().stream().map((url) -> new Image(url.toString())).collect(Collectors.toList()));
+		}
+
+		return new GettingStartedStage(stage);
 	}
 
 	private Stage stage;
@@ -63,7 +86,7 @@ public class GettingStartedStage {
 		this.stage = stage;
 
 		WebView webview = new WebView();
-		webview.getEngine().load(Settings.getEmbeddedHelpURL());
+		webview.getEngine().load(getEmbeddedHelpURL());
 		webview.setPrefSize(750, 490);
 
 		// intercept target _blank click events and open links in a new browser window
@@ -116,12 +139,7 @@ public class GettingStartedStage {
 	protected WebEngine onPopup(WebView webview) {
 		// get currently select image via Galleria API
 		Object uri = webview.getEngine().executeScript("$('.galleria').data('galleria').getData().link");
-
-		try {
-			Desktop.getDesktop().browse(new URI(uri.toString()));
-		} catch (Exception e) {
-			debug.log(Level.SEVERE, "Failed to open URI: " + uri, e);
-		}
+		openURI(uri.toString());
 
 		// prevent current web view from opening the link
 		return null;

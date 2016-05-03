@@ -361,7 +361,7 @@
 			<param name="application.mode" value="Rename|Episodes|SFV|Filter|List" />
 
 			<!-- libjfxwebkit.dylib cannot be deployed on the MAS due to deprecated dependencies -->
-			<param name="application.help" value="skip" />
+			<param name="application.help" value="ask" />
 		</antcall>
 	</target>
 
