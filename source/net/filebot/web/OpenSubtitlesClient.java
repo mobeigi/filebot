@@ -226,9 +226,11 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 				// debug dummy files, e.g. {hash: 1ed67c43e4a3b09f, size: 992272721}
 				try {
 					Map<?, ?> json = asMap(readJson(readTextFile(f)));
-					return Query.forHash(json.get("hash").toString(), Long.parseLong(json.get("size").toString()), getLanguageFilter(language));
+					if (json != null) {
+						return Query.forHash(json.get("hash").toString(), Long.parseLong(json.get("size").toString()), getLanguageFilter(language));
+					}
 				} catch (Exception e) {
-					debug.finest(e::toString);
+					debug.finest("Ignore sample file: " + f);
 				}
 			}
 			return null;
