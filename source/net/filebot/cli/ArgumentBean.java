@@ -149,13 +149,13 @@ public class ArgumentBean {
 		List<File> files = new ArrayList<File>();
 
 		for (String argument : arguments) {
-			File file = new File(argument).getAbsoluteFile();
+			File file = new File(argument);
 
 			// resolve relative paths
 			try {
 				file = file.getCanonicalFile();
 			} catch (Exception e) {
-				debug.warning(format("Illegal Argument: %s (%s)", e, argument));
+				debug.warning(format("Illegal Argument: %s (%s)", e, file));
 			}
 
 			if (resolveFolders && file.isDirectory()) {

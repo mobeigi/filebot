@@ -17,6 +17,7 @@ import static net.filebot.util.RegularExpressions.*;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -68,7 +69,6 @@ import net.filebot.similarity.Match;
 import net.filebot.subtitle.SubtitleFormat;
 import net.filebot.subtitle.SubtitleNaming;
 import net.filebot.util.EntryList;
-import net.filebot.util.FileUtilities;
 import net.filebot.util.FileUtilities.ParentFilter;
 import net.filebot.vfs.FileInfo;
 import net.filebot.vfs.MemoryFile;
@@ -746,19 +746,26 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	@Override
-	public List<File> getMissingSubtitles(Collection<File> files, String db, String query, final String languageName, String output, String csn, final String format, boolean strict) throws Exception {
+	public List<File> getMissingSubtitles(Collection<File> files, String db, String query, String languageName, String output, String csn, String format, boolean strict) throws Exception {
+		// sanity check
+		for (File f : files) {
+			if (!f.exists()) {
+				throw new FileNotFoundException(f.toString());
+			}
+		}
+
 		List<File> videoFiles = filter(filter(files, VIDEO_FILES), new FileFilter() {
 
 			// save time on repeating filesystem calls
-			private final Map<File, List<File>> cache = new HashMap<File, List<File>>();
+			private Map<File, List<File>> cache = new HashMap<File, List<File>>();
 
-			private final SubtitleNaming naming = getSubtitleNaming(format);
+			private SubtitleNaming naming = getSubtitleNaming(format);
 
 			// get language code suffix for given language (.eng)
-			private final String languageCode = Language.getStandardLanguageCode(getLanguage(languageName).getName());
+			private String languageCode = Language.getStandardLanguageCode(getLanguage(languageName).getName());
 
 			public boolean matchesLanguageCode(File f) {
-				Locale languageSuffix = MediaDetection.releaseInfo.getSubtitleLanguageTag(FileUtilities.getName(f));
+				Locale languageSuffix = MediaDetection.releaseInfo.getSubtitleLanguageTag(getName(f));
 				Language language = Language.getLanguage(languageSuffix);
 				if (language != null) {
 					return language.getISO3().equalsIgnoreCase(languageCode);
@@ -768,26 +775,21 @@ public class CmdlineOperations implements CmdlineInterface {
 
 			@Override
 			public boolean accept(File video) {
-				List<File> subtitlesByFolder = cache.get(video.getParentFile());
-				if (subtitlesByFolder == null) {
-					subtitlesByFolder = getChildren(video.getParentFile(), SUBTITLE_FILES);
-					cache.put(video.getParentFile(), subtitlesByFolder);
+				List<File> subtitleFiles = cache.computeIfAbsent(video.getParentFile(), parent -> {
+					return getChildren(parent, SUBTITLE_FILES);
+				});
+
+				// can't tell which subtitle belongs to which file -> if any subtitles exist skip the whole folder
+				if (naming == SubtitleNaming.ORIGINAL) {
+					return subtitleFiles.size() == 0;
 				}
 
-				boolean accept = true;
-				for (File subtitle : subtitlesByFolder) {
-					// can't tell which subtitle belongs to which file -> if any subtitles exist skip the whole folder
-					if (naming == SubtitleNaming.ORIGINAL) {
-						return false;
-					} else if (isDerived(subtitle, video)) {
-						if (naming == SubtitleNaming.MATCH_VIDEO) {
-							return false;
-						} else {
-							accept &= !matchesLanguageCode(subtitle);
-						}
+				return subtitleFiles.stream().allMatch(f -> {
+					if (isDerived(f, video)) {
+						return naming != SubtitleNaming.MATCH_VIDEO && !matchesLanguageCode(f);
 					}
-				}
-				return accept;
+					return true;
+				});
 			}
 		});
 
