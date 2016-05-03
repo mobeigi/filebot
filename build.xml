@@ -356,8 +356,12 @@
 			<param name="application.icon" value="${dir.installer}/appbundle/filebot.icns" />
 			<param name="application.cert.appbundle" value="3rd Party Mac Developer Application: Point Planck Limited" />
 			<param name="application.cert.installer" value="3rd Party Mac Developer Installer: Point Planck Limited" />
+
+			<!-- MAS does not allow subtitle apps -->
 			<param name="application.mode" value="Rename|Episodes|SFV|Filter|List" />
-			<param name="application.help" value="show" />
+
+			<!-- libjfxwebkit.dylib cannot be deployed on the MAS due to deprecated dependencies -->
+			<param name="application.help" value="skip" />
 		</antcall>
 	</target>
 

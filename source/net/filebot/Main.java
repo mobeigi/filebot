@@ -139,7 +139,7 @@ public class Main {
 			if (!"skip".equals(System.getProperty("application.update"))) {
 				try {
 					checkUpdate();
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					debug.log(Level.WARNING, "Failed to check for updates", e);
 				}
 			}
@@ -148,7 +148,7 @@ public class Main {
 			if (!"skip".equals(System.getProperty("application.help"))) {
 				try {
 					checkGettingStarted();
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					debug.log(Level.WARNING, "Failed to show Getting Started help", e);
 				}
 			}
