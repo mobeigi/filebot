@@ -147,6 +147,15 @@ public class ExpressionFormatMethods {
 	}
 
 	/**
+	 * Replace slash and backslash to make sure the result is not a file path.
+	 *
+	 * e.g. "V_MPEG4/ISO/AVC" -> "V_MPEG4.ISO.AVC"
+	 */
+	public static String slash(String self, String replacement) {
+		return compile("\\s*[\\\\/]+\\s*", UNICODE_CHARACTER_CLASS).matcher(self).replaceAll(replacement);
+	}
+
+	/**
 	 * Upper-case all initials.
 	 *
 	 * e.g. "The Day a new Demon was born" -> "The Day A New Demon Was Born"
