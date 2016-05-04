@@ -54,7 +54,7 @@ public class GettingStartedStage {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("FileBot");
 		alert.setHeaderText("Hello! Do you need help Getting Started?");
-		alert.setContentText("If have you never used FileBot before, please have a look at the video tutorials first.");
+		alert.setContentText("If you have never used FileBot before, please have a look at the video tutorials first.");
 
 		Optional<ButtonType> result = alert.showAndWait();
 		if (result.get() == ButtonType.OK) {
