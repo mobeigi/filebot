@@ -392,6 +392,13 @@ public class MediaBindingBean {
 		return join(dim, "x");
 	}
 
+	@Define("bitdepth")
+	public int getVideoBitDepth() {
+		String bitdepth = getMediaInfo(StreamKind.Video, 0, "BitDepth");
+
+		return Integer.parseInt(bitdepth);
+	}
+
 	@Define("ws")
 	public String getWidescreen() {
 		List<Integer> dim = getDimension();
