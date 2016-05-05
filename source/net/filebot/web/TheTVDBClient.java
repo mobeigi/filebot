@@ -1,48 +1,41 @@
 package net.filebot.web;
 
+import static java.nio.charset.StandardCharsets.*;
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.CachedResource.fetchIfModified;
 import static net.filebot.Logging.*;
-import static net.filebot.util.RegularExpressions.*;
+import static net.filebot.util.JsonUtilities.*;
 import static net.filebot.util.StringUtilities.*;
-import static net.filebot.util.XPathUtilities.*;
 import static net.filebot.web.EpisodeUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
 import java.net.URI;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Map.Entry;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
 import javax.swing.Icon;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
 import net.filebot.Cache;
-import net.filebot.Cache.TypedCache;
 import net.filebot.CacheType;
 import net.filebot.ResourceManager;
 
 public class TheTVDBClient extends AbstractEpisodeListProvider implements ArtworkProvider {
 
-	private final Map<MirrorType, String> mirrors = MirrorType.newMap();
-
-	private final String apikey;
+	private String apikey;
 
 	public TheTVDBClient(String apikey) {
-		if (apikey == null)
-			throw new NullPointerException("apikey must not be null");
-
 		this.apikey = apikey;
 	}
 
@@ -61,137 +54,147 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 		return true;
 	}
 
-	public String getLanguageCode(Locale locale) {
-		String code = locale.getLanguage();
+	protected Object postJson(String path, Object json) throws Exception {
+		// curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' 'https://api.thetvdb.com/login' --data '{"apikey":"XXXXX"}'
+		ByteBuffer response = post(getEndpoint(path), asJsonString(json).getBytes(UTF_8), "application/json", null);
+		return readJson(UTF_8.decode(response));
+	}
 
-		// sanity check
-		if (code.length() != 2) {
-			// see http://thetvdb.com/api/BA864DEE427E384A/languages.xml
-			throw new IllegalArgumentException("Expecting 2-letter language code: " + code);
+	protected Object requestJson(String path, Locale locale, Duration expirationTime) throws Exception {
+		Cache cache = Cache.getCache(locale == null || locale == Locale.ROOT ? getName() : getName() + "_" + locale.getLanguage(), CacheType.Monthly);
+		return cache.json(path, this::getEndpoint).fetch(fetchIfModified(() -> getRequestHeader(locale))).expire(expirationTime).get();
+	}
+
+	protected URL getEndpoint(String path) throws Exception {
+		return new URL("https://api.thetvdb.com/" + path);
+	}
+
+	private Map<String, String> getRequestHeader(Locale locale) {
+		Map<String, String> header = new LinkedHashMap<String, String>(3);
+		if (locale != null && locale != Locale.ROOT) {
+			header.put("Accept-Language", locale.getLanguage());
 		}
+		header.put("Accept", "application/json");
+		header.put("Authorization", "Bearer " + getAuthorizationToken());
+		return header;
+	}
 
-		// Java language code => TheTVDB language code
-		if (code.equals("iw")) // Hebrew
-			return "he";
-		if (code.equals("hi")) // Hungarian
-			return "hu";
-		if (code.equals("in")) // Indonesian
-			return "id";
-		if (code.equals("ro")) // Russian
-			return "ru";
+	private String token = null;
+	private Instant tokenExpireInstant = null;
+	private Duration tokenExpireDuration = Duration.ofHours(1);
 
-		return code;
+	private String getAuthorizationToken() {
+		synchronized (tokenExpireDuration) {
+			if (token == null || (tokenExpireInstant != null && Instant.now().isAfter(tokenExpireInstant))) {
+				try {
+					Object json = postJson("login", singletonMap("apikey", apikey));
+					token = getString(json, "token");
+					tokenExpireInstant = Instant.now().plus(tokenExpireDuration);
+				} catch (Exception e) {
+					throw new IllegalStateException("Failed to retrieve authorization token: " + e.getMessage(), e);
+				}
+			}
+			return token;
+		}
+	}
+
+	protected String[] languages() throws Exception {
+		Object response = requestJson("languages", Locale.ROOT, Cache.ONE_MONTH);
+		return streamJsonObjects(response, "data").map(it -> getString(it, "abbreviation")).toArray(String[]::new);
+	}
+
+	protected List<SearchResult> search(String path, Map<String, Object> query, Locale locale, Duration expirationTime) throws Exception {
+		Object json = requestJson(path + "?" + encodeParameters(query, true), locale, expirationTime);
+
+		return streamJsonObjects(json, "data").map(it -> {
+			// e.g. aliases, banner, firstAired, id, network, overview, seriesName, status
+			int id = getInteger(it, "id");
+			String seriesName = getString(it, "seriesName");
+			String[] aliasNames = stream(getArray(it, "aliases")).toArray(String[]::new);
+
+			if (seriesName.startsWith("**") && seriesName.endsWith("**")) {
+				debug.fine(format("Invalid series: %s [%d]", seriesName, id));
+				return null;
+			}
+
+			return new SearchResult(id, seriesName, aliasNames);
+		}).filter(Objects::nonNull).collect(toList());
 	}
 
 	@Override
 	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception {
-		// perform online search
-		Document dom = getXmlResource(MirrorType.SEARCH, "GetSeries.php?seriesname=" + encode(query, true) + "&language=" + getLanguageCode(locale));
+		return search("search/series", singletonMap("name", query), locale, Cache.ONE_DAY);
+	}
 
-		Map<Integer, SearchResult> resultSet = new LinkedHashMap<Integer, SearchResult>();
+	@Override
+	public SeriesInfo getSeriesInfo(SearchResult series, Locale locale) throws Exception {
+		Object json = requestJson("series/" + series.getId(), locale, Cache.ONE_WEEK);
+		Object data = getMap(json, "data");
 
-		for (Node node : selectNodes("Data/Series", dom)) {
-			int sid = matchInteger(getTextContent("seriesid", node));
-			String seriesName = getTextContent("SeriesName", node);
+		SeriesInfo info = new SeriesInfo(this, locale, series.getId());
+		info.setAliasNames(Stream.of(series.getAliasNames(), getArray(data, "aliases")).flatMap(it -> stream(it)).map(Object::toString).distinct().toArray(String[]::new));
 
-			if (seriesName.startsWith("**") && seriesName.endsWith("**")) {
-				debug.fine(format("Invalid series: %s [%d]", seriesName, sid));
-				continue;
-			}
+		info.setName(getString(data, "seriesName"));
+		info.setCertification(getString(data, "rating"));
+		info.setNetwork(getString(data, "network"));
+		info.setStatus(getString(data, "status"));
 
-			// collect alias names
-			List<String> aliasNames = streamNodes("AliasNames", node).flatMap(it -> {
-				return PIPE.splitAsStream(getTextContent(it));
-			}).map(String::trim).filter(s -> s.length() > 0).collect(toList());
+		info.setRating(getDecimal(data, "siteRating"));
+		info.setRatingCount(getInteger(data, "siteRatingCount")); // TODO rating count not implemented in the new API yet
 
-			if (!resultSet.containsKey(sid)) {
-				resultSet.put(sid, new SearchResult(sid, seriesName, aliasNames));
-			}
-		}
+		info.setRuntime(matchInteger(getString(data, "runtime")));
+		info.setGenres(stream(getArray(data, "genre")).map(Object::toString).collect(toList()));
+		info.setStartDate(getStringValue(data, "firstAired", SimpleDate::parse));
 
-		return new ArrayList<SearchResult>(resultSet.values());
+		return info;
 	}
 
 	@Override
 	protected SeriesData fetchSeriesData(SearchResult series, SortOrder sortOrder, Locale locale) throws Exception {
-		Document dom = getXmlResource(MirrorType.XML, "series/" + series.getId() + "/all/" + getLanguageCode(locale) + ".xml");
+		// fetch series info
+		SeriesInfo info = getSeriesInfo(series, locale);
+		info.setOrder(sortOrder.name());
 
-		// parse series info
-		Node seriesNode = selectNode("Data/Series", dom);
-		TheTVDBSeriesInfo seriesInfo = new TheTVDBSeriesInfo(this, sortOrder, locale, series.getId());
-		seriesInfo.setAliasNames(series.getAliasNames());
+		// fetch episode data
+		List<Episode> episodes = new ArrayList<Episode>();
+		List<Episode> specials = new ArrayList<Episode>();
 
-		seriesInfo.setName(getTextContent("SeriesName", seriesNode));
-		seriesInfo.setAirsDayOfWeek(getTextContent("Airs_DayOfWeek", seriesNode));
-		seriesInfo.setAirTime(getTextContent("Airs_Time", seriesNode));
-		seriesInfo.setCertification(getTextContent("ContentRating", seriesNode));
-		seriesInfo.setImdbId(getTextContent("IMDB_ID", seriesNode));
-		seriesInfo.setNetwork(getTextContent("Network", seriesNode));
-		seriesInfo.setOverview(getTextContent("Overview", seriesNode));
-		seriesInfo.setStatus(getTextContent("Status", seriesNode));
+		for (int page = 1, lastPage = 1; page <= lastPage; page++) {
+			Object json = requestJson("series/" + series.getId() + "/episodes?page=" + page, locale, Cache.ONE_DAY);
+			lastPage = getInteger(getMap(json, "links"), "last");
 
-		seriesInfo.setRating(getDecimal(getTextContent("Rating", seriesNode)));
-		seriesInfo.setRatingCount(matchInteger(getTextContent("RatingCount", seriesNode)));
-		seriesInfo.setRuntime(matchInteger(getTextContent("Runtime", seriesNode)));
-		seriesInfo.setActors(getListContent("Actors", "\\|", seriesNode));
-		seriesInfo.setGenres(getListContent("Genre", "\\|", seriesNode));
-		seriesInfo.setStartDate(SimpleDate.parse(getTextContent("FirstAired", seriesNode)));
+			streamJsonObjects(json, "data").forEach(it -> {
+				String episodeName = getString(it, "episodeName");
+				Integer absoluteNumber = getInteger(it, "absoluteNumber");
+				SimpleDate airdate = getStringValue(it, "firstAired", SimpleDate::parse);
 
-		seriesInfo.setBannerUrl(getResource(MirrorType.BANNER, getTextContent("banner", seriesNode)));
-		seriesInfo.setFanartUrl(getResource(MirrorType.BANNER, getTextContent("fanart", seriesNode)));
-		seriesInfo.setPosterUrl(getResource(MirrorType.BANNER, getTextContent("poster", seriesNode)));
+				// default numbering
+				Integer episodeNumber = getInteger(it, "airedEpisodeNumber");
+				Integer seasonNumber = getInteger(it, "airedSeason");
 
-		// parse episode data
-		List<Episode> episodes = new ArrayList<Episode>(50);
-		List<Episode> specials = new ArrayList<Episode>(5);
+				// use preferred numbering if possible
+				if (sortOrder == SortOrder.DVD) {
+					Integer dvdSeasonNumber = getInteger(it, "dvdSeason");
+					Integer dvdEpisodeNumber = getInteger(it, "dvdEpisodeNumber");
 
-		for (Node node : selectNodes("Data/Episode", dom)) {
-			String episodeName = getTextContent("EpisodeName", node);
-			Integer absoluteNumber = matchInteger(getTextContent("absolute_number", node));
-			SimpleDate airdate = SimpleDate.parse(getTextContent("FirstAired", node));
-
-			// default numbering
-			Integer episodeNumber = matchInteger(getTextContent("EpisodeNumber", node));
-			Integer seasonNumber = matchInteger(getTextContent("SeasonNumber", node));
-
-			// adjust for DVD numbering if possible
-			if (sortOrder == SortOrder.DVD) {
-				Integer dvdSeasonNumber = matchInteger(getTextContent("DVD_season", node));
-				Integer dvdEpisodeNumber = matchInteger(getTextContent("DVD_episodenumber", node));
-
-				// require both values to be valid integer numbers
-				if (dvdSeasonNumber != null && dvdEpisodeNumber != null) {
-					seasonNumber = dvdSeasonNumber;
-					episodeNumber = dvdEpisodeNumber;
-				}
-			}
-
-			// adjust for special numbering if necessary
-			if (seasonNumber == null || seasonNumber == 0) {
-				// handle as special episode
-				for (String specialSeasonTag : new String[] { "airsafter_season", "airsbefore_season" }) {
-					Integer specialSeason = matchInteger(getTextContent(specialSeasonTag, node));
-					if (specialSeason != null && specialSeason != 0) {
-						seasonNumber = specialSeason;
-						break;
+					// require both values to be valid integer numbers
+					if (dvdSeasonNumber != null && dvdEpisodeNumber != null) {
+						seasonNumber = dvdSeasonNumber;
+						episodeNumber = dvdEpisodeNumber;
 					}
+				} else if (sortOrder == SortOrder.Absolute && absoluteNumber != null && absoluteNumber > 0) {
+					episodeNumber = absoluteNumber;
+					seasonNumber = null;
 				}
 
-				// use given episode number as special number or count specials by ourselves
-				Integer specialNumber = (episodeNumber != null) ? episodeNumber : filterBySeason(specials, seasonNumber).size() + 1;
-				specials.add(new Episode(seriesInfo.getName(), seasonNumber, null, episodeName, null, specialNumber, airdate, new SeriesInfo(seriesInfo)));
-			} else {
-				// adjust for absolute numbering if possible
-				if (sortOrder == SortOrder.Absolute) {
-					if (absoluteNumber != null && absoluteNumber > 0) {
-						episodeNumber = absoluteNumber;
-						seasonNumber = null;
-					}
+				if (seasonNumber == null || seasonNumber > 0) {
+					// handle as normal episode
+					episodes.add(new Episode(info.getName(), seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate, new SeriesInfo(info)));
+				} else {
+					// handle as special episode
+					specials.add(new Episode(info.getName(), null, null, episodeName, null, episodeNumber, airdate, new SeriesInfo(info)));
 				}
-
-				// handle as normal episode
-				episodes.add(new Episode(seriesInfo.getName(), seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate, new SeriesInfo(seriesInfo)));
-			}
+			});
 		}
 
 		// episodes my not be ordered by DVD episode number
@@ -200,20 +203,16 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 		// add specials at the end
 		episodes.addAll(specials);
 
-		return new SeriesData(seriesInfo, episodes);
+		return new SeriesData(info, episodes);
 	}
 
-	public SearchResult lookupByID(int id, Locale language) throws Exception {
+	public SearchResult lookupByID(int id, Locale locale) throws Exception {
 		if (id <= 0) {
 			throw new IllegalArgumentException("Illegal TheTVDB ID: " + id);
 		}
 
-		return getLookupCache("id", language).computeIfAbsent(id, it -> {
-			Document dom = getXmlResource(MirrorType.XML, "series/" + id + "/all/" + getLanguageCode(language) + ".xml");
-			String name = selectString("//SeriesName", dom);
-
-			return new SearchResult(id, name);
-		});
+		SeriesInfo info = getSeriesInfo(new SearchResult(id, null), locale);
+		return new SearchResult(id, info.getName(), info.getAliasNames());
 	}
 
 	public SearchResult lookupByIMDbID(int imdbid, Locale locale) throws Exception {
@@ -221,102 +220,8 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 			throw new IllegalArgumentException("Illegal IMDbID ID: " + imdbid);
 		}
 
-		return getLookupCache("imdbid", locale).computeIfAbsent(imdbid, it -> {
-			Document dom = getXmlResource(MirrorType.SEARCH, "GetSeriesByRemoteID.php?imdbid=" + imdbid + "&language=" + getLanguageCode(locale));
-
-			String id = selectString("//seriesid", dom);
-			String name = selectString("//SeriesName", dom);
-
-			if (id.isEmpty() || name.isEmpty())
-				return null;
-
-			return new SearchResult(Integer.parseInt(id), name);
-		});
-	}
-
-	protected String getMirror(MirrorType mirrorType) throws Exception {
-		// use default server
-		if (mirrorType == MirrorType.NULL) {
-			return "http://thetvdb.com";
-		}
-
-		synchronized (mirrors) {
-			// initialize mirrors
-			if (mirrors.isEmpty()) {
-				Document dom = getXmlResource(MirrorType.NULL, "mirrors.xml");
-
-				// collect all mirror data
-				Map<MirrorType, List<String>> mirrorLists = streamNodes("Mirrors/Mirror", dom).flatMap(node -> {
-					String mirror = getTextContent("mirrorpath", node);
-					int typeMask = Integer.parseInt(getTextContent("typemask", node));
-
-					return MirrorType.fromTypeMask(typeMask).stream().collect(toMap(m -> m, m -> mirror)).entrySet().stream();
-				}).collect(groupingBy(Entry::getKey, MirrorType::newMap, mapping(Entry::getValue, toList())));
-
-				// select random mirror for each type
-				Random random = new Random();
-
-				mirrorLists.forEach((type, options) -> {
-					String selection = options.get(random.nextInt(options.size()));
-					mirrors.put(type, selection);
-				});
-			}
-
-			// return selected mirror
-			return mirrors.get(mirrorType);
-		}
-	}
-
-	protected Document getXmlResource(MirrorType mirror, String resource) throws Exception {
-		Cache cache = Cache.getCache(getName(), CacheType.Monthly);
-		return cache.xml(resource, s -> getResource(mirror, s)).get();
-	}
-
-	protected URL getResource(MirrorType mirror, String path) throws Exception {
-		StringBuilder url = new StringBuilder(getMirror(mirror)).append('/').append(mirror.prefix()).append('/');
-		if (mirror.keyRequired()) {
-			url.append(apikey).append('/');
-		}
-		return new URL(url.append(path).toString());
-	}
-
-	protected static enum MirrorType {
-
-		NULL(0), SEARCH(1), XML(1), BANNER(2);
-
-		final int bitMask;
-
-		private MirrorType(int bitMask) {
-			this.bitMask = bitMask;
-		}
-
-		public String prefix() {
-			return this != BANNER ? "api" : "banners";
-		}
-
-		public boolean keyRequired() {
-			return this != BANNER && this != SEARCH;
-		}
-
-		public static EnumSet<MirrorType> fromTypeMask(int mask) {
-			// convert bit mask to enumset
-			return EnumSet.of(SEARCH, XML, BANNER).stream().filter(m -> {
-				return (mask & m.bitMask) != 0;
-			}).collect(toCollection(MirrorType::newSet));
-		};
-
-		public static EnumSet<MirrorType> newSet() {
-			return EnumSet.noneOf(MirrorType.class);
-		}
-
-		public static <T> EnumMap<MirrorType, T> newMap() {
-			return new EnumMap<MirrorType, T>(MirrorType.class);
-		}
-
-	}
-
-	public SeriesInfo getSeriesInfoByIMDbID(int imdbid, Locale locale) throws Exception {
-		return getSeriesInfo(lookupByIMDbID(imdbid, locale), locale);
+		List<SearchResult> result = search("search/series", singletonMap("imdbId", String.format("tt%07d", imdbid)), locale, Cache.ONE_MONTH);
+		return result.size() > 0 ? result.get(0) : null;
 	}
 
 	@Override
@@ -326,29 +231,24 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 
 	@Override
 	public List<Artwork> getArtwork(int id, String category, Locale locale) throws Exception {
-		Document dom = getXmlResource(MirrorType.XML, "series/" + id + "/banners.xml");
-		URL mirror = getResource(MirrorType.BANNER, "");
+		Object json = requestJson("series/" + id + "/images/query?keyType=" + category, locale, Cache.ONE_WEEK);
 
-		return streamNodes("//Banner", dom).map(node -> {
+		// TheTVDB API v2 does not have a dedicated banner mirror
+		URL mirror = new URL("http://thetvdb.com/banners/");
+
+		return streamJsonObjects(json, "data").map(it -> {
 			try {
-				String type = getTextContent("BannerType", node);
-				String subKey = getTextContent("BannerType2", node);
-				String fileName = getTextContent("BannerPath", node);
-				String season = getTextContent("Season", node);
-				String language = getTextContent("Language", node);
-				Double rating = getDecimal(getTextContent("Rating", node));
+				String subKey = getString(it, "subKey");
+				String fileName = getString(it, "fileName");
+				String resolution = getString(it, "resolution");
+				Double rating = getDecimal(getString(it, "ratingsInfo"), "average");
 
-				return new Artwork(this, Stream.of(type, subKey, season), new URL(mirror, fileName), language == null ? null : new Locale(language), rating);
+				return new Artwork(this, Stream.of(category, subKey, resolution), new URL(mirror, fileName), locale, rating);
 			} catch (Exception e) {
 				debug.log(Level.WARNING, e, e::getMessage);
 				return null;
 			}
-		}).filter(Objects::nonNull).filter(it -> it.getTags().contains(category)).collect(toList());
-	}
-
-	protected TypedCache<SearchResult> getLookupCache(String type, Locale language) {
-		// lookup should always yield the same results so we can cache it for longer
-		return Cache.getCache(getName() + "_" + "lookup" + "_" + type + "_" + language, CacheType.Monthly).cast(SearchResult.class);
+		}).filter(Objects::nonNull).collect(toList());
 	}
 
 }
