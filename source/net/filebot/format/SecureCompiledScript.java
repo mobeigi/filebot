@@ -14,6 +14,7 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
 import java.util.PropertyPermission;
+import java.util.logging.LoggingPermission;
 
 import javax.script.CompiledScript;
 import javax.script.ScriptContext;
@@ -39,10 +40,12 @@ public class SecureCompiledScript extends CompiledScript {
 		permissions.add(new RuntimePermission("getenv.*"));
 		permissions.add(new RuntimePermission("getFileSystemAttributes"));
 		permissions.add(new RuntimePermission("readFileDescriptor"));
+		permissions.add(new RuntimePermission("preferences"));
 		permissions.add(new FilePermission("<<ALL FILES>>", "read"));
 		permissions.add(new SocketPermission("*", "connect"));
 		permissions.add(new PropertyPermission("*", "read"));
 		permissions.add(new PropertyPermission("*", "write"));
+		permissions.add(new LoggingPermission("control", null));
 		permissions.add(new ManagementPermission("monitor"));
 		permissions.add(new ReflectPermission("suppressAccessChecks"));
 		permissions.add(new ReflectPermission("newProxyInPackage.*"));
