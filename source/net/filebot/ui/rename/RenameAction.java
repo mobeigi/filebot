@@ -164,22 +164,21 @@ class RenameAction extends AbstractAction {
 				return;
 			}
 
-			// guess affected folder depth
-			int relativePathSize = 0;
 			try {
-				relativePathSize = listStructurePathTail(s).size();
+				// guess affected folder depth
+				int tailSize = listStructurePathTail(s).size();
+
+				for (int i = 0; i < tailSize && !isStructureRoot(sourceFolder); sourceFolder = sourceFolder.getParentFile(), i++) {
+					File[] children = sourceFolder.listFiles();
+					if (children == null || !stream(children).allMatch(f -> empty.contains(f) || f.isHidden())) {
+						return;
+					}
+
+					stream(children).forEach(empty::add);
+					empty.add(sourceFolder);
+				}
 			} catch (Exception e) {
 				debug.warning(e::toString);
-			}
-
-			for (int i = 0; i < relativePathSize && !isVolumeRoot(sourceFolder); sourceFolder = sourceFolder.getParentFile(), i++) {
-				File[] children = sourceFolder.listFiles();
-				if (children == null || !stream(children).allMatch(f -> empty.contains(f) || f.isHidden())) {
-					return;
-				}
-
-				stream(children).forEach(empty::add);
-				empty.add(sourceFolder);
 			}
 		});
 
