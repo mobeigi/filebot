@@ -130,6 +130,8 @@ public class TheTVDBClientTest {
 		assertEquals("en", it.getLanguage());
 		assertEquals("45", it.getRuntime().toString());
 		assertEquals("Chuck", it.getName());
+		assertEquals(9.0, it.getRating(), 0.5);
+		assertEquals(1000, it.getRatingCount(), 100);
 	}
 
 	@Test
