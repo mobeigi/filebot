@@ -123,7 +123,7 @@ public class TheTVDBClientTest {
 
 	@Test
 	public void getSeriesInfo() throws Exception {
-		SeriesInfo it = thetvdb.getSeriesInfo(80348, Locale.ENGLISH);
+		TheTVDBSeriesInfo it = thetvdb.getSeriesInfo(80348, Locale.ENGLISH);
 
 		assertEquals(80348, it.getId(), 0);
 		assertEquals("Action", it.getGenres().get(0));
@@ -132,6 +132,11 @@ public class TheTVDBClientTest {
 		assertEquals("Chuck", it.getName());
 		assertEquals(9.0, it.getRating(), 0.5);
 		assertEquals(1000, it.getRatingCount(), 100);
+		assertEquals("tt0934814", it.getImdbId());
+		assertEquals("Friday", it.getAirsDayOfWeek());
+		assertEquals("8:00 PM", it.getAirsTime());
+		assertEquals(1000, it.getOverview().length(), 100);
+		assertEquals("http://thetvdb.com/banners/graphical/80348-g26.jpg", it.getBannerUrl().toString());
 	}
 
 	@Test

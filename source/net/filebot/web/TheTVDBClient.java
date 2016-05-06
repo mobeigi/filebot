@@ -127,11 +127,16 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 	}
 
 	@Override
-	public SeriesInfo getSeriesInfo(SearchResult series, Locale locale) throws Exception {
+	public TheTVDBSeriesInfo getSeriesInfo(int id, Locale language) throws Exception {
+		return getSeriesInfo(new SearchResult(id, null), language);
+	}
+
+	@Override
+	public TheTVDBSeriesInfo getSeriesInfo(SearchResult series, Locale locale) throws Exception {
 		Object json = requestJson("series/" + series.getId(), locale, Cache.ONE_WEEK);
 		Object data = getMap(json, "data");
 
-		SeriesInfo info = new SeriesInfo(this, locale, series.getId());
+		TheTVDBSeriesInfo info = new TheTVDBSeriesInfo(this, locale, series.getId());
 		info.setAliasNames(Stream.of(series.getAliasNames(), getArray(data, "aliases")).flatMap(it -> stream(it)).map(Object::toString).distinct().toArray(String[]::new));
 
 		info.setName(getString(data, "seriesName"));
@@ -140,11 +145,19 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 		info.setStatus(getString(data, "status"));
 
 		info.setRating(getDecimal(data, "siteRating"));
-		info.setRatingCount(getInteger(data, "siteRatingCount")); // TODO rating count not implemented in the new API yet
+		info.setRatingCount(getInteger(data, "siteRatingCount"));
 
 		info.setRuntime(matchInteger(getString(data, "runtime")));
 		info.setGenres(stream(getArray(data, "genre")).map(Object::toString).collect(toList()));
 		info.setStartDate(getStringValue(data, "firstAired", SimpleDate::parse));
+
+		// TheTVDB SeriesInfo extras
+		info.setImdbId(getString(data, "imdbId"));
+		info.setOverview(getString(data, "overview"));
+		info.setAirsDayOfWeek(getString(data, "airsDayOfWeek"));
+		info.setAirsTime(getString(data, "airsTime"));
+		info.setBannerUrl(getStringValue(data, "banner", this::resolveBanner));
+		info.setLastUpdated(getStringValue(data, "lastUpdated", Long::new));
 
 		return info;
 	}
@@ -233,9 +246,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 	public List<Artwork> getArtwork(int id, String category, Locale locale) throws Exception {
 		Object json = requestJson("series/" + id + "/images/query?keyType=" + category, locale, Cache.ONE_WEEK);
 
-		// TheTVDB API v2 does not have a dedicated banner mirror
-		URL mirror = new URL("http://thetvdb.com/banners/");
-
 		return streamJsonObjects(json, "data").map(it -> {
 			try {
 				String subKey = getString(it, "subKey");
@@ -243,12 +253,25 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 				String resolution = getString(it, "resolution");
 				Double rating = getDecimal(getString(it, "ratingsInfo"), "average");
 
-				return new Artwork(this, Stream.of(category, subKey, resolution), new URL(mirror, fileName), locale, rating);
+				return new Artwork(this, Stream.of(category, subKey, resolution), resolveBanner(fileName), locale, rating);
 			} catch (Exception e) {
 				debug.log(Level.WARNING, e, e::getMessage);
 				return null;
 			}
 		}).filter(Objects::nonNull).collect(toList());
+	}
+
+	protected URL resolveBanner(String path) {
+		if (path == null || path.isEmpty()) {
+			return null;
+		}
+
+		// TheTVDB API v2 does not have a dedicated banner mirror
+		try {
+			return new URL("http://thetvdb.com/banners/" + path);
+		} catch (Exception e) {
+			throw new IllegalArgumentException(Objects.toString(path));
+		}
 	}
 
 }

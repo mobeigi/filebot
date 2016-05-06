@@ -8,13 +8,10 @@ public class TheTVDBSeriesInfo extends SeriesInfo implements Serializable {
 
 	protected String imdbId;
 	protected String overview;
-
 	protected String airsDayOfWeek;
-	protected String airTime;
-
-	protected String bannerUrl;
-	protected String fanartUrl;
-	protected String posterUrl;
+	protected String airsTime;
+	protected URL banner;
+	protected long lastUpdated;
 
 	protected TheTVDBSeriesInfo() {
 
@@ -25,22 +22,13 @@ public class TheTVDBSeriesInfo extends SeriesInfo implements Serializable {
 		this.imdbId = other.imdbId;
 		this.overview = other.overview;
 		this.airsDayOfWeek = other.airsDayOfWeek;
-		this.airTime = other.airTime;
-		this.bannerUrl = other.bannerUrl;
-		this.fanartUrl = other.fanartUrl;
-		this.posterUrl = other.posterUrl;
+		this.airsTime = other.airsTime;
+		this.banner = other.banner;
+		this.lastUpdated = other.lastUpdated;
 	}
 
-	public TheTVDBSeriesInfo(Datasource database, SortOrder order, Locale language, Integer id) {
-		super(database, order, language, id);
-	}
-
-	public SimpleDate getFirstAired() {
-		return getStartDate();
-	}
-
-	public String getContentRating() {
-		return getCertification();
+	public TheTVDBSeriesInfo(Datasource database, Locale language, Integer id) {
+		super(database, language, id);
 	}
 
 	public String getImdbId() {
@@ -67,44 +55,28 @@ public class TheTVDBSeriesInfo extends SeriesInfo implements Serializable {
 		this.airsDayOfWeek = airsDayOfWeek;
 	}
 
-	public String getAirTime() {
-		return airTime;
+	public String getAirsTime() {
+		return airsTime;
 	}
 
-	public void setAirTime(String airTime) {
-		this.airTime = airTime;
+	public void setAirsTime(String airsTime) {
+		this.airsTime = airsTime;
 	}
 
-	public String getBannerUrl() {
-		return bannerUrl;
+	public URL getBannerUrl() {
+		return banner;
 	}
 
-	public void setBannerUrl(URL bannerUrl) {
-		this.bannerUrl = bannerUrl.toString();
+	public void setBannerUrl(URL banner) {
+		this.banner = banner;
 	}
 
-	public URL getFanartUrl() {
-		try {
-			return new URL(fanartUrl);
-		} catch (Exception e) {
-			return null;
-		}
+	public long getLastUpdated() {
+		return lastUpdated;
 	}
 
-	public void setFanartUrl(URL fanartUrl) {
-		this.fanartUrl = fanartUrl.toString();
-	}
-
-	public URL getPosterUrl() {
-		try {
-			return new URL(posterUrl);
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	public void setPosterUrl(URL posterUrl) {
-		this.posterUrl = posterUrl.toString();
+	public void setLastUpdated(Long lastUpdated) {
+		this.lastUpdated = lastUpdated == null ? 0 : lastUpdated;
 	}
 
 	@Override

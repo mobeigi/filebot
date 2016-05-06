@@ -648,7 +648,7 @@ public class MediaBindingBean {
 		try {
 			if (infoObject instanceof Episode) {
 				if (WebServices.TheTVDB.getIdentifier().equals(getSeriesInfo().getDatabase())) {
-					TheTVDBSeriesInfo extendedSeriesInfo = (TheTVDBSeriesInfo) WebServices.TheTVDB.getSeriesInfo(getSeriesInfo().getId(), Locale.ENGLISH);
+					TheTVDBSeriesInfo extendedSeriesInfo = WebServices.TheTVDB.getSeriesInfo(getSeriesInfo().getId(), Locale.ENGLISH);
 					if (extendedSeriesInfo.getImdbId() != null) {
 						metaInfo = WebServices.OMDb.getMovieInfo(new Movie(grepImdbId(extendedSeriesInfo.getImdbId()).iterator().next()));
 					}
