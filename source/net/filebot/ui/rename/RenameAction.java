@@ -97,9 +97,8 @@ class RenameAction extends AbstractAction {
 					} else {
 						// call and wait
 						RenameWorker worker = new RenameWorker(renameMap, renameLog, action);
-						String title = String.format("%s - %s", getApplicationName(), action.getDisplayName());
 						String message = String.format("%s %d %s. This may take a while.", action.getDisplayName() + "ing", renameMap.size(), renameMap.size() == 1 ? "file" : "files");
-						ProgressMonitor.runTask(title, message, worker).get();
+						ProgressMonitor.runTask(action.getDisplayName(), message, worker).get();
 					}
 				} catch (CancellationException e) {
 					debug.finest(e::toString);

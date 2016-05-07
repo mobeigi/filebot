@@ -4,11 +4,9 @@ import static net.filebot.Logging.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
-import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
@@ -18,16 +16,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CancellationException;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingWorker;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
@@ -38,9 +37,8 @@ import net.filebot.cli.ConflictAction;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.GradientStyle;
 import net.filebot.util.ui.LoadingOverlayPane;
-import net.filebot.util.ui.ProgressDialog;
-import net.filebot.util.ui.ProgressDialog.Cancellable;
-import net.filebot.util.ui.SwingWorkerPropertyChangeAdapter;
+import net.filebot.util.ui.ProgressMonitor;
+import net.filebot.util.ui.ProgressMonitor.ProgressWorker;
 import net.filebot.util.ui.notification.SeparatorBorder;
 import net.filebot.vfs.FileInfo;
 import net.filebot.vfs.SimpleFileInfo;
@@ -124,33 +122,8 @@ class ExtractTool extends Tool<TableModel> {
 			if (selectedFile == null)
 				return;
 
-			final ExtractJob job = new ExtractJob(archives, selectedFile, null, true, ConflictAction.AUTO);
-			final ProgressDialog dialog = new ProgressDialog(getWindow(evt.getSource()), job);
-			dialog.setLocation(getOffsetLocation(dialog.getOwner()));
-			dialog.setTitle("Extracting files...");
-			dialog.setIcon((Icon) getValue(SMALL_ICON));
-			dialog.setIndeterminate(true);
-
-			// close progress dialog when worker is finished
-			job.addPropertyChangeListener(new SwingWorkerPropertyChangeAdapter() {
-
-				@Override
-				protected void event(String name, Object oldValue, Object newValue) {
-					if (name.equals("currentFile")) {
-						String note = "Extracting " + ((File) newValue).getName();
-						dialog.setNote(note);
-						dialog.setWindowTitle(note);
-					}
-				}
-
-				@Override
-				protected void done(PropertyChangeEvent evt) {
-					dialog.close();
-				}
-			});
-
-			job.execute();
-			dialog.setVisible(true);
+			ExtractWorker worker = new ExtractWorker(archives, selectedFile, null, true, ConflictAction.AUTO);
+			ProgressMonitor.runTask("Extract", "Extracting files...", worker);
 		}
 	};
 
@@ -227,7 +200,7 @@ class ExtractTool extends Tool<TableModel> {
 
 	}
 
-	protected static class ExtractJob extends SwingWorker<Void, Void> implements Cancellable {
+	protected static class ExtractWorker implements ProgressWorker<Void> {
 
 		private final File[] archives;
 		private final File outputFolder;
@@ -236,7 +209,7 @@ class ExtractTool extends Tool<TableModel> {
 		private final boolean forceExtractAll;
 		private final ConflictAction conflictAction;
 
-		public ExtractJob(Collection<File> archives, File outputFolder, FileFilter filter, boolean forceExtractAll, ConflictAction conflictAction) {
+		public ExtractWorker(Collection<File> archives, File outputFolder, FileFilter filter, boolean forceExtractAll, ConflictAction conflictAction) {
 			this.archives = archives.toArray(new File[archives.size()]);
 			this.outputFolder = outputFolder;
 			this.filter = filter;
@@ -245,11 +218,11 @@ class ExtractTool extends Tool<TableModel> {
 		}
 
 		@Override
-		protected Void doInBackground() throws Exception {
+		public Void call(Consumer<String> message, BiConsumer<Long, Long> progress, Supplier<Boolean> cancelled) throws Exception {
 			for (File file : archives) {
 				try {
 					// update progress dialog
-					firePropertyChange("currentFile", null, file);
+					message.accept(String.format("Extracting %s", file.getName()));
 
 					Archive archive = Archive.open(file);
 					try {
@@ -304,16 +277,11 @@ class ExtractTool extends Tool<TableModel> {
 					log.log(Level.WARNING, "Failed to extract archive: " + file.getName(), e);
 				}
 
-				if (isCancelled()) {
-					throw new CancellationException();
+				if (cancelled.get()) {
+					throw new CancellationException("Extract cancelled");
 				}
 			}
 			return null;
-		}
-
-		@Override
-		public boolean cancel() {
-			return cancel(true);
 		}
 
 	}
