@@ -12,10 +12,8 @@ import java.util.logging.Level;
 import org.controlsfx.dialog.ProgressDialog;
 
 import javafx.concurrent.Task;
-import javafx.event.EventHandler;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 public class ProgressMonitor<T> {
 
