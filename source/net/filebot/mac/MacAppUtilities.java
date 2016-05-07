@@ -120,6 +120,14 @@ public class MacAppUtilities {
 		}
 	}
 
+	public static void moveToTrash(File file) {
+		try {
+			FileManager.moveToTrash(file);
+		} catch (Throwable t) {
+			debug.log(Level.WARNING, t.getMessage(), t);
+		}
+	}
+
 	public static void setDefaultMenuBar(JMenuBar menu) {
 		try {
 			Application.getApplication().setDefaultMenuBar(menu);

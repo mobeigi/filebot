@@ -18,10 +18,10 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.AbstractList;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -182,13 +182,19 @@ class RenameAction extends AbstractAction {
 			}
 		});
 
-		for (File f : empty) {
-			try {
-				debug.finest(format("Delete empty folder: %s", f));
-				Files.delete(f.toPath());
-			} catch (Exception e) {
-				debug.warning(e::toString);
+		// use system trash to delete left-behind empty folders / hidden files
+		moveToTrash(empty);
+	}
+
+	protected void moveToTrash(Collection<File> files) {
+		try {
+			if (isMacApp()) {
+				files.stream().forEach(MacAppUtilities::moveToTrash);
+			} else {
+				com.sun.jna.platform.FileUtils.getInstance().moveToTrash(files.toArray(new File[0]));
 			}
+		} catch (Throwable e) {
+			debug.log(Level.WARNING, e, e::getMessage);
 		}
 	}
 
