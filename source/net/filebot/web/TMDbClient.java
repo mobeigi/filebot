@@ -288,7 +288,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 				debug.log(Level.WARNING, e, e::getMessage);
 				return null;
 			}
-		}).filter(Objects::nonNull).collect(toList());
+		}).filter(Objects::nonNull).sorted(Artwork.RATING_ORDER).collect(toList());
 	}
 
 	protected Object request(String resource, Map<String, Object> parameters, Locale locale, final FloodLimit limit) throws Exception {

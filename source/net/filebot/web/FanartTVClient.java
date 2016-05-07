@@ -59,7 +59,7 @@ public class FanartTVClient implements Datasource, ArtworkProvider {
 					return null;
 				}
 			});
-		}).filter(Objects::nonNull).collect(toList());
+		}).filter(Objects::nonNull).sorted(Artwork.RATING_ORDER).collect(toList());
 	}
 
 }

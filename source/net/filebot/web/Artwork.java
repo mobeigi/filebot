@@ -6,6 +6,7 @@ import static java.util.Collections.*;
 import java.io.Serializable;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -81,5 +82,7 @@ public class Artwork implements Serializable {
 	public String toString() {
 		return asList(String.join("/", tags), language, new DecimalFormat("0.##").format(rating), url).toString();
 	}
+
+	public static final Comparator<Artwork> RATING_ORDER = Comparator.comparing(Artwork::getRating, reverseOrder());
 
 }

@@ -258,7 +258,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 				debug.log(Level.WARNING, e, e::getMessage);
 				return null;
 			}
-		}).filter(Objects::nonNull).collect(toList());
+		}).filter(Objects::nonNull).sorted(Artwork.RATING_ORDER).collect(toList());
 	}
 
 	protected URL resolveBanner(String path) {
