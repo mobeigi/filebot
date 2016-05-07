@@ -363,10 +363,16 @@ public class Main {
 		System.setProperty("grape.root", ApplicationFolder.AppData.resolve("grape").getAbsolutePath());
 		System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 
-		System.setProperty("unixfs", Boolean.toString(args.unixfs));
-		System.setProperty("useExtendedFileAttributes", Boolean.toString(!args.disableExtendedAttributes));
-		System.setProperty("useCreationDate", Boolean.toString(!args.disableExtendedAttributes));
-		System.setProperty("application.rename.history", Boolean.toString(!args.action.equalsIgnoreCase("test"))); // do not keep history of --action test rename operations
+		if (args.unixfs) {
+			System.setProperty("unixfs", "true");
+		}
+		if (args.disableExtendedAttributes) {
+			System.setProperty("useExtendedFileAttributes", "false");
+			System.setProperty("useCreationDate", "false");
+		}
+		if (args.action.equalsIgnoreCase("test")) {
+			System.setProperty("application.rename.history", "false"); // do not keep history of --action test rename operations
+		}
 	}
 
 	public static void initializeLogging(ArgumentBean args) throws IOException {
