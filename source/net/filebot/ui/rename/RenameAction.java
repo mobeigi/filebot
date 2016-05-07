@@ -11,11 +11,9 @@ import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
-import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.AbstractList;
@@ -32,19 +30,17 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.swing.AbstractAction;
-import javax.swing.Icon;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
-import javax.swing.SwingWorker;
 
 import net.filebot.HistorySpooler;
 import net.filebot.NativeRenameAction;
@@ -52,9 +48,8 @@ import net.filebot.ResourceManager;
 import net.filebot.StandardRenameAction;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.similarity.Match;
-import net.filebot.util.ui.ProgressDialog;
-import net.filebot.util.ui.ProgressDialog.Cancellable;
-import net.filebot.util.ui.SwingWorkerPropertyChangeAdapter;
+import net.filebot.util.ui.ProgressMonitor;
+import net.filebot.util.ui.ProgressMonitor.ProgressWorker;
 
 class RenameAction extends AbstractAction {
 
@@ -88,43 +83,48 @@ class RenameAction extends AbstractAction {
 					return;
 				}
 
-				// start processing
 				List<Match<Object, File>> matches = new ArrayList<Match<Object, File>>(model.matches());
 				StandardRenameAction action = (StandardRenameAction) getValue(RENAME_ACTION);
 
-				if (useNativeShell() && isNativeActionSupported(action)) {
-					RenameJob renameJob = new NativeRenameJob(renameMap, NativeRenameAction.valueOf(action.name()));
-					renameJob.execute();
+				// start processing
+				Map<File, File> renameLog = new LinkedHashMap<File, File>();
 
-					// wait for native operation to finish or be cancelled
-					try {
-						renameJob.get();
-					} catch (CancellationException e) {
-						debug.finest(e::toString);
+				try {
+					if (useNativeShell() && isNativeActionSupported(action)) {
+						// call on EDT
+						RenameWorker worker = new NativeRenameWorker(renameMap, renameLog, NativeRenameAction.valueOf(action.name()));
+						worker.call(null, null, null);
+					} else {
+						// call and wait
+						RenameWorker worker = new RenameWorker(renameMap, renameLog, action);
+						ProgressMonitor.runTask(action.getDisplayName(), String.format("%s %d %s. This may take a while.", action.getDisplayName() + "ing", renameMap.size(), renameMap.size() == 1 ? "file" : "files"), worker).get();
 					}
-				} else {
-					RenameJob renameJob = new RenameJob(renameMap, action);
-					renameJob.execute();
-
-					// wait a little while (renaming might finish in less than a second)
-					try {
-						renameJob.get(2, TimeUnit.SECONDS);
-					} catch (TimeoutException e) {
-						// display progress dialog because move/rename might take a while
-						ProgressDialog dialog = createProgressDialog(window, renameJob);
-						dialog.setModalityType(ModalityType.APPLICATION_MODAL);
-						dialog.setLocation(getOffsetLocation(dialog.getOwner()));
-						dialog.setIndeterminate(true);
-						dialog.setVisible(true);
-					}
+				} catch (CancellationException e) {
+					debug.finest(e::toString);
+				} catch (Exception e) {
+					log.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
 				}
+
+				// abort if nothing happened
+				if (renameLog.isEmpty()) {
+					return;
+				}
+
+				log.info(String.format("%d files renamed.", renameLog.size()));
+
+				// remove renamed matches
+				renameLog.forEach((from, to) -> {
+					model.matches().remove(model.files().indexOf(from));
+				});
+
+				HistorySpooler.getInstance().append(renameLog.entrySet());
 
 				// store xattr
 				storeMetaInfo(renameMap, matches);
 
 				// delete empty folders
 				if (action == StandardRenameAction.MOVE) {
-					deleteEmptyFolders(renameMap);
+					deleteEmptyFolders(renameLog);
 				}
 			});
 		} catch (ExecutionException e) {
@@ -187,12 +187,14 @@ class RenameAction extends AbstractAction {
 	}
 
 	protected void moveToTrash(Collection<File> files) {
+		// use com.apple.eio package on OS X platform
+		if (isMacApp()) {
+			files.stream().forEach(MacAppUtilities::moveToTrash);
+			return;
+		}
+
 		try {
-			if (isMacApp()) {
-				files.stream().forEach(MacAppUtilities::moveToTrash);
-			} else {
-				com.sun.jna.platform.FileUtils.getInstance().moveToTrash(files.toArray(new File[0]));
-			}
+			com.sun.jna.platform.FileUtils.getInstance().moveToTrash(files.toArray(new File[0]));
 		} catch (Throwable e) {
 			debug.log(Level.WARNING, e, e::getMessage);
 		}
@@ -303,164 +305,86 @@ class RenameAction extends AbstractAction {
 		return emptyList();
 	}
 
-	protected ProgressDialog createProgressDialog(Window parent, final RenameJob job) {
-		final ProgressDialog dialog = new ProgressDialog(parent, job);
-
-		// configure dialog
-		dialog.setTitle("Processing files...");
-		dialog.setIcon((Icon) getValue(SMALL_ICON));
-
-		// close progress dialog when worker is finished
-		job.addPropertyChangeListener(new SwingWorkerPropertyChangeAdapter() {
-
-			@Override
-			protected void event(String name, Object oldValue, Object newValue) {
-				if (name.equals("currentFile")) {
-					int i = job.renameLog.size();
-					int n = job.renameMap.size();
-					dialog.setNote(String.format("%d of %d", i + 1, n));
-
-					// OSX LaF progress bar may not display progress bar text in indeterminate mode
-					if (isMacApp()) {
-						dialog.setTitle("Processing files... " + String.format("%d of %d", i + 1, n));
-					}
-
-					if (newValue instanceof File) {
-						dialog.setWindowTitle("Processing " + ((File) oldValue).getName());
-					}
-				}
-			}
-
-			@Override
-			protected void done(PropertyChangeEvent evt) {
-				dialog.close();
-			}
-		});
-
-		return dialog;
-	}
-
-	protected class RenameJob extends SwingWorker<Map<File, File>, Void> implements Cancellable {
-
-		protected final net.filebot.RenameAction action;
+	protected static class RenameWorker implements ProgressWorker<Map<File, File>> {
 
 		protected final Map<File, File> renameMap;
 		protected final Map<File, File> renameLog;
 
-		protected final Semaphore postprocess = new Semaphore(0);
+		protected final net.filebot.RenameAction action;
 
-		public RenameJob(Map<File, File> renameMap, net.filebot.RenameAction action) {
+		protected boolean cancelled = false;
+
+		public RenameWorker(Map<File, File> renameMap, Map<File, File> renameLog, net.filebot.RenameAction action) {
+			this.renameMap = renameMap;
+			this.renameLog = renameLog;
 			this.action = action;
-			this.renameMap = synchronizedMap(renameMap);
-			this.renameLog = synchronizedMap(new LinkedHashMap<File, File>());
 		}
 
 		@Override
-		protected Map<File, File> doInBackground() throws Exception {
-			try {
-				for (Entry<File, File> mapping : renameMap.entrySet()) {
-					if (isCancelled())
-						return renameLog;
+		public Map<File, File> call(Consumer<String> message, BiConsumer<Long, Long> progress, Supplier<Boolean> cancelled) throws Exception {
+			long i = 0;
+			long n = renameMap.size();
 
-					// update progress dialog
-					firePropertyChange("currentFile", mapping.getKey(), mapping.getValue());
-
-					// rename file, throw exception on failure
-					File source = mapping.getKey();
-					File destination = resolve(mapping.getKey(), mapping.getValue());
-					boolean isSameFile = source.equals(destination);
-					if (!isSameFile || (isSameFile && !source.getName().equals(destination.getName()))) {
-						action.rename(source, destination);
-					}
-
-					// remember successfully renamed matches for history entry and possible revert
-					renameLog.put(mapping.getKey(), mapping.getValue());
+			for (Entry<File, File> mapping : renameMap.entrySet()) {
+				if (cancelled.get()) {
+					return renameLog;
 				}
-			} finally {
-				postprocess.release();
+
+				progress.accept(i++, n);
+				message.accept(String.format("[%d / %d] %s", i, n, mapping.getKey().getName()));
+
+				// rename file, throw exception on failure
+				File source = mapping.getKey();
+				File destination = resolve(mapping.getKey(), mapping.getValue());
+
+				if (!source.equals(destination) || (source.equals(destination) && !source.getName().equals(destination.getName()))) {
+					action.rename(source, destination);
+				}
+
+				// remember successfully renamed matches for history entry and possible revert
+				renameLog.put(mapping.getKey(), mapping.getValue());
 			}
 
 			return renameLog;
 		}
-
-		@Override
-		protected void done() {
-			try {
-				postprocess.acquire();
-				this.get(); // grab exception if any
-			} catch (Exception e) {
-				if (!isCancelled()) {
-					log.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
-				} else {
-					debug.log(Level.SEVERE, e.getMessage(), e);
-				}
-			}
-
-			// remove renamed matches
-			for (File source : renameLog.keySet()) {
-				// find index of source file
-				int index = model.files().indexOf(source);
-
-				// remove complete match
-				model.matches().remove(index);
-			}
-
-			if (renameLog.size() > 0) {
-				log.info(String.format("%d files renamed.", renameLog.size()));
-				HistorySpooler.getInstance().append(renameLog.entrySet());
-			}
-		}
-
-		@Override
-		public boolean cancel() {
-			return cancel(true);
-		}
 	}
 
-	protected class NativeRenameJob extends RenameJob implements Cancellable {
+	protected static class NativeRenameWorker extends RenameWorker {
 
-		public NativeRenameJob(Map<File, File> renameMap, NativeRenameAction action) {
-			super(renameMap, action);
+		public NativeRenameWorker(Map<File, File> renameMap, Map<File, File> renameLog, NativeRenameAction action) {
+			super(renameMap, renameLog, action);
 		}
 
 		@Override
-		protected Map<File, File> doInBackground() throws Exception {
+		public Map<File, File> call(Consumer<String> message, BiConsumer<Long, Long> progress, Supplier<Boolean> cancelled) throws Exception {
 			NativeRenameAction shell = (NativeRenameAction) action;
 
 			// prepare delta, ignore files already named as desired
-			Map<File, File> todo = new LinkedHashMap<File, File>();
+			Map<File, File> renamePlan = new LinkedHashMap<File, File>();
 			for (Entry<File, File> mapping : renameMap.entrySet()) {
 				File source = mapping.getKey();
 				File destination = resolve(mapping.getKey(), mapping.getValue());
 				if (!source.equals(destination)) {
-					todo.put(source, destination);
+					renamePlan.put(source, destination);
 				}
 			}
 
 			// call native shell move/copy
 			try {
-				shell.rename(todo);
+				shell.rename(renamePlan);
 			} catch (CancellationException e) {
-				// set as cancelled and propagate the exception
-				super.cancel(false);
-				throw e;
-			} finally {
-				// check status of renamed files
-				for (Entry<File, File> it : renameMap.entrySet()) {
-					if (resolve(it.getKey(), it.getValue()).exists()) {
-						renameLog.put(it.getKey(), it.getValue());
-					}
+				debug.finest(e::getMessage);
+			}
+
+			for (Entry<File, File> it : renameMap.entrySet()) {
+				if (resolve(it.getKey(), it.getValue()).exists()) {
+					renameLog.put(it.getKey(), it.getValue());
 				}
-				postprocess.release();
 			}
 
 			return renameLog;
 		}
 
-		@Override
-		public boolean cancel() {
-			throw new UnsupportedOperationException();
-		}
 	}
 
 }

@@ -24,6 +24,7 @@
 		<dependency org="net.sf.sevenzipjbinding" name="sevenzipjbinding-all-platforms" rev="9.+" />
 		<dependency org="com.optimaize.languagedetector" name="language-detector" rev="0.+" />
 		<dependency org="one.util" name="streamex" rev="0.+" />
+		<dependency org="org.controlsfx" name="controlsfx" rev="8.+" />
 
 		<!-- FileBot Scripting -->
 		<dependency org="org.apache.ant" name="ant" rev="1.9.+" />

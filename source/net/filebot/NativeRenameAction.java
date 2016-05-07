@@ -52,7 +52,7 @@ public enum NativeRenameAction implements RenameAction {
 		Shell32.INSTANCE.SHFileOperation(op);
 
 		if (op.fAnyOperationsAborted) {
-			throw new CancellationException();
+			throw new CancellationException(action.name() + " cancelled");
 		}
 	}
 

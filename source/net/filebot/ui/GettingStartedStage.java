@@ -14,9 +14,7 @@ import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.concurrent.Worker;
-import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -34,13 +32,7 @@ import net.filebot.ResourceManager;
 public class GettingStartedStage {
 
 	public static void start() {
-		// initialize JavaFX
-		new JFXPanel();
-
-		// initialize and show webview
-		Platform.setImplicitExit(false);
-
-		Platform.runLater(() -> {
+		invokeJavaFX(() -> {
 			// libjfxwebkit.dylib cannot be deployed on the MAS due to deprecated dependencies
 			if (isMacSandbox()) {
 				ask();
