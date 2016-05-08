@@ -18,7 +18,6 @@ public class SeriesInfo implements Serializable {
 	protected Integer id;
 	protected String name;
 	protected String[] aliasNames;
-	protected String[] actors;
 	protected String certification;
 	protected SimpleDate startDate;
 	protected String[] genres;
@@ -39,7 +38,6 @@ public class SeriesInfo implements Serializable {
 		this.id = other.id;
 		this.name = other.name;
 		this.aliasNames = other.aliasNames == null ? null : other.aliasNames.clone();
-		this.actors = other.actors == null ? null : other.actors.clone();
 		this.certification = other.certification;
 		this.startDate = other.startDate == null ? null : other.startDate.clone();
 		this.genres = other.genres == null ? null : other.genres.clone();
@@ -109,14 +107,6 @@ public class SeriesInfo implements Serializable {
 
 	public void setAliasNames(String... aliasNames) {
 		this.aliasNames = aliasNames.clone();
-	}
-
-	public List<String> getActors() {
-		return actors == null ? emptyList() : asList(actors.clone());
-	}
-
-	public void setActors(List<String> actors) {
-		this.actors = actors.toArray(new String[actors.size()]);
 	}
 
 	public String getCertification() {
