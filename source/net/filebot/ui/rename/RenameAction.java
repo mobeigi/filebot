@@ -323,16 +323,12 @@ class RenameAction extends AbstractAction {
 
 		@Override
 		public Map<File, File> call(Consumer<String> message, BiConsumer<Long, Long> progress, Supplier<Boolean> cancelled) throws Exception {
-			long i = 0;
-			long n = renameMap.size();
-
 			for (Entry<File, File> mapping : renameMap.entrySet()) {
 				if (cancelled.get()) {
 					return renameLog;
 				}
 
-				progress.accept(i++, n);
-				message.accept(String.format("[%d / %d] %s", i, n, mapping.getKey().getName()));
+				message.accept(mapping.getKey().getName());
 
 				// rename file, throw exception on failure
 				File source = mapping.getKey();
