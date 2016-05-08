@@ -252,6 +252,12 @@
 				<include name="one/util/streamex/**" />
 			</zipfileset>
 
+			<zipfileset src="${dir.lib}/ivy/jar/controlsfx.jar">
+				<include name="org/controlsfx/dialog/**" />
+				<include name="impl/org/controlsfx/i18n/**" />
+				<include name="controlsfx.properties" />
+			</zipfileset>
+
 			<!-- include classes and native libraries -->
 			<zipfileset src="${dir.lib}/ivy/jar/jna.jar">
 				<include name="com/sun/jna/**" />
