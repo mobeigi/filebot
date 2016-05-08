@@ -98,11 +98,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 		}
 	}
 
-	protected String[] languages() throws Exception {
-		Object response = requestJson("languages", Locale.ROOT, Cache.ONE_MONTH);
-		return streamJsonObjects(response, "data").map(it -> getString(it, "abbreviation")).toArray(String[]::new);
-	}
-
 	protected List<SearchResult> search(String path, Map<String, Object> query, Locale locale, Duration expirationTime) throws Exception {
 		Object json = requestJson(path + "?" + encodeParameters(query, true), locale, expirationTime);
 
@@ -244,7 +239,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 
 	@Override
 	public List<Artwork> getArtwork(int id, String category, Locale locale) throws Exception {
-		Object json = requestJson("series/" + id + "/images/query?keyType=" + category, locale, Cache.ONE_WEEK);
+		Object json = requestJson("series/" + id + "/images/query?keyType=" + category, locale, Cache.ONE_MONTH);
 
 		return streamJsonObjects(json, "data").map(it -> {
 			try {
@@ -270,8 +265,18 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 		try {
 			return new URL("http://thetvdb.com/banners/" + path);
 		} catch (Exception e) {
-			throw new IllegalArgumentException(Objects.toString(path));
+			throw new IllegalArgumentException(path);
 		}
+	}
+
+	public List<String> getLanguages() throws Exception {
+		Object response = requestJson("languages", Locale.ROOT, Cache.ONE_MONTH);
+		return streamJsonObjects(response, "data").map(it -> getString(it, "abbreviation")).collect(toList());
+	}
+
+	public List<Map<?, ?>> getActors(int id, Locale locale) throws Exception {
+		Object response = requestJson("series/" + id + "/actors", locale, Cache.ONE_MONTH);
+		return streamJsonObjects(response, "data").map(it -> asMap(it)).collect(toList());
 	}
 
 }

@@ -1,6 +1,5 @@
 package net.filebot.web;
 
-import static java.util.Arrays.*;
 import static org.junit.Assert.*;
 
 import java.util.List;
@@ -15,12 +14,6 @@ public class TheTVDBClientTest {
 	SearchResult buffy = new SearchResult(70327, "Buffy the Vampire Slayer");
 	SearchResult wonderfalls = new SearchResult(78845, "Wonderfalls");
 	SearchResult firefly = new SearchResult(78874, "Firefly");
-
-	@Test
-	public void languages() throws Exception {
-		String[] languages = thetvdb.languages();
-		assertEquals("[zh, en, sv, no, da, fi, nl, de, it, es, fr, pl, hu, el, tr, ru, he, ja, pt, cs, sl, hr, ko]", asList(languages).toString());
-	}
 
 	@Test
 	public void search() throws Exception {
@@ -148,6 +141,12 @@ public class TheTVDBClientTest {
 		assertTrue(i.matches("fanart", "1920x1080"));
 		assertFalse(i.matches("fanart", "1920x1080", "1"));
 		assertEquals(8.0, i.getRating(), 1.0);
+	}
+
+	@Test
+	public void getLanguages() throws Exception {
+		List<String> languages = thetvdb.getLanguages();
+		assertEquals("[zh, en, sv, no, da, fi, nl, de, it, es, fr, pl, hu, el, tr, ru, he, ja, pt, cs, sl, hr, ko]", languages.toString());
 	}
 
 }
