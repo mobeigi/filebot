@@ -140,13 +140,14 @@ public class TheTVDBClientTest {
 	}
 
 	@Test
-	public void getImages() throws Exception {
+	public void getArtwork() throws Exception {
 		Artwork i = thetvdb.getArtwork(buffy.getId(), "fanart", Locale.ENGLISH).get(0);
 
-		assertEquals("[fanart, 1280x720]", i.getTags().toString());
-		assertEquals("http://thetvdb.com/banners/fanart/original/70327-1.jpg", i.getUrl().toString());
-		assertTrue(i.matches("fanart", "1280x720"));
-		assertFalse(i.matches("fanart", "1280x720", "1"));
+		assertEquals("[fanart, 1920x1080]", i.getTags().toString());
+		assertEquals("http://thetvdb.com/banners/fanart/original/70327-7.jpg", i.getUrl().toString());
+		assertTrue(i.matches("fanart", "1920x1080"));
+		assertFalse(i.matches("fanart", "1920x1080", "1"));
+		assertEquals(8.0, i.getRating(), 1.0);
 	}
 
 }

@@ -251,7 +251,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 				String subKey = getString(it, "subKey");
 				String fileName = getString(it, "fileName");
 				String resolution = getString(it, "resolution");
-				Double rating = getDecimal(getString(it, "ratingsInfo"), "average");
+				Double rating = getDecimal(getMap(it, "ratingsInfo"), "average");
 
 				return new Artwork(this, Stream.of(category, subKey, resolution), resolveBanner(fileName), locale, rating);
 			} catch (Exception e) {
