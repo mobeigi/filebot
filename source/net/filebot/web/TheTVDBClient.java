@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.logging.Level;
 import java.util.stream.Stream;
 
 import javax.swing.Icon;
@@ -151,7 +150,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 		info.setOverview(getString(data, "overview"));
 		info.setAirsDayOfWeek(getString(data, "airsDayOfWeek"));
 		info.setAirsTime(getString(data, "airsTime"));
-		info.setBannerUrl(getStringValue(data, "banner", this::resolveBanner));
+		info.setBannerUrl(getStringValue(data, "banner", this::resolveImage));
 		info.setLastUpdated(getStringValue(data, "lastUpdated", Long::new));
 
 		return info;
@@ -242,21 +241,16 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 		Object json = requestJson("series/" + id + "/images/query?keyType=" + category, locale, Cache.ONE_MONTH);
 
 		return streamJsonObjects(json, "data").map(it -> {
-			try {
-				String subKey = getString(it, "subKey");
-				String fileName = getString(it, "fileName");
-				String resolution = getString(it, "resolution");
-				Double rating = getDecimal(getMap(it, "ratingsInfo"), "average");
+			String subKey = getString(it, "subKey");
+			String resolution = getString(it, "resolution");
+			URL url = getStringValue(it, "fileName", this::resolveImage);
+			Double rating = getDecimal(getMap(it, "ratingsInfo"), "average");
 
-				return new Artwork(this, Stream.of(category, subKey, resolution), resolveBanner(fileName), locale, rating);
-			} catch (Exception e) {
-				debug.log(Level.WARNING, e, e::getMessage);
-				return null;
-			}
-		}).filter(Objects::nonNull).sorted(Artwork.RATING_ORDER).collect(toList());
+			return new Artwork(Stream.of(category, subKey, resolution), url, locale, rating);
+		}).sorted(Artwork.RATING_ORDER).collect(toList());
 	}
 
-	protected URL resolveBanner(String path) {
+	protected URL resolveImage(String path) {
 		if (path == null || path.isEmpty()) {
 			return null;
 		}
@@ -265,7 +259,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 		try {
 			return new URL("http://thetvdb.com/banners/" + path);
 		} catch (Exception e) {
-			throw new IllegalArgumentException(path);
+			throw new IllegalArgumentException(path, e);
 		}
 	}
 
@@ -274,9 +268,18 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 		return streamJsonObjects(response, "data").map(it -> getString(it, "abbreviation")).collect(toList());
 	}
 
-	public List<Map<?, ?>> getActors(int id, Locale locale) throws Exception {
+	public List<Person> getActors(int id, Locale locale) throws Exception {
 		Object response = requestJson("series/" + id + "/actors", locale, Cache.ONE_MONTH);
-		return streamJsonObjects(response, "data").map(it -> asMap(it)).collect(toList());
+
+		// e.g. [id:68414, seriesId:78874, name:Summer Glau, role:River Tam, sortOrder:2, image:actors/68414.jpg, imageAuthor:513, imageAdded:0000-00-00 00:00:00, lastUpdated:2011-08-18 11:53:14]
+		return streamJsonObjects(response, "data").map(it -> {
+			String name = getString(it, "name");
+			String character = getString(it, "role");
+			Integer order = getInteger(it, "sortOrder");
+			URL image = getStringValue(it, "image", this::resolveImage);
+
+			return new Person(name, character, null, null, order, image);
+		}).sorted(Person.CREDIT_ORDER).collect(toList());
 	}
 
 }

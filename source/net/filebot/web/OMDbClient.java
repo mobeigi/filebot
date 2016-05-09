@@ -32,8 +32,7 @@ import net.filebot.Cache;
 import net.filebot.CacheType;
 import net.filebot.ResourceManager;
 import net.filebot.web.TMDbClient.MovieInfo;
-import net.filebot.web.TMDbClient.MovieInfo.MovieProperty;
-import net.filebot.web.TMDbClient.Person;
+import net.filebot.web.TMDbClient.MovieProperty;
 
 public class OMDbClient implements MovieIdentificationService {
 
@@ -188,9 +187,9 @@ public class OMDbClient implements MovieIdentificationService {
 		List<String> languages = split(delim, data.get("language"), String::toString);
 
 		List<Person> actors = new ArrayList<Person>();
-		actors.addAll(split(delim, data.get("actors"), (s) -> new Person(s, null, null)));
-		actors.addAll(split(delim, data.get("director"), (s) -> new Person(s, null, "Director")));
-		actors.addAll(split(delim, data.get("writer"), (s) -> new Person(s, null, "Writer")));
+		actors.addAll(split(delim, data.get("actors"), (s) -> new Person(s, Person.ACTOR)));
+		actors.addAll(split(delim, data.get("director"), (s) -> new Person(s, Person.DIRECTOR)));
+		actors.addAll(split(delim, data.get("writer"), (s) -> new Person(s, Person.WRITER)));
 
 		return new MovieInfo(fields, emptyList(), genres, emptyMap(), languages, emptyList(), emptyList(), actors, emptyList());
 	}

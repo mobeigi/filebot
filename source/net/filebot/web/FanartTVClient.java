@@ -53,7 +53,7 @@ public class FanartTVClient implements Datasource, ArtworkProvider {
 					String season = getString(it, "season");
 					String discType = getString(it, "disc_type");
 
-					return new Artwork(this, Stream.of(type.getKey(), season, discType), new URL(url), language, likes);
+					return new Artwork(Stream.of(type.getKey(), season, discType), new URL(url), language, likes);
 				} catch (Exception e) {
 					debug.log(Level.WARNING, e, e::getMessage);
 					return null;

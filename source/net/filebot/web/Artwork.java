@@ -14,28 +14,21 @@ import java.util.stream.Stream;
 
 public class Artwork implements Serializable {
 
-	private String database;
+	protected String[] tags;
+	protected URL url;
 
-	private String[] tags;
-	private URL url;
-
-	private String language;
-	private double rating;
+	protected String language;
+	protected Double rating;
 
 	public Artwork() {
 		// used by serializer
 	}
 
-	public Artwork(Datasource database, Stream<?> tags, URL url, Locale language, Double rating) {
-		this.database = database.getIdentifier();
+	public Artwork(Stream<?> tags, URL url, Locale language, Double rating) {
 		this.tags = tags.filter(Objects::nonNull).map(Object::toString).toArray(String[]::new);
 		this.url = url;
 		this.language = language == null || language.getLanguage().isEmpty() ? null : language.getLanguage();
-		this.rating = rating == null ? 0 : rating;
-	}
-
-	public String getDatabase() {
-		return database;
+		this.rating = rating;
 	}
 
 	public List<String> getTags() {
@@ -51,7 +44,7 @@ public class Artwork implements Serializable {
 	}
 
 	public double getRating() {
-		return rating;
+		return rating == null ? 0 : rating;
 	}
 
 	public boolean matches(Object... tags) {

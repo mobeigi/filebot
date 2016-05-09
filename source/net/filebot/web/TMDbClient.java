@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,8 +36,6 @@ import net.filebot.Cache;
 import net.filebot.CacheType;
 import net.filebot.Language;
 import net.filebot.ResourceManager;
-import net.filebot.web.TMDbClient.MovieInfo.MovieProperty;
-import net.filebot.web.TMDbClient.Person.PersonProperty;
 
 public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 
@@ -241,9 +240,19 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 
 		List<Person> cast = new ArrayList<Person>();
 		try {
+			// { "cast_id":20, "character":"Gandalf", "credit_id":"52fe4a87c3a368484e158bb7", "id":1327, "name":"Ian McKellen", "order":1, "profile_path":"/c51mP46oPgAgFf7bFWVHlScZynM.jpg" }
+			Function<String, String> normalize = s -> replaceSpace(s, " ").trim(); // user data may not be well-formed
+
 			Stream.of("cast", "crew").flatMap(section -> streamJsonObjects(getMap(response, "casts"), section)).map(it -> {
-				return getEnumMap(it, PersonProperty.class);
-			}).map(Person::new).forEach(cast::add);
+				String name = getStringValue(it, "name", normalize);
+				String character = getStringValue(it, "character", normalize);
+				String job = getStringValue(it, "job", normalize);
+				String department = getStringValue(it, "department", normalize);
+				Integer order = getInteger(it, "order");
+				URL image = getStringValue(it, "profile_path", this::resolveImage);
+
+				return new Person(name, character, job, department, order, image);
+			}).sorted(Person.CREDIT_ORDER).forEach(cast::add);
 		} catch (Exception e) {
 			debug.warning(format("Bad data: casts => %s", response));
 		}
@@ -271,24 +280,35 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 
 	@Override
 	public List<Artwork> getArtwork(int id, String category, Locale locale) throws Exception {
-		Object config = request("configuration", emptyMap(), Locale.ROOT, REQUEST_LIMIT);
-		URL baseUrl = new URL(getString(getMap(config, "images"), "secure_base_url"));
-
 		Object images = request("movie/" + id + "/images", emptyMap(), Locale.ROOT, REQUEST_LIMIT);
 
 		return streamJsonObjects(images, category).map(it -> {
-			try {
-				String path = "original" + getString(it, "file_path");
-				String width = getString(it, "width");
-				String height = getString(it, "height");
-				Locale language = getStringValue(it, "iso_639_1", Locale::new);
+			URL image = getStringValue(it, "file_path", this::resolveImage);
+			String width = getString(it, "width");
+			String height = getString(it, "height");
+			Locale language = getStringValue(it, "iso_639_1", Locale::new);
 
-				return new Artwork(this, Stream.of(category, String.join("x", width, height)), new URL(baseUrl, path), language, null);
-			} catch (Exception e) {
-				debug.log(Level.WARNING, e, e::getMessage);
-				return null;
-			}
-		}).filter(Objects::nonNull).sorted(Artwork.RATING_ORDER).collect(toList());
+			return new Artwork(Stream.of(category, String.join("x", width, height)), image, language, null);
+		}).sorted(Artwork.RATING_ORDER).collect(toList());
+	}
+
+	protected Object getConfiguration() throws Exception {
+		return request("configuration", emptyMap(), Locale.ROOT, REQUEST_LIMIT);
+	}
+
+	protected URL resolveImage(String path) {
+		if (path == null || path.isEmpty()) {
+			return null;
+		}
+
+		try {
+			String mirror = (String) Cache.getCache(getName(), CacheType.Monthly).computeIfAbsent("configuration.base_url", it -> {
+				return getString(getMap(getConfiguration(), "images"), "base_url");
+			});
+			return new URL(mirror + "original" + path);
+		} catch (Exception e) {
+			throw new IllegalArgumentException(path, e);
+		}
 	}
 
 	protected Object request(String resource, Map<String, Object> parameters, Locale locale, final FloodLimit limit) throws Exception {
@@ -334,11 +354,11 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		throw new IllegalArgumentException("Illegal language code: " + language);
 	}
 
-	public static class MovieInfo implements Serializable {
+	public static enum MovieProperty {
+		adult, backdrop_path, budget, homepage, id, imdb_id, original_title, overview, popularity, poster_path, release_date, revenue, runtime, tagline, title, vote_average, vote_count, certification, collection
+	}
 
-		public static enum MovieProperty {
-			adult, backdrop_path, budget, homepage, id, imdb_id, original_title, overview, popularity, poster_path, release_date, revenue, runtime, tagline, title, vote_average, vote_count, certification, collection
-		}
+	public static class MovieInfo implements Serializable {
 
 		protected Map<MovieProperty, String> fields;
 
@@ -573,77 +593,11 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		}
 	}
 
-	public static class Person implements Serializable {
+	public static class Trailer implements Serializable {
 
-		public static enum PersonProperty {
-			name, character, job, department
-		}
-
-		protected Map<PersonProperty, String> fields;
-
-		protected Person() {
-			// used by serializer
-		}
-
-		public Person(Map<PersonProperty, String> fields) {
-			this.fields = new EnumMap<PersonProperty, String>(fields);
-		}
-
-		public Person(String name, String character, String job) {
-			fields = new EnumMap<PersonProperty, String>(PersonProperty.class);
-			fields.put(PersonProperty.name, name);
-			fields.put(PersonProperty.character, character);
-			fields.put(PersonProperty.job, job);
-		}
-
-		public String get(Object key) {
-			return get(PersonProperty.valueOf(key.toString()));
-		}
-
-		public String get(PersonProperty key) {
-			// replace null with empty string and normalize spaces
-			return replaceSpace(Objects.toString(fields.get(key), ""), " ").trim();
-		}
-
-		public String getName() {
-			return get(PersonProperty.name);
-		}
-
-		public String getCharacter() {
-			return get(PersonProperty.character);
-		}
-
-		public String getJob() {
-			return get(PersonProperty.job);
-		}
-
-		public String getDepartment() {
-			return get(PersonProperty.department);
-		}
-
-		public boolean isActor() {
-			return fields.containsKey(PersonProperty.character);
-		}
-
-		public boolean isDirector() {
-			return "Director".equals(getJob());
-		}
-
-		public boolean isWriter() {
-			return "Writer".equals(getJob());
-		}
-
-		@Override
-		public String toString() {
-			return fields.toString();
-		}
-	}
-
-	public static class Trailer {
-
-		private String type;
-		private String name;
-		private Map<String, String> sources;
+		protected String type;
+		protected String name;
+		protected Map<String, String> sources;
 
 		public Trailer(String type, String name, Map<String, String> sources) {
 			this.type = type;
