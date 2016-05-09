@@ -198,7 +198,7 @@ public class MediaBindingBean {
 	}
 
 	@Define("airdate")
-	public SimpleDate airdate() {
+	public SimpleDate getAirdate() {
 		return getEpisode().getAirdate();
 	}
 
@@ -215,7 +215,7 @@ public class MediaBindingBean {
 	}
 
 	@Define("startdate")
-	public SimpleDate startdate() {
+	public SimpleDate getStartDate() {
 		return getEpisode().getSeriesInfo().getStartDate();
 	}
 
