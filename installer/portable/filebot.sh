@@ -29,17 +29,12 @@ fi
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 
-# add 3rd party packages to the library path by default
-SYNO_FPCALC="/usr/local/chromaprint/bin/fpcalc"
-SYNO_LIBRARY_PATH="/usr/local/mediainfo/lib:/usr/local/chromaprint/lib"
-
 # add APP_ROOT to LD_LIBRARY_PATH
 if [ ! -z "$LD_LIBRARY_PATH" ]; then
-	export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SYNO_LIBRARY_PATH:$APP_ROOT"
+	export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$APP_ROOT"
 else
-	export LD_LIBRARY_PATH="$SYNO_LIBRARY_PATH:$APP_ROOT"
+	export LD_LIBRARY_PATH="$APP_ROOT"
 fi
-
 
 # choose extractor
 EXTRACTOR="ApacheVFS"					# use Apache Commons VFS2 with junrar plugin
