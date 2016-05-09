@@ -29,7 +29,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -97,7 +96,7 @@ class RenameAction extends AbstractAction {
 					} else {
 						// call and wait
 						RenameWorker worker = new RenameWorker(renameMap, renameLog, action);
-						String message = String.format("%s %d %s. This may take a while.", action.getDisplayName() + "ing", renameMap.size(), renameMap.size() == 1 ? "file" : "files");
+						String message = String.format("%sing %d %s. This may take a while.", action.getDisplayName(), renameMap.size(), renameMap.size() == 1 ? "file" : "files");
 						ProgressMonitor.runTask(action.getDisplayName(), message, worker).get();
 					}
 				} catch (CancellationException e) {
@@ -128,8 +127,6 @@ class RenameAction extends AbstractAction {
 					deleteEmptyFolders(renameLog);
 				}
 			});
-		} catch (ExecutionException e) {
-			// ignore, handled in rename worker
 		} catch (Throwable e) {
 			log.log(Level.WARNING, e.getMessage(), e);
 		}
