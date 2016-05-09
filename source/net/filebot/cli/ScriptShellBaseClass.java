@@ -147,7 +147,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		if (severe) {
 			log.log(level, trace(t));
 		} else {
-			log.log(level, t, t::getMessage);
+			log.log(level, t::getMessage);
 		}
 	}
 
