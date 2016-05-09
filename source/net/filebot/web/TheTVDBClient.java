@@ -166,9 +166,13 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 		List<Episode> episodes = new ArrayList<Episode>();
 		List<Episode> specials = new ArrayList<Episode>();
 
-		for (int page = 1, lastPage = 1; page <= lastPage; page++) {
-			Object json = requestJson("series/" + series.getId() + "/episodes?page=" + page, locale, Cache.ONE_DAY);
-			lastPage = getInteger(getMap(json, "links"), "last");
+		for (int i = 1, n = 1; i <= n; i++) {
+			Object json = requestJson("series/" + series.getId() + "/episodes?page=" + i, locale, Cache.ONE_DAY);
+
+			Integer lastPage = getInteger(getMap(json, "links"), "last");
+			if (lastPage != null) {
+				n = lastPage;
+			}
 
 			streamJsonObjects(json, "data").forEach(it -> {
 				String episodeName = getString(it, "episodeName");
