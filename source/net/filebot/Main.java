@@ -132,8 +132,18 @@ public class Main {
 				SwingEventBus.getInstance().post(new FileTransferable(files));
 			}
 
+			// wait for UI to startup completely before loading more classes
+			Thread.sleep(1000);
+
 			// preload media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
 			MediaTypes.getDefault();
+
+			// JavaFX is used for ProgressMonitor and GettingStartedDialog
+			try {
+				initJavaFX();
+			} catch (Throwable e) {
+				debug.log(Level.WARNING, "Failed to initialize JavaFX", e);
+			}
 
 			// check for application updates
 			if (!"skip".equals(System.getProperty("application.update"))) {
