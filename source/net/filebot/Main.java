@@ -145,21 +145,21 @@ public class Main {
 				debug.log(Level.WARNING, "Failed to initialize JavaFX", e);
 			}
 
-			// check for application updates
-			if (!"skip".equals(System.getProperty("application.update"))) {
-				try {
-					checkUpdate();
-				} catch (Throwable e) {
-					debug.log(Level.WARNING, "Failed to check for updates", e);
-				}
-			}
-
 			// check if application help should be shown
 			if (!"skip".equals(System.getProperty("application.help"))) {
 				try {
 					checkGettingStarted();
 				} catch (Throwable e) {
 					debug.log(Level.WARNING, "Failed to show Getting Started help", e);
+				}
+			}
+
+			// check for application updates
+			if (!"skip".equals(System.getProperty("application.update"))) {
+				try {
+					checkUpdate();
+				} catch (Throwable e) {
+					debug.log(Level.WARNING, "Failed to check for updates", e);
 				}
 			}
 		} catch (CmdLineException e) {
