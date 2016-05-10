@@ -6,9 +6,9 @@ import static net.filebot.util.ExceptionUtilities.*;
 
 import java.io.File;
 import java.util.Locale;
+import java.util.function.Function;
 
 import net.filebot.Cache;
-import net.filebot.Cache.Compute;
 import net.filebot.CacheType;
 import net.filebot.Resource;
 import net.filebot.WebServices;
@@ -54,34 +54,29 @@ public class XattrMetaInfo {
 	}
 
 	public synchronized Object getMetaInfo(File file) {
-		return getCachedValue(xattrMetaInfoCache, file, key -> {
-			return xattr(file).getObject();
-		});
+		return getXattrValue(xattrMetaInfoCache, file, MetaAttributes::getObject);
 	}
 
 	public synchronized String getOriginalName(File file) {
-		return (String) getCachedValue(xattrOriginalNameCache, file, key -> {
-			return xattr(file).getOriginalName();
-		});
+		return (String) getXattrValue(xattrOriginalNameCache, file, MetaAttributes::getOriginalName);
 	}
 
-	private MetaAttributes xattr(File file) throws Exception {
-		return new MetaAttributes(file);
-	}
-
-	private Object getCachedValue(Cache cache, File file, Compute<?> compute) {
+	private Object getXattrValue(Cache cache, File file, Function<MetaAttributes, Object> compute) {
 		// try in-memory cache of previously stored xattr metadata
+		if (!useExtendedFileAttributes) {
+			return cache.get(file);
+		}
+
 		try {
-			return cache.computeIfAbsent(file, key -> {
-				if (useExtendedFileAttributes) {
-					return compute.apply(key);
-				}
-				return null;
-			});
+			return cache.computeIfAbsent(file, element -> compute.apply(xattr(file)));
 		} catch (Throwable e) {
 			debug.warning("Failed to read xattr: " + getRootCauseMessage(e));
 		}
 		return null;
+	}
+
+	private MetaAttributes xattr(File file) throws Exception {
+		return new MetaAttributes(file);
 	}
 
 	public synchronized void setMetaInfo(File file, Object model, String original) {
