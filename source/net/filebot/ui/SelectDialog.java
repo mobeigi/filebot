@@ -90,7 +90,7 @@ public class SelectDialog<T> extends JDialog {
 		}
 
 		// set default size and location
-		setMinimumSize(new Dimension(220, 240));
+		setMinimumSize(new Dimension(400, 330));
 
 		// Shortcut Enter
 		installAction(list, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), selectAction);
