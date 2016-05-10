@@ -12,7 +12,7 @@
     {
         "user": "Mark",
         "date": "2012-03-25",
-        "text": "One of the most liked \"must have\" programs I use. Much thanks to the author!"
+        "text": "One of the most liked \u201cmust have\u201d programs I use. Much thanks to the author!"
     },
     {
         "user": "Jackson",
@@ -62,7 +62,7 @@
     {
         "user": "Bobby Scholtens",
         "date": "2013-05-27",
-        "text": "Pretty awesome piece of software. Very fast and easy to use. As it states: \"it just works\"."
+        "text": "Pretty awesome piece of software. Very fast and easy to use. As it states: \u201cit just works\u201d."
     },
     {
         "user": "William Danis",
@@ -158,5 +158,10 @@
         "user": "Brandoneous",
         "date": "2016-02-05",
         "text": "Fantastic application - Shut up and take my money!"
+    },
+    {
+        "user": "Kygo Kris",
+        "date": "2016-04-17",
+        "text": "A tool I can't live without! One of those programs you don't realize you need until after you have it!"
     }
 ]
