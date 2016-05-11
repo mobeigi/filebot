@@ -11,7 +11,7 @@ if ($type == 'nsis') {
 	$folder = 'https://github.com/filebot/filebot-installer/releases/download/v1.0';
 	$file = 'FileBot-setup.exe';
 } else if ($type == 'app') {
-	$folder = 'https://app.filebot.net/files/';
+	$folder = 'https://app.filebot.net/files';
 	$file = 'FileBot.app';
 } else if ($type == 'jar') {
 	$folder = $root.'HEAD';
