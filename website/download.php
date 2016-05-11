@@ -10,6 +10,9 @@ $file = '';
 if ($type == 'nsis') {
 	$folder = 'https://github.com/filebot/filebot-installer/releases/download/v1.0';
 	$file = 'FileBot-setup.exe';
+} else if ($type == 'app') {
+	$folder = 'https://app.filebot.net/files/';
+	$file = 'FileBot.app';
 } else if ($type == 'jar') {
 	$folder = $root.'HEAD';
 	$file = 'FileBot.jar';
@@ -17,8 +20,6 @@ if ($type == 'nsis') {
 	$file = 'FileBot_'.$version.'_'.$arch.'.msi';
 } else if ($type == 'deb') {
 	$file =  'filebot_'.$version.'_'.$arch.'.deb';
-} else if ($type == 'app') {
-	$file = 'FileBot_'.$version.'-brew.tar.bz2';
 } else if ($type == 'portable') {
 	$file = 'FileBot_'.$version.'-portable.zip';
 } else if ($type == 'ipkg') {
