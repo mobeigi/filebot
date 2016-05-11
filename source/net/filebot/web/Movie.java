@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 public class Movie extends SearchResult {
 
@@ -85,13 +84,8 @@ public class Movie extends SearchResult {
 			if (imdbId > 0 && other.imdbId > 0) {
 				return imdbId == other.imdbId;
 			}
-			if (year != other.year) {
-				return false;
-			}
 
-			Set<String> intersection = new HashSet<String>(getEffectiveNames());
-			intersection.retainAll(other.getEffectiveNames());
-			return intersection.size() > 0;
+			return year == other.year && new HashSet<String>(getEffectiveNamesWithoutYear()).removeAll(other.getEffectiveNamesWithoutYear());
 		}
 
 		return false;

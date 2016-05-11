@@ -1252,7 +1252,7 @@ public class MediaDetection {
 
 	public static List<SearchResult> getProbableMatches(String query, Collection<? extends SearchResult> options, boolean alias, boolean strict) {
 		if (query == null) {
-			return new ArrayList<SearchResult>(options);
+			return options.stream().distinct().collect(toList());
 		}
 
 		// check all alias names, or just the primary name
