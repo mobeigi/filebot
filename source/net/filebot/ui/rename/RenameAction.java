@@ -41,6 +41,8 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
+import com.sun.jna.platform.FileUtils;
+
 import net.filebot.HistorySpooler;
 import net.filebot.NativeRenameAction;
 import net.filebot.ResourceManager;
@@ -151,7 +153,7 @@ class RenameAction extends AbstractAction {
 
 	private void deleteEmptyFolders(Map<File, File> renameMap) {
 		// collect empty folders and files in reverse order
-		Set<File> empty = new TreeSet<File>(reverseOrder());
+		Set<File> empty = new TreeSet<File>();
 
 		renameMap.forEach((s, d) -> {
 			File sourceFolder = s.getParentFile();
@@ -168,7 +170,7 @@ class RenameAction extends AbstractAction {
 
 				for (int i = 0; i < tailSize && !isStructureRoot(sourceFolder); sourceFolder = sourceFolder.getParentFile(), i++) {
 					File[] children = sourceFolder.listFiles();
-					if (children == null || !stream(children).allMatch(f -> empty.contains(f) || f.isHidden())) {
+					if (children == null || !stream(children).allMatch(f -> empty.contains(f) || isThumbnailStore(f))) {
 						return;
 					}
 
@@ -185,14 +187,20 @@ class RenameAction extends AbstractAction {
 	}
 
 	protected void moveToTrash(Collection<File> files) {
-		// use com.apple.eio package on OS X platform
-		if (isMacApp()) {
-			files.stream().forEach(MacAppUtilities::moveToTrash);
-			return;
-		}
-
 		try {
-			com.sun.jna.platform.FileUtils.getInstance().moveToTrash(files.toArray(new File[0]));
+			for (File f : files) {
+				if (!f.exists()) {
+					continue;
+				}
+
+				if (isMacApp()) {
+					// use com.apple.eio package on OS X platform
+					MacAppUtilities.moveToTrash(f);
+				} else {
+					// use com.sun.jna.platform package on Windows and Linux
+					FileUtils.getInstance().moveToTrash(new File[] { f });
+				}
+			}
 		} catch (Throwable e) {
 			debug.log(Level.WARNING, e, e::getMessage);
 		}

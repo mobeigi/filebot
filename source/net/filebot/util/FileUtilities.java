@@ -161,6 +161,13 @@ public final class FileUtilities {
 		return Files.createDirectories(folder.toPath()).toFile();
 	}
 
+	private static final String WIN_THUMBNAIL_STORE = "Thumbs.db";
+	private static final String MAC_THUMBNAIL_STORE = ".DS_Store";
+
+	public static boolean isThumbnailStore(File f) {
+		return MAC_THUMBNAIL_STORE.equals(f.getName()) || WIN_THUMBNAIL_STORE.equalsIgnoreCase(f.getName());
+	}
+
 	public static byte[] readFile(File source) throws IOException {
 		return Files.readAllBytes(source.toPath());
 	}
