@@ -15,7 +15,6 @@
 
 	<!-- define source dirs -->
 	<property name="dir.source" location="${basedir}/source" />
-	<property name="dir.test" location="${basedir}/test" />
 	<property name="dir.build" location="${basedir}/build" />
 	<property name="dir.dist" location="${basedir}/dist" />
 	<property name="dir.lib" location="${basedir}/lib" />
@@ -119,12 +118,6 @@
 				<attribute name="Application-Version" value="${version}" />
 				<attribute name="Main-Class" value="net.filebot.Main" />
 			</manifest>
-			<fileset dir="${dir.build}" excludes="**/*Test*" />
-		</jar>
-
-		<!-- extra jar containing all the unit tests -->
-		<jar destfile="${dir.dist}/filebot-test.jar">
-			<fileset dir="${dir.build}" includes="**/*Test*" />
 		</jar>
 
 		<!-- source as zip -->
@@ -804,7 +797,7 @@
 		<mkdir dir="${dir.build}" />
 
 		<!-- compile -->
-		<javac srcdir="${dir.source}:${dir.test}" destdir="${dir.build}" target="1.8" source="1.8" encoding="utf-8" debug="true" debuglevel="lines,vars,source" includeAntRuntime="false">
+		<javac srcdir="${dir.source}" destdir="${dir.build}" target="1.8" source="1.8" encoding="utf-8" debug="true" debuglevel="lines,vars,source" includeAntRuntime="false">
 			<classpath>
 				<fileset dir="${dir.lib}" includes="**/*.jar" />
 			</classpath>
@@ -829,33 +822,6 @@
 	<target name="clean">
 		<delete dir="${dir.dist}" />
 		<delete dir="${dir.build}" />
-	</target>
-
-
-	<target name="test" depends="jar">
-		<junit printsummary="yes" fork="true">
-			<classpath>
-				<fileset dir="${dir.dist}" includes="*.jar" />
-				<fileset dir="${dir.lib}" includes="**/*.jar" />
-			</classpath>
-			<formatter type="plain" />
-			<test name="net.filebot.AllTests" outfile="test-report" />
-		</junit>
-	</target>
-
-
-	<target name="test-fatjar" depends="fatjar">
-		<junit printsummary="yes" fork="true" includeantruntime="true" newenvironment="true">
-			<classpath>
-				<pathelement location="${path.fatjar}" />
-				<pathelement location="${dir.dist}/filebot-test.jar" />
-				<pathelement location="${dir.lib}/ivy/jar/ant-junit.jar" />
-				<pathelement location="${dir.lib}/ivy/jar/junit.jar" />
-				<pathelement location="${dir.lib}/ivy/jar/hamcrest-core.jar" />
-			</classpath>
-			<formatter type="plain" />
-			<test name="net.filebot.AllTests" outfile="test-report" />
-		</junit>
 	</target>
 
 
