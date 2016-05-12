@@ -2,6 +2,7 @@ package net.filebot.cli;
 
 import static java.util.Arrays.*;
 import static net.filebot.CachedResource.*;
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.util.FileUtilities.*;
 
@@ -69,10 +70,11 @@ public enum ScriptSource {
 		public String accept(String input) {
 			try {
 				URI uri = new URI(input);
-				if (uri.isAbsolute()) {
+				if (uri.isAbsolute() && uri.getScheme().length() > 1) {
 					return getName(new File(uri.getPath()));
 				}
 			} catch (Exception e) {
+				debug.finest(e::toString);
 			}
 			return null;
 		}
@@ -91,15 +93,19 @@ public enum ScriptSource {
 		@Override
 		public String accept(String input) {
 			try {
-				return getName(new File(input).getCanonicalFile());
+				File f = new File(input).getCanonicalFile();
+				if (f.isFile()) {
+					return getName(f);
+				}
 			} catch (Exception e) {
-				return null;
+				debug.finest(e::toString);
 			}
+			return null;
 		}
 
 		@Override
 		public ScriptProvider getScriptProvider(String input) throws Exception {
-			File base = new File(input).getParentFile();
+			File base = new File(input).getCanonicalFile().getParentFile();
 
 			return f -> readTextFile(new File(base, f + ".groovy"));
 		}
@@ -115,7 +121,9 @@ public enum ScriptSource {
 	}
 
 	public static ScriptSource findScriptProvider(String input) throws Exception {
-		return stream(values()).filter(s -> s.accept(input) != null).findFirst().get();
+		return stream(values()).filter(s -> s.accept(input) != null).findFirst().orElseThrow(() -> {
+			return new CmdlineException("Bad script source: " + input);
+		});
 	}
 
 }
