@@ -120,7 +120,7 @@ public class OMDbClient implements MovieIdentificationService {
 			if (name.length() <= 0 || year <= 1900 || imdbid <= 0)
 				throw new IllegalArgumentException();
 
-			return new Movie(name, year, imdbid, -1);
+			return new Movie(name, year, imdbid, 0);
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Illegal fields: " + info);
 		}

@@ -2,7 +2,6 @@ package net.filebot.web;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -20,7 +19,7 @@ public class Movie extends SearchResult {
 	}
 
 	public Movie(int imdbId) {
-		this(null, 0, imdbId, -1);
+		this(null, 0, imdbId, 0);
 	}
 
 	public Movie(String name, int year, int imdbId, int tmdbId) {
@@ -28,11 +27,11 @@ public class Movie extends SearchResult {
 	}
 
 	public Movie(String name, String[] aliasNames, int year, int imdbId, int tmdbId, Locale locale) {
-		super(tmdbId > 0 ? tmdbId : imdbId > 0 ? imdbId : -1, name, aliasNames);
+		super(tmdbId > 0 ? tmdbId : imdbId > 0 ? imdbId : 0, name, aliasNames);
 		this.year = year;
 		this.imdbId = imdbId;
 		this.tmdbId = tmdbId;
-		this.language = (locale == null ? null : locale.getLanguage());
+		this.language = locale == null ? null : locale.getLanguage();
 	}
 
 	public int getYear() {
@@ -85,7 +84,7 @@ public class Movie extends SearchResult {
 				return imdbId == other.imdbId;
 			}
 
-			return year == other.year && new HashSet<String>(getEffectiveNamesWithoutYear()).removeAll(other.getEffectiveNamesWithoutYear());
+			return year == other.year && name.equals(other.name);
 		}
 
 		return false;
