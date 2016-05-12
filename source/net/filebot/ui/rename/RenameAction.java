@@ -160,13 +160,13 @@ class RenameAction extends AbstractAction {
 			File destinationFolder = resolve(s, d).getParentFile();
 
 			// destination folder is the source, or is inside the source folder
-			if (destinationFolder.getPath().startsWith(sourceFolder.getPath())) {
+			if (d.getParentFile() == null || destinationFolder.getPath().startsWith(sourceFolder.getPath())) {
 				return;
 			}
 
 			try {
 				// guess affected folder depth
-				int tailSize = listStructurePathTail(s).size();
+				int tailSize = listStructurePathTail(d.getParentFile()).size();
 
 				for (int i = 0; i < tailSize && !isStructureRoot(sourceFolder); sourceFolder = sourceFolder.getParentFile(), i++) {
 					File[] children = sourceFolder.listFiles();
