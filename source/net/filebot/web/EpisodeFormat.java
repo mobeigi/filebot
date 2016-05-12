@@ -8,6 +8,7 @@ import java.text.Format;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -16,6 +17,8 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
+import net.filebot.similarity.Normalization;
 
 public class EpisodeFormat extends Format {
 
@@ -60,10 +63,10 @@ public class EpisodeFormat extends Format {
 	public String formatMultiEpisode(Collection<Episode> episodes) {
 		Function<Episode, String> seriesName = it -> it.getSeriesName();
 		Function<Episode, String> episodeNumber = it -> formatSxE(it);
-		Function<Episode, String> episodeTitle = it -> removeTrailingBrackets(it.getTitle());
+		Function<Episode, String> episodeTitle = it -> it.getTitle() == null ? "" : removeTrailingBrackets(it.getTitle());
 
 		return Stream.of(seriesName, episodeNumber, episodeTitle).map(f -> {
-			return episodes.stream().map(f::apply).distinct().collect(joining(" & "));
+			return episodes.stream().map(f::apply).filter(s -> s.length() > 0).distinct().collect(joining(" & "));
 		}).collect(joining(" - "));
 	}
 
@@ -98,7 +101,7 @@ public class EpisodeFormat extends Format {
 	}
 
 	public String formatMultiTitle(Collection<Episode> episodes) {
-		return episodes.stream().map(it -> removeTrailingBrackets(it.getTitle())).distinct().collect(joining(" & "));
+		return episodes.stream().map(Episode::getTitle).filter(Objects::nonNull).map(Normalization::removeTrailingBrackets).distinct().collect(joining(" & "));
 	}
 
 	public String formatMultiRangeSxE(Iterable<Episode> episodes) {

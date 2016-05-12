@@ -175,7 +175,7 @@ public class MediaBindingBean {
 		}
 
 		// enforce title length limit by default
-		return truncateText(infoObject instanceof MultiEpisode ? SeasonEpisode.formatMultiTitle(getEpisodes()) : getEpisode().getTitle(), 150);
+		return truncateText(SeasonEpisode.formatMultiTitle(getEpisodes()), NamingStandard.TITLE_MAX_LENGTH);
 	}
 
 	@Define("d")
@@ -846,7 +846,7 @@ public class MediaBindingBean {
 
 	@Define("episodes")
 	public List<Episode> getEpisodes() {
-		return infoObject instanceof MultiEpisode ? ((MultiEpisode) infoObject).getEpisodes() : asList(getEpisode());
+		return infoObject instanceof MultiEpisode ? ((MultiEpisode) infoObject).getEpisodes() : singletonList(getEpisode());
 	}
 
 	@Define("movie")
@@ -1103,7 +1103,7 @@ public class MediaBindingBean {
 
 	private List<String> getKeywords() {
 		// collect key information
-		Set<Object> keys = new HashSet<Object>();
+		List<Object> keys = new ArrayList<Object>();
 		keys.add(getName());
 		keys.add(getYear());
 		keys.addAll(getAliasNames());
@@ -1116,14 +1116,9 @@ public class MediaBindingBean {
 		}
 
 		// word list for exclude pattern
-		List<String> words = new ArrayList<String>(keys.size());
-		for (Object it : keys) {
-			String w = normalizePunctuation(normalizeSpace(Objects.toString(it, ""), " "));
-			if (w != null && w.length() > 0) {
-				words.add(w);
-			}
-		}
-		return words;
+		return keys.stream().filter(Objects::nonNull).map(it -> {
+			return normalizePunctuation(normalizeSpace(it.toString(), " "));
+		}).filter(s -> s.length() > 0).distinct().collect(toList());
 	}
 
 	@Override

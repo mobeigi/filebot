@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -118,9 +119,11 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				Episode e = (Episode) object;
 
 				// don't use title for matching if title equals series name
-				String normalizedToken = normalizeObject(e.getTitle() == null ? null : removeTrailingBrackets(e.getTitle()));
-				if (normalizedToken.length() >= 4 && !normalizeObject(e.getSeriesName()).contains(normalizedToken)) {
-					return normalizedToken;
+				if (e.getTitle() != null) {
+					String title = normalizeObject(removeTrailingBrackets(e.getTitle()));
+					if (title.length() >= 4 && !normalizeObject(e.getSeriesName()).contains(title)) {
+						return title;
+					}
 				}
 			}
 
@@ -200,7 +203,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		protected Object[] fields(Object object) {
 			if (object instanceof Episode) {
 				Episode e = (Episode) object;
-				return StreamEx.of(e.getSeriesName(), e.getTitle()).append(e.getSeriesNames()).map(Normalization::removeTrailingBrackets).distinct().limit(5).toArray();
+				return StreamEx.of(e.getSeriesName(), e.getTitle()).append(e.getSeriesNames()).filter(Objects::nonNull).map(Normalization::removeTrailingBrackets).distinct().limit(5).toArray();
 			}
 
 			if (object instanceof File) {

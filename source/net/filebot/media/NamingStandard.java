@@ -1,6 +1,7 @@
 package net.filebot.media;
 
 import static java.util.Arrays.*;
+import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.WebServices.*;
 import static net.filebot.similarity.Normalization.*;
@@ -20,6 +21,8 @@ public enum NamingStandard {
 
 	Plex;
 
+	public static final int TITLE_MAX_LENGTH = 150;
+
 	public String getPath(Object o) {
 		if (o instanceof Episode)
 			return getPath((Episode) o);
@@ -33,7 +36,7 @@ public enum NamingStandard {
 
 	public String getPath(Episode e) {
 		// enforce title length limit by default
-		String episodeTitle = truncateText(e instanceof MultiEpisode ? SeasonEpisode.formatMultiTitle(((MultiEpisode) e).getEpisodes()) : e.getTitle(), 150);
+		String episodeTitle = truncateText(SeasonEpisode.formatMultiTitle(e instanceof MultiEpisode ? ((MultiEpisode) e).getEpisodes() : singletonList(e)), TITLE_MAX_LENGTH);
 
 		// Anime
 		if (isAnime(e)) {
