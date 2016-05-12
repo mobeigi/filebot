@@ -442,7 +442,7 @@ public class CmdlineOperations implements CmdlineInterface {
 						movie = service.getMovieDescriptor((Movie) selectSearchResult(null, options, false, strict).get(0), locale);
 					}
 				} catch (Exception e) {
-					log.log(Level.WARNING, format("%s: [%s/%s] %s", e.getClass().getSimpleName(), guessMovieFolder(file) != null ? guessMovieFolder(file).getName() : null, file.getName(), e.getMessage()));
+					log.log(Level.WARNING, format("%s: [%s] %s", e.getClass().getSimpleName(), getStructurePathTail(file), e.getMessage()));
 				}
 			}
 
