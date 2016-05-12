@@ -111,6 +111,7 @@
 
 		<!-- main jar -->
 		<jar destfile="${dir.dist}/filebot.jar">
+			<fileset dir="${dir.build}" />
 			<manifest>
 				<attribute name="Build-Date" value="${tstamp.date}" />
 				<attribute name="Build-Revision" value="${revision}" />
