@@ -70,11 +70,14 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 
 	private Map<String, String> getRequestHeader(Locale locale) {
 		Map<String, String> header = new LinkedHashMap<String, String>(3);
+
+		// TODO support for default language => https://trello.com/c/dyEhtfky/16-handle-multiple-languages-in-the-accept-language-header
 		if (locale != null && locale != Locale.ROOT) {
 			header.put("Accept-Language", locale.getLanguage());
 		}
 		header.put("Accept", "application/json");
 		header.put("Authorization", "Bearer " + getAuthorizationToken());
+
 		return header;
 	}
 
