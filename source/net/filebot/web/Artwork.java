@@ -2,10 +2,10 @@ package net.filebot.web;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 
 import java.io.Serializable;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -73,7 +73,7 @@ public class Artwork implements Serializable {
 
 	@Override
 	public String toString() {
-		return asList(String.join("/", tags), language, new DecimalFormat("0.##").format(rating), url).toString();
+		return Stream.of(String.join("/", tags), language, rating, url).filter(Objects::nonNull).map(Object::toString).collect(joining(", ", "[", "]"));
 	}
 
 	public static final Comparator<Artwork> RATING_ORDER = Comparator.comparing(Artwork::getRating, reverseOrder());
