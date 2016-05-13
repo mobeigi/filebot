@@ -54,7 +54,7 @@ class AutoDetectMatcher implements AutoCompleteMatcher {
 					log.log(Level.WARNING, "Failed group: " + it.getKey(), e);
 					return Stream.empty();
 				}
-			}).sorted(comparing(Match::getValue, new OriginalOrder<File>(files))).collect(toList());
+			}).sorted(comparing(Match::getValue, OriginalOrder.of(files))).collect(toList());
 		} finally {
 			workerThreadPool.shutdownNow();
 		}

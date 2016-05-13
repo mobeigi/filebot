@@ -7,6 +7,10 @@ import java.util.Map;
 
 class OriginalOrder<T> implements Comparator<T> {
 
+	public static <T> Comparator<T> of(Collection<T> values) {
+		return new OriginalOrder(values);
+	}
+
 	private Map<T, Integer> index;
 
 	public OriginalOrder(Collection<T> values) {

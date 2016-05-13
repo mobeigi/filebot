@@ -217,7 +217,7 @@ class MovieMatcher implements AutoCompleteMatcher {
 		});
 
 		// restore original order
-		matches.sort(comparing(Match::getValue, new OriginalOrder<File>(files)));
+		matches.sort(comparing(Match::getValue, OriginalOrder.of(files)));
 
 		return matches;
 	}
