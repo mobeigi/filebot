@@ -160,7 +160,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 				if (pathFuture.isDone() && !pathFuture.isCancelled()) {
 					File from = renameModel.getMatch(index).getCandidate();
 					File to = resolveAbsolutePath(from.getParentFile(), pathFuture.toString(), renameModel.preserveExtension() ? getExtension(from) : null);
-					if (from.getAbsolutePath().equals(to.getAbsolutePath())) {
+					if (equalsCaseSensitive(from, to)) {
 						setIcon(ResourceManager.getIcon("dialog.continue"));
 					} else if (to.exists() && !to.equals(from)) {
 						setIcon(ResourceManager.getIcon("dialog.cancel")); // take into account that on Windows equals/exists is case-insensitive which we have to work around

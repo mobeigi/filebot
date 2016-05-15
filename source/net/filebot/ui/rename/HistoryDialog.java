@@ -4,6 +4,7 @@ import static java.awt.Font.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
+import static java.util.stream.Collectors.*;
 import static javax.swing.JOptionPane.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
@@ -37,7 +38,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.swing.AbstractAction;
@@ -446,15 +446,18 @@ class HistoryDialog extends JDialog {
 		}
 
 		private enum Option {
+
 			Revert, ChangeDirectory, Cancel;
 
 			@Override
 			public String toString() {
 				switch (this) {
+				case Revert:
+					return "Revert";
 				case ChangeDirectory:
 					return "Change Directory";
 				default:
-					return name();
+					return "Cancel";
 				}
 			}
 		}
@@ -529,7 +532,7 @@ class HistoryDialog extends JDialog {
 		private void revert(File directory, List<Element> elements) {
 			Map<File, File> renamePlan = getRenameMap(directory);
 			if (isMacSandbox()) {
-				if (!MacAppUtilities.askUnlockFolders(parent(), Stream.of(renamePlan.keySet(), renamePlan.values()).flatMap(c -> c.stream()).collect(Collectors.toList()))) {
+				if (!MacAppUtilities.askUnlockFolders(parent(), Stream.of(renamePlan.keySet(), renamePlan.values()).flatMap(c -> c.stream()).collect(toList()))) {
 					return;
 				}
 			}

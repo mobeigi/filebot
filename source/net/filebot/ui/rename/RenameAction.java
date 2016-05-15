@@ -2,6 +2,7 @@ package net.filebot.ui.rename;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static javax.swing.JOptionPane.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
@@ -32,7 +33,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.swing.AbstractAction;
@@ -202,14 +202,14 @@ class RenameAction extends AbstractAction {
 	private Map<File, File> checkRenamePlan(List<Entry<File, File>> renamePlan, Window parent) throws IOException {
 		// ask for user permissions to output paths
 		if (isMacSandbox()) {
-			if (!MacAppUtilities.askUnlockFolders(parent, renamePlan.stream().flatMap(e -> Stream.of(e.getKey(), resolve(e.getKey(), e.getValue()))).map(f -> new File(f.getAbsolutePath())).collect(Collectors.toList()))) {
+			if (!MacAppUtilities.askUnlockFolders(parent, renamePlan.stream().flatMap(e -> Stream.of(e.getKey(), resolve(e.getKey(), e.getValue()))).map(f -> new File(f.getAbsolutePath())).collect(toList()))) {
 				return emptyMap();
 			}
 		}
 
 		// build rename map and perform some sanity checks
 		Map<File, File> renameMap = new HashMap<File, File>();
-		Set<File> destinationSet = new HashSet<File>();
+		Set<File> destinationFiles = new HashSet<File>();
 		List<String> issues = new ArrayList<String>();
 
 		for (Entry<File, File> mapping : renamePlan) {
@@ -220,7 +220,7 @@ class RenameAction extends AbstractAction {
 				if (renameMap.containsKey(source))
 					throw new IllegalArgumentException("Duplicate source file: " + source.getPath());
 
-				if (destinationSet.contains(destination))
+				if (destinationFiles.contains(destination))
 					throw new IllegalArgumentException("Conflict detected: " + mapping.getValue().getPath());
 
 				if (destination.exists() && !resolve(mapping.getKey(), mapping.getValue()).equals(mapping.getKey()))
@@ -231,7 +231,7 @@ class RenameAction extends AbstractAction {
 
 				// use original mapping values
 				renameMap.put(mapping.getKey(), mapping.getValue());
-				destinationSet.add(destination);
+				destinationFiles.add(destination);
 			} catch (Exception e) {
 				issues.add(e.getMessage());
 			}

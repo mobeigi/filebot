@@ -59,6 +59,11 @@ public final class FileUtilities {
 		// resolve destination
 		destination = resolveDestination(source, destination);
 
+		// do nothing if source and destination path is the same
+		if (equalsCaseSensitive(source, destination)) {
+			return destination;
+		}
+
 		if (source.isDirectory()) {
 			// move folder
 			FileUtils.moveDirectory(source, destination);
@@ -67,11 +72,11 @@ public final class FileUtilities {
 
 		// on Windows, use ATOMIC_MOVE which allows us to rename files even if only lower/upper-case changes (without ATOMIC_MOVE the operation would be ignored)
 		// but ATOMIC_MOVE can only work for files on the same drive, if that is not the case there is no point trying move with ATOMIC_MOVE
-		if (isWindows() && source.equals(destination) && !equalsCaseSensitive(source, destination)) {
+		if (isWindows() && source.equals(destination)) {
 			try {
 				return Files.move(source.toPath(), destination.toPath(), StandardCopyOption.ATOMIC_MOVE).toFile();
 			} catch (AtomicMoveNotSupportedException e) {
-				debug.warning(e.getMessage());
+				debug.warning(e::toString);
 			}
 		}
 
