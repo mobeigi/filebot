@@ -134,6 +134,11 @@ public enum StandardRenameAction implements RenameAction {
 	}
 
 	public static File revert(File current, File original) throws IOException {
+		// do nothing if current and original path is exactly the same
+		if (current.equals(original)) {
+			return original;
+		}
+
 		// reverse move
 		if (current.exists() && !original.exists()) {
 			return FileUtilities.moveRename(current, original);
