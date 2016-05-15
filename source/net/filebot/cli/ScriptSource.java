@@ -68,9 +68,14 @@ public enum ScriptSource {
 
 		@Override
 		public String accept(String input) {
+			// absolute paths on Windows appear to be valid URIs so we need explicitly exclude them (e.g. C:\path\to\script.groovy)
+			if (input.length() < 2 || input.charAt(1) == ':') {
+				return null;
+			}
+
 			try {
 				URI uri = new URI(input);
-				if (uri.isAbsolute() && uri.getScheme().length() > 1) {
+				if (uri.isAbsolute()) {
 					return getName(new File(uri.getPath()));
 				}
 			} catch (Exception e) {
