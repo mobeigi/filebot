@@ -324,7 +324,7 @@ class RenameAction extends AbstractAction {
 				File source = mapping.getKey();
 				File destination = resolve(mapping.getKey(), mapping.getValue());
 
-				if (!source.equals(destination) || (source.equals(destination) && !source.getName().equals(destination.getName()))) {
+				if (!equalsCaseSensitive(source, destination)) {
 					action.rename(source, destination);
 				}
 
