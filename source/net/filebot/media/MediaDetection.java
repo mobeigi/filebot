@@ -120,10 +120,11 @@ public class MediaDetection {
 
 	public static boolean isEpisode(File file, boolean strict) {
 		Object metaInfo = xattr.getMetaInfo(file);
-		if (metaInfo != null) {
-			return metaInfo instanceof Episode;
+		if (metaInfo instanceof Episode) {
+			return true;
 		}
 
+		// require a good S00E00 match
 		return MediaDetection.isEpisode(String.join("/", file.getParent(), file.getName()), strict);
 	}
 
