@@ -86,11 +86,8 @@ public class Main {
 				if (args.clearCache()) {
 					System.out.println("Clear cache");
 					for (File folder : getChildren(ApplicationFolder.Cache.getCanonicalFile(), FOLDERS)) {
-						if (delete(folder)) {
-							System.out.println("* Delete " + folder);
-						} else {
-							System.out.println("* Failed to delete " + folder);
-						}
+						System.out.println("Delete " + folder);
+						delete(folder);
 					}
 				}
 

@@ -1,9 +1,11 @@
 package net.filebot;
 
 import static java.util.Collections.*;
+import static net.filebot.Logging.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CancellationException;
@@ -61,6 +63,29 @@ public enum NativeRenameAction implements RenameAction {
 			return Platform.isWindows();
 		} catch (Throwable e) {
 			return false;
+		}
+	}
+
+	public static void trash(File file) throws IOException {
+		// use system trash if possible
+		try {
+			if (Platform.isMac()) {
+				// use com.apple.eio package on OS X platform
+				if (com.apple.eio.FileManager.moveToTrash(file)) {
+					return;
+				}
+			} else if (com.sun.jna.platform.FileUtils.getInstance().hasTrash()) {
+				// use com.sun.jna.platform package on Windows and Linux
+				com.sun.jna.platform.FileUtils.getInstance().moveToTrash(new File[] { file });
+				return;
+			}
+		} catch (Exception e) {
+			debug.warning(e::toString);
+		}
+
+		// delete permanently if necessary
+		if (file.exists()) {
+			net.filebot.util.FileUtilities.delete(file);
 		}
 	}
 

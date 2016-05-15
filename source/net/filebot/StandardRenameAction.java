@@ -149,29 +149,29 @@ public enum StandardRenameAction implements RenameAction {
 
 		// reverse symlink
 		if (currentAttr.isSymbolicLink() && !originalAttr.isSymbolicLink()) {
-			Files.delete(current.toPath());
+			NativeRenameAction.trash(current);
 			return original;
 		}
 
 		// reverse keeplink
 		if (!currentAttr.isSymbolicLink() && originalAttr.isSymbolicLink()) {
-			Files.delete(original.toPath());
+			NativeRenameAction.trash(original);
 			return FileUtilities.moveRename(current, original);
 		}
 
 		// reverse copy / hardlink
 		if (currentAttr.isRegularFile() && originalAttr.isRegularFile()) {
-			Files.delete(current.toPath());
+			NativeRenameAction.trash(current);
 			return original;
 		}
 
 		// reverse folder copy
 		if (currentAttr.isDirectory() && originalAttr.isDirectory()) {
-			FileUtilities.delete(original);
+			NativeRenameAction.trash(original);
 			return FileUtilities.moveRename(current, original);
 		}
 
-		throw new IllegalArgumentException(String.format("Cannot revert files: %s => %s", current, original));
+		throw new IllegalArgumentException(String.format("Cannot revert file: %s => %s", current, original));
 	}
 
 }

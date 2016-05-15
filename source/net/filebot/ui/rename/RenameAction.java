@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.AbstractList;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -40,8 +39,6 @@ import javax.swing.AbstractAction;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
-
-import com.sun.jna.platform.FileUtils;
 
 import net.filebot.HistorySpooler;
 import net.filebot.NativeRenameAction;
@@ -153,7 +150,7 @@ class RenameAction extends AbstractAction {
 
 	private void deleteEmptyFolders(Map<File, File> renameMap) {
 		// collect empty folders and files in reverse order
-		Set<File> empty = new TreeSet<File>();
+		Set<File> deleteFiles = new TreeSet<File>();
 
 		renameMap.forEach((s, d) -> {
 			File sourceFolder = s.getParentFile();
@@ -170,12 +167,12 @@ class RenameAction extends AbstractAction {
 
 				for (int i = 0; i < tailSize && !isStructureRoot(sourceFolder); sourceFolder = sourceFolder.getParentFile(), i++) {
 					File[] children = sourceFolder.listFiles();
-					if (children == null || !stream(children).allMatch(f -> empty.contains(f) || isThumbnailStore(f))) {
+					if (children == null || !stream(children).allMatch(f -> deleteFiles.contains(f) || isThumbnailStore(f))) {
 						return;
 					}
 
-					stream(children).forEach(empty::add);
-					empty.add(sourceFolder);
+					stream(children).forEach(deleteFiles::add);
+					deleteFiles.add(sourceFolder);
 				}
 			} catch (Exception e) {
 				debug.warning(e::toString);
@@ -183,22 +180,10 @@ class RenameAction extends AbstractAction {
 		});
 
 		// use system trash to delete left-behind empty folders / hidden files
-		moveToTrash(empty);
-	}
-
-	protected void moveToTrash(Collection<File> files) {
 		try {
-			for (File f : files) {
-				if (!f.exists()) {
-					continue;
-				}
-
-				if (isMacApp()) {
-					// use com.apple.eio package on OS X platform
-					MacAppUtilities.moveToTrash(f);
-				} else {
-					// use com.sun.jna.platform package on Windows and Linux
-					FileUtils.getInstance().moveToTrash(new File[] { f });
+			for (File file : deleteFiles) {
+				if (file.exists()) {
+					NativeRenameAction.trash(file);
 				}
 			}
 		} catch (Throwable e) {
