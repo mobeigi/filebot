@@ -25,6 +25,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -53,6 +54,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import net.filebot.util.ByteBufferOutputStream;
+import net.filebot.util.SystemProperty;
 
 public final class WebRequest {
 
@@ -330,6 +332,25 @@ public final class WebRequest {
 			}
 			return "Fetch resource: " + url + (headers.isEmpty() ? "" : " " + headers);
 		};
+	}
+
+	public static Supplier<String> log(ByteBuffer data) {
+		return () -> {
+			if (data == null) {
+				return "Received 0 bytes";
+			}
+
+			String log = String.format(Locale.ROOT, "Received %,d bytes", data.remaining());
+
+			// log entire response content if enabled
+			SystemProperty<Boolean> response = SystemProperty.of("net.filebot.web.WebRequest.log.response", Boolean::parseBoolean, Boolean.FALSE);
+			if (response.get()) {
+				return log + System.lineSeparator() + UTF_8.decode(data.duplicate()) + System.lineSeparator();
+			}
+
+			return log;
+		};
+
 	}
 
 	private WebRequest() {

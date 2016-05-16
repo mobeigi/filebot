@@ -81,7 +81,7 @@ public class CachedResource<K, R> implements Resource<R> {
 
 			try {
 				ByteBuffer data = retry(() -> fetch.fetch(url, lastModified), retryLimit, retryWait);
-				debug.finest(format("Received %,d bytes", data == null ? 0 : data.remaining()));
+				debug.finest(WebRequest.log(data));
 
 				// 304 Not Modified
 				if (data == null && element != null && element.getObjectValue() != null) {
