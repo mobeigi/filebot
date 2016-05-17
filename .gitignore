@@ -1,9 +1,13 @@
 bin/
 build/
 build-data/
+dist/
 cache/
 lib/ivy/
 website/data/
 
 *.properties
 *.txt
+
+*.sh
+*.cmd
