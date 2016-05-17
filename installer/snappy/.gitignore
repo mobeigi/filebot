@@ -1,0 +1,6 @@
+parts
+snap
+stage
+
+*.jar
+*.snap
