@@ -16,6 +16,8 @@ apps:
     - network
     - opengl
     - unity7
+    - x11
+    - locale-control
 
 parts:
   filebot:
@@ -26,8 +28,11 @@ parts:
   mediainfo:
     plugin: nil
     stage-packages:
-      - libchromaprint-tools
-      - mediainfo
+    - mediainfo
+  fpcalc:
+    plugin: nil
+    stage-packages:
+    - libchromaprint-tools
   java:
     plugin: jdk
     source: .
