@@ -36,3 +36,9 @@ parts:
   java:
     plugin: jdk
     source: .
+  ubuntu:
+    plugin: nil
+    stage-packages:
+    - fontconfig
+    - libpango-1.0-0
+    - libcanberra-gtk-module
