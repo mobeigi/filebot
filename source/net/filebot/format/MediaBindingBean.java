@@ -86,6 +86,7 @@ public class MediaBindingBean {
 		this.context = context;
 	}
 
+	@Define("object")
 	public Object getInfoObject() {
 		return infoObject;
 	}
@@ -878,7 +879,7 @@ public class MediaBindingBean {
 		return null;
 	}
 
-	@Define("mediaType")
+	@Define("mime")
 	public List<String> getMediaType() throws Exception {
 		// format engine does not allow / in binding value
 		return SLASH.splitAsStream(MediaTypes.getDefault().getMediaType(getExtension())).collect(toList());
@@ -890,7 +891,6 @@ public class MediaBindingBean {
 		if (mediaFile == null) {
 			throw new IllegalStateException(EXCEPTION_SAMPLE_FILE_NOT_SET);
 		}
-
 		return mediaFile;
 	}
 
