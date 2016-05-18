@@ -36,6 +36,8 @@ parts:
   java:
     plugin: jdk
     source: .
+    stage-packages:
+    - openjfx
   ubuntu:
     plugin: nil
     stage-packages:
