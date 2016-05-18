@@ -14,10 +14,13 @@ apps:
     plugs:
     - home
     - network
+    - network-bind
+    - network-observe
     - opengl
     - unity7
     - x11
     - locale-control
+
 
 parts:
   filebot:
@@ -25,22 +28,23 @@ parts:
     files:
       filebot.sh: bin/filebot
       FileBot.jar: filebot/FileBot.jar
-  mediainfo:
-    plugin: nil
-    stage-packages:
-    - mediainfo
-  fpcalc:
-    plugin: nil
-    stage-packages:
-    - libchromaprint-tools
-  java:
+  fonts:
+    plugin: copy
+    files:
+      /usr/share/fonts: /usr/share/fonts
+      fonts.conf: fonts.conf
+  base:
     plugin: jdk
     source: .
     stage-packages:
+    - libgnome2-0
+    - gvfs
+    - mediainfo
+    - libchromaprint-tools
+    - language-pack-en
     - openjfx
-  ubuntu:
-    plugin: nil
-    stage-packages:
     - fontconfig
-    - libpango-1.0-0
     - libcanberra-gtk-module
+    - libcanberra-gtk0
+    - libcanberra-gtk3-0
+    - overlay-scrollbar
