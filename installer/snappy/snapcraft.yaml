@@ -31,20 +31,24 @@ parts:
   fonts:
     plugin: copy
     files:
-      /usr/share/fonts: /usr/share/fonts
+      /usr/share/fonts: usr/share/fonts
       fonts.conf: fonts.conf
-  base:
-    plugin: jdk
-    source: .
+  packages:
+    plugin: nil
     stage-packages:
-    - libgnome2-0
-    - gvfs
-    - mediainfo
+    - libmediainfo0v5
     - libchromaprint-tools
-    - language-pack-en
+    - openjdk-8-jre
     - openjfx
     - fontconfig
-    - libcanberra-gtk-module
-    - libcanberra-gtk0
-    - libcanberra-gtk3-0
-    - overlay-scrollbar
+    - jayatana
+    - gvfs
+    - mesa-utils
+  loaders:
+    plugin: copy
+    files:
+      loaders.cache: usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders.cache
+    stage-packages:
+    - libwmf0.2-7-gtk
+    - librsvg2-common
+    - libgdk-pixbuf2.0-0
