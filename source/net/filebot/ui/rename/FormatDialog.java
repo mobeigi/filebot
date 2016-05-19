@@ -49,6 +49,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
@@ -240,26 +241,22 @@ public class FormatDialog extends JDialog {
 			}
 		});
 
-		// focus editor by default
-		addWindowFocusListener(new WindowAdapter() {
-
-			@Override
-			public void windowGainedFocus(WindowEvent e) {
-				editor.requestFocusInWindow();
-			}
-		});
-
-		// finish dialog and close window manually
+		// focus editor by default and finish dialog and close window manually
 		addWindowListener(new WindowAdapter() {
 
 			@Override
+			public void windowGainedFocus(WindowEvent e) {
+				SwingUtilities.invokeLater(editor::requestFocusInWindow);
+			}
+
+			@Override
 			public void windowActivated(WindowEvent e) {
-				revalidate();
+				SwingUtilities.invokeLater(() -> revalidate());
 			}
 
 			@Override
 			public void windowClosing(WindowEvent e) {
-				finish(false);
+				SwingUtilities.invokeLater(() -> finish(false));
 			}
 		});
 
