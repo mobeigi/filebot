@@ -7,6 +7,7 @@ import static javax.swing.SwingUtilities.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.util.ExceptionUtilities.*;
+import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.LoadingOverlayPane.*;
 import static net.filebot.util.ui.SwingUI.*;
 
@@ -330,11 +331,11 @@ public class RenamePanel extends JComponent {
 					int index = namesList.getListComponent().getSelectedIndex();
 					if (index >= 0) {
 						File file = (File) filesList.getListComponent().getModel().getElementAt(index);
-						String generatedName = namesList.getListComponent().getModel().getElementAt(index).toString();
+						Object object = namesList.getListComponent().getModel().getElementAt(index);
 
-						String forcedName = showInputDialog("Enter Name:", generatedName, "Enter Name", RenamePanel.this);
-						if (forcedName != null && forcedName.length() > 0) {
-							renameModel.matches().set(index, new Match<Object, File>(forcedName, file));
+						String string = showInputDialog("Enter Name:", object.toString(), "Enter Name", RenamePanel.this);
+						if (string != null && string.length() > 0) {
+							renameModel.matches().set(index, new Match<Object, File>(string + '.' + getExtension(file), file));
 						}
 					}
 				}
