@@ -86,7 +86,7 @@ public class Main {
 				if (args.clearCache()) {
 					System.out.println("Clear cache");
 					for (File folder : getChildren(ApplicationFolder.Cache.getCanonicalFile(), FOLDERS)) {
-						System.out.println("Delete " + folder);
+						System.out.println("* Delete " + folder);
 						delete(folder);
 					}
 				}
