@@ -6,7 +6,7 @@ Project Name: FileBot
 Project Website: http://www.filebot.net/
 SourceForge Project Site: https://sourceforge.net/projects/filebot/
 GitHub Code Repository: https://github.com/filebot
-E-Mail 1: rednoah@filebot.com
+E-Mail 1: rednoah@filebot.net
 E-Mail 2: rednoah@users.sourceforge.net
 
 Regards,
