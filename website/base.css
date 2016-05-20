@@ -103,6 +103,7 @@ table.reference  {
 
 table.reference > * > * > th, table.reference > * > * > td {
 	padding: 5px 20px;
+	white-space: nowrap;
 }
 
 table.reference > * > * > td {
@@ -114,7 +115,6 @@ table.reference.cli > * > * > td:first-child {
 	font-family: Andale Mono, monospace;
 	font-size: 10.5pt;
 	font-weight: bold;
-	white-space: nowrap;
 }
 
 .page {
