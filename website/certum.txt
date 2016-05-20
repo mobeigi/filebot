@@ -5,8 +5,8 @@ This document, hosted on my filebot.net domain, unmistakebly verifies and confir
 Project Name: FileBot
 Project Website: http://www.filebot.net/
 SourceForge Project Site: https://sourceforge.net/projects/filebot/
-SourceForge SVN Code Repository: https://sourceforge.net/p/filebot/code/HEAD/tree/trunk/
-E-Mail 1: me@filebot.com
+GitHub Code Repository: https://github.com/filebot
+E-Mail 1: rednoah@filebot.com
 E-Mail 2: rednoah@users.sourceforge.net
 
 Regards,
