@@ -114,6 +114,7 @@ table.reference.cli > * > * > td:first-child {
 	font-family: Andale Mono, monospace;
 	font-size: 10.5pt;
 	font-weight: bold;
+	white-space: nowrap;
 }
 
 .page {
