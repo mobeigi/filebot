@@ -29,28 +29,36 @@ parts:
     plugin: copy
     files:
       oracle-java: oracle-java
-  ubuntu:
-    plugin: copy
-    files:
-      /usr/share/locale: usr/share/locale
-      /usr/share/fonts: usr/share/fonts
+#  ubuntu:
+#    plugin: copy
+#    files:
+#      /usr/share/locale: usr/share/locale
+#      /usr/share/fonts: usr/share/fonts
   packages:
     plugin: nil
     stage-packages:
     - libgl1-mesa-dri
     - fontconfig
-#    - gtk2-engines-murrine
-#    - light-themes
-#    - libcanberra-gtk-module
-#    - jayatana
-#    - gvfs
-#    - dconf
-#    - proxy
+    - gtk2-engines-murrine
+    - light-themes
+    - libcanberra-gtk-module
+    - jayatana
+    - gvfs
+    - unity-gtk2-module
+    - overlay-scrollbar-gtk2
 #    - libmediainfo0v5
 #    - libchromaprint-tools
+#  locale:
+#    plugin: nil
+#    stage-packages:
+#    - language-pack-en-base
+#    - locales
+#    - glibc
+#    - libc-bin
   loaders:
     plugin: copy
     files:
       loaders.cache: usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders.cache
     stage-packages:
     - libgdk-pixbuf2.0-0
+    - librsvg2-common
