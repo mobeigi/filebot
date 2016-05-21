@@ -14,12 +14,9 @@ apps:
     plugs:
     - home
     - network
-    - network-bind
-    - network-observe
     - opengl
     - unity7
     - x11
-    - locale-control
 
 
 parts:
@@ -28,27 +25,32 @@ parts:
     files:
       filebot.sh: bin/filebot
       FileBot.jar: filebot/FileBot.jar
-  fonts:
+  oracle-java:
     plugin: copy
     files:
+      oracle-java: oracle-java
+  ubuntu:
+    plugin: copy
+    files:
+      /usr/share/locale: usr/share/locale
       /usr/share/fonts: usr/share/fonts
-      fonts.conf: fonts.conf
   packages:
     plugin: nil
     stage-packages:
-    - libmediainfo0v5
-    - libchromaprint-tools
-    - openjdk-8-jre
-    - openjfx
+    - libgl1-mesa-dri
     - fontconfig
-    - jayatana
-    - gvfs
-    - mesa-utils
+#    - gtk2-engines-murrine
+#    - light-themes
+#    - libcanberra-gtk-module
+#    - jayatana
+#    - gvfs
+#    - dconf
+#    - proxy
+#    - libmediainfo0v5
+#    - libchromaprint-tools
   loaders:
     plugin: copy
     files:
       loaders.cache: usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders.cache
     stage-packages:
-    - libwmf0.2-7-gtk
-    - librsvg2-common
     - libgdk-pixbuf2.0-0
