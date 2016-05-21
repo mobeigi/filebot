@@ -47,8 +47,8 @@ public class BindingsHandler extends MapOptionHandler {
 				return pos;
 			}
 
-			String n = getName(nv[0].trim());
-			String v = getValue(nv[1].trim());
+			String n = getName(nv[0]);
+			String v = getValue(nv[1]);
 
 			addToMap(map, n, v);
 			pos++;
