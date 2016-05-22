@@ -29,11 +29,6 @@ parts:
     plugin: copy
     files:
       oracle-java: oracle-java
-#  ubuntu:
-#    plugin: copy
-#    files:
-#      /usr/share/locale: usr/share/locale
-#      /usr/share/fonts: usr/share/fonts
   packages:
     plugin: nil
     stage-packages:
@@ -48,13 +43,6 @@ parts:
     - overlay-scrollbar-gtk2
 #    - libmediainfo0v5
 #    - libchromaprint-tools
-#  locale:
-#    plugin: nil
-#    stage-packages:
-#    - language-pack-en-base
-#    - locales
-#    - glibc
-#    - libc-bin
   loaders:
     plugin: copy
     files:
