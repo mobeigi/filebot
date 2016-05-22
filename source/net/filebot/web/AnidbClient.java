@@ -66,7 +66,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 
 	@Override
 	protected SortOrder vetoRequestParameter(SortOrder order) {
-		return SortOrder.Absolute;
+		return order == null ? SortOrder.Absolute : order;
 	}
 
 	@Override

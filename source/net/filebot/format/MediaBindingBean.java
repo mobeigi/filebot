@@ -15,7 +15,7 @@ import static net.filebot.subtitle.SubtitleUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.RegularExpressions.*;
 import static net.filebot.util.StringUtilities.*;
-import static net.filebot.web.EpisodeFormat.*;
+import static net.filebot.web.EpisodeUtilities.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -56,11 +56,10 @@ import net.filebot.util.FileUtilities;
 import net.filebot.util.WeakValueHashMap;
 import net.filebot.web.AudioTrack;
 import net.filebot.web.Episode;
+import net.filebot.web.EpisodeFormat;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.Movie;
 import net.filebot.web.MoviePart;
-import net.filebot.web.MultiEpisode;
-import net.filebot.web.SearchResult;
 import net.filebot.web.SeriesInfo;
 import net.filebot.web.SimpleDate;
 import net.filebot.web.SortOrder;
@@ -155,17 +154,12 @@ public class MediaBindingBean {
 
 	@Define("sxe")
 	public String getSxE() {
-		return SeasonEpisode.formatSxE(getEpisode());
+		return EpisodeFormat.SeasonEpisode.formatSxE(getSeasonEpisode()); // try to convert absolute numbers to SxE numbers
 	}
 
 	@Define("s00e00")
 	public String getS00E00() {
-		try {
-			return SeasonEpisode.formatS00E00(getSeasonEpisode()); // try to convert absolute numbers to SxE numbers
-		} catch (Exception e) {
-			debug.warning(e::toString);
-		}
-		return SeasonEpisode.formatS00E00(getEpisode());
+		return EpisodeFormat.SeasonEpisode.formatS00E00(getSeasonEpisode()); // try to convert absolute numbers to SxE numbers
 	}
 
 	@Define("t")
@@ -175,7 +169,7 @@ public class MediaBindingBean {
 		}
 
 		// enforce title length limit by default
-		return truncateText(SeasonEpisode.formatMultiTitle(getEpisodes()), NamingStandard.TITLE_MAX_LENGTH);
+		return truncateText(EpisodeFormat.SeasonEpisode.formatMultiTitle(getEpisodes()), NamingStandard.TITLE_MAX_LENGTH);
 	}
 
 	@Define("d")
@@ -693,48 +687,23 @@ public class MediaBindingBean {
 
 	@Define("anime")
 	public boolean isAnimeEpisode() {
-		return WebServices.AniDB.getIdentifier().equals(getEpisode().getSeriesInfo().getDatabase());
+		return getEpisodes().stream().anyMatch(it -> isAnime(it));
 	}
 
 	@Define("regular")
 	public boolean isRegularEpisode() {
-		return getEpisodes().stream().allMatch(it -> it.getEpisode() != null && it.getSpecial() == null);
+		return getEpisodes().stream().anyMatch(it -> isRegular(it));
 	}
 
 	@Define("abs2sxe")
-	public Episode getSeasonEpisode() throws Exception {
-		// match AniDB episode to TheTVDB episode
-		if (isAnimeEpisode()) {
-			SeriesInfo seriesInfo = getEpisode().getSeriesInfo();
-			Locale locale = new Locale(seriesInfo.getLanguage());
-
-			// episode may be a multi-episode
-			List<Episode> episode = getEpisodes();
-
-			for (SearchResult series : WebServices.TheTVDB.search(seriesInfo.getName(), locale)) {
-				// sanity check
-				if (!series.getEffectiveNames().contains(seriesInfo.getName())) {
-					continue;
-				}
-
-				// match by absolute number or airdate if possible, default to absolute number otherwise
-				List<Episode> airdateEpisodeList = WebServices.TheTVDB.getEpisodeList(series, SortOrder.Airdate, locale);
-				List<Episode> airdateEpisode = episode.stream().flatMap(abs -> {
-					return airdateEpisodeList.stream().filter(sxe -> abs.getSpecial() == null && sxe.getSpecial() == null).filter(sxe -> {
-						return abs.getAbsolute() != null && abs.getAbsolute().equals(sxe.getAbsolute());
-					});
-				}).collect(toList());
-
-				// sanity check
-				if (airdateEpisode.size() != episode.size()) {
-					break;
-				}
-
-				return airdateEpisode.size() == 1 ? airdateEpisode.get(0) : new MultiEpisode(airdateEpisode);
+	public Episode getSeasonEpisode() {
+		if (getEpisodes().stream().allMatch(it -> isAnime(it) && isRegular(it) && !isAbsolute(it))) {
+			try {
+				return getEpisodeByAbsoluteNumber(getEpisode(), WebServices.TheTVDB, SortOrder.Airdate);
+			} catch (Exception e) {
+				debug.warning(e::toString);
 			}
 		}
-
-		// return episode object as is by default
 		return getEpisode();
 	}
 
@@ -846,7 +815,7 @@ public class MediaBindingBean {
 
 	@Define("episodes")
 	public List<Episode> getEpisodes() {
-		return infoObject instanceof MultiEpisode ? ((MultiEpisode) infoObject).getEpisodes() : singletonList(getEpisode());
+		return getMultiEpisodeList(getEpisode());
 	}
 
 	@Define("movie")

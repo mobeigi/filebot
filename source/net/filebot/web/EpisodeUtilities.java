@@ -1,42 +1,84 @@
 package net.filebot.web;
 
-import java.util.ArrayList;
+import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
+
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+
+import net.filebot.WebServices;
 
 public final class EpisodeUtilities {
 
-	public static List<Episode> filterBySeason(Iterable<Episode> episodes, int season) {
-		List<Episode> results = new ArrayList<Episode>(25);
-
-		// filter given season from all seasons
-		for (Episode episode : episodes) {
-			if (episode.getSeason() != null && season == episode.getSeason()) {
-				results.add(episode);
-			}
-		}
-
-		return results;
+	public static List<Episode> getMultiEpisodeList(Episode e) {
+		return e instanceof MultiEpisode ? ((MultiEpisode) e).getEpisodes() : singletonList(e);
 	}
 
-	public static int getLastSeason(Iterable<Episode> episodes) {
-		int lastSeason = 0;
+	public static boolean isAnime(Episode e) {
+		return WebServices.AniDB.getIdentifier().equals(e.getSeriesInfo().getDatabase());
+	}
 
-		// filter given season from all seasons
-		for (Episode episode : episodes) {
-			if (episode.getSeason() != null && episode.getSeason() > lastSeason) {
-				lastSeason = episode.getSeason();
+	public static boolean isRegular(Episode e) {
+		return e.getEpisode() != null && e.getSpecial() == null;
+	}
+
+	public static boolean isAbsolute(Episode e) {
+		return e.getAbsolute() != null && e.getSeriesInfo().getOrder() != null && SortOrder.Absolute == SortOrder.valueOf(e.getSeriesInfo().getOrder());
+	}
+
+	public static Episode getEpisodeByAbsoluteNumber(Episode e, EpisodeListProvider service, SortOrder order) throws Exception {
+		// e.g. match AniDB episode to TheTVDB episode
+		SeriesInfo seriesInfo = e.getSeriesInfo();
+		Locale locale = new Locale(seriesInfo.getLanguage());
+
+		// episode may be a multi-episode
+		List<Episode> multiEpisode = getMultiEpisodeList(e);
+
+		for (SearchResult series : service.search(seriesInfo.getName(), locale)) {
+			// sanity check
+			if (!series.getEffectiveNames().contains(seriesInfo.getName())) {
+				continue;
 			}
+
+			// match by absolute number or airdate if possible, default to absolute number otherwise
+			List<Episode> airdateEpisodeList = service.getEpisodeList(series, order, locale);
+			List<Episode> airdateEpisode = multiEpisode.stream().flatMap(abs -> {
+				return airdateEpisodeList.stream().filter(sxe -> abs.getSpecial() == null && sxe.getSpecial() == null).filter(sxe -> {
+					return abs.getAbsolute() != null && abs.getAbsolute().equals(sxe.getAbsolute());
+				});
+			}).collect(toList());
+
+			// sanity check
+			if (airdateEpisode.size() != multiEpisode.size()) {
+				break;
+			}
+
+			return airdateEpisode.size() == 1 ? airdateEpisode.get(0) : new MultiEpisode(airdateEpisode);
 		}
 
-		return lastSeason;
+		// return episode object as is by default
+		return e;
+	}
+
+	public static List<Episode> filterBySeason(Collection<Episode> episodes, int season) {
+		return episodes.stream().filter(it -> {
+			return it.getSeason() != null && season == it.getSeason();
+		}).collect(toList());
+	}
+
+	public static int getLastSeason(Collection<Episode> episodes) {
+		return episodes.stream().mapToInt(it -> {
+			return it.getSeason() == null ? 0 : it.getSeason();
+		}).max().orElse(0);
 	}
 
 	public static Comparator<Episode> episodeComparator() {
-		return NUMBERS_COMPARATOR;
+		return EPISODE_NUMBERS_COMPARATOR;
 	}
 
-	public static final Comparator<Episode> NUMBERS_COMPARATOR = new Comparator<Episode>() {
+	public static final Comparator<Episode> EPISODE_NUMBERS_COMPARATOR = new Comparator<Episode>() {
 
 		@Override
 		public int compare(Episode a, Episode b) {
@@ -70,4 +112,5 @@ public final class EpisodeUtilities {
 	private EpisodeUtilities() {
 		throw new UnsupportedOperationException();
 	}
+
 }
