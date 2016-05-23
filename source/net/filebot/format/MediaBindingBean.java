@@ -924,7 +924,7 @@ public class MediaBindingBean {
 	public File getPlexStandardPath() throws Exception {
 		String path = NamingStandard.Plex.getPath(infoObject);
 		try {
-			path = path.concat(getSubtitleTags());
+			path = path.concat(getSubtitleTags()); // NPE if {subt} is undefined
 		} catch (Exception e) {
 			// ignore => no language tags
 		}
