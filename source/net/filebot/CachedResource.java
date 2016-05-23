@@ -100,7 +100,7 @@ public class CachedResource<K, R> implements Resource<R> {
 				if (element == null || element.getObjectValue() == null) {
 					throw e;
 				}
-				return element.getObjectKey();
+				return element.getObjectValue();
 			}
 		});
 
