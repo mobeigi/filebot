@@ -343,11 +343,11 @@ public final class WebRequest {
 			String log = String.format(Locale.ROOT, "Received %,d bytes", data.remaining());
 
 			// log entire response content if enabled
-			SystemProperty<Boolean> response = SystemProperty.of("net.filebot.web.WebRequest.log.response", Boolean::parseBoolean, Boolean.FALSE);
-			if (response.get()) {
+			boolean printResponse = SystemProperty.of("net.filebot.web.WebRequest.log.response", Boolean::parseBoolean, Boolean.FALSE).get();
+
+			if (printResponse) {
 				return log + System.lineSeparator() + UTF_8.decode(data.duplicate()) + System.lineSeparator();
 			}
-
 			return log;
 		};
 
