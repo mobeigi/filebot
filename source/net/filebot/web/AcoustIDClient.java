@@ -175,7 +175,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 					debug.log(Level.WARNING, e.getMessage(), e);
 					return null;
 				}
-			}).filter(Objects::nonNull).sorted(new MostFieldsNotNull()).findFirst().get();
+			}).filter(Objects::nonNull).sorted(new MostFieldsNotNull()).findFirst().orElse(null);
 		}
 
 		return null;
