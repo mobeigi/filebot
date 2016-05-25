@@ -73,7 +73,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 
 		// TODO support for default language => https://trello.com/c/dyEhtfky/16-handle-multiple-languages-in-the-accept-language-header
 		if (locale != null && locale != Locale.ROOT) {
-			header.put("Accept-Language", locale.getLanguage());
+			header.put("Accept-Language", Stream.of(locale, Locale.ENGLISH).map(Locale::getLanguage).distinct().collect(joining(", ")));
 		}
 		header.put("Accept", "application/json");
 		header.put("Authorization", "Bearer " + getAuthorizationToken());
