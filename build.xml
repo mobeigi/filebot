@@ -825,7 +825,7 @@
 		<scp todir="${deploy.website}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
 			<fileset dir="${dir.dist}/website">
 				<modified>
-					<param name="cache.cachefile" value="${dir.cache}/scp.properties" />
+					<param name="cache.cachefile" value="scp.cache" />
 				</modified>
 			</fileset>
 		</scp>
@@ -892,6 +892,9 @@
 			<fileset dir="${dir.website}">
 				<include name="data/*.txt" />
 				<include name="data/*.xz" />
+				<modified>
+					<param name="cache.cachefile" value="scp.cache" />
+				</modified>
 			</fileset>
 		</scp>
 	</target>
