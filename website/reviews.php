@@ -1,13 +1,11 @@
 <html>
 	<head>
+		<meta charset="UTF-8" />
 		<title>FileBot Reviews</title>
 		<link rel="stylesheet" href="base.css" type="text/css" />
 		<link href='https://fonts.googleapis.com/css?family=Dawning+of+a+New+Day' rel='stylesheet' type='text/css'>
 	</head>
 	<body>
-		<!--
-		<div class="top"><small>Write a review for FileBot at <a href="https://sourceforge.net/projects/filebot/reviews/?sort=usefulness#review-form">SourceForge.net</a></small></div>
-		-->
 		<?
 		// read file
 		$filename = "reviews.json";
