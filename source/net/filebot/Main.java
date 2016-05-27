@@ -373,11 +373,11 @@ public class Main {
 		if (args.unixfs) {
 			System.setProperty("unixfs", "true");
 		}
-		if (args.disableExtendedAttributes) {
+		if (args.disableExtendedAttributes || "TEST".equalsIgnoreCase(args.action)) {
 			System.setProperty("useExtendedFileAttributes", "false");
 			System.setProperty("useCreationDate", "false");
 		}
-		if (args.action.equalsIgnoreCase("test")) {
+		if ("TEST".equalsIgnoreCase(args.action)) {
 			System.setProperty("application.rename.history", "false"); // do not keep history of --action test rename operations
 		}
 	}
