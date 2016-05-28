@@ -130,7 +130,7 @@ public class Main {
 			}
 
 			// wait for UI to startup completely before loading more classes
-			Thread.sleep(1000);
+			Thread.sleep(2000);
 
 			// preload media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
 			MediaTypes.getDefault();
