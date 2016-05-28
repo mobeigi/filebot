@@ -70,6 +70,7 @@ import net.filebot.subtitle.SubtitleFormat;
 import net.filebot.subtitle.SubtitleNaming;
 import net.filebot.util.EntryList;
 import net.filebot.util.FileUtilities.ParentFilter;
+import net.filebot.util.FunctionList;
 import net.filebot.vfs.FileInfo;
 import net.filebot.vfs.MemoryFile;
 import net.filebot.vfs.SimpleFileInfo;
@@ -1057,14 +1058,9 @@ public class CmdlineOperations implements CmdlineInterface {
 	@Override
 	public List<String> getMediaInfo(Collection<File> files, String format, String filter) throws Exception {
 		ExpressionFormat formatter = new ExpressionFormat(format != null && format.length() > 0 ? format : "{fn} [{resolution} {vc} {channels} {ac} {minutes+'m'}]");
-		FileFilter fileFilter = filter == null || filter.isEmpty() ? f -> true : new ExpressionFileFilter(new ExpressionFilter(filter), false);
+		List<File> selection = filter(files, filter == null || filter.isEmpty() ? f -> true : new ExpressionFileFilter(new ExpressionFilter(filter), false));
 
-		List<String> output = new ArrayList<String>();
-		for (File file : filter(files, fileFilter)) {
-			String line = formatter.format(new MediaBindingBean(xattr.getMetaInfo(file), file, null));
-			output.add(line);
-		}
-		return output;
+		return new FunctionList<File, String>(selection, f -> formatter.format(new MediaBindingBean(xattr.getMetaInfo(f), f, null)));
 	}
 
 	@Override
