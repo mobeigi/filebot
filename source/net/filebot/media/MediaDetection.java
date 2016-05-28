@@ -586,21 +586,20 @@ public class MediaDetection {
 			}
 		}
 
-		// search by file name or folder name (initialize with known options)
-		Set<String> terms = options.stream().map(Movie::getNameWithYear).collect(toCollection(LinkedHashSet::new));
+		// search by file name or folder name (NOTE: can't initialize with known options because misleading NFO files may lead to bad matches)
+		List<String> names = new ArrayList<String>(2);
 
 		// 1. term: try to match movie pattern 'name (year)' or use filename as is
-		terms.add(getName(movieFile));
+		names.add(getName(movieFile));
 
 		// 2. term: first meaningful parent folder
 		File movieFolder = guessMovieFolder(movieFile);
 		if (movieFolder != null) {
-			terms.add(getName(movieFolder));
+			names.add(getName(movieFolder));
 		}
 
 		// reduce movie names
-		terms = new LinkedHashSet<String>(reduceMovieNamePermutations(terms));
-
+		Set<String> terms = reduceMovieNamePermutations(names);
 		List<Movie> movieNameMatches = matchMovieName(terms, true, 0);
 
 		// skip further queries if collected matches are already sufficient
@@ -753,7 +752,7 @@ public class MediaDetection {
 		return null;
 	}
 
-	public static List<String> reduceMovieNamePermutations(Collection<String> terms) throws IOException {
+	public static Set<String> reduceMovieNamePermutations(Collection<String> terms) throws IOException {
 		LinkedList<String> names = new LinkedList<String>();
 
 		for (String it : terms) {
@@ -769,7 +768,7 @@ public class MediaDetection {
 			}
 		}
 
-		return names;
+		return new LinkedHashSet<String>(names);
 	}
 
 	public static File guessMovieFolder(File movieFile) throws Exception {
