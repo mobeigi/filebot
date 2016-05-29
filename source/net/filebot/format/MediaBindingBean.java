@@ -30,7 +30,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Set;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
@@ -51,6 +51,7 @@ import net.filebot.media.NamingStandard;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.mediainfo.MediaInfoException;
+import net.filebot.similarity.Normalization;
 import net.filebot.similarity.SimilarityComparator;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.WeakValueHashMap;
@@ -251,7 +252,7 @@ public class MediaBindingBean {
 				return WebServices.TheTVDB.getSeriesInfo(getSeriesInfo().getId(), Locale.ENGLISH).getName();
 			}
 
-			// default to series info name (for anime this would be the primary title)
+			// default to series info name (for Anime this would be the primary title)
 			return getSeriesInfo().getName();
 		}
 
@@ -419,7 +420,8 @@ public class MediaBindingBean {
 
 	@Define("original")
 	public String getOriginalFileName() {
-		return getOriginalFileName(getMediaFile());
+		String name = xattr.getOriginalName(getMediaFile());
+		return name == null ? null : getNameWithoutExtension(name);
 	}
 
 	@Define("xattr")
@@ -433,13 +435,9 @@ public class MediaBindingBean {
 		File inferredMediaFile = getInferredMediaFile();
 
 		// try to get checksum from file name
-		for (String filename : new String[] { getOriginalFileName(inferredMediaFile), inferredMediaFile.getName() }) {
-			if (filename != null) {
-				String checksum = getEmbeddedChecksum(filename);
-				if (checksum != null) {
-					return checksum;
-				}
-			}
+		Optional<String> embeddedChecksum = stream(getFileNames(inferredMediaFile)).map(Normalization::getEmbeddedChecksum).filter(Objects::nonNull).findFirst();
+		if (embeddedChecksum.isPresent()) {
+			return embeddedChecksum.get();
 		}
 
 		// try to get checksum from sfv file
@@ -478,54 +476,36 @@ public class MediaBindingBean {
 
 	@Define("source")
 	public String getVideoSource() {
-		// use inferred media file
-		File inferredMediaFile = getInferredMediaFile();
-
-		// look for video source patterns in media file and it's parent folder
-		return releaseInfo.getVideoSource(inferredMediaFile.getParent(), inferredMediaFile.getName(), getOriginalFileName(inferredMediaFile));
+		// look for video source patterns in media file and it's parent folder (use inferred media file)
+		return releaseInfo.getVideoSource(getFileNames(getInferredMediaFile()));
 	}
 
 	@Define("tags")
 	public List<String> getVideoTags() {
-		// use inferred media file
-		File inferredMediaFile = getInferredMediaFile();
-
-		// look for video source patterns in media file and it's parent folder
-		List<String> matches = releaseInfo.getVideoTags(inferredMediaFile.getParent(), inferredMediaFile.getName(), getOriginalFileName(inferredMediaFile));
+		// look for video source patterns in media file and it's parent folder (use inferred media file)
+		List<String> matches = releaseInfo.getVideoTags(getFileNames(getInferredMediaFile()));
 		if (matches.isEmpty()) {
 			return null;
 		}
 
-		Set<String> tags = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-		for (String m : matches) {
-			// heavy normalization of whatever pattern was matched with the regex pattern
-			tags.add(lowerTrail(upperInitial(normalizePunctuation(normalizeSpace(m, " ")))));
-		}
-		return new ArrayList<String>(tags);
-
+		// heavy normalization for whatever text was captured with the tags pattern
+		return matches.stream().map(s -> {
+			return lowerTrail(upperInitial(normalizePunctuation(normalizeSpace(s, " "))));
+		}).sorted().distinct().collect(toList());
 	}
 
 	@Define("s3d")
 	public String getStereoscopic3D() {
-		return releaseInfo.getStereoscopic3D(getFileName());
+		return releaseInfo.getStereoscopic3D(getFileNames(getInferredMediaFile()));
 	}
 
 	@Define("group")
 	public String getReleaseGroup() throws Exception {
-		// use inferred media file
-		File inferredMediaFile = getInferredMediaFile();
-
-		// consider foldername, filename and original filename
-		String[] filenames = new String[] { inferredMediaFile.getParentFile().getName(), getNameWithoutExtension(inferredMediaFile.getName()), getOriginalFileName(inferredMediaFile) };
-
 		// reduce false positives by removing the know titles from the name
-		Pattern nonGroupPattern = releaseInfo.getCustomRemovePattern(getKeywords());
-		for (int i = 0; i < filenames.length; i++) {
-			if (filenames[i] == null)
-				continue;
+		Pattern[] nonGroupPattern = { releaseInfo.getCustomRemovePattern(getKeywords()), releaseInfo.getVideoSourcePattern(), releaseInfo.getVideoFormatPattern(true), releaseInfo.getResolutionPattern(), releaseInfo.getStructureRootPattern() };
 
-			filenames[i] = releaseInfo.clean(filenames[i], nonGroupPattern, releaseInfo.getVideoSourcePattern(), releaseInfo.getVideoFormatPattern(true), releaseInfo.getResolutionPattern(), releaseInfo.getStructureRootPattern());
-		}
+		// consider foldername, filename and original filename of inferred media file
+		String[] filenames = stream(getFileNames(getInferredMediaFile())).map(s -> releaseInfo.clean(s, nonGroupPattern)).toArray(String[]::new);
 
 		// look for release group names in media file and it's parent folder
 		return releaseInfo.getReleaseGroup(filenames);
@@ -539,8 +519,8 @@ public class MediaBindingBean {
 
 		Language language = getLanguageTag();
 		if (language != null) {
-			String tag = '.' + language.getISO3B();
-			String category = releaseInfo.getSubtitleCategoryTag(FileUtilities.getName(getMediaFile()), getOriginalFileName(getMediaFile()));
+			String tag = '.' + language.getISO3B(); // Plex only supports ISO 639-2/B language codes
+			String category = releaseInfo.getSubtitleCategoryTag(getFileNames(getMediaFile()));
 			if (category != null) {
 				return tag + '.' + category;
 			}
@@ -552,7 +532,7 @@ public class MediaBindingBean {
 
 	@Define("lang")
 	public Language getLanguageTag() throws Exception {
-		Locale languageSuffix = releaseInfo.getSubtitleLanguageTag(FileUtilities.getName(getMediaFile()), getOriginalFileName(getMediaFile()));
+		Locale languageSuffix = releaseInfo.getSubtitleLanguageTag(getFileNames(getMediaFile()));
 		if (languageSuffix != null) {
 			return Language.getLanguage(languageSuffix);
 		}
@@ -1069,9 +1049,21 @@ public class MediaBindingBean {
 		return getMediaInfo().snapshot().get(kind).stream().map(AssociativeScriptObject::new).collect(toList());
 	}
 
-	private String getOriginalFileName(File file) {
-		String name = xattr.getOriginalName(file);
-		return name == null ? null : getNameWithoutExtension(name);
+	private String[] getFileNames(File file) {
+		List<String> names = new ArrayList<String>(3);
+		names.add(getNameWithoutExtension(file.getName())); // current file name
+
+		String original = xattr.getOriginalName(file);
+		if (original != null) {
+			names.add(getNameWithoutExtension(original)); // original file name
+		}
+
+		File parent = file.getParentFile();
+		if (parent != null && parent.getParent() != null) {
+			names.add(parent.getName()); // current folder name
+		}
+
+		return names.toArray(new String[0]);
 	}
 
 	private List<String> getKeywords() {
