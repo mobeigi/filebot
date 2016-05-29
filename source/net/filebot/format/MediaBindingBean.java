@@ -738,6 +738,11 @@ public class MediaBindingBean {
 		}, Language.availableLanguages().stream().map(Language::getName));
 	}
 
+	@Define("mediaTitle")
+	public String getMediaTitle() {
+		return getMediaInfo(StreamKind.General, 0, "Title", "Movie");
+	}
+
 	@Define("bitrate")
 	public Long getBitRate() {
 		return new Double(getMediaInfo(StreamKind.General, 0, "OverallBitRate")).longValue();
