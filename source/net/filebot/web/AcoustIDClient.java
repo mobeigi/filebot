@@ -12,13 +12,11 @@ import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
@@ -59,18 +57,23 @@ public class AcoustIDClient implements MusicIdentificationService {
 	public Map<File, AudioTrack> lookup(Collection<File> files) throws Exception {
 		Map<File, AudioTrack> results = new LinkedHashMap<File, AudioTrack>();
 
-		if (files.size() > 0) {
-			for (Map<String, String> fp : fpcalc(files)) {
-				File file = new File(fp.get("FILE"));
-				int duration = Integer.parseInt(fp.get("DURATION"));
-				String fingerprint = fp.get("FINGERPRINT");
+		for (File file : files) {
+			Map<ChromaprintField, String> fp = fpcalc(file);
 
-				if (duration > 10 && fingerprint != null) {
-					String response = lookup(duration, fingerprint);
-					if (response != null && response.length() > 0) {
-						results.put(file, parseResult(lookup(duration, fingerprint), duration));
-					}
-				}
+			// sanity check
+			if (!fp.containsKey(ChromaprintField.DURATION) || !fp.containsKey(ChromaprintField.FINGERPRINT))
+				continue;
+
+			int duration = Integer.parseInt(fp.get(ChromaprintField.DURATION));
+			String fingerprint = fp.get(ChromaprintField.FINGERPRINT);
+
+			// sanity check
+			if (duration < 10)
+				continue;
+
+			String response = lookup(duration, fingerprint);
+			if (response != null && response.length() > 0) {
+				results.put(file, parseResult(lookup(duration, fingerprint), duration));
 			}
 		}
 
@@ -181,48 +184,35 @@ public class AcoustIDClient implements MusicIdentificationService {
 		return null;
 	}
 
+	public enum ChromaprintField {
+		FILE, FINGERPRINT, DURATION;
+	}
+
 	public String getChromaprintCommand() {
 		// use fpcalc executable path as specified by the cmdline or default to "fpcalc" and let the shell figure it out
 		return System.getProperty("net.filebot.AcoustID.fpcalc", "fpcalc");
 	}
 
-	public List<Map<String, String>> fpcalc(Collection<File> files) throws IOException, InterruptedException {
-		List<String> command = new ArrayList<String>();
-		command.add(getChromaprintCommand());
-		for (File f : files) {
-			command.add(f.getPath());
-		}
+	public Map<ChromaprintField, String> fpcalc(File file) throws IOException, InterruptedException {
+		Map<ChromaprintField, String> output = new EnumMap<ChromaprintField, String>(ChromaprintField.class);
 
-		Process process = null;
-		try {
-			process = new ProcessBuilder(command).redirectError(Redirect.INHERIT).start();
-		} catch (Exception e) {
-			throw new IOException("Failed to exec fpcalc: " + e.getMessage());
-		}
+		ProcessBuilder command = new ProcessBuilder(getChromaprintCommand(), file.getCanonicalPath());
+		Process process = command.redirectError(Redirect.INHERIT).start();
 
-		Scanner scanner = new Scanner(new InputStreamReader(process.getInputStream(), UTF_8));
-		LinkedList<Map<String, String>> results = new LinkedList<Map<String, String>>();
-
-		try {
+		try (Scanner scanner = new Scanner(new InputStreamReader(process.getInputStream(), UTF_8))) {
 			while (scanner.hasNextLine()) {
 				String[] value = EQUALS.split(scanner.nextLine(), 2);
-				if (value.length != 2)
-					continue;
-
-				if (results.isEmpty() || results.getLast().containsKey(value[0])) {
-					results.addLast(new HashMap<String, String>(3));
+				if (value.length == 2) {
+					try {
+						output.put(ChromaprintField.valueOf(value[0]), value[1]);
+					} catch (Exception e) {
+						debug.warning(e::toString);
+					}
 				}
-				results.getLast().put(value[0], value[1]);
 			}
-		} finally {
-			scanner.close();
 		}
 
-		if (process.waitFor() != 0) {
-			throw new IOException("Failed to exec fpcalc: Exit code " + process.exitValue());
-		}
-
-		return results;
+		return output;
 	}
 
 	private static class MostFieldsNotNull implements Comparator<Object> {
