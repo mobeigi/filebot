@@ -3,12 +3,14 @@ package net.filebot.util;
 import static java.nio.charset.StandardCharsets.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.Logging.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -156,7 +158,13 @@ public class FileSet extends AbstractSet<Path> {
 	}
 
 	public void load(File f) throws IOException {
-		streamLines(f).forEach(this::add);
+		streamLines(f).forEach(path -> {
+			try {
+				add(Paths.get(path));
+			} catch (InvalidPathException e) {
+				debug.warning(e::toString);
+			}
+		});
 	}
 
 	public void append(File f, Collection<?>... paths) throws IOException {
