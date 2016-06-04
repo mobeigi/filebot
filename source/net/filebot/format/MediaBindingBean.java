@@ -259,6 +259,16 @@ public class MediaBindingBean {
 		return null;
 	}
 
+	@Define("id")
+	public Integer getId() throws Exception {
+		if (infoObject instanceof Episode)
+			return getEpisode().getSeriesInfo().getId();
+		if (infoObject instanceof Movie)
+			return getMovie().getId();
+
+		return null;
+	}
+
 	@Define("tmdbid")
 	public String getTmdbId() throws Exception {
 		int tmdbid = getMovie().getTmdbId();
@@ -272,7 +282,7 @@ public class MediaBindingBean {
 			try {
 				tmdbid = WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false).getId();
 			} catch (FileNotFoundException e) {
-				return null;
+				debug.warning(e::toString);
 			}
 		}
 
