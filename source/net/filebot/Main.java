@@ -176,9 +176,9 @@ public class Main {
 	}
 
 	private static void startUserInterface(ArgumentBean args) {
-		// use native LaF an all platforms
+		// use native LaF an all platforms (use platform-independent laf for standalone jar deployment)
 		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			UIManager.setLookAndFeel(isExecutableJar() ? "javax.swing.plaf.nimbus.NimbusLookAndFeel" : UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
 			debug.log(Level.SEVERE, e.getMessage(), e);
 		}

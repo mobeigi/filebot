@@ -82,6 +82,10 @@ public final class Settings {
 		return System.getProperty("application.deployment", "jar");
 	}
 
+	public static boolean isExecutableJar() {
+		return isApplicationDeployment("jar");
+	}
+
 	public static boolean isAppStore() {
 		return isApplicationDeployment("mas", "usc");
 	}
