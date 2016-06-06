@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -84,6 +85,14 @@ public class TMDbClientTest {
 		assertEquals("[es, en]", movie.getSpokenLanguages().toString());
 		assertEquals("Shia LaBeouf", movie.getActors().get(0));
 		assertEquals("Michael Bay", movie.getDirector());
+	}
+
+	@Test
+	public void getAlternativeTitles() throws Exception {
+		Map<String, String> titles = db.getAlternativeTitles(16320); // Serenity
+
+		assertEquals("衝出寧靜號", titles.get("TW"));
+		assertEquals("萤火虫", titles.get("CN"));
 	}
 
 	@Test

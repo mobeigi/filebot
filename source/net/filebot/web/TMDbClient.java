@@ -311,6 +311,11 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		}
 	}
 
+	public Map<String, String> getAlternativeTitles(int id) throws Exception {
+		Object titles = request("movie/" + id + "/alternative_titles", emptyMap(), Locale.ROOT, REQUEST_LIMIT);
+		return streamJsonObjects(titles, "titles").collect(toMap(it -> getString(it, "iso_3166_1"), it -> getString(it, "title"), (a, b) -> a, LinkedHashMap::new));
+	}
+
 	protected Object request(String resource, Map<String, Object> parameters, Locale locale, final FloodLimit limit) throws Exception {
 		// default parameters
 		String key = parameters.isEmpty() ? resource : resource + '?' + encodeParameters(parameters, true);
