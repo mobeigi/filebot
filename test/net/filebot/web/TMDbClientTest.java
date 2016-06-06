@@ -89,10 +89,10 @@ public class TMDbClientTest {
 
 	@Test
 	public void getAlternativeTitles() throws Exception {
-		Map<String, String> titles = db.getAlternativeTitles(16320); // Serenity
+		Map<String, List<String>> titles = db.getAlternativeTitles(16320); // Serenity
 
-		assertEquals("衝出寧靜號", titles.get("TW"));
-		assertEquals("萤火虫", titles.get("CN"));
+		assertEquals("[衝出寧靜號]", titles.get("TW").toString());
+		assertEquals("[萤火虫, 宁静号]", titles.get("CN").toString());
 	}
 
 	@Test

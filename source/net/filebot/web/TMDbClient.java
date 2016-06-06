@@ -311,12 +311,17 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		}
 	}
 
-	public Map<String, String> getAlternativeTitles(int id) throws Exception {
+	public Map<String, List<String>> getAlternativeTitles(int id) throws Exception {
 		Object titles = request("movie/" + id + "/alternative_titles", emptyMap(), Locale.ROOT, REQUEST_LIMIT);
-		return streamJsonObjects(titles, "titles").collect(toMap(it -> getString(it, "iso_3166_1"), it -> getString(it, "title"), (a, b) -> a, LinkedHashMap::new));
+
+		return streamJsonObjects(titles, "titles").collect(groupingBy(it -> {
+			return getString(it, "iso_3166_1");
+		}, mapping(it -> {
+			return getString(it, "title");
+		}, toList())));
 	}
 
-	protected Object request(String resource, Map<String, Object> parameters, Locale locale, final FloodLimit limit) throws Exception {
+	protected Object request(String resource, Map<String, Object> parameters, Locale locale, FloodLimit limit) throws Exception {
 		// default parameters
 		String key = parameters.isEmpty() ? resource : resource + '?' + encodeParameters(parameters, true);
 		String cacheName = locale.getLanguage().isEmpty() ? getName() : getName() + "_" + locale;
