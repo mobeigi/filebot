@@ -3,21 +3,14 @@ version: 4.7
 summary: The ultimate TV and Movie Renamer / Subtitle Downloader
 description: FileBot is the ultimate tool for renaming your movies, tv shows or anime and even downloading subtitles. It's smart, streamlined for simplicity and just works. Putting the super-efficient UI aside, it's also got a full-featured command-line interface and scripting engine for all sorts of automation. Anything is possible.
 
-confinement: devmode
+confinement: strict
 
-architectures:
-- amd64
+architectures: [amd64]
 
 apps:
   filebot:
     command: bin/filebot
-    plugs:
-    - home
-    - network
-    - opengl
-    - unity7
-    - x11
-
+    plugs: [home, network, network-bind, opengl, unity7]
 
 parts:
   filebot:
@@ -41,8 +34,8 @@ parts:
     - gvfs
     - unity-gtk2-module
     - overlay-scrollbar-gtk2
-#    - libmediainfo0v5
-#    - libchromaprint-tools
+    - libmediainfo0v5
+    - libchromaprint-tools
   loaders:
     plugin: copy
     files:
