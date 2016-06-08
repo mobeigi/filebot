@@ -27,7 +27,7 @@ JAR_FILE="$APP_ROOT/FileBot.jar"
 JAR_URL="https://sourceforge.net/projects/filebot/files/filebot/HEAD/FileBot.jar"
 
 # check if file has changed
-JAR_SHA1_EXPECTED=`curl "$JAR_URL/list" | egrep -o "[a-z0-9]{40}"`
+JAR_SHA1_EXPECTED=`curl --retry 5 "$JAR_URL/list" | egrep -o "[a-z0-9]{40}"`
 JAR_SHA1=`sha1sum $JAR_FILE | cut -d' ' -f1`
 
 if [ "$JAR_SHA1" == "$JAR_SHA1_EXPECTED" ]; then
@@ -36,7 +36,7 @@ if [ "$JAR_SHA1" == "$JAR_SHA1_EXPECTED" ]; then
 fi
 
 echo "Update $JAR_FILE"
-curl -L -o "$JAR_FILE" -z "$JAR_FILE" "$JAR_URL"	# FRS will redirect to (unsecure) HTTP download link
+curl -L -o "$JAR_FILE" -z "$JAR_FILE" --retry 5 "$JAR_URL"	# FRS will redirect to (unsecure) HTTP download link
 
 # check if file has been corrupted
 JAR_SHA1=`sha1sum $JAR_FILE | cut -d' ' -f1`
