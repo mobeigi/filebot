@@ -2,7 +2,7 @@
 PRG="$0"
 
 # resolve relative symlinks
-while [ -h "$PRG" ] ; do
+while [ -h "$PRG" ]; do
 	ls=`ls -ld "$PRG"`
 	link=`expr "$ls" : '.*-> \(.*\)$'`
 	if expr "$link" : '/.*' > /dev/null; then
@@ -23,11 +23,27 @@ cd "$WORKING_DIR"
 
 
 # update core application files
-SH_FILE="$APP_ROOT/filebot.sh"
 JAR_FILE="$APP_ROOT/FileBot.jar"
+JAR_URL="https://sourceforge.net/projects/filebot/files/filebot/HEAD/FileBot.jar"
+
+# check if file has changed
+JAR_SHA1_EXPECTED=`curl "$JAR_URL/list" | egrep -o "[a-z0-9]{40}"`
+JAR_SHA1=`sha1sum $JAR_FILE | cut -d' ' -f1`
+
+if [ "$JAR_SHA1" == "$JAR_SHA1_EXPECTED" ]; then
+	echo "$JAR_FILE [SHA1: $JAR_SHA1]"
+	exit 0
+fi
 
 echo "Update $JAR_FILE"
-curl -L -o "$JAR_FILE" -z "$JAR_FILE" "https://downloads.sourceforge.net/project/filebot/filebot/HEAD/FileBot.jar"
+curl -L -o "$JAR_FILE" -z "$JAR_FILE" "$JAR_URL"	# FRS will redirect to (unsecure) HTTP download link
 
-echo "Update $SH_FILE"
-curl -L -o "$SH_FILE" -z "$SH_FILE" "https://raw.githubusercontent.com/filebot/filebot/master/installer/portable/filebot.sh"
+# check if file has been corrupted
+JAR_SHA1=`sha1sum $JAR_FILE | cut -d' ' -f1`
+echo "$JAR_FILE [SHA1: $JAR_SHA1]"
+
+if [ "$JAR_SHA1" != "$JAR_SHA1_EXPECTED" ]; then
+	echo "SHA1 hash mismatch [SHA1: $JAR_SHA1_EXPECTED]"
+	rm -vf "$JAR_FILE"
+	exit 1
+fi
