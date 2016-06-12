@@ -1,6 +1,7 @@
 # redirect donate.html
+redirect 302 /files/FileBot-setup.exe https://github.com/filebot/filebot-installer/releases/download/v1.0/FileBot-setup.exe
 redirect 302 /files/FileBot.app https://itunes.apple.com/us/app/filebot/id905384638?mt=12&uo=6&at=1l3vupy&ct=app
-redirect 302 /files/ https://app.filebot.net/download.php
+redirect 302 /files/ https://sourceforge.net/projects/filebot/files/
 redirect 302 /donate.html https://app.filebot.net/donate.php
 redirect 302 /manual.html https://www.filebot.net/forums/viewtopic.php?f=3&t=7#p7
 
