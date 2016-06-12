@@ -77,12 +77,19 @@ public class Main {
 			}
 
 			if (args.clearCache() || args.clearUserData()) {
+				// clear cache must be called manually
+				if (System.console() == null) {
+					System.err.println("`filebot -clear-cache` has been disabled due to abuse.");
+					System.exit(-1);
+				}
+
+				// clear persistent user preferences
 				if (args.clearUserData()) {
 					System.out.println("Reset preferences");
 					Settings.forPackage(Main.class).clear();
 				}
 
-				// clear preferences and cache
+				// clear caches
 				if (args.clearCache()) {
 					System.out.println("Clear cache");
 					for (File folder : getChildren(ApplicationFolder.Cache.getCanonicalFile(), FOLDERS)) {
