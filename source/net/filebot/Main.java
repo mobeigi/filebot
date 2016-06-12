@@ -80,7 +80,7 @@ public class Main {
 				// clear cache must be called manually
 				if (System.console() == null) {
 					System.err.println("`filebot -clear-cache` has been disabled due to abuse.");
-					System.exit(-1);
+					System.exit(1);
 				}
 
 				// clear persistent user preferences
@@ -169,7 +169,7 @@ public class Main {
 		} catch (CmdLineException e) {
 			// illegal arguments => print CLI error message
 			System.err.println(e.getMessage());
-			System.exit(-1);
+			System.exit(1);
 		} catch (Throwable e) {
 			// find root cause
 			while (e.getCause() != null) {
@@ -178,7 +178,7 @@ public class Main {
 
 			// unexpected error => dump stack
 			debug.log(Level.SEVERE, String.format("Error during startup: %s", e.getMessage()), e);
-			System.exit(-1);
+			System.exit(1);
 		}
 	}
 
