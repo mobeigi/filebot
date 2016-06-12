@@ -136,18 +136,10 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public void printException(Throwable t, boolean severe) {
-		Level level = severe ? Level.SEVERE : Level.WARNING;
-
-		// print full stacktrace in debug mode
-		if (debug.isLoggable(level)) {
-			debug.log(level, t, t::getMessage);
-			return;
-		}
-
 		if (severe) {
-			log.log(level, trace(t));
+			log.log(Level.SEVERE, trace(t));
 		} else {
-			log.log(level, t::getMessage);
+			log.log(Level.WARNING, t::getMessage);
 		}
 	}
 

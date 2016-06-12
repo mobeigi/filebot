@@ -174,7 +174,7 @@ omdb.each{ m ->
 			tmdb << row
 		}
 	} catch(IllegalArgumentException | FileNotFoundException e) {
-		printException(e, false)
+		printException(e)
 		def row = [sync, m[0].pad(7), 0, m[2], m[1]]
 		log.info "[BAD] Update ${m[0..2]}: $row"
 		tmdb << row
@@ -274,7 +274,7 @@ tvdb_updates.values().each{ update ->
 			}
 		}
 		catch(Throwable e) {
-			printException(e, false)
+			printException(e)
 			def data = [update.time, update.id, '', 0, 0]
 			tvdb.put(update.id, data)
 			log.info "[BAD] Update $update => $data"
