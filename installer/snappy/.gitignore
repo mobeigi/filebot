@@ -6,4 +6,5 @@ snap
 oracle-java
 
 *.jar
+*.so
 *.snap

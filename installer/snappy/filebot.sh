@@ -7,6 +7,7 @@ export PATH=$JAVA_HOME/jre/bin:$PATH
 
 export LD_LIBRARY_PATH=$JAVA_HOME/jre/lib/$SNAP_ARCH/jli:$JAVA_HOME/jre/lib/$SNAP_ARCH:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=$SNAP/usr/lib/$ARCH/gtk-2.0/2.10.0/engines:$SNAP/usr/lib/$ARCH/gtk-2.0/modules:$SNAP/usr/lib/$ARCH/pulseaudio:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$SNAP/filebot/lib/$SNAP_ARCH:$LD_LIBRARY_PATH
 
 export GDK_PIXBUF_MODULEDIR=$SNAP/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0
 export GDK_PIXBUF_MODULE_FILE=$SNAP/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders.cache

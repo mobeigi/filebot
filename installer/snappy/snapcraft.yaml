@@ -18,6 +18,7 @@ parts:
     files:
       filebot.sh: bin/filebot
       FileBot.jar: filebot/FileBot.jar
+      lib7-Zip-JBinding.so: filebot/lib/amd64/lib7-Zip-JBinding.so
   oracle-java:
     plugin: copy
     files:
