@@ -1,8 +1,9 @@
-oracle-java
-
 parts
-snap
 stage
+prime
+snap
+
+oracle-java
 
 *.jar
 *.snap
