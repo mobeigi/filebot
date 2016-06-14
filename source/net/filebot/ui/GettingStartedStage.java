@@ -94,7 +94,7 @@ public class GettingStartedStage {
 			}
 		});
 
-		stage.setTitle("🚀 Loading …");
+		stage.setTitle("Loading …");
 		stage.setScene(new Scene(webview, webview.getPrefWidth(), webview.getPrefHeight(), Color.BLACK));
 
 		// force black background while page is loading
