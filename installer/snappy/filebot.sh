@@ -19,8 +19,6 @@ export GTK_PATH=$SNAP/usr/lib/x86_64-linux-gnu/gtk-2.0/2.10.0
 export GTK_MODULES=
 export GTK2_MODULES=
 
-# export GIO_MODULE_DIR=$SNAP/usr/lib/$ARCH/gio/modules
-export GSETTINGS_SCHEMA_DIR=$SNAP/usr/share/glib-2.0/schemas
 export XKB_CONFIG_ROOT=$SNAP/usr/share/X11/xkb
 
 export XDG_CONFIG_DIRS=$SNAP/usr/xdg:$SNAP/etc/xdg:$XDG_CONFIG_DIRS
@@ -34,7 +32,8 @@ export LIBGL_DRIVERS_PATH=$SNAP/usr/lib/$ARCH/dri
 
 # export JAVA_TOOL_OPTIONS=-javaagent:$SNAP/usr/share/java/jayatanaag.jar
 # export JAVA_OPTS=-Dsun.java2d.opengl=True
-# export JAVA_OPTS=-Dsun.java2d.xrender=True
+export JAVA_OPTS=-Dsun.java2d.xrender=True
+
 
 export APP_ROOT=$SNAP/filebot
 export APP_DATA=$SNAP_USER_DATA/data
@@ -71,8 +70,34 @@ if [ ! -e $GDK_PIXBUF_MODULE_FILE ]; then
   $SNAP/usr/lib/$ARCH/gdk-pixbuf-2.0/gdk-pixbuf-query-loaders > $GDK_PIXBUF_MODULE_FILE
 fi
 
+# Gio modules and cache
+export GIO_MODULE_DIR=$XDG_CACHE_HOME/gio-modules
+
+if [ ! -d $GIO_MODULE_DIR ]; then
+  mkdir -p $GIO_MODULE_DIR
+  ln -sf $SNAP/usr/lib/$ARCH/gio/modules/*.so $GIO_MODULE_DIR
+  $SNAP/usr/lib/$ARCH/glib-2.0/gio-querymodules $GIO_MODULE_DIR
+fi
+
 # Keep an array of data dirs, for looping through them
 IFS=':' read -r -a data_dirs_array <<< "$XDG_DATA_DIRS"
+
+# Setup compiled gsettings schema
+GS_SCHEMA_DIR=$XDG_DATA_HOME/glib-2.0/schemas
+
+if [ ! -d $GS_SCHEMA_DIR ]; then
+  mkdir -p $GS_SCHEMA_DIR
+  for d in "${data_dirs_array[@]}"; do
+    if [ -d "$d/glib-2.0/schemas" ]; then
+      # hack for empty system schemas dir
+      if [ "$d" != "/usr/share/" ]; then
+        ln -sf $d/glib-2.0/schemas/* $GS_SCHEMA_DIR
+      fi
+    fi
+  done
+
+  $SNAP/usr/lib/$ARCH/glib-2.0/glib-compile-schemas $GS_SCHEMA_DIR
+fi
 
 # Icon themes cache
 if [ ! -d $XDG_DATA_HOME/icons ]; then
@@ -90,7 +115,7 @@ if [ ! -d $XDG_DATA_HOME/icons ]; then
 fi
 
 
-
+cd "$SNAP_USER_DATA"
 
 
 java -Duser.home="$SNAP_USER_DATA" -Djava.library.path="$LD_LIBRARY_PATH" -Djna.library.path="$LD_LIBRARY_PATH" -Dunixfs=false -DuseGVFS=true -DuseExtendedFileAttributes=true -DuseCreationDate=false -Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Djava.net.useSystemProxies=true -Dapplication.update=skip -Dapplication.deployment=usc -Dnet.filebot.UserFiles.fileChooser=JavaFX -Dapplication.dir="$APP_DATA" -Dapplication.cache="$APP_CACHE/ehcache.disk.store" -Djava.io.tmpdir="$APP_CACHE/java.io.tmpdir" -Djava.util.prefs.userRoot="$APP_PREFS/user" -Djava.util.prefs.systemRoot="$APP_PREFS/system" -Dnet.filebot.AcoustID.fpcalc="$SNAP/usr/bin/fpcalc" $JAVA_OPTS -jar "$APP_ROOT/FileBot.jar" "$@"
