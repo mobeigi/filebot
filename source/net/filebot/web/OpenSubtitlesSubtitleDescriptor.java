@@ -3,7 +3,6 @@ package net.filebot.web;
 import static net.filebot.Logging.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URL;
@@ -13,7 +12,6 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.ZipException;
 
 import net.filebot.util.ByteBufferOutputStream;
 import net.filebot.util.FileUtilities;
@@ -144,11 +142,7 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor, Seri
 
 			// read and extract subtitle data
 			ByteBufferOutputStream buffer = new ByteBufferOutputStream(getLength());
-			try {
-				buffer.transferFully(new GZIPInputStream(in));
-			} catch (ZipException e) {
-				throw new IOException("Download-Quota has been exceeded: " + e.getMessage());
-			}
+			buffer.transferFully(new GZIPInputStream(in));
 			return buffer.getByteBuffer();
 		}
 	}
