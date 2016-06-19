@@ -57,7 +57,7 @@ public class ScriptShell {
 		return new GroovyScriptEngineImpl(classLoader);
 	}
 
-	public Object evaluate(final String script, final Bindings bindings) throws Throwable {
+	public Object evaluate(String script, Bindings bindings) throws Throwable {
 		try {
 			return engine.eval(script, bindings);
 		} catch (Throwable e) {
