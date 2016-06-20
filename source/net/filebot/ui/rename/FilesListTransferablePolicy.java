@@ -79,7 +79,7 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 						load(list, false, sink); // add paths from text file
 					}
 				} catch (Exception e) {
-					debug.log(Level.WARNING, e.getMessage(), e);
+					debug.log(Level.WARNING, "Failed to read paths from text file: " + e.getMessage());
 				}
 			}
 
