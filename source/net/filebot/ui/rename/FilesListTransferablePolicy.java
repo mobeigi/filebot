@@ -1,6 +1,6 @@
 package net.filebot.ui.rename;
 
-import static java.nio.charset.StandardCharsets.*;
+import static java.util.Arrays.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
@@ -8,10 +8,10 @@ import static net.filebot.util.FileUtilities.*;
 
 import java.awt.datatransfer.Transferable;
 import java.io.File;
-import java.nio.file.Files;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -69,14 +69,20 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 			// load file paths from text files
 			if (recursive && LIST_FILES.accept(f)) {
 				try {
-					List<File> list = Files.lines(f.toPath(), UTF_8).map(File::new).filter(it -> {
-						return it.isAbsolute() && it.exists();
-					}).collect(toList());
+					String[] lines = readTextFile(f).split("\\R");
+					List<File> paths = stream(lines).filter(s -> s.length() > 0).map(path -> {
+						try {
+							File file = new File(path);
+							return file.isAbsolute() && file.exists() ? file : null;
+						} catch (Exception e) {
+							return null; // ignore invalid file paths
+						}
+					}).filter(Objects::nonNull).collect(toList());
 
-					if (list.isEmpty()) {
+					if (paths.isEmpty()) {
 						sink.add(f); // treat as simple text file
 					} else {
-						load(list, false, sink); // add paths from text file
+						load(paths, false, sink); // add paths from text file
 					}
 				} catch (Exception e) {
 					debug.log(Level.WARNING, "Failed to read paths from text file: " + e.getMessage());
