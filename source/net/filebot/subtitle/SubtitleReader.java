@@ -28,8 +28,7 @@ public abstract class SubtitleReader implements Iterator<SubtitleElement>, Close
 			try {
 				current = readNext();
 			} catch (Exception e) {
-				// log and ignore
-				debug.warning(format("Failed to read %s subtitles: %s", getFormatName(), e.getMessage()));
+				debug.warning(format("%s: %s", getFormatName(), e.getMessage())); // log and ignore
 			}
 		}
 

@@ -1,8 +1,9 @@
 
 package net.filebot.subtitle;
 
+import static java.util.Arrays.*;
+
 import java.text.DateFormat;
-import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -30,11 +31,12 @@ public class SubStationAlphaReader extends SubtitleReader {
 
 	private void readFormat() throws Exception {
 		// read format line (e.g. Format: Marked, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text)
-		String[] event = scanner.nextLine().split(":", 2);
+		String line = scanner.nextLine();
+		String[] event = line.split(":", 2);
 
 		// sanity check
 		if (!event[0].equals("Format"))
-			throw new InputMismatchException("Illegal format header: " + Arrays.toString(event));
+			throw new InputMismatchException("Illegal format header: " + line);
 
 		// read columns
 		format = event[1].split(",");
@@ -44,7 +46,7 @@ public class SubStationAlphaReader extends SubtitleReader {
 			format[i] = format[i].trim().toLowerCase();
 		}
 
-		List<String> lookup = Arrays.asList(format);
+		List<String> lookup = asList(format);
 		formatIndexStart = lookup.indexOf("start");
 		formatIndexEnd = lookup.indexOf("end");
 		formatIndexText = lookup.indexOf("text");
@@ -71,9 +73,9 @@ public class SubStationAlphaReader extends SubtitleReader {
 		// read next dialogue line
 		String[] event = scanner.nextLine().split(":", 2);
 
-		// sanity check
-		if (!event[0].equals("Dialogue"))
-			throw new InputMismatchException("Illegal dialogue event: " + Arrays.toString(event));
+		// ignore non-dialog lines
+		if (event.length < 2 || !event[0].equals("Dialogue"))
+			return null;
 
 		// extract information
 		String[] values = event[1].split(",", format.length);
