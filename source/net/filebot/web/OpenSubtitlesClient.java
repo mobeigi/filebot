@@ -223,7 +223,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 					debug.log(Level.SEVERE, "Failed to compute hash", e);
 				}
 			} else {
-				// debug dummy files, e.g. {hash: 1ed67c43e4a3b09f, size: 992272721}
+				// debug dummy files, e.g. { "hash":"ca8395374fad4b83", "size":639511378 }
 				try {
 					Map<?, ?> json = asMap(readJson(readTextFile(f)));
 					if (json != null) {
