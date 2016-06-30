@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.URL;
 import java.text.CollationKey;
 import java.text.Collator;
 import java.util.ArrayList;
@@ -1207,47 +1206,28 @@ public class MediaDetection {
 		return names;
 	}
 
-	public static Set<Integer> grepImdbId(CharSequence text) {
+	public static List<Integer> grepImdbId(CharSequence text) {
 		// scan for imdb id patterns like tt1234567
-		Matcher imdbMatch = Pattern.compile("(?<!\\p{Alnum})tt(\\d{7})(?!\\p{Alnum})", Pattern.CASE_INSENSITIVE).matcher(text);
-		Set<Integer> collection = new LinkedHashSet<Integer>();
-
-		while (imdbMatch.find()) {
-			collection.add(Integer.parseInt(imdbMatch.group(1)));
-		}
-
-		return collection;
+		Pattern imdbId = Pattern.compile("(?<!\\p{Alnum})tt(\\d{7})(?!\\p{Alnum})", Pattern.CASE_INSENSITIVE);
+		return streamMatches(text, imdbId, m -> m.group(1)).map(Integer::new).collect(toList());
 	}
 
-	public static Set<Integer> grepTheTvdbId(CharSequence text) {
+	public static List<Integer> grepTheTvdbId(CharSequence text) {
 		// scan for thetvdb id patterns like http://www.thetvdb.com/?tab=series&id=78874&lid=14
-		Set<Integer> collection = new LinkedHashSet<Integer>();
-		for (String token : Pattern.compile("[\\s\"<>|]+").split(text)) {
-			try {
-				URL url = new URL(token);
-				if (url.getHost().contains("thetvdb") && url.getQuery() != null && url.getQuery().contains("tab=series")) {
-					Matcher m = Pattern.compile("\\Wid=(\\d+)").matcher(url.getQuery());
-					while (m.find()) {
-						collection.add(Integer.parseInt(m.group(1)));
-					}
-				}
-			} catch (Exception e) {
-				debug.finest(e::toString);
-			}
-		}
-		return collection;
+		Pattern tvdbUrl = Pattern.compile("http[s]?://www.thetvdb.com/[?]tab=series&id=(\\d+)", Pattern.CASE_INSENSITIVE);
+		return streamMatches(text, tvdbUrl, m -> m.group(1)).map(Integer::new).collect(toList());
 	}
 
 	public static Movie grepMovie(File nfo, MovieIdentificationService resolver, Locale locale) throws Exception {
-		String contents = new String(readFile(nfo), "UTF-8");
-		int imdbid = grepImdbId(contents).iterator().next();
-		return resolver.getMovieDescriptor(new Movie(imdbid), locale);
+		String text = readTextFile(nfo);
+		int imdbId = grepImdbId(text).get(0);
+		return resolver.getMovieDescriptor(new Movie(imdbId), locale);
 	}
 
 	public static SeriesInfo grepSeries(File nfo, Locale locale) throws Exception {
-		String contents = new String(readFile(nfo), "UTF-8");
-		int thetvdbid = grepTheTvdbId(contents).iterator().next();
-		return WebServices.TheTVDB.getSeriesInfo(thetvdbid, locale);
+		String text = readTextFile(nfo);
+		int tvdbId = grepTheTvdbId(text).get(0);
+		return WebServices.TheTVDB.getSeriesInfo(tvdbId, locale);
 	}
 
 	public static List<SearchResult> getProbableMatches(String query, Collection<? extends SearchResult> options, boolean alias, boolean strict) {

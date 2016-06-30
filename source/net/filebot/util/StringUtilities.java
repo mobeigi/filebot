@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Spliterators.AbstractSpliterator;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -54,7 +55,11 @@ public final class StringUtilities {
 	}
 
 	public static Stream<String> streamMatches(CharSequence s, Pattern pattern) {
-		return stream(new MatcherSpliterator(pattern.matcher(s)), false).map(MatchResult::group);
+		return streamMatches(s, pattern, MatchResult::group);
+	}
+
+	public static <T> Stream<T> streamMatches(CharSequence s, Pattern pattern, Function<MatchResult, T> mapper) {
+		return stream(new MatcherSpliterator(pattern.matcher(s)), false).map(mapper);
 	}
 
 	public static boolean find(String s, Pattern pattern) {

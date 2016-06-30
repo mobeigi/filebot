@@ -26,4 +26,14 @@ public class MediaDetectionTest {
 		assertEquals("[]", MediaDetection.detectSeriesNames(singleton(new File("Movie/LOTR.2001.AVC-1080")), false, Locale.ENGLISH).toString());
 	}
 
+	@Test
+	public void grepImdbId() throws Exception {
+		assertEquals("[499549]", MediaDetection.grepImdbId("@see http://www.imdb.com/title/tt0499549/").toString());
+	}
+
+	@Test
+	public void grepTheTvdbId() throws Exception {
+		assertEquals("[78874]", MediaDetection.grepTheTvdbId("@see http://www.thetvdb.com/?tab=series&id=78874&lid=14").toString());
+	}
+
 }
