@@ -843,6 +843,11 @@ public class MediaBindingBean {
 		return null;
 	}
 
+	@Define("type")
+	public String getInfoObjectType() {
+		return infoObject.getClass().getSimpleName();
+	}
+
 	@Define("mime")
 	public List<String> getMediaType() throws Exception {
 		// format engine does not allow / in binding value
