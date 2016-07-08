@@ -30,6 +30,11 @@ JAR_URL="https://sourceforge.net/projects/filebot/files/filebot/HEAD/FileBot.jar
 JAR_SHA1_EXPECTED=`curl --retry 5 "$JAR_URL/list" | egrep -o "[a-z0-9]{40}"`
 JAR_SHA1=`sha1sum $JAR_FILE | cut -d' ' -f1`
 
+if [ -z "$JAR_SHA1_EXPECTED" ]; then
+	echo "SHA1 hash unknown"
+	exit 1
+fi
+
 if [ "$JAR_SHA1" == "$JAR_SHA1_EXPECTED" ]; then
 	echo "$JAR_FILE [SHA1: $JAR_SHA1]"
 	exit 0
