@@ -14,13 +14,15 @@ def dir_data    = "${dir_website}/data"
 new File(dir_data).mkdirs()
 
 // sort and check shared regex collections
+def dir_data_master = System.getProperty('net.filebot.data.master', 'https://raw.githubusercontent.com/filebot/data/master')
+
 ['add-series-alias.txt', 
  'exclude-blacklist.txt', 
  'query-blacklist.txt', 
  'release-groups.txt', 
  'series-mappings.txt'
 ].each{
-	def input = new URL("https://raw.githubusercontent.com/filebot/data/master/${it}")
+	def input = new URL(dir_data_master + '/' + it)
 	def output = new File("${dir_data}/${it}")
 
 	log.fine "Fetch $input"
