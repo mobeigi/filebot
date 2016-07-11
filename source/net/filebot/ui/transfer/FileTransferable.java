@@ -124,7 +124,7 @@ public class FileTransferable implements Transferable {
 						// try handle other GVFS URI schemes
 						try {
 							if (useGVFS()) {
-								file = GVFS.getPathForURI(uri);
+								file = GVFS.getDefaultVFS().getPathForURI(uri);
 							}
 						} catch (LinkageError error) {
 							debug.log(Level.WARNING, "Unable to resolve GVFS URI", error);
