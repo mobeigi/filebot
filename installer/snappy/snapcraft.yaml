@@ -10,7 +10,7 @@ architectures: [amd64]
 apps:
   filebot:
     command: bin/filebot
-    plugs: [home, network, network-bind, unity7, gsettings, opengl, pulseaudio]
+    plugs: [home, network, network-bind, unity7, x11, opengl, pulseaudio]
 
 parts:
   filebot:
@@ -19,10 +19,12 @@ parts:
       filebot.sh: bin/filebot
       FileBot.jar: filebot/FileBot.jar
       lib7-Zip-JBinding.so: filebot/lib/amd64/lib7-Zip-JBinding.so
+
   oracle-java:
     plugin: copy
     files:
       oracle-java: oracle-java
+
   packages:
     plugin: nil
     stage-packages:
@@ -32,7 +34,6 @@ parts:
     - light-themes
     - libcanberra-gtk-module
     - jayatana
-    - gvfs
     - unity-gtk2-module
     - overlay-scrollbar-gtk2
     - libmediainfo0v5
