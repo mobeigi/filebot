@@ -218,10 +218,10 @@ class RenameAction extends AbstractAction {
 
 			try {
 				if (renameMap.containsKey(source))
-					throw new IllegalArgumentException("Duplicate source file: " + source.getPath());
+					throw new IllegalArgumentException("Duplicate input path: " + source.getPath());
 
 				if (destinationFiles.contains(destination))
-					throw new IllegalArgumentException("Conflict detected: " + mapping.getValue().getPath());
+					throw new IllegalArgumentException("Duplicate output path: " + mapping.getValue());
 
 				if (destination.exists() && !resolve(mapping.getKey(), mapping.getValue()).equals(mapping.getKey()))
 					throw new IllegalArgumentException("File already exists: " + mapping.getValue().getPath());
