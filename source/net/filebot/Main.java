@@ -56,6 +56,7 @@ import net.filebot.ui.transfer.FileTransferable;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.TeePrintStream;
 import net.filebot.util.ui.SwingEventBus;
+import net.filebot.win.WinAppUtilities;
 import net.miginfocom.swing.MigLayout;
 
 public class Main {
@@ -229,7 +230,7 @@ public class Main {
 
 		// configure main window
 		if (isMacApp()) {
-			// Mac OS X specific configuration
+			// Mac specific configuration
 			MacAppUtilities.initializeApplication();
 			MacAppUtilities.setWindowCanFullScreen(frame);
 			MacAppUtilities.setDefaultMenuBar(FileBotMenuBar.createHelp());
@@ -242,8 +243,12 @@ public class Main {
 				frame.setJMenuBar(FileBotMenuBar.createHelp());
 			}
 			frame.setIconImages(ResourceManager.getApplicationIcons());
+		} else if (isWindowsApp()) {
+			// Windows specific configuration
+			WinAppUtilities.setAppUserModelID("net.filebot.FileBot"); // support Windows 7 taskbar behaviours
+			frame.setIconImages(ResourceManager.getApplicationIcons());
 		} else {
-			// Windows / Linux specific configuration
+			// generic Linux/FreeBSD/Solaris configuration
 			frame.setIconImages(ResourceManager.getApplicationIcons());
 		}
 

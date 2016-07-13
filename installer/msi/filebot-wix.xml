@@ -32,11 +32,13 @@
 						<File Id='filebot.launcher.exe' Name='filebot.launcher.exe' Source='filebot.launcher.exe' KeyPath='yes'>
 							<Shortcut Id="shortcut.menu.filebot" Directory="ProgramMenuDir" Name="FileBot" Description="The ultimate TV Renamer and Subtitle Downloader" WorkingDirectory='INSTALLDIR' Icon="icon.ico" Advertise="no">
 								<ShortcutProperty Key="System.AppUserModel.ID" Value="net.filebot.FileBot" />
-								<ShortcutProperty Key="System.AppUserModel.RelaunchCommand" Value="[INSTALLDIR]filebot.launcher.exe" />
-								<ShortcutProperty Key="System.AppUserModel.RelaunchDisplayNameResource" Value="FileBot" />
 							</Shortcut>
-							<Shortcut Id="shortcut.desktop" Directory="DesktopFolder" Name="FileBot" Description="The ultimate TV Renamer and Subtitle Downloader" WorkingDirectory='INSTALLDIR' Icon="icon.ico" Advertise="no" />
-							<Shortcut Id="shortcut.sendto" Directory="SendToFolder" Name="FileBot" Description="The ultimate TV Renamer and Subtitle Downloader" WorkingDirectory='INSTALLDIR' Icon="icon.ico" Advertise="no" />
+							<Shortcut Id="shortcut.desktop" Directory="DesktopFolder" Name="FileBot" Description="The ultimate TV Renamer and Subtitle Downloader" WorkingDirectory='INSTALLDIR' Icon="icon.ico" Advertise="no">
+								<ShortcutProperty Key="System.AppUserModel.ID" Value="net.filebot.FileBot" />
+							</Shortcut>
+							<Shortcut Id="shortcut.sendto" Directory="SendToFolder" Name="FileBot" Description="The ultimate TV Renamer and Subtitle Downloader" WorkingDirectory='INSTALLDIR' Icon="icon.ico" Advertise="no">
+								<ShortcutProperty Key="System.AppUserModel.ID" Value="net.filebot.FileBot" />
+							</Shortcut>
 						</File>
 						<File Id='filebot.platform.launcher.exe' Name='filebot.platform.launcher.exe' Source='filebot.platform.launcher.exe'>
 							<Shortcut Id="shortcut.menu.filebot.platform" Directory="ProgramMenuDir" Name="FileBot (platform)" Description="Launch FileBot with platform-independent configuration" WorkingDirectory='INSTALLDIR' Icon="icon.ico" IconIndex="0" Advertise="no" />

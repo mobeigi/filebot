@@ -90,6 +90,10 @@ public final class Settings {
 		return isApplicationDeployment("mas", "usc");
 	}
 
+	public static boolean isWindowsApp() {
+		return isApplicationDeployment("msi");
+	}
+
 	public static boolean isUbuntuApp() {
 		return isApplicationDeployment("usc");
 	}
