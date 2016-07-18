@@ -14,6 +14,7 @@ import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
@@ -319,6 +320,17 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		}, mapping(it -> {
 			return getString(it, "title");
 		}, toList())));
+	}
+
+	public List<Movie> discover(LocalDate startDate, LocalDate endDate, Locale locale) throws Exception {
+		Object json = request("discover/movie?primary_release_date.gte=" + startDate + "&primary_release_date.lte=" + endDate + "&sort_by=popularity.desc", emptyMap(), locale, REQUEST_LIMIT);
+
+		return streamJsonObjects(json, "results").map(it -> {
+			String title = getString(it, "title");
+			int year = getStringValue(it, "release_date", SimpleDate::parse).getYear();
+			int id = getInteger(it, "id");
+			return new Movie(title, year, 0, id);
+		}).collect(toList());
 	}
 
 	protected Object request(String resource, Map<String, Object> parameters, Locale locale, FloodLimit limit) throws Exception {

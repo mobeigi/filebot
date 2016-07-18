@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 
 import java.net.URL;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -111,6 +112,15 @@ public class TMDbClientTest {
 		assertEquals(null, p.getDepartment());
 		assertEquals("0", p.getOrder().toString());
 		assertEquals("http://image.tmdb.org/t/p/original/B7VTVtnKyFk0AtYjEbqzBQlPec.jpg", p.getImage().toString());
+	}
+
+	@Test
+	public void discoverPeriod() throws Exception {
+		Movie m = db.discover(LocalDate.parse("2014-09-15"), LocalDate.parse("2014-10-22"), Locale.ENGLISH).get(0);
+
+		assertEquals("Big Hero 6", m.getName());
+		assertEquals(2014, m.getYear());
+		assertEquals(177572, m.getTmdbId());
 	}
 
 	@Ignore
