@@ -133,9 +133,8 @@ if (_args.mode == /no-index/) {
 
 
 // BUILD moviedb index
-def omdb = []
-new File('omdbMovies.txt').eachLine('Windows-1252'){
-	def line = it.split(/\t/)
+def omdb = new TreeMap()
+('omdbMovies.txt' as File).splitEachLine(/\t/, 'Windows-1252'){ line ->
 	if (line.length > 11 && line[0] ==~ /\d+/ && line[3] ==~ /\d{4}/) {
 		def imdbid = line[1].substring(2).toInteger()
 		def name = line[2].replaceAll(/\s+/, ' ').trim()
@@ -146,18 +145,23 @@ new File('omdbMovies.txt').eachLine('Windows-1252'){
 		def votes = tryQuietly{ line[13].replaceAll(/\D/, '').toInteger() } ?: 0
 
 		if (!(genres =~ /Short/ || votes <= 100 || rating <= 2) && ((year >= 1970 && (runtime =~ /(\d.h)|(\d{2,3}.min)/ || votes >= 1000)) || (year >= 1950 && votes >= 20000))) {
-			omdb << [imdbid.pad(7), name, year]
+			omdb[imdbid] = [imdbid.pad(7), name, year]
 		}
 	}
 }
-omdb = omdb.findAll{ (it[0] as int) <= 9999999 && isValidMovieName(it[1]) }
+('recent-movies.txt' as File).splitEachLine(/\t/, 'UTF-8'){ line ->
+		def imdbid = line[1].toInteger()
+		def year = line[2].toInteger()
+		def name = line[3]
+		omdb[imdbid] = [imdbid.pad(7), name, year]
+}
 
 
 def tmdb_txt = new File('tmdb.txt')
 def tmdb_index = csv(tmdb_txt, '\t', 1, [0..-1])
 
 def tmdb = []
-omdb.each{ m ->
+omdb.values().findAll{ (it[0] as int) <= 9999999 && isValidMovieName(it[1]) }.each{ m ->
 	def sync = System.currentTimeMillis()
 	if (tmdb_index.containsKey(m[0]) && (sync - tmdb_index[m[0]][0].toLong()) < ((m[2].toInteger() < 2000 ? 360 : 120) * 24 * 60 * 60 * 1000L) ) {
 		tmdb << tmdb_index[m[0]]
