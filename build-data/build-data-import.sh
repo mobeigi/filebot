@@ -26,5 +26,3 @@ fetch osdb.txt 'http://www.opensubtitles.org/addons/export_movie.php' +5
 
 fetch anime-list.xml 'https://raw.githubusercontent.com/ScudLee/anime-lists/master/anime-list.xml' +5
 fetch anime-movieset-list.xml 'https://raw.githubusercontent.com/ScudLee/anime-lists/master/anime-movieset-list.xml' +5
-
-echo 'DONE'
