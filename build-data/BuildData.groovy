@@ -184,7 +184,7 @@ omdb.each{ m ->
 }
 tmdb*.join('\t').join('\n').saveAs(tmdb_txt)
 
-movies = tmdb.findResults{
+def movies = tmdb.findResults{
 	def ity = it[1..3] // imdb id, tmdb id, year
 	def names = getNamePermutations(it[4..-1]).findAll{ isValidMovieName(it) }
 	if (ity[0].toInteger() > 0 && ity[1].toInteger() > 0 && names.size() > 0)

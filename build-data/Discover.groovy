@@ -1,15 +1,30 @@
 #!/usr/bin/env filebot -script
 
 def recentMoviesFile = new File('recent-movies.txt')
-def recentMoviesIndex = (recentMoviesFile.exists() ? recentMoviesFile.readLines('UTF-8') : []) as TreeSet
+def recentMoviesIndex = new TreeMap()
 
-def toDate = LocalDate.now()
-def fromDate = LocalDate.now().minus(Period.ofDays(30))
-
-TheMovieDB.discover(fromDate, toDate, Locale.ENGLISH).each{ m ->
-	if (recentMoviesIndex.add([m.tmdbId.pad(6), m.year, m.name].join('\t'))) {
-		println m
+if (recentMoviesFile.exists()) {
+	recentMoviesFile.splitEachLine('\t', 'UTF-8') { line ->
+		recentMoviesIndex.put(line[0] as int, line)
 	}
 }
 
-recentMoviesIndex.join('\n').saveAs(recentMoviesFile)
+def toDate = LocalDate.now()
+def fromDate = LocalDate.now().minus(Period.ofDays(30))
+def locale = Locale.ENGLISH
+
+TheMovieDB.discover(fromDate, toDate, locale).each{ m ->
+	if (!recentMoviesIndex.containsKey(m.tmdbId)) {
+		def i = TheMovieDB.getMovieInfo(m, locale, false)
+
+		if (i.imdbId == null)
+			return
+
+		def row = [i.id.pad(6), i.imdbId.pad(7), i.released.year as String, i.name]
+		println row
+
+		recentMoviesIndex.put(row[0] as int, row)
+	}
+}
+
+recentMoviesIndex.values()*.join('\t').join('\n').saveAs(recentMoviesFile)
