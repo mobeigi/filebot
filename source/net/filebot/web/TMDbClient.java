@@ -323,7 +323,22 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 	}
 
 	public List<Movie> discover(LocalDate startDate, LocalDate endDate, Locale locale) throws Exception {
-		Object json = request("discover/movie?primary_release_date.gte=" + startDate + "&primary_release_date.lte=" + endDate + "&sort_by=popularity.desc", emptyMap(), locale, REQUEST_LIMIT);
+		Map<String, Object> parameters = new LinkedHashMap<String, Object>(3);
+		parameters.put("primary_release_date.gte", startDate);
+		parameters.put("primary_release_date.lte", endDate);
+		parameters.put("sort_by", "popularity.desc");
+		return discover(parameters, locale);
+	}
+
+	public List<Movie> discover(int year, Locale locale) throws Exception {
+		Map<String, Object> parameters = new LinkedHashMap<String, Object>(2);
+		parameters.put("primary_release_year", year);
+		parameters.put("sort_by", "vote_count.desc");
+		return discover(parameters, locale);
+	}
+
+	public List<Movie> discover(Map<String, Object> parameters, Locale locale) throws Exception {
+		Object json = request("discover/movie", parameters, locale, REQUEST_LIMIT);
 
 		return streamJsonObjects(json, "results").map(it -> {
 			String title = getString(it, "title");

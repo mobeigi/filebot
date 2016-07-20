@@ -123,6 +123,15 @@ public class TMDbClientTest {
 		assertEquals(177572, m.getTmdbId());
 	}
 
+	@Test
+	public void discoverBestOfYear() throws Exception {
+		Movie m = db.discover(2015, Locale.ENGLISH).get(0);
+
+		assertEquals("Mad Max: Fury Road", m.getName());
+		assertEquals(2015, m.getYear());
+		assertEquals(76341, m.getTmdbId());
+	}
+
 	@Ignore
 	@Test
 	public void floodLimit() throws Exception {
