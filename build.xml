@@ -787,7 +787,7 @@
 	</target>
 
 
-	<target name="deploy-website">
+	<target name="deploy-website" description="Upload website resources to filebot.net">
 		<!-- copy static website resources -->
 		<copy todir="${dir.dist}/website" preservelastmodified="yes" verbose="yes">
 			<fileset dir="${dir.website}">
