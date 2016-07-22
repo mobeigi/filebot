@@ -707,6 +707,11 @@ public class MediaBindingBean {
 		return getEpisodeList().stream().filter(e -> getSeasonNumber().equals(e.getSeason()) && e.getAirdate() != null).map(e -> e.getAirdate().getYear()).sorted().distinct().collect(toList());
 	}
 
+	@Define("sc")
+	public Integer getSeasonCount() throws Exception {
+		return getEpisodeList().stream().map(Episode::getSeason).filter(Objects::nonNull).max(Integer::compare).get();
+	}
+
 	@Define("localize")
 	public Object getLocalizedInfoObject() throws Exception {
 		return new DynamicBindings(key -> {
