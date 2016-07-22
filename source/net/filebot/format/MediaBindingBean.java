@@ -698,8 +698,13 @@ public class MediaBindingBean {
 	}
 
 	@Define("episodelist")
-	public Object getEpisodeList() throws Exception {
+	public List<Episode> getEpisodeList() throws Exception {
 		return WebServices.getEpisodeListProvider(getSeriesInfo().getDatabase()).getEpisodeList(getSeriesInfo().getId(), SortOrder.forName(getSeriesInfo().getOrder()), new Locale(getSeriesInfo().getLanguage()));
+	}
+
+	@Define("sy")
+	public List<Integer> getSeasonYears() throws Exception {
+		return getEpisodeList().stream().filter(e -> getSeasonNumber().equals(e.getSeason()) && e.getAirdate() != null).map(e -> e.getAirdate().getYear()).sorted().distinct().collect(toList());
 	}
 
 	@Define("localize")
