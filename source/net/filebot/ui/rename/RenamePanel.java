@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 import javax.swing.AbstractAction;
@@ -417,7 +418,7 @@ public class RenamePanel extends JComponent {
 
 		// create actions for match popup episode list completion
 		for (EpisodeListProvider db : WebServices.getEpisodeListProviders()) {
-			actionPopup.add(new AutoCompleteAction(db.getName(), db.getIcon(), new EpisodeListMatcher(db, db == WebServices.AniDB)));
+			actionPopup.add(new AutoCompleteAction(db.getName(), db.getIcon(), () -> new EpisodeListMatcher(db, db == WebServices.AniDB)));
 		}
 
 		actionPopup.addSeparator();
@@ -425,18 +426,18 @@ public class RenamePanel extends JComponent {
 
 		// create action for movie name completion
 		for (MovieIdentificationService it : WebServices.getMovieIdentificationServices()) {
-			actionPopup.add(new AutoCompleteAction(it.getName(), it.getIcon(), new MovieMatcher(it)));
+			actionPopup.add(new AutoCompleteAction(it.getName(), it.getIcon(), () -> new MovieMatcher(it)));
 		}
 
 		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("Music Mode:"));
 		for (MusicIdentificationService it : WebServices.getMusicIdentificationServices()) {
-			actionPopup.add(new AutoCompleteAction(it.getName(), it.getIcon(), new MusicMatcher(it)));
+			actionPopup.add(new AutoCompleteAction(it.getName(), it.getIcon(), () -> new MusicMatcher(it)));
 		}
 
 		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("Smart Mode:"));
-		actionPopup.add(new AutoCompleteAction("Autodetect", ResourceManager.getIcon("action.auto"), new AutoDetectMatcher()));
+		actionPopup.add(new AutoCompleteAction("Autodetect", ResourceManager.getIcon("action.auto"), AutoDetectMatcher::new));
 
 		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("Options:"));
@@ -651,7 +652,7 @@ public class RenamePanel extends JComponent {
 		private Preset preset;
 
 		public ApplyPresetAction(Preset preset) {
-			super(preset.getName(), ResourceManager.getIcon("script.go"), preset.getAutoCompleteMatcher());
+			super(preset.getName(), ResourceManager.getIcon("script.go"), preset::getAutoCompleteMatcher);
 			this.preset = preset;
 		}
 
@@ -767,10 +768,12 @@ public class RenamePanel extends JComponent {
 
 	protected class AutoCompleteAction extends AbstractAction {
 
-		protected final AutoCompleteMatcher matcher;
+		protected final Supplier<AutoCompleteMatcher> matcher;
 
-		public AutoCompleteAction(String name, Icon icon, AutoCompleteMatcher matcher) {
+		public AutoCompleteAction(String name, Icon icon, Supplier<AutoCompleteMatcher> matcher) {
 			super(name, icon);
+
+			// create matcher when required
 			this.matcher = matcher;
 
 			// disable action while episode list matcher is working
@@ -801,7 +804,7 @@ public class RenamePanel extends JComponent {
 		}
 
 		@Override
-		public void actionPerformed(final ActionEvent evt) {
+		public void actionPerformed(ActionEvent evt) {
 			// clear names list
 			renameModel.values().clear();
 
@@ -821,7 +824,7 @@ public class RenamePanel extends JComponent {
 
 				@Override
 				protected List<Match<File, ?>> doInBackground() throws Exception {
-					List<Match<File, ?>> matches = matcher.match(remainingFiles, strict, order, locale, autodetection, getWindow(RenamePanel.this));
+					List<Match<File, ?>> matches = matcher.get().match(remainingFiles, strict, order, locale, autodetection, getWindow(RenamePanel.this));
 
 					// remove matched files
 					for (Match<File, ?> match : matches) {
