@@ -34,14 +34,12 @@ public final class EpisodeUtilities {
 	public static Episode getEpisodeByAbsoluteNumber(Episode e, EpisodeListProvider service, SortOrder order) throws Exception {
 		// e.g. match AniDB episode to TheTVDB episode
 		Set<String> seriesNames = getLenientSeriesNameSet(e);
-
-		SeriesInfo seriesInfo = e.getSeriesInfo();
-		Locale locale = new Locale(seriesInfo.getLanguage());
+		Locale locale = new Locale(e.getSeriesInfo().getLanguage());
 
 		// episode may be a multi-episode
 		List<Episode> multiEpisode = getMultiEpisodeList(e);
 
-		for (SearchResult series : service.search(seriesInfo.getName(), locale)) {
+		for (SearchResult series : service.search(e.getSeriesName(), locale)) {
 			// sanity check
 			if (!series.getEffectiveNames().stream().anyMatch(seriesNames::contains)) {
 				continue;
