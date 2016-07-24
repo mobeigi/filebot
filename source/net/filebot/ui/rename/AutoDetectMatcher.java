@@ -32,7 +32,7 @@ class AutoDetectMatcher implements AutoCompleteMatcher {
 
 	private AutoCompleteMatcher movie = new MovieMatcher(TheMovieDB);
 	private AutoCompleteMatcher episode = new EpisodeListMatcher(TheTVDB, false);
-	private AutoCompleteMatcher anime = new EpisodeListMatcher(AniDB, false);
+	private AutoCompleteMatcher anime = new EpisodeListMatcher(AniDB, true);
 	private AutoCompleteMatcher music = new MusicMatcher(MediaInfoID3, AcoustID);
 
 	@Override
