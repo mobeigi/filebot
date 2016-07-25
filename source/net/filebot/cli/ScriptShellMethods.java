@@ -279,6 +279,10 @@ public class ScriptShellMethods {
 		return Normalization.normalizePunctuation(self);
 	}
 
+	public static String stripReleaseInfo(String self) {
+		return MediaDetection.stripReleaseInfo(self, false);
+	}
+
 	// Web and File IO helpers
 
 	public static ByteBuffer fetch(URL self) throws IOException {
