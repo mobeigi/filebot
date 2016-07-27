@@ -1,10 +1,11 @@
 package net.filebot.mediainfo;
 
+import static java.nio.charset.StandardCharsets.*;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
@@ -35,20 +36,20 @@ public class MediaInfo implements Closeable {
 		String path = file.getCanonicalPath();
 
 		// on Mac files that contain accents cannot be opened via JNA WString file paths due to encoding differences so we use the buffer interface instead for these files
-		if (Platform.isMac() && !StandardCharsets.US_ASCII.newEncoder().canEncode(path)) {
+		if (Platform.isMac() && !US_ASCII.newEncoder().canEncode(path)) {
 			try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
 				if (openViaBuffer(raf)) {
-					throw new IOException("Failed to initialize media info buffer: " + path);
+					return this;
 				}
+				throw new IOException("Failed to initialize media info buffer: " + path);
 			}
 		}
 
-		if (0 == MediaInfoLibrary.INSTANCE.Open(handle, new WString(path))) {
-			// failed to open file
-			throw new IOException("Failed to open media file: " + path);
+		// open via file path
+		if (0 != MediaInfoLibrary.INSTANCE.Open(handle, new WString(path))) {
+			return this;
 		}
-
-		return this;
+		throw new IOException("Failed to open media file: " + path);
 	}
 
 	private boolean openViaBuffer(RandomAccessFile f) throws IOException {
