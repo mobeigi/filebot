@@ -8,9 +8,9 @@ import static net.filebot.Settings.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.FileUtilities.*;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -36,7 +36,7 @@ import net.filebot.web.SubtitleSearchResult;
 import net.filebot.web.TMDbClient;
 import net.filebot.web.TMDbTVClient;
 import net.filebot.web.TVMazeClient;
-import net.filebot.web.TheTVDBClient;
+import net.filebot.web.TheTVDBClientV1;
 import net.filebot.web.VideoHashSubtitleService;
 import one.util.streamex.StreamEx;
 
@@ -108,7 +108,7 @@ public final class WebServices {
 
 	public static final ExecutorService requestThreadPool = Executors.newCachedThreadPool();
 
-	public static class TheTVDBClientWithLocalSearch extends TheTVDBClient {
+	public static class TheTVDBClientWithLocalSearch extends TheTVDBClientV1 {
 
 		public TheTVDBClientWithLocalSearch(String apikey) {
 			super(apikey);
@@ -133,9 +133,9 @@ public final class WebServices {
 			Future<List<SearchResult>> localSearch = requestThreadPool.submit(() -> localIndex.get().search(query));
 
 			// combine alias names into a single search results, and keep API search name as primary name
-			Collection<SearchResult> result = StreamEx.of(apiSearch.get()).append(localSearch.get()).groupingBy(SearchResult::getId, collectingAndThen(toList(), group -> merge(group.get(0), group))).values();
+			Map<Integer, SearchResult> results = StreamEx.of(apiSearch.get()).append(localSearch.get()).groupingBy(SearchResult::getId, collectingAndThen(toList(), group -> merge(group.get(0), group)));
 
-			return sortBySimilarity(result, singleton(query), getSeriesMatchMetric());
+			return sortBySimilarity(results.values(), singleton(query), getSeriesMatchMetric());
 		}
 	}
 
