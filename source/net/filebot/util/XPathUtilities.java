@@ -51,7 +51,11 @@ public final class XPathUtilities {
 	 * @return text content of the child node or null if no child with the given name was found
 	 */
 	public static Node getChild(String nodeName, Node parentNode) {
-		return stream(parentNode.getChildNodes()).filter(n -> nodeName.equals(n.getNodeName())).findFirst().orElse(null);
+		if (parentNode == null) {
+			return null;
+		} else {
+			return stream(parentNode.getChildNodes()).filter(n -> nodeName.equals(n.getNodeName())).findFirst().orElse(null);
+		}
 	}
 
 	public static Node[] getChildren(String nodeName, Node parentNode) {
