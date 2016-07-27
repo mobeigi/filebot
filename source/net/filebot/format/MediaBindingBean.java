@@ -91,6 +91,7 @@ public class MediaBindingBean {
 		return infoObject;
 	}
 
+	@Define("file")
 	public File getFileObject() {
 		return mediaFile;
 	}
@@ -864,7 +865,7 @@ public class MediaBindingBean {
 		return SLASH.splitAsStream(MediaTypes.getDefault().getMediaType(getExtension())).collect(toList());
 	}
 
-	@Define("file")
+	@Define("f")
 	public File getMediaFile() {
 		// make sure file is not null, and that it is an existing file
 		if (mediaFile == null) {
