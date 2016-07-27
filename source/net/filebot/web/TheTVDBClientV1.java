@@ -17,8 +17,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.stream.Stream;
@@ -311,7 +311,17 @@ public class TheTVDBClientV1 extends AbstractEpisodeListProvider implements Artw
 
 	}
 
-	public SeriesInfo getSeriesInfoByIMDbID(int imdbid, Locale locale) throws Exception {
+	@Override
+	public TheTVDBSeriesInfo getSeriesInfo(SearchResult searchResult, Locale language) throws Exception {
+		return (TheTVDBSeriesInfo) super.getSeriesInfo(searchResult, language);
+	}
+
+	@Override
+	public TheTVDBSeriesInfo getSeriesInfo(int id, Locale language) throws Exception {
+		return getSeriesInfo(new SearchResult(id, null), language);
+	}
+
+	public TheTVDBSeriesInfo getSeriesInfoByIMDbID(int imdbid, Locale locale) throws Exception {
 		return getSeriesInfo(lookupByIMDbID(imdbid, locale), locale);
 	}
 
