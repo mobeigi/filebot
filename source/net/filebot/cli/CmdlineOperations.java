@@ -38,8 +38,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Predicate;
 import java.util.logging.Level;
-import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -670,13 +670,15 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	@Override
 	public List<File> getSubtitles(Collection<File> files, String db, String query, String languageName, String output, String csn, String format, boolean strict) throws Exception {
-		final Language language = getLanguage(languageName);
-		final Pattern databaseFilter = (db != null) ? Pattern.compile(db, Pattern.CASE_INSENSITIVE) : null;
-		final SubtitleNaming naming = getSubtitleNaming(format);
+		Language language = getLanguage(languageName);
+		SubtitleNaming naming = getSubtitleNaming(format);
+
+		// use all or only selected subtitle services
+		Predicate<Datasource> serviceFilter = service -> db == null ? true : db.contains(service.getName()) || db.contains(service.getIdentifier());
 
 		// when rewriting subtitles to target format an encoding must be defined, default to UTF-8
-		final Charset outputEncoding = csn != null ? Charset.forName(csn) : output != null ? UTF_8 : null;
-		final SubtitleFormat outputFormat = (output != null) ? getSubtitleFormatByName(output) : null;
+		Charset outputEncoding = csn != null ? Charset.forName(csn) : output != null ? UTF_8 : null;
+		SubtitleFormat outputFormat = output != null ? getSubtitleFormatByName(output) : null;
 
 		// ignore anything that is not a video
 		files = filter(files, VIDEO_FILES);
@@ -697,7 +699,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		// lookup subtitles by hash
 		for (VideoHashSubtitleService service : getVideoHashSubtitleServices(language.getLocale())) {
-			if (remainingVideos.isEmpty() || (databaseFilter != null && !databaseFilter.matcher(service.getName()).matches()) || !requireLogin(service)) {
+			if (remainingVideos.isEmpty() || !serviceFilter.test(service) || !requireLogin(service)) {
 				continue;
 			}
 
@@ -713,7 +715,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		for (SubtitleProvider service : getSubtitleProviders()) {
-			if (strict || remainingVideos.isEmpty() || (databaseFilter != null && !databaseFilter.matcher(service.getName()).matches()) || !requireLogin(service)) {
+			if (strict || remainingVideos.isEmpty() || !serviceFilter.test(service) || !requireLogin(service)) {
 				continue;
 			}
 
