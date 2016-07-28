@@ -15,7 +15,6 @@ import javax.script.SimpleBindings;
 
 import net.filebot.MediaTypes;
 import net.filebot.StandardRenameAction;
-import net.filebot.WebServices;
 
 public class ArgumentProcessor {
 
