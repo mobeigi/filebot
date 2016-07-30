@@ -42,7 +42,7 @@ public enum NamingStandard {
 
 		// TV Series
 		String episode = String.join(" - ", e.getSeriesName(), EpisodeFormat.SeasonEpisode.formatS00E00(e), episodeTitle);
-		String season = e.getSeason() == null ? e.getSpecial() == null ? null : getSpecialFolder(e.getSeason()) : getSeasonFolder(e.getSeason());
+		String season = e.getSpecial() != null ? getSpecialFolder(e.getSeason()) : e.getSeason() != null ? getSeasonFolder(e.getSeason()) : null;
 		return path(getSeriesFolder(), e.getSeriesName(), season, episode);
 	}
 
