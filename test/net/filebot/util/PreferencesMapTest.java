@@ -1,7 +1,6 @@
 
 package net.filebot.util;
 
-
 import static org.junit.Assert.*;
 
 import java.awt.Color;
@@ -18,7 +17,6 @@ import org.junit.Test;
 import net.filebot.util.PreferencesMap.SerializableAdapter;
 import net.filebot.util.PreferencesMap.SimpleAdapter;
 
-
 public class PreferencesMapTest {
 
 	private static Preferences root;
@@ -26,7 +24,6 @@ public class PreferencesMapTest {
 	private static Preferences numbers;
 	private static Preferences temp;
 	private static Preferences sequence;
-
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -52,12 +49,10 @@ public class PreferencesMapTest {
 		temp = root.node("temp");
 	}
 
-
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		root.removeNode();
 	}
-
 
 	@Test
 	public void get() {
@@ -65,7 +60,6 @@ public class PreferencesMapTest {
 
 		assertEquals("Firefly", stringMap.get("1"));
 	}
-
 
 	@Test
 	public void put() {
@@ -76,7 +70,6 @@ public class PreferencesMapTest {
 		assertEquals("snake", temp.get("key", null));
 	}
 
-
 	@Test
 	public void remove() throws Exception {
 		Map<String, Integer> map = PreferencesMap.map(numbers, SimpleAdapter.forClass(Integer.class));
@@ -85,7 +78,6 @@ public class PreferencesMapTest {
 
 		assertFalse(Arrays.asList(numbers.keys()).contains("A"));
 	}
-
 
 	@Test
 	public void clear() throws Exception {
@@ -98,7 +90,6 @@ public class PreferencesMapTest {
 		assertTrue(temp.keys().length == 0);
 	}
 
-
 	@Test
 	public void containsKey() {
 		temp.put("name", "kaya");
@@ -107,7 +98,6 @@ public class PreferencesMapTest {
 
 		assertTrue(map.containsKey("name"));
 	}
-
 
 	@Test
 	public void values() {
@@ -121,14 +111,12 @@ public class PreferencesMapTest {
 		assertTrue(list.contains(3));
 	}
 
-
 	@Test
 	public void containsValue() {
 		Map<String, String> map = PreferencesMap.map(strings);
 
 		assertTrue(map.containsValue("Firefly"));
 	}
-
 
 	@Test
 	public void entrySet() {
@@ -142,13 +130,6 @@ public class PreferencesMapTest {
 		assertEquals(5, numbers.getInt("M", -1));
 	}
 
-
-	@Test(expected = NumberFormatException.class)
-	public void adapterException() {
-		PreferencesMap.map(strings, SimpleAdapter.forClass(Integer.class)).values();
-	}
-
-
 	@Test
 	public void containsKeyWithObjectKey() throws Exception {
 		Map<String, String> map = PreferencesMap.map(strings);
@@ -156,13 +137,11 @@ public class PreferencesMapTest {
 		assertFalse(map.containsKey(new Object()));
 	}
 
-
 	public void getWithObjectKey() throws Exception {
 		Map<String, String> map = PreferencesMap.map(strings);
 
 		assertEquals(null, map.get(new Object()));
 	}
-
 
 	@Test
 	public void serializableAdapter() {

@@ -31,8 +31,8 @@ public class SeriesNameMatcherTest {
 
 	@Test
 	public void matchBeforeSeasonEpisodePattern() {
-		assertEquals("The Test", matcher.matchByEpisodeIdentifier("The Test - 1x01"));
-		assertEquals("Mushishi", matcher.matchByEpisodeIdentifier("Mushishi_-_1x01_-_The_Green_Gathering"));
+		assertEquals("The Test -", matcher.matchByEpisodeIdentifier("The Test - 1x01"));
+		assertEquals("Mushishi_-_", matcher.matchByEpisodeIdentifier("Mushishi_-_1x01_-_The_Green_Gathering"));
 	}
 
 	@Test

@@ -21,8 +21,8 @@ public class EpisodeMetricsTest {
 		File fY1T1 = new File("Doctor Who (2005)/Doctor Who - 1x01 - Rose");
 		File fY2T2 = new File("Doctor Who (1963)/Doctor Who - 1x01 - An Unearthly Child");
 
-		assertEquals(2.0 / 3, SubstringFields.getSimilarity(eY1T1, fY1T1), 0.01);
-		assertEquals(1.0 / 3, SubstringFields.getSimilarity(eY1T1, fY2T2), 0.01);
+		assertEquals(3.0 / 3, SubstringFields.getSimilarity(eY1T1, fY1T1), 0.01);
+		assertEquals(2.0 / 3, SubstringFields.getSimilarity(eY1T1, fY2T2), 0.01);
 	}
 
 	@Test

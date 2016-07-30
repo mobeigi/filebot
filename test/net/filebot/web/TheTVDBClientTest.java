@@ -30,13 +30,10 @@ public class TheTVDBClientTest {
 
 	@Test
 	public void searchGerman() throws Exception {
-		List<SearchResult> results = db.search("Buffy the Vampire Slayer", Locale.GERMAN);
-
-		assertEquals(2, results.size());
+		List<SearchResult> results = db.search("Buffy", Locale.GERMAN);
 
 		SearchResult first = results.get(0);
-
-		assertEquals("Buffy the Vampire Slayer", first.getName());
+		assertEquals("Buffy", first.getName());
 		assertEquals(70327, first.getId());
 	}
 
@@ -134,7 +131,7 @@ public class TheTVDBClientTest {
 		assertEquals("tt0934814", it.getImdbId());
 		assertEquals("Friday", it.getAirsDayOfWeek());
 		assertEquals("8:00 PM", it.getAirsTime());
-		assertEquals(1000, it.getOverview().length(), 100);
+		assertEquals(500, it.getOverview().length(), 100);
 		assertEquals("http://thetvdb.com/banners/graphical/80348-g26.jpg", it.getBannerUrl().toString());
 	}
 
