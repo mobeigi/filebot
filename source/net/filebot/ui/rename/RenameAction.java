@@ -183,7 +183,7 @@ class RenameAction extends AbstractAction {
 		try {
 			for (File file : deleteFiles) {
 				if (file.exists()) {
-					NativeRenameAction.trash(file);
+					StandardRenameAction.trash(file);
 				}
 			}
 		} catch (Throwable e) {

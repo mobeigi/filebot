@@ -1,10 +1,16 @@
 package net.filebot;
 
+import static net.filebot.Logging.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.attribute.BasicFileAttributes;
+
+import com.apple.eio.FileManager;
+import com.sun.jna.Platform;
+import com.sun.jna.platform.FileUtils;
 
 import net.filebot.util.FileUtilities;
 
@@ -149,29 +155,52 @@ public enum StandardRenameAction implements RenameAction {
 
 		// reverse symlink
 		if (currentAttr.isSymbolicLink() && !originalAttr.isSymbolicLink()) {
-			NativeRenameAction.trash(current);
+			trash(current);
 			return original;
 		}
 
 		// reverse keeplink
 		if (!currentAttr.isSymbolicLink() && originalAttr.isSymbolicLink()) {
-			NativeRenameAction.trash(original);
+			trash(original);
 			return FileUtilities.moveRename(current, original);
 		}
 
 		// reverse copy / hardlink
 		if (currentAttr.isRegularFile() && originalAttr.isRegularFile()) {
-			NativeRenameAction.trash(current);
+			trash(current);
 			return original;
 		}
 
 		// reverse folder copy
 		if (currentAttr.isDirectory() && originalAttr.isDirectory()) {
-			NativeRenameAction.trash(original);
+			trash(original);
 			return FileUtilities.moveRename(current, original);
 		}
 
 		throw new IllegalArgumentException(String.format("Cannot revert file: %s => %s", current, original));
+	}
+
+	public static void trash(File file) throws IOException {
+		// use system trash if possible
+		try {
+			if (Platform.isMac()) {
+				// use com.apple.eio package on OS X platform
+				if (FileManager.moveToTrash(file)) {
+					return;
+				}
+			} else if (FileUtils.getInstance().hasTrash()) {
+				// use com.sun.jna.platform package on Windows and Linux
+				FileUtils.getInstance().moveToTrash(new File[] { file });
+				return;
+			}
+		} catch (Exception e) {
+			debug.warning(e::toString);
+		}
+
+		// delete permanently if necessary
+		if (file.exists()) {
+			FileUtilities.delete(file);
+		}
 	}
 
 }
