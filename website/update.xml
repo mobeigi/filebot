@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
-	<name>FileBot 4.7</name>
-	<revision>3923</revision>
+	<name>FileBot 4.7.1</name>
+	<revision>4126</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 4.7</b><br>
+		<b>FileBot 4.7.1</b><br>
 		This release features:<br>
-		+ Support for Smart Mode in Rename mode<br>
-		+ Improved List mode<br>
-		+ Lots of UI improvements<br>
-		+ Lots of new bindings<br>
-		+ Lots of bugfixes and internal optimizations<br>
+		+ Improved auto-delete behaviour<br>
+		+ Improved {plex} binding<br>
+		+ Lots of bugfixes<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=3709&p=20648#p20648]]></discussion>
+	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=3709&p=22453#p22453]]></discussion>
 	<download><![CDATA[http://www.filebot.net/#download]]></download>
 </update>
