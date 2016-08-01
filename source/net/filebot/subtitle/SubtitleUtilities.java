@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
@@ -170,7 +171,7 @@ public final class SubtitleUtilities {
 
 					if (searchBySeries) {
 						// search for subtitles for the given files
-						List<SxE> numbers = files.stream().flatMap(f -> parseEpisodeNumber(f, true).stream()).distinct().collect(toList());
+						List<SxE> numbers = files.stream().map(f -> parseEpisodeNumber(f, true)).filter(Objects::nonNull).flatMap(Collection::stream).distinct().collect(toList());
 
 						if (numbers.size() == 1) {
 							episodeFilter = numbers.stream().map(sxe -> new int[] { sxe.season, sxe.episode }).toArray(int[][]::new); // season-and-episode filter

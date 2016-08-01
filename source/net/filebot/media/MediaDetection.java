@@ -730,11 +730,8 @@ public class MediaDetection {
 		if (similarity >= 1) {
 			return true;
 		} else if (similarity >= 0.5 && e.getSeason() == null && e.getEpisode() != null && e.getSpecial() == null) {
-			for (SxE it : parseEpisodeNumber(f, false)) {
-				if (it.season < 0 && it.episode == e.getEpisode()) {
-					return true;
-				}
-			}
+			List<SxE> numbers = parseEpisodeNumber(f, false);
+			return numbers != null && numbers.stream().anyMatch(it -> it.season < 0 && it.episode == e.getEpisode());
 		}
 		return false;
 	}
