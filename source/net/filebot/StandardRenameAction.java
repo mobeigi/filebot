@@ -36,17 +36,17 @@ public enum StandardRenameAction implements RenameAction {
 
 		@Override
 		public File rename(File from, File to) throws Exception {
-			File destionation = FileUtilities.resolveDestination(from, to);
+			File dest = FileUtilities.resolveDestination(from, to);
 
 			// move file and the create a symlink to the new location via NIO.2
 			try {
-				Files.move(from.toPath(), destionation.toPath());
-				FileUtilities.createRelativeSymlink(from, destionation, true);
+				Files.move(from.toPath(), dest.toPath());
+				FileUtilities.createRelativeSymlink(from, dest, true);
 			} catch (LinkageError e) {
 				throw new Exception("Unsupported Operation: move, createSymbolicLink");
 			}
 
-			return destionation;
+			return dest;
 		}
 	},
 
@@ -54,11 +54,11 @@ public enum StandardRenameAction implements RenameAction {
 
 		@Override
 		public File rename(File from, File to) throws Exception {
-			File destionation = FileUtilities.resolveDestination(from, to);
+			File dest = FileUtilities.resolveDestination(from, to);
 
 			// create symlink via NIO.2
 			try {
-				return FileUtilities.createRelativeSymlink(destionation, from, true);
+				return FileUtilities.createRelativeSymlink(dest, from, true);
 			} catch (LinkageError e) {
 				throw new Exception("Unsupported Operation: createSymbolicLink");
 			}
@@ -69,11 +69,11 @@ public enum StandardRenameAction implements RenameAction {
 
 		@Override
 		public File rename(File from, File to) throws Exception {
-			File destionation = FileUtilities.resolveDestination(from, to);
+			File dest = FileUtilities.resolveDestination(from, to);
 
 			// create hardlink via NIO.2
 			try {
-				return FileUtilities.createHardLinkStructure(destionation, from);
+				return FileUtilities.createHardLinkStructure(dest, from);
 			} catch (LinkageError e) {
 				throw new Exception("Unsupported Operation: createLink");
 			}
@@ -92,6 +92,26 @@ public enum StandardRenameAction implements RenameAction {
 		}
 	},
 
+	REFLINK {
+
+		@Override
+		public File rename(File from, File to) throws Exception {
+			File dest = FileUtilities.resolveDestination(from, to);
+
+			// reflink requires Linux and a filesystem that supports copy-on-write (e.g. btrfs)
+			ProcessBuilder process = new ProcessBuilder("cp", "--reflink", "--force", from.isDirectory() ? "--recursive" : "--no-target-directory", from.getPath(), dest.getPath());
+			process.directory(from.getParentFile());
+			process.inheritIO();
+
+			int exitCode = process.start().waitFor();
+			if (exitCode != 0) {
+				throw new IOException(String.format("reflink: %s failed with exit code %d", process.command(), exitCode));
+			}
+
+			return dest;
+		}
+	},
+
 	RENAME {
 
 		@Override
@@ -99,8 +119,9 @@ public enum StandardRenameAction implements RenameAction {
 			// rename only the filename
 			File dest = new File(from.getParentFile(), to.getName());
 
-			if (!from.renameTo(dest))
-				throw new IOException("Rename failed: " + dest);
+			if (!from.renameTo(dest)) {
+				throw new IOException("Failed to rename " + from + " to " + dest);
+			}
 
 			return dest;
 		}
