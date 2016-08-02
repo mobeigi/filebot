@@ -1221,9 +1221,8 @@ public class MediaDetection {
 	}
 
 	public static SeriesInfo grepSeries(File nfo, Locale locale) throws Exception {
-		String text = readTextFile(nfo);
-		int tvdbId = grepTheTvdbId(text).get(0);
-		return WebServices.TheTVDB.getSeriesInfo(tvdbId, locale);
+		List<Integer> tvdbId = grepTheTvdbId(readTextFile(nfo));
+		return tvdbId.isEmpty() ? null : WebServices.TheTVDB.getSeriesInfo(tvdbId.get(0), locale);
 	}
 
 	public static List<SearchResult> getProbableMatches(String query, Collection<? extends SearchResult> options, boolean alias, boolean strict) {
