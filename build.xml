@@ -305,7 +305,7 @@
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="jars.classpath" />
 		<property name="bundle" value="${title}_${version}-brew" />
 
-		<bundleapp minimumsystemversion="10.9" outputdirectory="${dir.dist}" executablename="FileBotAppLauncher" name="${bundle}" displayname="${title}" version="${revision}" shortversion="${version}" identifier="net.filebot.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} Reinhard Pointner" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
+		<bundleapp minimumsystemversion="10.9" outputdirectory="${dir.dist}" executablename="FileBotAppLauncher" name="${bundle}" displayname="${title} ${version}" version="${revision}" shortversion="${version}" identifier="net.filebot.app" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} Reinhard Pointner" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<arch name="x86_64" />
