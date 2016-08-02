@@ -6,6 +6,7 @@ import static net.filebot.Logging.*;
 import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.util.StringUtilities.*;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -286,7 +287,7 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	public void telnet(String host, int port, Closure<?> handler) throws IOException {
 		try (Socket socket = new Socket(host, port)) {
-			handler.call(new PrintStream(socket.getOutputStream(), true, "UTF-8"), new InputStreamReader(socket.getInputStream(), "UTF-8"));
+			handler.call(new PrintStream(socket.getOutputStream(), true, "UTF-8"), new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8")));
 		}
 	}
 
