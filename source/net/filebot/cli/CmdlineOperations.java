@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
@@ -384,8 +383,8 @@ public class CmdlineOperations implements CmdlineInterface {
 							}
 						}
 					}
-				} catch (NoSuchElementException e) {
-					log.warning("Failed to grep IMDbID: " + nfo.getName());
+				} catch (Exception e) {
+					log.log(Level.WARNING, "Failed to grep IMDbID: " + nfo.getName(), e);
 				}
 			}
 		} else {

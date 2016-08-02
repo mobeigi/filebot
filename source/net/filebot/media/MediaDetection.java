@@ -1216,9 +1216,8 @@ public class MediaDetection {
 	}
 
 	public static Movie grepMovie(File nfo, MovieIdentificationService resolver, Locale locale) throws Exception {
-		String text = readTextFile(nfo);
-		int imdbId = grepImdbId(text).get(0);
-		return resolver.getMovieDescriptor(new Movie(imdbId), locale);
+		List<Integer> imdbId = grepImdbId(readTextFile(nfo));
+		return imdbId.isEmpty() ? null : resolver.getMovieDescriptor(new Movie(imdbId.get(0)), locale);
 	}
 
 	public static SeriesInfo grepSeries(File nfo, Locale locale) throws Exception {

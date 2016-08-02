@@ -142,8 +142,8 @@ class MovieMatcher implements AutoCompleteMatcher {
 						}
 					}
 				}
-			} catch (NoSuchElementException e) {
-				debug.log(Level.WARNING, "Failed to grep IMDbID: " + nfo.getName());
+			} catch (Exception e) {
+				debug.log(Level.WARNING, "Failed to grep IMDbID: " + nfo.getName(), e);
 			}
 		}
 
