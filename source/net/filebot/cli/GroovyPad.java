@@ -35,9 +35,9 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.TextEditorPane;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
+import net.filebot.ApplicationFolder;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
-import net.filebot.Settings.ApplicationFolder;
 import net.filebot.util.TeePrintStream;
 
 public class GroovyPad extends JFrame {

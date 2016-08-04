@@ -1,7 +1,6 @@
 package net.filebot;
 
 import static net.filebot.Logging.*;
-import static net.filebot.Settings.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,10 +14,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
-import net.filebot.History.Element;
-
 import org.apache.commons.io.input.CloseShieldInputStream;
 import org.apache.commons.io.output.CloseShieldOutputStream;
+
+import net.filebot.History.Element;
 
 public final class HistorySpooler {
 

@@ -13,7 +13,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.Scanner;
 import java.util.logging.Level;
 
-import net.filebot.Settings.ApplicationFolder;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;

@@ -42,10 +42,10 @@ import java.util.stream.IntStream;
 
 import org.tukaani.xz.XZInputStream;
 
+import net.filebot.ApplicationFolder;
 import net.filebot.Cache;
 import net.filebot.CacheType;
 import net.filebot.Resource;
-import net.filebot.Settings.ApplicationFolder;
 import net.filebot.util.FileUtilities.RegexFileFilter;
 import net.filebot.util.SystemProperty;
 import net.filebot.web.Movie;
@@ -220,12 +220,11 @@ public class ReleaseInfo {
 		if (volumeRoots == null) {
 			Set<File> volumes = new HashSet<File>();
 
-			File userHome = ApplicationFolder.UserHome.get();
+			File home = ApplicationFolder.UserHome.get();
 			List<File> roots = getFileSystemRoots();
 
 			// user root folder
-			volumes.add(userHome);
-			volumes.addAll(getChildren(userHome, FOLDERS));
+			volumes.add(home);
 
 			// Windows / Linux / Mac system roots
 			volumes.addAll(roots);
@@ -245,12 +244,12 @@ public class ReleaseInfo {
 
 			// Mac
 			if (isMacSandbox()) {
-				File sandboxUserHome = new File(System.getProperty("user.home"));
-
-				// e.g. ignore default Movie folder on Mac
-				for (File userFolder : getChildren(sandboxUserHome, FOLDERS)) {
-					volumes.add(new File(userHome, userFolder.getName()));
+				// e.g. ignore default Movie folder (user.home and real user home are different in the sandbox environment)
+				for (File userFolder : getChildren(new File(System.getProperty("user.home")), FOLDERS)) {
+					volumes.add(new File(home, userFolder.getName()));
 				}
+			} else {
+				volumes.addAll(getChildren(home, FOLDERS));
 			}
 
 			volumeRoots = unmodifiableSet(volumes);

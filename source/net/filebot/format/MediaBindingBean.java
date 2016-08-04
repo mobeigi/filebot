@@ -38,13 +38,13 @@ import java.util.regex.Pattern;
 
 import com.cedarsoftware.util.io.JsonWriter;
 
+import net.filebot.ApplicationFolder;
 import net.filebot.Cache;
 import net.filebot.CacheType;
 import net.filebot.Language;
 import net.filebot.MediaTypes;
 import net.filebot.MetaAttributeView;
 import net.filebot.Settings;
-import net.filebot.Settings.ApplicationFolder;
 import net.filebot.WebServices;
 import net.filebot.hash.HashType;
 import net.filebot.media.NamingStandard;

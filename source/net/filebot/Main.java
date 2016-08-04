@@ -40,7 +40,6 @@ import javax.swing.UIManager;
 import org.kohsuke.args4j.CmdLineException;
 import org.w3c.dom.Document;
 
-import net.filebot.Settings.ApplicationFolder;
 import net.filebot.cli.ArgumentBean;
 import net.filebot.cli.ArgumentProcessor;
 import net.filebot.format.ExpressionFormat;

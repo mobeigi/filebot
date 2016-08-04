@@ -1,7 +1,6 @@
 package net.filebot;
 
 import static net.filebot.Logging.*;
-import static net.filebot.util.FileUtilities.*;
 
 import java.awt.GraphicsEnvironment;
 import java.io.File;
@@ -191,79 +190,6 @@ public final class Settings {
 
 	public static File getApplicationFolder() {
 		return ApplicationFolder.AppData.get(); // added for script compatibility
-	}
-
-	public static enum ApplicationFolder {
-
-		AppData {
-
-			@Override
-			public File get() {
-				String appdata = System.getProperty("application.dir");
-
-				if (appdata != null) {
-					// use given $APP_DATA folder
-					return new File(appdata);
-				} else {
-					// use $HOME/.filebot as application data folder
-					return new File(System.getProperty("user.home"), ".filebot");
-				}
-			}
-		},
-
-		UserHome {
-
-			@Override
-			public File get() {
-				// The user.home of sandboxed applications will point to the application-specific container
-				if (isMacSandbox()) {
-					return new File("/Users", System.getProperty("user.name", "anonymous"));
-				}
-
-				// default user home
-				return new File(System.getProperty("user.home"));
-			}
-
-		},
-
-		Temp {
-
-			@Override
-			public File get() {
-				return new File(System.getProperty("java.io.tmpdir"));
-			}
-		},
-
-		Cache {
-
-			@Override
-			public File get() {
-				String cache = System.getProperty("application.cache");
-				if (cache != null) {
-					return new File(cache);
-				}
-
-				// default to $APP_DATA/cache
-				return AppData.resolve("cache");
-			}
-		};
-
-		public abstract File get();
-
-		public File resolve(String name) {
-			return new File(getCanonicalFile(), name);
-		}
-
-		public File getCanonicalFile() {
-			File path = get();
-			try {
-				return createFolders(path.getCanonicalFile());
-			} catch (Exception e) {
-				debug.log(Level.SEVERE, String.format("Failed to create application folder: %s => %s", this, path), e);
-				return path;
-			}
-		}
-
 	}
 
 	public static Settings forPackage(Class<?> type) {

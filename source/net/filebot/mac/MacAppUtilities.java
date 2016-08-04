@@ -170,7 +170,7 @@ public class MacAppUtilities {
 		return folder.isDirectory() && !folder.canRead();
 	}
 
-	public static boolean askUnlockFolders(final Window owner, final Collection<File> files) {
+	public static boolean askUnlockFolders(Window owner, Collection<File> files) {
 		return DropToUnlock.showUnlockFoldersDialog(owner, files);
 	}
 

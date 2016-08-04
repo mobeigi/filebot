@@ -21,7 +21,7 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
-import net.filebot.Settings.ApplicationFolder;
+import net.filebot.ApplicationFolder;
 import net.filebot.util.ExceptionUtilities;
 
 public class SecureCompiledScript extends CompiledScript {

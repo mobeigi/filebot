@@ -52,6 +52,7 @@ import com.google.common.eventbus.Subscribe;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.ListSelection;
 import ca.odell.glazedlists.swing.DefaultEventSelectionModel;
+import net.filebot.ApplicationFolder;
 import net.filebot.History;
 import net.filebot.HistorySpooler;
 import net.filebot.Language;

@@ -11,7 +11,7 @@ import java.util.logging.Level;
 
 import javax.script.ScriptException;
 
-import net.filebot.Settings.ApplicationFolder;
+import net.filebot.ApplicationFolder;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.similarity.Match;

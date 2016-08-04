@@ -118,7 +118,7 @@ public class DropToUnlock extends JList<File> {
 		}).filter(f -> f != null && isLockedFolder(f)).sorted().distinct().collect(Collectors.toList());
 	}
 
-	public static boolean showUnlockFoldersDialog(final Window owner, final Collection<File> files) {
+	public static boolean showUnlockFoldersDialog(Window owner, Collection<File> files) {
 		final List<File> model = getParentFolders(files);
 
 		// immediately return if there is nothing that needs to be unlocked
