@@ -33,7 +33,8 @@ public class FileBotMenuBar {
 
 		if (isMacSandbox()) {
 			help.addSeparator();
-			help.add(createLink("Where is FileBot Subtitles?", getApplicationProperty("link.subtitles.mas")));
+			help.add(createLink("How to install FileBot Subtitles?", getApplicationProperty("link.subtitles.mas")));
+			help.add(createLink("How to install FileBot Command Line Tools?", getApplicationProperty("link.console.mas")));
 		}
 
 		JMenuBar menuBar = new JMenuBar();
