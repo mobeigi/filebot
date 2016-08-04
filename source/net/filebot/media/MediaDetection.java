@@ -42,6 +42,7 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.filebot.ApplicationFolder;
 import net.filebot.Resource;
 import net.filebot.WebServices;
 import net.filebot.archive.Archive;
@@ -988,7 +989,7 @@ public class MediaDetection {
 	}
 
 	public static boolean isStructureRoot(File folder) throws Exception {
-		return isVolumeRoot(folder) || releaseInfo.getStructureRootPattern().matcher(folder.getName()).matches();
+		return isVolumeRoot(folder) || releaseInfo.getStructureRootPattern().matcher(folder.getName()).matches() || ApplicationFolder.UserHome.get().equals(folder.getParentFile());
 	}
 
 	public static File getStructureRoot(File file) throws Exception {
