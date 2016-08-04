@@ -403,27 +403,6 @@ div.screencast:hover .play {
 	left: 2em;
 }
 
-#bitcoinate {
-	float: right;
-	height: 0px;
-	position: relative;
-	right: 4px;
-	bottom: 14px;
-}
-
-#bitcoinate a img {
-	width: 16px;
-	height: 16px;
-}
-
-#donate {
-	float: left;
-	height: 0px;
-	position: relative;
-	bottom: 15px;
-	left: 6px;
-}
-
 .message.box {
 	background-color: #F5F5F5;
 	border-radius: 4px;

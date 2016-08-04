@@ -118,21 +118,6 @@
 					</p>
 				</div>
 
-				<div id="ubuntu" class="section deployment ubuntu" style="display:none">
-					<script type="text/javascript">
-						$(document).ready(function () {
-							if (navigator.userAgent.indexOf('Ubuntu') >= 0) {
-								$(".ubuntuappstore").show();
-							}
-						});
-					</script>
-					<div class="install button">
-						<a href="https://apps.ubuntu.com/cat/applications/filebot/" target="_blank">
-							<img width="200" height="60" src="images/ubuntu.button.png" />
-						</a>
-					</div>
-				</div>
-
 				<div id="macosx" class="section deployment macosx macappstore" style="display:none">
 					<script type="text/javascript">
 						$(document).ready(function () {
@@ -290,7 +275,6 @@
 					<h2>Download</h2>
 					<ul class="list">
 						<li class="macosx">Available on the <a href="https://itunes.apple.com/us/app/filebot/id905384638?mt=12&amp;uo=6&amp;at=1l3vupy&amp;ct=filebot2" target="itunes_store">Mac App Store</a></li>
-						<!-- <li class="ubuntu">Available on the <a target="_blank" href="https://apps.ubuntu.com/cat/applications/filebot/">Ubuntu Software Center</a></li> -->
 						<li class="macappstore" style="display:none">FileBot Subtitles for Mac OS X: <a target="_blank" href="http://www.filebot.net/forums/viewtopic.php?f=12&amp;t=3350">FileBot_Subtitles_Installer.pkg</a> <small class="comment">for everyone who purchased FileBot on the Mac App Store</small></li>
 						<li>Windows installer: <a target="_blank" href="https://app.filebot.net/files/FileBot-setup.exe">FileBot_@{version}-setup.exe</a></li>
 						<li>Debian packages: <a target="_blank" href="https://app.filebot.net/download.php?type=deb&amp;arch=i386&amp;version=@{version}">filebot_@{version}_i386.deb</a> or <a target="_blank" href="https://app.filebot.net/download.php?type=deb&amp;arch=amd64&amp;version=@{version}">filebot_@{version}_amd64.deb</a></li>
@@ -301,7 +285,6 @@
 							</ul>
 						</li>
 						<li>Windows package is available <a target="_blank" href="http://chocolatey.org/packages/filebot/">via Chocolatey</a></li>
-						<li>OS X package is available <a target="_blank" href="http://caskroom.io/">via Homebrew Cask</a> <small class="comment">for the command-line tools</small></li>
 						<li>Synology NAS package is available <a target="_blank" href="http://www.filebot.net/forums/viewtopic.php?f=3&amp;t=1802">via Package Center</a></li>
 						<li>All files and other versions are available on <a target="_blank" href="https://sourceforge.net/projects/filebot/files/">SourceForge.net</a></li>
 					</ul>
@@ -318,45 +301,15 @@
 					</p>
 				</div>
 			</div>
+
 			<div class="metrics">
 				<a href="https://sourceforge.net/projects/filebot/files/filebot/" target="_blank" rel="nofollow"><img src="https://img.shields.io/sourceforge/dm/filebot.svg"></a>
 				<a href="https://sourceforge.net/projects/filebot/files/filebot/" target="_blank" rel="nofollow"><img src="https://img.shields.io/sourceforge/dt/filebot.svg"></a>
 			</div>
+
 			<div class="footer">
 				<p>Hosted on <a href="http://sourceforge.net/projects/filebot/">sourceforge.net</a> | Creative Commons License: Attribution-NonCommercial-ShareAlike © @{tstamp.year}</p>
-				<div id="bitcoinate">
-					<script src="http://coinwidget.com/widget/coin.js"></script>
-					<script>
-					CoinWidgetCom.go({
-						wallet_address: "1AVGeP1ZTPxK1PjGRVmSXg4KbFxf1Fr43g"
-						, currency: "bitcoin"
-						, counter: "count"
-						, alignment: "ac"
-						, qrcode: true
-						, auto_show: false
-						, lbl_button: "Donate"
-						, lbl_address: "My Bitcoin Address:"
-						, lbl_count: "donations"
-						, lbl_amount: "BTC"
-					});
-					setTimeout(function(){
-						$('#bitcoinate a.COINWIDGETCOM_BUTTON_BITCOIN img').attr('src', 'images/money.png') // override with high-resolution BTC icon
-					}, 1000);
-					</script>
-				</div>
-				<div id="donate">
-					<a target="_blank" href="https://app.filebot.net/donate.php"><img src="images/support.donate.png" /></a>
-				</div>
 			</div>
 		</div>
-
-		<!-- FIX SCROLLING ISSUES CAUSED BY DYNAMICALLY CHANGES TO THE CONTENT BY JQUERY -->
-		<script type="text/javascript">
-			$(document).ready(function () {
-				if (window.location.hash) {
-					window.location.hash = window.location.hash
-				}
-			});
-		</script>
 	</body>
 </html>
