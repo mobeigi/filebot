@@ -115,7 +115,7 @@ public enum SupportDialog {
 		int renameCount = HistorySpooler.getInstance().getPersistentHistoryTotalSize();
 		int renameLimit = 1000;
 
-		// show donation / review reminders to power users (more than 2000 renames)
+		// show donation / review reminders to power users
 		if ((renameCount >= renameLimit && Math.random() >= 0.777) || (HistorySpooler.getInstance().getSessionHistory().totalSize() >= renameLimit)) {
 			if (isAppStore()) {
 				AppStoreReview.show(renameCount);
