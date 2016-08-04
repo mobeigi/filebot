@@ -54,10 +54,11 @@ public class ExpressionFormatFunctions {
 	}
 
 	public static Map<String, String> csv(String path) throws IOException {
+		Pattern[] delimiter = { TAB, SEMICOLON };
 		Map<String, String> map = new LinkedHashMap<String, String>();
 		streamLines(new File(path)).forEach(line -> {
-			for (Pattern delim : new Pattern[] { TAB, SEMICOLON }) {
-				String[] field = delim.split(line, 2);
+			for (Pattern d : delimiter) {
+				String[] field = d.split(line, 2);
 				if (field.length >= 2) {
 					map.put(field[0].trim(), field[1].trim());
 					break;
