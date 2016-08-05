@@ -505,6 +505,11 @@
 
 
 	<target name="snap" depends="update, fatjar">
+		<copy tofile="${dir.dist}/snappy/filebot/FileBot.jar" file="${path.fatjar}" />
+		<copy todir="${dir.dist}/snappy/filebot/lib/amd64">
+			<fileset dir="${dir.lib}/native/linux-amd64" excludes="fpcalc, libmediainfo.so" />
+		</copy>
+
 		<!-- copy files and resolve ant variables -->
 		<copy todir="${dir.dist}/snappy" overwrite="yes" encoding="UTF-8" verbose="true">
 			<fileset dir="${dir.installer}/snappy" />
@@ -514,11 +519,7 @@
 				</propertyset>
 			</filterset>
 		</copy>
-
-		<copy tofile="${dir.dist}/snappy/filebot/FileBot.jar" file="${path.fatjar}" />
-		<copy todir="${dir.dist}/snappy/filebot/lib/amd64">
-			<fileset dir="${dir.lib}/native/linux-amd64" />
-		</copy>
+		<chmod perm="+x" file="${dir.dist}/snappy/filebot/filebot.sh" verbose="yes" />
 
 		<exec dir="${dir.dist}/snappy" executable="snapcraft" failonerror="on">
 			<arg line="snap" />
