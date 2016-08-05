@@ -128,7 +128,7 @@
 	</target>
 
 
-	<target name="fatjar" depends="resolve, jar" description="Merge all class files into a single executable jar file">
+	<target name="fatjar" depends="resolve, jar" description="Build executable jar">
 		<jar destfile="${path.fatjar}" filesetmanifest="merge" duplicate="fail" index="yes">
 			<!-- include main jar -->
 			<zipfileset src="${dir.dist}/filebot.jar" />
@@ -301,7 +301,7 @@
 	</target>
 
 
-	<target name="appbundle" description="Build an OSX application bundle">
+	<target name="appbundle" description="Build Mac application bundle">
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="jars.classpath" />
 		<property name="bundle" value="${title}_${version}-brew" />
 
@@ -504,70 +504,7 @@
 	</target>
 
 
-	<target name="ubuntu-debsrc" depends="update, fatjar">
-		<property name="jre.version" value="jdk-8u92" />
-		<property name="jre.dir" value="${basedir}/jre" />
-
-		<property name="path.tarbin" location="${dir.dist}/filebot-${version}-r${revision}-tarbin.tar.gz" />
-		<property name="path.debsrc" location="${dir.dist}/filebot-${version}-r${revision}-debsrc.tar.gz" />
-		<property name="dir.debsrc" location="${dir.dist}/debian-source-package/filebot/filebot-${version}" />
-
-		<!-- collect binary content -->
-		<tar destfile="${path.tarbin}" compression="gzip" longfile="gnu">
-			<tarfileset fullpath="i386/filebot/FileBot.jar" file="${path.fatjar}" />
-			<tarfileset fullpath="amd64/filebot/FileBot.jar" file="${path.fatjar}" />
-
-			<tarfileset prefix="i386/filebot" dir="${dir.lib}/native/linux-i686" includes="*.so" />
-			<tarfileset prefix="amd64/filebot" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
-
-			<tarfileset prefix="i386/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
-			<tarfileset prefix="amd64/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
-
-			<tarfileset prefix="i386/filebot" dir="${dir.lib}/native/linux-i686" includes="fpcalc" filemode="755" />
-			<tarfileset prefix="amd64/filebot" dir="${dir.lib}/native/linux-amd64" includes="fpcalc" filemode="755" />
-
-			<tarfileset fullpath="i386/filebot/filebot.desktop" file="${dir.installer}/ubuntu/filebot.desktop" />
-			<tarfileset fullpath="amd64/filebot/filebot.desktop" file="${dir.installer}/ubuntu/filebot.desktop" />
-
-			<tarfileset fullpath="i386/filebot/filebot.svg" file="${dir.installer}/icons/icon.svg" />
-			<tarfileset fullpath="amd64/filebot/filebot.svg" file="${dir.installer}/icons/icon.svg" />
-
-			<!-- Include Java 8 JRE -->
-			<tarfileset prefix="i386/filebot/jre" dir="${jre.dir}/${jre.version}-linux-i586/jre" excludes="bin/**" />
-			<tarfileset prefix="i386/filebot/jre" dir="${jre.dir}/${jre.version}-linux-i586/jre" includes="bin/java" filemode="755" />
-			<tarfileset prefix="amd64/filebot/jre" dir="${jre.dir}/${jre.version}-linux-x64/jre" excludes="bin/**" />
-			<tarfileset prefix="amd64/filebot/jre" dir="${jre.dir}/${jre.version}-linux-x64/jre" includes="bin/java" filemode="755" />
-		</tar>
-
-		<!-- build debian source package for application binaries -->
-		<copy todir="${dir.debsrc}">
-			<fileset dir="${dir.installer}/ubuntu" includes="debian/**" />
-		</copy>
-		<untar src="${path.tarbin}" dest="${dir.debsrc}" compression="gzip" />
-
-		<!-- restore permissions -->
-		<chmod perm="755" type="file">
-			<fileset dir="${dir.debsrc}">
-				<include name="**/bin/**" />
-				<include name="**/fpcalc" />
-			</fileset>
-		</chmod>
-
-		<!-- debuild -S -->
-		<exec dir="${dir.debsrc}" executable="debuild" />
-
-		<!-- tar cvzf filebot-4.5.2-debsrc.tar.gz *.dsc *.changes *.tar.gz -->
-		<tar destfile="${path.debsrc}" compression="gzip">
-			<tarfileset dir="${dir.debsrc}/.." includes="*.dsc, *.changes, *.tar.*" />
-		</tar>
-
-		<!-- store this build in releases -->
-		<mkdir dir="${dir.release}" />
-		<copy todir="${dir.release}" file="${path.debsrc}" verbose="yes" />
-	</target>
-
-
-	<target name="deb" description="Build debian package for i686 and amd64">
+	<target name="deb" description="Build Debian Linux packages">
 		<taskdef name="deb" classname="com.googlecode.ant_deb_task.Deb" classpathref="jars.classpath" />
 		<antcall target="deb-arch">
 			<param name="arch" value="i686" />
@@ -600,7 +537,7 @@
 	</target>
 
 
-	<target name="ipkg" description="Build ipkg package">
+	<target name="ipkg" description="Build embedded Linux packages">
 		<taskdef name="deb" classname="com.googlecode.ant_deb_task.Deb" classpathref="jars.classpath" />
 
 		<!-- stage created .deb files in a temporary folder -->
@@ -617,7 +554,7 @@
 	</target>
 
 
-	<target name="msi" description="Build Windows Installer for x86 and x64">
+	<target name="msi" description="Build Windows Installer packages">
 		<antcall target="msi-arch">
 			<param name="arch" value="x86" />
 			<param name="libgcc_name" value="gcc_s_seh-1.dll" />
@@ -649,7 +586,7 @@
 	</target>
 
 
-	<target name="portable" description="Portable application package">
+	<target name="portable" description="Build portable package">
 		<mkdir dir="${dir.dist}/portable" />
 		<copy file="${path.fatjar}" tofile="${dir.dist}/portable/FileBot.jar" />
 		<copy todir="${dir.dist}/portable">
@@ -663,7 +600,7 @@
 	</target>
 
 
-	<target name="spk" description="Synology NAS package">
+	<target name="spk" description="Build Synology NAS package">
 		<taskdef name="spk" classname="net.filebot.ant.spk.PackageTask" classpathref="jars.classpath" />
 
 		<spk destdir="${dir.dist}" name="filebot" version="${version}" arch="noarch">
@@ -723,7 +660,7 @@
 	</target>
 
 
-	<target name="clean">
+	<target name="clean" description="Delete build folders">
 		<delete dir="${dir.dist}" />
 		<delete dir="${dir.build}" />
 	</target>
@@ -771,7 +708,7 @@
 	</target>
 
 
-	<target name="deploy-release" depends="stage-release" description="Upload to SourceForge.net FRS">
+	<target name="deploy-release" depends="stage-release" description="Upload release files to SourceForge.net FRS">
 		<scp todir="${deploy.release}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
 			<!-- make sure to upload README.md first -->
 			<fileset dir="${basedir.release}" includes="**/README.md">
@@ -787,7 +724,7 @@
 	</target>
 
 
-	<target name="deploy-website" description="Upload website resources to filebot.net">
+	<target name="deploy-website" description="Upload website resources">
 		<!-- copy static website resources -->
 		<copy todir="${dir.dist}/website" preservelastmodified="yes" verbose="yes">
 			<fileset dir="${dir.website}">
@@ -888,7 +825,7 @@
 	</target>
 
 
-	<target name="upload-data">
+	<target name="upload-data" description="Upload data files">
 		<scp todir="${deploy.website}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
 			<fileset dir="${dir.website}">
 				<include name="data/*.txt" />
@@ -901,13 +838,13 @@
 	</target>
 
 
-	<target name="deploy-beta-jar" depends="resolve, update, fatjar" description="Build and deploy fatjar for the latest revision">
+	<target name="deploy-beta-jar" depends="resolve, update, fatjar" description="Build and deploy the latest jar">
 		<scp file="${path.fatjar}" remoteTofile="${deploy.release}/HEAD/filebot-r${revision}.jar" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}" />
 		<scp file="${path.fatjar}" remoteTofile="${deploy.release}/HEAD/FileBot.jar" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}" />
 	</target>
 
 
-	<target name="deploy-beta-release">
+	<target name="deploy-beta-release" description="Build and deploy the latest release files">
 		<input addproperty="mark" message="Mark:" />
 		<antcall target="deploy-release">
 			<param name="dir.release" location="${basedir.release}/HEAD/${title}_${version}_${mark}" />
