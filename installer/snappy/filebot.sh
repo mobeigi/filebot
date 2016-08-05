@@ -1,15 +1,11 @@
 #!/bin/bash
 export LANG=C.UTF-8
-export ARCH=x86_64-linux-gnu
 
-export JAVA_HOME=$SNAP/oracle-java
-export PATH=$JAVA_HOME/jre/bin:$PATH
+export JAVA_HOME="$SNAP/usr/lib/jvm/java-8-openjdk-$SNAP_ARCH"
+# export JAVA_TOOL_OPTIONS="-javaagent:$SNAP/usr/share/java/jayatanaag.jar"
 
-export LD_LIBRARY_PATH=$JAVA_HOME/jre/lib/$SNAP_ARCH/jli:$JAVA_HOME/jre/lib/$SNAP_ARCH:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$SNAP/filebot/lib/$SNAP_ARCH:$LD_LIBRARY_PATH
-
-# export JAVA_TOOL_OPTIONS=-javaagent:$SNAP/usr/share/java/jayatanaag.jar
-# export JAVA_OPTS=-Dsun.java2d.xrender=True
+export PATH="$JAVA_HOME/jre/bin:$PATH"
+export LD_LIBRARY_PATH="$SNAP/filebot/lib/$SNAP_ARCH:$LD_LIBRARY_PATH"
 
 export APP_ROOT="$SNAP/filebot"
 export APP_DATA="$SNAP_USER_DATA/data"
