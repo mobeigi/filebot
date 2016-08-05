@@ -504,6 +504,28 @@
 	</target>
 
 
+	<target name="snap" description="Build Ubuntu Linux package">
+		<!-- copy files and resolve ant variables -->
+		<copy todir="${dir.dist}/snappy" overwrite="yes" encoding="UTF-8" verbose="true">
+			<fileset dir="${dir.installer}/snappy" />
+			<filterset begintoken="@{" endtoken="}">
+				<propertyset>
+					<propertyref builtin="all" />
+				</propertyset>
+			</filterset>
+		</copy>
+
+		<copy tofile="${dir.dist}/snappy/filebot/FileBot.jar" file="${path.fatjar}" />
+		<copy todir="${dir.dist}/snappy/filebot/lib/amd64">
+			<fileset dir="${dir.lib}/native/linux-amd64" />
+		</copy>
+
+		<exec dir="${dir.dist}/snappy" executable="snapcraft" failonerror="on">
+			<arg line="snap" />
+		</exec>
+	</target>
+
+
 	<target name="deb" description="Build Debian Linux packages">
 		<taskdef name="deb" classname="com.googlecode.ant_deb_task.Deb" classpathref="jars.classpath" />
 		<antcall target="deb-arch">
@@ -746,7 +768,6 @@
 		</copy>
 
 		<!-- copy files and resolve ant variables -->
-		<echo message="Replace Ant variables" />
 		<copy todir="${dir.dist}/website" overwrite="yes" encoding="UTF-8" verbose="true">
 			<fileset dir="${dir.website}">
 				<include name="*.html" />

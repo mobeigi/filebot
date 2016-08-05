@@ -1,7 +1,7 @@
 name: filebot
-version: 4.7.2~snap1
+version: @{version}_@{revision}
 summary: The ultimate TV and Movie Renamer / Subtitle Downloader
-description: FileBot is the ultimate tool for renaming your movies, tv shows or anime and even downloading subtitles. It's smart, streamlined for simplicity and just works. Putting the super-efficient UI aside, it's also got a full-featured command-line interface and scripting engine for all sorts of automation. Anything is possible.
+description: FileBot is the ultimate tool for organizing and renaming your movies, tv shows or anime, and music well as downloading subtitles and artwork. It's smart and just works.
 
 confinement: strict
 
@@ -16,9 +16,7 @@ parts:
   filebot:
     plugin: copy
     files:
-      filebot.sh: filebot/filebot.sh
-      FileBot.jar: filebot/FileBot.jar
-      lib7-Zip-JBinding.so: filebot/lib/amd64/lib7-Zip-JBinding.so
+      filebot: filebot
   java:
     plugin: nil
     stage-packages: [openjdk-8-jre, openjfx, jayatana]
