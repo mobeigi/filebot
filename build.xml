@@ -504,7 +504,7 @@
 	</target>
 
 
-	<target name="snap" description="Build Ubuntu Linux package">
+	<target name="snap" depends="update, fatjar">
 		<!-- copy files and resolve ant variables -->
 		<copy todir="${dir.dist}/snappy" overwrite="yes" encoding="UTF-8" verbose="true">
 			<fileset dir="${dir.installer}/snappy" />
