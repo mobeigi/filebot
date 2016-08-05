@@ -18,12 +18,15 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.CodingErrorAction;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -346,7 +349,13 @@ public final class WebRequest {
 			boolean printResponse = SystemProperty.of("net.filebot.web.WebRequest.log.response", Boolean::parseBoolean, Boolean.FALSE).get();
 
 			if (printResponse) {
-				return log + System.lineSeparator() + UTF_8.decode(data.duplicate()) + System.lineSeparator();
+				try {
+					CharBuffer textContent = UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT).decode(data.duplicate());
+					return log + System.lineSeparator() + textContent + System.lineSeparator();
+				} catch (Exception e) {
+					CharBuffer binaryContent = UTF_8.decode(Base64.getEncoder().encode(data.duplicate()));
+					return log + System.lineSeparator() + binaryContent + System.lineSeparator();
+				}
 			}
 			return log;
 		};
