@@ -507,7 +507,7 @@
 	<target name="snap" depends="update, fatjar">
 		<copy tofile="${dir.dist}/snappy/filebot/FileBot.jar" file="${path.fatjar}" />
 		<copy todir="${dir.dist}/snappy/filebot/lib/amd64">
-			<fileset dir="${dir.lib}/native/linux-amd64" excludes="fpcalc, libmediainfo.so" />
+			<fileset dir="${dir.lib}/native/linux-amd64" excludes="fpcalc, libmediainfo.so, libzen.so" />
 		</copy>
 
 		<!-- copy files and resolve ant variables -->
