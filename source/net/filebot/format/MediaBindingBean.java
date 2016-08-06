@@ -573,6 +573,12 @@ public class MediaBindingBean {
 		return null;
 	}
 
+	@Define("runtime")
+	public Integer getRuntime() {
+		Object runtime = getMetaInfo().getProperty("runtime");
+		return runtime instanceof Integer ? (Integer) runtime : Integer.parseInt(runtime.toString());
+	}
+
 	@Define("actors")
 	public Object getActors() {
 		return getMetaInfo().getProperty("actors");
