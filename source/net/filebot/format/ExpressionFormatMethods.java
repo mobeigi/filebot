@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -27,7 +26,6 @@ import groovy.lang.Closure;
 import net.filebot.Language;
 import net.filebot.similarity.Normalization;
 import net.filebot.util.FileUtilities;
-import net.filebot.util.StringUtilities;
 import net.filebot.web.SimpleDate;
 
 public class ExpressionFormatMethods {
@@ -362,23 +360,6 @@ public class ExpressionFormatMethods {
 			}
 		}
 		return self;
-	}
-
-	/**
-	 * Join non-empty String values and prepend prefix / append suffix values
-	 *
-	 * e.g. (1..3).join('-', '[', ']')
-	 *
-	 * Unwind if list is empty
-	 *
-	 * e.g. [].join('-', '[', ']') => Exception: List is empty
-	 */
-	public static String join(Collection<?> self, String delimiter, String prefix, String suffix) throws Exception {
-		String[] values = self.stream().map(StringUtilities::asNonEmptyString).filter(Objects::nonNull).toArray(String[]::new);
-		if (values.length > 0) {
-			return prefix + String.join(delimiter, values) + suffix;
-		}
-		throw new Exception("List is empty");
 	}
 
 	/**
