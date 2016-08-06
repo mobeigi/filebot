@@ -48,6 +48,10 @@ public class ScriptShellMethods {
 		return new File(self, name);
 	}
 
+	public static File div(String self, String name) {
+		return new File(self, name);
+	}
+
 	public static String getAt(File self, int index) {
 		return FileUtilities.listPath(self).get(index).getName();
 	}
