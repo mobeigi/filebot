@@ -302,6 +302,10 @@ public final class SwingUI {
 		};
 	}
 
+	public static JButton newButton(String name, Consumer<ActionEvent> action) {
+		return new JButton(new LambdaAction(name, null, action));
+	}
+
 	public static JButton newButton(String name, Icon icon, Consumer<ActionEvent> action) {
 		return new JButton(new LambdaAction(name, icon, action));
 	}

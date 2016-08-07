@@ -32,7 +32,6 @@ import java.util.logging.Level;
 import javax.script.ScriptException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -99,10 +98,10 @@ class BindingDialog extends JDialog {
 		root.add(new JScrollPane(createBindingTable(bindingModel)), "growx, wrap paragraph:push");
 
 		if (editable) {
-			root.add(new JButton(approveAction), "tag apply");
-			root.add(new JButton(cancelAction), "tag cancel");
+			root.add(newButton("Use Bindings", ResourceManager.getIcon("dialog.continue"), evt -> finish(true)), "tag apply");
+			root.add(newButton("Cancel", ResourceManager.getIcon("dialog.cancel"), evt -> finish(false)), "tag cancel");
 		} else {
-			root.add(new JButton(okAction), "tag apply");
+			root.add(newButton("OK", e -> finish(false)), "tag apply");
 		}
 
 		// update preview on change
@@ -220,10 +219,23 @@ class BindingDialog extends JDialog {
 	}
 
 	private void finish(boolean submit) {
-		this.submit = submit;
+		if (submit) {
+			// illegal episode string
+			if (getInfoObject() == null) {
+				log.warning(format("Failed to parse episode: '%s'", infoTextField.getText()));
+				return;
+			}
+
+			// illegal file path
+			if (getMediaFile() == null) {
+				log.warning(format("Invalid media file: '%s'", mediaFileTextField.getText()));
+				return;
+			}
+		}
 
 		// cancel background evaluators
-		bindingModel.executor.shutdownNow();
+		this.submit = submit;
+		this.bindingModel.executor.shutdown();
 
 		setVisible(false);
 		dispose();
@@ -243,53 +255,16 @@ class BindingDialog extends JDialog {
 	}
 
 	public File getMediaFile() {
-		File file = new File(mediaFileTextField.getText());
-
 		// allow only absolute paths
-		return file.isAbsolute() ? file : null;
-	}
-
-	protected final Action hideAction = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
-
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			finish(true);
-		}
-	};
-
-	protected final Action approveAction = new AbstractAction("Use Bindings", ResourceManager.getIcon("dialog.continue")) {
-
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			// check episode and media file
-			if (getInfoObject() == null) {
-				// illegal episode string
-				log.warning(format("Failed to parse episode: '%s'", infoTextField.getText()));
-			} else if (getMediaFile() == null && !mediaFileTextField.getText().isEmpty()) {
-				// illegal file path
-				log.warning(format("Invalid media file: '%s'", mediaFileTextField.getText()));
-			} else {
-				// everything seems to be in order
-				finish(true);
+		String path = mediaFileTextField.getText().trim();
+		if (path.length() > 0) {
+			File file = new File(mediaFileTextField.getText());
+			if (file.isAbsolute()) {
+				return file;
 			}
 		}
-	};
-
-	protected final Action okAction = new AbstractAction("OK") {
-
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			finish(true);
-		}
-	};
-
-	protected final Action cancelAction = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
-
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			finish(false);
-		}
-	};
+		return null;
+	}
 
 	protected final Action mediaInfoAction = new AbstractAction("Open MediaInfo", ResourceManager.getIcon("action.properties")) {
 
@@ -343,21 +318,12 @@ class BindingDialog extends JDialog {
 			}
 
 			// show media info dialog
-			final JDialog dialog = new JDialog(getWindow(evt.getSource()), "MediaInfo", ModalityType.DOCUMENT_MODAL);
-
-			Action closeAction = new AbstractAction("OK") {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					dialog.setVisible(false);
-					dialog.dispose();
-				}
-			};
+			JDialog dialog = new JDialog(getWindow(evt.getSource()), "MediaInfo", ModalityType.DOCUMENT_MODAL);
 
 			JComponent c = (JComponent) dialog.getContentPane();
 			c.setLayout(new MigLayout("fill", "[align center]", "[fill][pref!]"));
 			c.add(tabbedPane, "grow, wrap");
-			c.add(new JButton(closeAction), "wmin 80px, hmin 25px");
+			c.add(newButton("OK", e -> dialog.setVisible(false)), "wmin 80px, hmin 25px");
 
 			dialog.pack();
 			dialog.setLocationRelativeTo(BindingDialog.this);
