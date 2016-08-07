@@ -13,7 +13,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
@@ -23,7 +22,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.text.Format;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -314,13 +312,11 @@ public class FormatDialog extends JDialog {
 	public void setFormatCode(String text) {
 		editor.setText(text);
 		editor.requestFocusInWindow();
-
-		editor.scrollRectToVisible(new Rectangle(0, 0)); // reset scroll
 		editor.setCaretPosition(text.length()); // scroll to end of format
 	}
 
 	private RSyntaxTextArea createEditor() {
-		final RSyntaxTextArea editor = new RSyntaxTextArea(new RSyntaxDocument(SyntaxConstants.SYNTAX_STYLE_GROOVY) {
+		RSyntaxTextArea editor = new RSyntaxTextArea(new RSyntaxDocument(SyntaxConstants.SYNTAX_STYLE_GROOVY) {
 			@Override
 			public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
 				super.insertString(offs, str.replaceAll("\\R", ""), a); // FORCE SINGLE LINE
@@ -338,6 +334,9 @@ public class FormatDialog extends JDialog {
 		editor.setUseFocusableTips(false);
 		editor.setHighlightCurrentLine(false);
 		editor.setLineWrap(false);
+		editor.setPaintMarkOccurrencesBorder(false);
+		editor.setPaintTabLines(false);
+		editor.setMarkOccurrences(false);
 
 		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
 
@@ -373,14 +372,7 @@ public class FormatDialog extends JDialog {
 		panel.setBackground(new Color(0xFFFFE1));
 
 		for (final String format : mode.getSampleExpressions()) {
-			LinkButton formatLink = new LinkButton(new AbstractAction(format) {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					setFormatCode(format);
-				}
-			});
-
+			LinkButton formatLink = new LinkButton(newAction(format, e -> setFormatCode(format)));
 			formatLink.setFont(new Font(MONOSPACED, PLAIN, 11));
 
 			// compute format label in background
@@ -451,51 +443,19 @@ public class FormatDialog extends JDialog {
 	}
 
 	private ExecutorService createExecutor() {
-		ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1), new DefaultThreadFactory("PreviewFormatter")) {
-
-			@SuppressWarnings("deprecation")
-			@Override
-			public List<Runnable> shutdownNow() {
-				List<Runnable> remaining = super.shutdownNow();
-
-				try {
-					if (!awaitTermination(3, TimeUnit.SECONDS)) {
-						// if the thread has not terminated after 4 seconds, it is probably stuck
-						ThreadGroup threadGroup = ((DefaultThreadFactory) getThreadFactory()).getThreadGroup();
-
-						// kill background thread by force
-						threadGroup.stop();
-
-						// log access of potentially unsafe method
-						debug.warning("Thread was forcibly terminated");
-					}
-				} catch (Exception e) {
-					debug.log(Level.WARNING, "Thread was not terminated", e);
-				}
-
-				return remaining;
-			}
-		};
-
 		// only keep the latest task in the queue
+		ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1), new DefaultThreadFactory("PreviewFormatter"));
 		executor.setRejectedExecutionHandler(new DiscardOldestPolicy());
-
 		return executor;
 	}
 
 	private void checkFormatInBackground() {
 		try {
 			// check syntax in foreground
-			final ExpressionFormat format = new ExpressionFormat(editor.getText().trim());
+			ExpressionFormat format = new ExpressionFormat(editor.getText().trim());
 
 			// activate delayed to avoid flickering when formatting takes only a couple of milliseconds
-			final Timer progressIndicatorTimer = SwingUI.invokeLater(400, new Runnable() {
-
-				@Override
-				public void run() {
-					progressIndicator.setVisible(true);
-				}
-			});
+			Timer progressIndicatorTimer = SwingUI.invokeLater(400, () -> progressIndicator.setVisible(true));
 
 			// cancel old worker later
 			Future<String> obsoletePreviewFuture = currentPreviewFuture;
@@ -612,15 +572,8 @@ public class FormatDialog extends JDialog {
 				popupMenuWillBecomeInvisible(evt);
 
 				JPopupMenu popup = (JPopupMenu) evt.getSource();
-				for (final String expression : mode.persistentFormatHistory()) {
-					JMenuItem item = popup.add(new AbstractAction(expression) {
-
-						@Override
-						public void actionPerformed(ActionEvent evt) {
-							setFormatCode(expression);
-						}
-					});
-
+				for (String expression : mode.persistentFormatHistory()) {
+					JMenuItem item = popup.add(newAction(expression, e -> setFormatCode(expression)));
 					item.setFont(new Font(MONOSPACED, PLAIN, 11));
 				}
 			}

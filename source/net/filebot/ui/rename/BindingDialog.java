@@ -236,7 +236,7 @@ class BindingDialog extends JDialog {
 
 		// cancel background evaluators
 		this.submit = submit;
-		this.bindingModel.executor.shutdown();
+		this.bindingModel.executor.shutdownNow();
 
 		setVisible(false);
 		dispose();
