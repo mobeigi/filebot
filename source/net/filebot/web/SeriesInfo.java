@@ -6,6 +6,7 @@ import static java.util.Collections.*;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class SeriesInfo implements Serializable {
 
@@ -175,14 +176,14 @@ public class SeriesInfo implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return id;
+		return id == null ? 0 : id;
 	}
 
 	@Override
 	public boolean equals(Object object) {
 		if (object instanceof SeriesInfo) {
 			SeriesInfo other = (SeriesInfo) object;
-			return id.equals(other.id) && database.equals(other.database);
+			return Objects.equals(id, other.id) && Objects.equals(database, other.database);
 		}
 		return false;
 	}
