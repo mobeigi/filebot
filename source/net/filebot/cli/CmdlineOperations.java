@@ -463,6 +463,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		// collect all File/MoviePart matches
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 
+		// TODO: MediaDetection.groupByMediaCharacteristics()
 		for (Entry<Movie, SortedSet<File>> byMovie : filesByMovie.entrySet()) {
 			for (List<File> movieFileListByMediaFolder : mapByMediaFolder(byMovie.getValue()).values()) {
 				for (List<File> fileSet : mapByExtension(movieFileListByMediaFolder).values()) {

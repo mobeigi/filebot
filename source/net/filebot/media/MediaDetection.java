@@ -1067,6 +1067,37 @@ public class MediaDetection {
 		return map;
 	}
 
+	public static List<List<File>> groupByMediaCharacteristics(Collection<File> files) {
+		List<List<File>> groups = new ArrayList<List<File>>();
+
+		mapByExtension(files).forEach((extension, filesByExtension) -> {
+			if (filesByExtension.size() < 2) {
+				groups.add(filesByExtension);
+				return;
+			}
+
+			mapByMediaFolder(filesByExtension).forEach((mediaFolder, filesByMediaFolder) -> {
+				if (filesByMediaFolder.size() < 2) {
+					groups.add(filesByMediaFolder);
+					return;
+				}
+
+				try {
+					filesByMediaFolder.stream().collect(groupingBy(new VideoQuality()::getVideoBitrate)).forEach((vbr, videos) -> {
+						groups.add(videos);
+					});
+				} catch (Exception e) {
+					debug.warning(format("Failed to group by media characteristics: %s", e.getMessage()));
+
+					// if mediainfo fails and we can't further group by video bitrate then just keep the grouping we have
+					groups.add(filesByMediaFolder);
+				}
+			});
+		});
+
+		return groups;
+	}
+
 	public static Map<String, List<File>> mapBySeriesName(Collection<File> files, boolean anime, Locale locale) throws Exception {
 		Map<String, List<File>> result = new TreeMap<String, List<File>>(String.CASE_INSENSITIVE_ORDER);
 

@@ -195,6 +195,7 @@ class MovieMatcher implements AutoCompleteMatcher {
 		// collect all File/MoviePart matches
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 
+		// TODO: MediaDetection.groupByMediaCharacteristics()
 		filesByMovie.forEach((movie, byMovie) -> {
 			mapByMediaFolder(byMovie).forEach((mediaFolder, byFolder) -> {
 				mapByExtension(byFolder).forEach((ext, moviePartFiles) -> {

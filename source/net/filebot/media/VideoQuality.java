@@ -1,9 +1,9 @@
 package net.filebot.media;
 
-import static net.filebot.util.StringUtilities.*;
 import static java.util.Comparator.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
+import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.util.Comparator;
@@ -62,6 +62,18 @@ public class VideoQuality implements Comparator<File> {
 		return media(f).map(it -> {
 			return it.getInferredMediaFile().length();
 		}).orElseGet(f::length);
+	}
+
+	public long getVideoBitrate(File f) {
+		return media(f).map(it -> {
+			return it.getVideoBitRate();
+		}).orElse(0L);
+	}
+
+	public long getAudioBitrate(File f) {
+		return media(f).map(it -> {
+			return it.getAudioBitRate();
+		}).orElse(0L);
 	}
 
 }

@@ -751,13 +751,23 @@ public class MediaBindingBean {
 	}
 
 	@Define("bitrate")
-	public Long getBitRate() {
+	public Long getOverallBitRate() {
 		return new Double(getMediaInfo(StreamKind.General, 0, "OverallBitRate")).longValue();
+	}
+
+	@Define("vbr")
+	public Long getVideoBitRate() {
+		return new Double(getMediaInfo(StreamKind.Video, 0, "BitRate")).longValue();
+	}
+
+	@Define("abr")
+	public Long getAudioBitRate() {
+		return new Double(getMediaInfo(StreamKind.Audio, 0, "BitRate")).longValue();
 	}
 
 	@Define("duration")
 	public Long getDuration() {
-		return (long) Double.parseDouble(getMediaInfo(StreamKind.General, 0, "Duration"));
+		return new Double(getMediaInfo(StreamKind.General, 0, "Duration")).longValue();
 	}
 
 	@Define("seconds")
