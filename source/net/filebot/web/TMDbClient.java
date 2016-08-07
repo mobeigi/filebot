@@ -470,10 +470,6 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 			return get(MovieProperty.overview);
 		}
 
-		public boolean isAdult() {
-			return get(MovieProperty.adult, Boolean::valueOf);
-		}
-
 		public Integer getId() {
 			return get(MovieProperty.id, Integer::new);
 		}
@@ -512,10 +508,6 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 
 		public URL getHomepage() {
 			return get(MovieProperty.homepage, URL::new);
-		}
-
-		public URL getPoster() {
-			return get(MovieProperty.poster_path, URL::new);
 		}
 
 		public List<String> getGenres() {
