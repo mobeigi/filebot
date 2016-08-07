@@ -64,10 +64,4 @@ public class VideoQuality implements Comparator<File> {
 		}).orElseGet(f::length);
 	}
 
-	public String getEncodedDate(File f) {
-		return media(f).map(it -> {
-			return it.getEncodedDate();
-		}).orElse(null);
-	}
-
 }

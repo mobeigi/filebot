@@ -46,6 +46,8 @@ import net.filebot.ApplicationFolder;
 import net.filebot.Resource;
 import net.filebot.WebServices;
 import net.filebot.archive.Archive;
+import net.filebot.mediainfo.MediaInfo;
+import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.similarity.CommonSequenceMatcher;
 import net.filebot.similarity.DateMatcher;
 import net.filebot.similarity.EpisodeMetrics;
@@ -1082,16 +1084,16 @@ public class MediaDetection {
 					return;
 				}
 
-				try {
-					filesByMediaFolder.stream().collect(groupingBy(new VideoQuality()::getEncodedDate)).forEach((group, videos) -> {
-						groups.add(videos);
-					});
-				} catch (Exception e) {
-					debug.warning(format("Failed to group by media characteristics: %s", e.getMessage()));
-
-					// if mediainfo fails and we can't further group by video bitrate then just keep the grouping we have
-					groups.add(filesByMediaFolder);
-				}
+				filesByMediaFolder.stream().collect(groupingBy(f -> {
+					if (VIDEO_FILES.accept(f)) {
+						try (MediaInfo mi = new MediaInfo().open(f)) {
+							return mi.get(StreamKind.General, 0, "Encoded_Date");
+						} catch (Exception e) {
+							debug.warning(format("Failed to read media characteristics: %s", e.getMessage()));
+						}
+					}
+					return "";
+				})).forEach((group, videos) -> groups.add(videos));
 			});
 		});
 

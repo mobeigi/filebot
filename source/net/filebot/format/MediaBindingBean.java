@@ -770,11 +770,6 @@ public class MediaBindingBean {
 		return (int) (getDuration() / 60000);
 	}
 
-	@Define("encodedDate")
-	public String getEncodedDate() {
-		return getMediaInfo(StreamKind.General, 0, "Encoded_Date"); // e.g. UTC 2014-07-18 13:57:37
-	}
-
 	@Define("media")
 	public AssociativeScriptObject getGeneralMediaInfo() {
 		return createMediaInfoBindings(StreamKind.General).get(0);
