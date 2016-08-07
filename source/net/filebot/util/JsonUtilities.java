@@ -28,6 +28,10 @@ public class JsonUtilities {
 		return JsonWriter.objectToJson(object);
 	}
 
+	public static String asPrettyJsonString(Object object) {
+		return JsonWriter.objectToJson(object, singletonMap(JsonWriter.PRETTY_PRINT, true));
+	}
+
 	public static Map<?, ?> asMap(Object node) {
 		if (node instanceof Map) {
 			return (Map<?, ?>) node;

@@ -5,6 +5,7 @@ import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.media.XattrMetaInfo.*;
+import static net.filebot.util.JsonUtilities.*;
 import static net.filebot.util.RegularExpressions.*;
 import static net.filebot.util.ui.SwingUI.*;
 
@@ -84,7 +85,7 @@ class BindingDialog extends JDialog {
 		JPanel inputPanel = new JPanel(new MigLayout("nogrid, fill"));
 		inputPanel.setOpaque(false);
 
-		inputPanel.add(new JLabel("Name:"), "wrap 2px");
+		inputPanel.add(new JLabel("Info Object:"), "wrap 2px");
 		inputPanel.add(infoTextField, "hmin 20px, growx, wrap paragraph");
 
 		inputPanel.add(new JLabel("Media File:"), "wrap 2px");
@@ -222,7 +223,7 @@ class BindingDialog extends JDialog {
 		if (submit) {
 			// illegal episode string
 			if (getInfoObject() == null) {
-				log.warning(format("Failed to parse episode: '%s'", infoTextField.getText()));
+				log.warning(format("Failed to import object: '%s'", infoTextField.getText()));
 				return;
 			}
 
@@ -243,15 +244,17 @@ class BindingDialog extends JDialog {
 
 	public void setInfoObject(Object info) {
 		infoTextField.putClientProperty("model", info);
-		infoTextField.setText(info == null ? "" : infoObjectFormat.format(info));
-	}
 
-	public void setMediaFile(File mediaFile) {
-		mediaFileTextField.setText(mediaFile == null ? "" : mediaFile.getAbsolutePath());
+		infoTextField.setText(info == null ? "" : infoObjectFormat.format(info));
+		infoTextField.setToolTipText(info == null ? "null" : "<html><pre>" + escapeHTML(asPrettyJsonString(info)) + "</pre></html>");
 	}
 
 	public Object getInfoObject() {
 		return infoTextField.getClientProperty("model");
+	}
+
+	public void setMediaFile(File mediaFile) {
+		mediaFileTextField.setText(mediaFile == null ? "" : mediaFile.getAbsolutePath());
 	}
 
 	public File getMediaFile() {
