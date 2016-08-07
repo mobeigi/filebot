@@ -35,6 +35,7 @@ import javax.swing.Icon;
 
 import net.filebot.Cache;
 import net.filebot.CacheType;
+import net.filebot.CachedResource.Transform;
 import net.filebot.Language;
 import net.filebot.ResourceManager;
 
@@ -433,20 +434,120 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 			return fields.get(key);
 		}
 
+		private <T> T get(MovieProperty key, Transform<String, T> cast) {
+			try {
+				String value = fields.get(key);
+				if (value != null && !value.isEmpty()) {
+					return cast.transform(value);
+				}
+			} catch (Exception e) {
+				debug.log(Level.WARNING, format("Failed to parse %s value: %s: %s", key, e, fields));
+			}
+			return null;
+		}
+
+		public String getName() {
+			return get(MovieProperty.title);
+		}
+
+		public String getOriginalName() {
+			return get(MovieProperty.original_title);
+		}
+
+		public String getCollection() {
+			return get(MovieProperty.collection); // e.g. Star Wars Collection
+		}
+
+		public String getCertification() {
+			return get(MovieProperty.certification); // e.g. PG-13
+		}
+
+		public String getTagline() {
+			return get(MovieProperty.tagline);
+		}
+
+		public String getOverview() {
+			return get(MovieProperty.overview);
+		}
+
 		public boolean isAdult() {
-			return Boolean.valueOf(get(MovieProperty.adult));
+			return get(MovieProperty.adult, Boolean::valueOf);
+		}
+
+		public Integer getId() {
+			return get(MovieProperty.id, Integer::new);
+		}
+
+		public Integer getImdbId() {
+			return get(MovieProperty.imdb_id, s -> new Integer(s.substring(2))); // e.g. tt0379786
+		}
+
+		public Integer getVotes() {
+			return get(MovieProperty.vote_count, Integer::new);
+		}
+
+		public Double getRating() {
+			return get(MovieProperty.vote_average, Double::new);
+		}
+
+		public SimpleDate getReleased() {
+			return get(MovieProperty.release_date, SimpleDate::parse); // e.g. 2005-09-30
+		}
+
+		public Integer getRuntime() {
+			return get(MovieProperty.runtime, Integer::new);
+		}
+
+		public Long getBudget() {
+			return get(MovieProperty.budget, Long::new);
+		}
+
+		public Long getRevenue() {
+			return get(MovieProperty.revenue, Long::new);
+		}
+
+		public Double getPopularity() {
+			return get(MovieProperty.popularity, Double::new);
+		}
+
+		public URL getHomepage() {
+			return get(MovieProperty.homepage, URL::new);
+		}
+
+		public URL getPoster() {
+			return get(MovieProperty.poster_path, URL::new);
+		}
+
+		public List<String> getGenres() {
+			return unmodifiableList(asList(genres));
 		}
 
 		public List<Locale> getSpokenLanguages() {
-			try {
-				List<Locale> locales = new ArrayList<Locale>();
-				for (String it : spokenLanguages) {
-					locales.add(new Locale(it));
-				}
-				return locales;
-			} catch (Exception e) {
-				return null;
-			}
+			return stream(spokenLanguages).map(Locale::new).collect(toList());
+		}
+
+		public List<Person> getPeople() {
+			return unmodifiableList(asList(people));
+		}
+
+		public String getDirector() {
+			return stream(people).filter(Person::isDirector).map(Person::getName).findFirst().orElse(null);
+		}
+
+		public String getWriter() {
+			return stream(people).filter(Person::isWriter).map(Person::getName).findFirst().orElse(null);
+		}
+
+		public List<Person> getCast() {
+			return stream(people).filter(Person::isActor).collect(toList());
+		}
+
+		public List<String> getActors() {
+			return stream(people).filter(Person::isActor).map(Person::getName).collect(toList());
+		}
+
+		public Map<String, String> getCertifications() {
+			return unmodifiableMap(certifications); // e.g. ['US': PG-13]
 		}
 
 		public List<String> getProductionCountries() {
@@ -455,165 +556,6 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 
 		public List<String> getProductionCompanies() {
 			return unmodifiableList(asList(productionCompanies));
-		}
-
-		public String getOriginalName() {
-			return get(MovieProperty.original_title);
-		}
-
-		public String getName() {
-			return get(MovieProperty.title);
-		}
-
-		public Integer getId() {
-			try {
-				return new Integer(get(MovieProperty.id));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public Integer getImdbId() {
-			// e.g. tt0379786
-			try {
-				return new Integer(get(MovieProperty.imdb_id).substring(2));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public URL getHomepage() {
-			try {
-				return new URL(get(MovieProperty.homepage));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public String getOverview() {
-			return get(MovieProperty.overview);
-		}
-
-		public Integer getVotes() {
-			try {
-				return new Integer(get(MovieProperty.vote_count));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public Double getRating() {
-			try {
-				return new Double(get(MovieProperty.vote_average));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public String getTagline() {
-			return get(MovieProperty.tagline);
-		}
-
-		public String getCertification() {
-			// e.g. PG-13
-			return get(MovieProperty.certification);
-		}
-
-		public Map<String, String> getCertifications() {
-			// e.g. ['US': PG-13]
-			return unmodifiableMap(certifications);
-		}
-
-		public String getCollection() {
-			// e.g. Star Wars Collection
-			return get(MovieProperty.collection);
-		}
-
-		public SimpleDate getReleased() {
-			// e.g. 2005-09-30
-			try {
-				return SimpleDate.parse(get(MovieProperty.release_date));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public String getRuntime() {
-			return get(MovieProperty.runtime);
-		}
-
-		public Long getBudget() {
-			try {
-				return new Long(get(MovieProperty.budget));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public Long getRevenue() {
-			try {
-				return new Long(get(MovieProperty.revenue));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public Double getPopularity() {
-			try {
-				return new Double(get(MovieProperty.popularity));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public List<String> getGenres() {
-			return unmodifiableList(asList(genres));
-		}
-
-		public List<Person> getPeople() {
-			return unmodifiableList(asList(people));
-		}
-
-		public List<Person> getCast() {
-			List<Person> actors = new ArrayList<Person>();
-			for (Person person : people) {
-				if (person.isActor()) {
-					actors.add(person);
-				}
-			}
-			return actors;
-		}
-
-		public String getDirector() {
-			for (Person person : people) {
-				if (person.isDirector())
-					return person.getName();
-			}
-			return null;
-		}
-
-		public String getWriter() {
-			for (Person person : people) {
-				if (person.isWriter())
-					return person.getName();
-			}
-			return null;
-		}
-
-		public List<String> getActors() {
-			List<String> actors = new ArrayList<String>();
-			for (Person actor : getCast()) {
-				actors.add(actor.getName());
-			}
-			return actors;
-		}
-
-		public URL getPoster() {
-			try {
-				return new URL(get(MovieProperty.poster_path));
-			} catch (Exception e) {
-				return null;
-			}
 		}
 
 		public List<Trailer> getTrailers() {
