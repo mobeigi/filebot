@@ -13,6 +13,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
@@ -312,6 +313,7 @@ public class FormatDialog extends JDialog {
 	public void setFormatCode(String text) {
 		editor.setText(text);
 		editor.requestFocusInWindow();
+		editor.scrollRectToVisible(new Rectangle(0, 0)); // reset scroll
 		editor.setCaretPosition(text.length()); // scroll to end of format
 	}
 
@@ -376,7 +378,7 @@ public class FormatDialog extends JDialog {
 			formatLink.setFont(new Font(MONOSPACED, PLAIN, 11));
 
 			// compute format label in background
-			final JLabel formatExample = new JLabel("[evaluate]");
+			JLabel formatExample = new JLabel("[evaluate]");
 
 			// bind text to preview
 			addPropertyChangeListener("sample", new PropertyChangeListener() {
