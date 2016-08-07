@@ -165,7 +165,7 @@ public class OMDbClient implements MovieIdentificationService {
 		Map<MovieProperty, String> fields = new EnumMap<MovieProperty, String>(MovieProperty.class);
 		fields.put(MovieProperty.title, data.get("title"));
 		fields.put(MovieProperty.certification, data.get("rated"));
-		fields.put(MovieProperty.runtime, data.get("runtime"));
+		fields.put(MovieProperty.runtime, getRuntimeMinutes(data.get("runtime")));
 		fields.put(MovieProperty.tagline, data.get("plot"));
 		fields.put(MovieProperty.vote_average, data.get("imdbRating"));
 		fields.put(MovieProperty.vote_count, data.get("imdbVotes").replaceAll("\\D", ""));
@@ -192,6 +192,18 @@ public class OMDbClient implements MovieIdentificationService {
 		actors.addAll(split(delim, data.get("writer"), (s) -> new Person(s, Person.WRITER)));
 
 		return new MovieInfo(fields, emptyList(), genres, emptyMap(), languages, emptyList(), emptyList(), actors, emptyList());
+	}
+
+	private String getRuntimeMinutes(String runtime) {
+		List<Integer> n = matchIntegers(runtime);
+		switch (n.size()) {
+		case 0:
+			return null;
+		case 1:
+			return Integer.toString(n.get(0));// e.g 162 min
+		default:
+			return Integer.toString(n.get(0) * 60 + n.get(1));// e.g 1h 30min
+		}
 	}
 
 	private SimpleDate parsePartialDate(String value, String format) {
