@@ -463,30 +463,23 @@ public class CmdlineOperations implements CmdlineInterface {
 		// collect all File/MoviePart matches
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 
-		// TODO: MediaDetection.groupByMediaCharacteristics()
-		for (Entry<Movie, SortedSet<File>> byMovie : filesByMovie.entrySet()) {
-			for (List<File> movieFileListByMediaFolder : mapByMediaFolder(byMovie.getValue()).values()) {
-				for (List<File> fileSet : mapByExtension(movieFileListByMediaFolder).values()) {
-					// resolve movie parts
-					for (int i = 0; i < fileSet.size(); i++) {
-						Movie moviePart = byMovie.getKey();
-						if (fileSet.size() > 1) {
-							moviePart = new MoviePart(moviePart, i + 1, fileSet.size());
-						}
+		filesByMovie.forEach((movie, fs) -> {
+			groupByMediaCharacteristics(fs).forEach(moviePartFiles -> {
+				// resolve movie parts
+				for (int i = 0; i < moviePartFiles.size(); i++) {
+					Movie moviePart = moviePartFiles.size() == 1 ? movie : new MoviePart(movie, i + 1, moviePartFiles.size());
+					matches.add(new Match<File, Movie>(moviePartFiles.get(i), moviePart.clone()));
 
-						matches.add(new Match<File, Movie>(fileSet.get(i), moviePart.clone()));
-
-						// automatically add matches for derivate files
-						List<File> derivates = derivatesByMovieFile.get(fileSet.get(i));
-						if (derivates != null) {
-							for (File derivate : derivates) {
-								matches.add(new Match<File, Movie>(derivate, moviePart.clone()));
-							}
+					// automatically add matches for derived files
+					List<File> derivates = derivatesByMovieFile.get(moviePartFiles.get(i));
+					if (derivates != null) {
+						for (File derivate : derivates) {
+							matches.add(new Match<File, Movie>(derivate, moviePart.clone()));
 						}
 					}
 				}
-			}
-		}
+			});
+		});
 
 		// map old files to new paths by applying formatting and validating filenames
 		Map<File, File> renameMap = new LinkedHashMap<File, File>();

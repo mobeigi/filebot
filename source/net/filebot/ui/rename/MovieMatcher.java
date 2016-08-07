@@ -195,24 +195,21 @@ class MovieMatcher implements AutoCompleteMatcher {
 		// collect all File/MoviePart matches
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 
-		// TODO: MediaDetection.groupByMediaCharacteristics()
-		filesByMovie.forEach((movie, byMovie) -> {
-			mapByMediaFolder(byMovie).forEach((mediaFolder, byFolder) -> {
-				mapByExtension(byFolder).forEach((ext, moviePartFiles) -> {
-					// resolve movie parts
-					for (int i = 0; i < moviePartFiles.size(); i++) {
-						Movie moviePart = moviePartFiles.size() == 1 ? movie : new MoviePart(movie, i + 1, moviePartFiles.size());
-						matches.add(new Match<File, Movie>(moviePartFiles.get(i), moviePart.clone()));
+		filesByMovie.forEach((movie, fs) -> {
+			groupByMediaCharacteristics(fs).forEach(moviePartFiles -> {
+				// resolve movie parts
+				for (int i = 0; i < moviePartFiles.size(); i++) {
+					Movie moviePart = moviePartFiles.size() == 1 ? movie : new MoviePart(movie, i + 1, moviePartFiles.size());
+					matches.add(new Match<File, Movie>(moviePartFiles.get(i), moviePart.clone()));
 
-						// automatically add matches for derived files
-						List<File> derivates = derivatesByMovieFile.get(moviePartFiles.get(i));
-						if (derivates != null) {
-							for (File derivate : derivates) {
-								matches.add(new Match<File, Movie>(derivate, moviePart.clone()));
-							}
+					// automatically add matches for derived files
+					List<File> derivates = derivatesByMovieFile.get(moviePartFiles.get(i));
+					if (derivates != null) {
+						for (File derivate : derivates) {
+							matches.add(new Match<File, Movie>(derivate, moviePart.clone()));
 						}
 					}
-				});
+				}
 			});
 		});
 
