@@ -755,16 +755,6 @@ public class MediaBindingBean {
 		return new Double(getMediaInfo(StreamKind.General, 0, "OverallBitRate")).longValue();
 	}
 
-	@Define("vbr")
-	public Long getVideoBitRate() {
-		return new Double(getMediaInfo(StreamKind.Video, 0, "BitRate")).longValue();
-	}
-
-	@Define("abr")
-	public Long getAudioBitRate() {
-		return new Double(getMediaInfo(StreamKind.Audio, 0, "BitRate")).longValue();
-	}
-
 	@Define("duration")
 	public Long getDuration() {
 		return new Double(getMediaInfo(StreamKind.General, 0, "Duration")).longValue();
@@ -778,6 +768,11 @@ public class MediaBindingBean {
 	@Define("minutes")
 	public Integer getDurationInMinutes() {
 		return (int) (getDuration() / 60000);
+	}
+
+	@Define("encodedDate")
+	public String getEncodedDate() {
+		return getMediaInfo(StreamKind.General, 0, "Encoded_Date"); // e.g. UTC 2014-07-18 13:57:37
 	}
 
 	@Define("media")

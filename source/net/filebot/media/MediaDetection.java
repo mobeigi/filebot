@@ -1083,7 +1083,7 @@ public class MediaDetection {
 				}
 
 				try {
-					filesByMediaFolder.stream().collect(groupingBy(new VideoQuality()::getVideoBitrate)).forEach((vbr, videos) -> {
+					filesByMediaFolder.stream().collect(groupingBy(new VideoQuality()::getEncodedDate)).forEach((group, videos) -> {
 						groups.add(videos);
 					});
 				} catch (Exception e) {

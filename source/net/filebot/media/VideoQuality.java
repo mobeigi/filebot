@@ -64,16 +64,10 @@ public class VideoQuality implements Comparator<File> {
 		}).orElseGet(f::length);
 	}
 
-	public long getVideoBitrate(File f) {
+	public String getEncodedDate(File f) {
 		return media(f).map(it -> {
-			return it.getVideoBitRate();
-		}).orElse(0L);
-	}
-
-	public long getAudioBitrate(File f) {
-		return media(f).map(it -> {
-			return it.getAudioBitRate();
-		}).orElse(0L);
+			return it.getEncodedDate();
+		}).orElse(null);
 	}
 
 }
