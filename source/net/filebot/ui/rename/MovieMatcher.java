@@ -176,12 +176,15 @@ class MovieMatcher implements AutoCompleteMatcher {
 
 			for (Future<Map<File, List<Movie>>> future : tasks) {
 				for (Entry<File, List<Movie>> it : future.get().entrySet()) {
-					// auto-select movie or ask user
-					Movie movie = grabMovieName(it.getKey(), it.getValue(), strict, locale, autodetect, parent);
+					File file = it.getKey();
+					List<Movie> options = it.getValue();
 
-					// make sure to use language-specific movie object
+					// auto-select movie or ask user
+					Movie movie = grabMovieName(file, options, strict, locale, autodetect, parent);
+
+					// make sure to use language-specific movie object if possible
 					if (movie != null) {
-						movieByFile.put(it.getKey(), service.getMovieDescriptor(movie, locale));
+						movieByFile.put(file, getLocalizedMovie(service, movie, locale));
 					}
 				}
 			}
@@ -410,10 +413,9 @@ class MovieMatcher implements AutoCompleteMatcher {
 
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		if (input != null && input.length() > 0) {
-			List<Movie> results = detectMovie(new File(input), service, locale, false);
-			for (Movie it : results) {
-				// make sure to retrieve language-specific movie descriptor
-				matches.add(new Match<File, Movie>(null, service.getMovieDescriptor(it, locale)));
+			for (Movie movie : detectMovie(new File(input), service, locale, false)) {
+				// make sure to use language-specific movie object if possible
+				matches.add(new Match<File, Movie>(null, getLocalizedMovie(service, movie, locale)));
 			}
 		}
 		return matches;

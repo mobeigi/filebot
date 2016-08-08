@@ -279,7 +279,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return validMatches;
 	}
 
-	private List<Episode> fetchEpisodeSet(final EpisodeListProvider db, final Collection<String> names, final SortOrder sortOrder, final Locale locale, final boolean strict) throws Exception {
+	private List<Episode> fetchEpisodeSet(EpisodeListProvider db, Collection<String> names, SortOrder sortOrder, Locale locale, boolean strict) throws Exception {
 		Set<SearchResult> shows = new LinkedHashSet<SearchResult>();
 		Set<Episode> episodes = new LinkedHashSet<Episode>();
 
@@ -341,7 +341,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// match movie hashes online
-		final Map<File, Movie> movieByFile = new TreeMap<File, Movie>();
+		Map<File, Movie> movieByFile = new TreeMap<File, Movie>();
 		if (query == null) {
 			// collect useful nfo files even if they are not part of the selected fileset
 			Set<File> effectiveNfoFileSet = new TreeSet<File>(nfoFiles);
@@ -418,7 +418,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
 
 		// map all files by movie
-		for (final File file : movieMatchFiles) {
+		for (File file : movieMatchFiles) {
 			Movie movie = movieByFile.get(file);
 
 			// unknown hash, try via imdb id from nfo file
@@ -438,8 +438,10 @@ public class CmdlineOperations implements CmdlineInterface {
 				try {
 					// select first element if matches are reliable
 					if (options.size() > 0) {
+						movie = (Movie) selectSearchResult(null, options, false, strict).get(0);
+
 						// make sure to get the language-specific movie object for the selected option
-						movie = service.getMovieDescriptor((Movie) selectSearchResult(null, options, false, strict).get(0), locale);
+						movie = getLocalizedMovie(service, movie, locale);
 					}
 				} catch (Exception e) {
 					log.log(Level.WARNING, format("%s: [%s] %s", e.getClass().getSimpleName(), getStructurePathTail(file), e.getMessage()));
@@ -1108,15 +1110,15 @@ public class CmdlineOperations implements CmdlineInterface {
 				outputFolder = outputFolder.getCanonicalFile(); // normalize weird paths
 
 				log.info(format("Read archive [%s] and extract to [%s]", file.getName(), outputFolder));
-				final FileMapper outputMapper = new FileMapper(outputFolder);
+				FileMapper outputMapper = new FileMapper(outputFolder);
 
-				final List<FileInfo> outputMapping = new ArrayList<FileInfo>();
+				List<FileInfo> outputMapping = new ArrayList<FileInfo>();
 				for (FileInfo it : archive.listFiles()) {
 					File outputPath = outputMapper.getOutputFile(it.toFile());
 					outputMapping.add(new SimpleFileInfo(outputPath.getPath(), it.getLength()));
 				}
 
-				final Set<FileInfo> selection = new TreeSet<FileInfo>();
+				Set<FileInfo> selection = new TreeSet<FileInfo>();
 				for (FileInfo future : outputMapping) {
 					if (filter == null || filter.accept(future.toFile())) {
 						selection.add(future);

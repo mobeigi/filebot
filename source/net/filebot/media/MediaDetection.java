@@ -698,6 +698,19 @@ public class MediaDetection {
 		});
 	}
 
+	public static Movie getLocalizedMovie(MovieIdentificationService service, Movie movie, Locale locale) throws Exception {
+		// retrieve language-specific movie object if possible
+		try {
+			Movie localized = service.getMovieDescriptor(movie, locale);
+			if (localized != null) {
+				return localized;
+			}
+		} catch (Exception e) {
+			debug.log(Level.WARNING, "Failed to retrieve localized movie data", e);
+		}
+		return movie;
+	}
+
 	public static SimilarityMetric getSeriesMatchMetric() {
 		return new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric(), new SequenceMatchSimilarity(0, true));
 	}
