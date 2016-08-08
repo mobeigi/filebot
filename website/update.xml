@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
-	<name>FileBot 4.7.1</name>
-	<revision>4126</revision>
+	<name>FileBot 4.7.2</name>
+	<revision>0</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 4.7.1</b><br>
+		<b>FileBot 4.7.2</b><br>
 		This release features:<br>
+		+ Improved multi-part movie auto-detection<br>
 		+ Improved auto-delete behaviour<br>
 		+ Improved {plex} binding<br>
+		+ Fixed NFO parser regression issues<br>
 		+ Lots of bugfixes<br>
 	<html>]]></message>
 	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=3709&p=22453#p22453]]></discussion>
