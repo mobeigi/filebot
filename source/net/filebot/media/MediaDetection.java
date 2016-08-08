@@ -1098,7 +1098,7 @@ public class MediaDetection {
 				}
 
 				filesByMediaFolder.stream().collect(groupingBy(f -> {
-					if (VIDEO_FILES.accept(f)) {
+					if (VIDEO_FILES.accept(f) && f.length() > 0) {
 						try (MediaInfo mi = new MediaInfo().open(f)) {
 							String v = mi.get(StreamKind.Video, 0, "Codec");
 							String a = mi.get(StreamKind.Audio, 0, "Codec");
