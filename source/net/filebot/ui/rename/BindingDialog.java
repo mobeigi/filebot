@@ -102,7 +102,7 @@ class BindingDialog extends JDialog {
 			root.add(newButton("Use Bindings", ResourceManager.getIcon("dialog.continue"), evt -> finish(true)), "tag apply");
 			root.add(newButton("Cancel", ResourceManager.getIcon("dialog.cancel"), evt -> finish(false)), "tag cancel");
 		} else {
-			root.add(newButton("OK", e -> finish(false)), "tag apply");
+			root.add(newButton("OK", e -> finish(false)), "tag ok");
 		}
 
 		// update preview on change
