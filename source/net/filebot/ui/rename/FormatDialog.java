@@ -36,6 +36,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import java.util.prefs.Preferences;
 
 import javax.script.ScriptException;
 import javax.swing.AbstractAction;
@@ -696,6 +697,9 @@ public class FormatDialog extends JDialog {
 				if (format.getExpression().isEmpty()) {
 					throw new ScriptException("Expression is empty");
 				}
+				if (format.getExpression().length() > Preferences.MAX_VALUE_LENGTH) {
+					throw new ScriptException("Expression is limited to " + Preferences.MAX_VALUE_LENGTH + " characters");
+				}
 
 				// create new recent history and ignore duplicates
 				Set<String> recent = new LinkedHashSet<String>();
@@ -718,6 +722,8 @@ public class FormatDialog extends JDialog {
 				finish(true);
 			} catch (ScriptException e) {
 				log.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e));
+			} catch (Exception e) {
+				log.log(Level.WARNING, e.getMessage(), e);
 			}
 		}
 	};
