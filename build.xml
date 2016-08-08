@@ -305,7 +305,7 @@
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="jars.classpath" />
 		<property name="bundle" value="${title}_${version}-brew" />
 
-		<bundleapp minimumsystemversion="10.9" outputdirectory="${dir.dist}" executablename="FileBotAppLauncher" name="${bundle}" displayname="${title} ${version}" version="${revision}" shortversion="${version}" identifier="net.filebot.app" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} Reinhard Pointner" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
+		<bundleapp minimumsystemversion="10.9" jvmrequired="1.8" outputdirectory="${dir.dist}" executablename="FileBotAppLauncher" name="${application.name}" displayname="${title} ${version}" version="${revision}" shortversion="${version}" identifier="net.filebot.app" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} Reinhard Pointner" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<arch name="x86_64" />
@@ -338,13 +338,13 @@
 
 		<!-- application bundle folder as .tar -->
 		<tar destfile="${path.appbundle.tar}" compression="bzip2" longfile="gnu" encoding="utf8">
-			<tarfileset dir="${dir.dist}" includes="${bundle}.app/**" excludes="**/MacOS/**" />
-			<tarfileset dir="${dir.dist}" includes="${bundle}.app/**/**.dylib" />
+			<tarfileset dir="${dir.dist}" includes="${application.name}.app/**" excludes="**/MacOS/**" />
+			<tarfileset dir="${dir.dist}" includes="${application.name}.app/**/**.dylib" />
 
 			<!-- IMPORTANT application stub must be executable!! -->
-			<tarfileset dir="${dir.dist}" includes="${bundle}.app/**/**Launcher" filemode="755" />
-			<tarfileset dir="${dir.dist}" includes="${bundle}.app/**/fpcalc" filemode="755" />
-			<tarfileset prefix="${bundle}.app/Contents/MacOS" dir="${dir.installer}/appbundle" includes="*.sh" filemode="755" />
+			<tarfileset dir="${dir.dist}" includes="${application.name}.app/**/**Launcher" filemode="755" />
+			<tarfileset dir="${dir.dist}" includes="${application.name}.app/**/fpcalc" filemode="755" />
+			<tarfileset prefix="${application.name}.app/Contents/MacOS" dir="${dir.installer}/appbundle" includes="*.sh" filemode="755" />
 		</tar>
 	</target>
 
