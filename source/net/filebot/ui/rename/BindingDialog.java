@@ -220,20 +220,6 @@ class BindingDialog extends JDialog {
 	}
 
 	private void finish(boolean submit) {
-		if (submit) {
-			// illegal episode string
-			if (getInfoObject() == null) {
-				log.warning(format("Failed to import object: '%s'", infoTextField.getText()));
-				return;
-			}
-
-			// illegal file path
-			if (getMediaFile() == null) {
-				log.warning(format("Invalid media file: '%s'", mediaFileTextField.getText()));
-				return;
-			}
-		}
-
 		// cancel background evaluators
 		this.submit = submit;
 		this.bindingModel.executor.shutdownNow();
