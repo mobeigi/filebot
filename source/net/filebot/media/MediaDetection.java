@@ -1087,12 +1087,16 @@ public class MediaDetection {
 				filesByMediaFolder.stream().collect(groupingBy(f -> {
 					if (VIDEO_FILES.accept(f)) {
 						try (MediaInfo mi = new MediaInfo().open(f)) {
-							return mi.get(StreamKind.General, 0, "Encoded_Date");
+							String v = mi.get(StreamKind.Video, 0, "Codec");
+							String a = mi.get(StreamKind.Audio, 0, "Codec");
+							String w = mi.get(StreamKind.Video, 0, "Width");
+							String h = mi.get(StreamKind.Video, 0, "Height");
+							return asList(v, a, w, h);
 						} catch (Exception e) {
 							debug.warning(format("Failed to read media characteristics: %s", e.getMessage()));
 						}
 					}
-					return "";
+					return emptyList();
 				})).forEach((group, videos) -> groups.add(videos));
 			});
 		});
