@@ -57,7 +57,7 @@ public class MetaAttributes {
 
 	public void setObject(Object object) {
 		try {
-			metaAttributeView.put(METADATA_KEY, JsonWriter.objectToJson(object, jsonOptions));
+			metaAttributeView.put(METADATA_KEY, JsonWriter.objectToJson(object, getJsonOptions()));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -67,7 +67,7 @@ public class MetaAttributes {
 		try {
 			String jsonObject = metaAttributeView.get(METADATA_KEY);
 			if (jsonObject != null && jsonObject.length() > 0) {
-				return JsonReader.jsonToJava(jsonObject, jsonOptions);
+				return JsonReader.jsonToJava(jsonObject, getJsonOptions());
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -80,13 +80,8 @@ public class MetaAttributes {
 		metaAttributeView.put(METADATA_KEY, null);
 	}
 
-	private static final Map<String, Object> jsonOptions = getJsonOptions();
-
-	private static Map<String, Object> getJsonOptions() {
-		Map<String, Object> opts = new HashMap<String, Object>(2);
-		opts.put(JsonWriter.TYPE_NAME_MAP, Stream.of(Episode.class, Movie.class, MoviePart.class, AudioTrack.class, SeriesInfo.class, SimpleDate.class).collect(toMap(Class::getName, Class::getSimpleName)));
-		opts.put(JsonWriter.SKIP_NULL_FIELDS, true);
-		return opts;
+	public Map<String, Object> getJsonOptions() {
+		return null;
 	}
 
 }
