@@ -248,12 +248,9 @@ public class MediaInfo implements Closeable {
 		}
 	}
 
-	/**
-	 * Helper for easy usage
-	 */
 	public static Map<StreamKind, List<Map<String, String>>> snapshot(File file) throws IOException {
-		try (MediaInfo mi = new MediaInfo()) {
-			return mi.open(file).snapshot();
+		try (MediaInfo mi = new MediaInfo().open(file)) {
+			return mi.snapshot();
 		}
 	}
 
