@@ -22,9 +22,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,7 +36,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import com.cedarsoftware.util.io.JsonWriter;
@@ -201,10 +201,10 @@ public class MediaBindingBean {
 	}
 
 	@Define("age")
-	public Number getAgeInDays() {
+	public Long getAgeInDays() {
 		SimpleDate releaseDate = getReleaseDate();
 		if (releaseDate != null) {
-			long days = TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - releaseDate.getTimeStamp());
+			long days = ChronoUnit.DAYS.between(releaseDate.toLocalDate(), LocalDateTime.now());
 			if (days >= 0) {
 				return days;
 			}
@@ -910,7 +910,7 @@ public class MediaBindingBean {
 
 	@Define("today")
 	public SimpleDate getToday() {
-		return new SimpleDate(LocalDate.now());
+		return new SimpleDate(LocalDateTime.now());
 	}
 
 	@Define("home")
