@@ -313,6 +313,7 @@ public class FormatDialog extends JDialog {
 
 	public void setFormatCode(String text) {
 		editor.setText(text);
+		editor.setEditable(true);
 		editor.requestFocusInWindow();
 		editor.scrollRectToVisible(new Rectangle(0, 0)); // reset scroll
 		editor.setCaretPosition(text.length()); // scroll to end of format
