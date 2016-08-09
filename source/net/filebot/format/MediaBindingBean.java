@@ -1024,7 +1024,7 @@ public class MediaBindingBean {
 			mediaInfo = sharedMediaInfoObjects.computeIfAbsent(inferredMediaFile, f -> {
 				try {
 					return new MediaInfo().open(f);
-				} catch (Exception e) {
+				} catch (IOException e) {
 					throw new MediaInfoException(e.getMessage());
 				}
 			});
