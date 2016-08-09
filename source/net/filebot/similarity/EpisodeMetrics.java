@@ -4,6 +4,8 @@ import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.Logging.*;
+import static net.filebot.MediaTypes.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.similarity.Normalization.*;
@@ -12,6 +14,8 @@ import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,6 +30,8 @@ import java.util.regex.Pattern;
 import com.ibm.icu.text.Transliterator;
 
 import net.filebot.media.SmartSeasonEpisodeMatcher;
+import net.filebot.mediainfo.MediaInfo;
+import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.filebot.vfs.FileInfo;
 import net.filebot.web.Episode;
@@ -509,7 +515,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
-			// adjust differentiation accuracy to about a year
+			// adjust differentiation accuracy to about 3 years
 			float f = super.getSimilarity(o1, o2);
 			return f >= 0.9 ? 1 : f >= 0 ? 0 : -1;
 		}
@@ -525,6 +531,19 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 					// big penalty for episodes not yet aired
 					return ts > System.currentTimeMillis() ? -1 : ts;
+				}
+			} else if (object instanceof File) {
+				File file = (File) object;
+				if (VIDEO_FILES.accept(file) && file.length() > ONE_MEGABYTE) {
+					try (MediaInfo mi = new MediaInfo().open(file)) {
+						String date = mi.get(StreamKind.General, 0, "Encoded_Date"); // e.g. UTC 2008-01-08 19:54:39
+						if (date.length() > 0) {
+							ZonedDateTime time = ZonedDateTime.parse(date, DateTimeFormatter.ofPattern("zzz uuuu-MM-dd HH:mm:ss"));
+							return time.toInstant().toEpochMilli();
+						}
+					} catch (Exception e) {
+						debug.warning(format("Failed to read media encoding date: %s", e.getMessage()));
+					}
 				}
 			}
 
