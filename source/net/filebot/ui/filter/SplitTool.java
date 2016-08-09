@@ -1,5 +1,7 @@
 package net.filebot.ui.filter;
 
+import static net.filebot.util.FileUtilities.*;
+
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
@@ -17,7 +19,6 @@ import javax.swing.tree.TreeNode;
 
 import net.filebot.ui.filter.FileTree.FolderNode;
 import net.filebot.ui.transfer.DefaultTransferHandler;
-import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.GradientStyle;
 import net.filebot.util.ui.LoadingOverlayPane;
 import net.filebot.util.ui.notification.SeparatorBorder;
@@ -62,7 +63,7 @@ class SplitTool extends Tool<TreeModel> {
 	}
 
 	private long getSplitSize() {
-		return spinnerModel.getNumber().intValue() * FileUtilities.MEGA;
+		return spinnerModel.getNumber().intValue() * ONE_MEGABYTE;
 	}
 
 	@Override
@@ -70,7 +71,7 @@ class SplitTool extends Tool<TreeModel> {
 		int nextPart = 1;
 		long splitSize = getSplitSize();
 
-		List<File> files = (root != null) ? FileUtilities.listFiles(root) : new ArrayList<File>();
+		List<File> files = (root != null) ? listFiles(root) : new ArrayList<File>();
 
 		List<TreeNode> rootGroup = new ArrayList<TreeNode>();
 		List<File> currentPart = new ArrayList<File>();

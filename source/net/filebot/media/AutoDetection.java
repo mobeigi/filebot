@@ -109,7 +109,7 @@ public class AutoDetection {
 			return true;
 		}
 
-		if (VIDEO_FILES.accept(f)) {
+		if (VIDEO_FILES.accept(f) && f.length() > ONE_MEGABYTE) {
 			// check for Japanese audio or characteristic subtitles
 			try (MediaInfo mi = new MediaInfo().open(f)) {
 				long minutes = Duration.ofMillis(Long.parseLong(mi.get(StreamKind.General, 0, "Duration"))).toMinutes();

@@ -659,17 +659,17 @@ public final class FileUtilities {
 
 	public static final int BUFFER_SIZE = 64 * 1024;
 
-	public static final long KILO = 1024;
-	public static final long MEGA = 1024 * KILO;
-	public static final long GIGA = 1024 * MEGA;
+	public static final long ONE_KILOBYTE = 1024;
+	public static final long ONE_MEGABYTE = 1024 * ONE_KILOBYTE;
+	public static final long ONE_GIGABYTE = 1024 * ONE_MEGABYTE;
 
 	public static String formatSize(long size) {
-		if (size >= GIGA)
-			return String.format("%,d GB", size / GIGA);
-		else if (size >= MEGA)
-			return String.format("%,d MB", size / MEGA);
-		else if (size >= KILO)
-			return String.format("%,d KB", size / KILO);
+		if (size >= ONE_GIGABYTE)
+			return String.format("%,d GB", size / ONE_GIGABYTE);
+		else if (size >= ONE_MEGABYTE)
+			return String.format("%,d MB", size / ONE_MEGABYTE);
+		else if (size >= ONE_KILOBYTE)
+			return String.format("%,d KB", size / ONE_KILOBYTE);
 		else
 			return String.format("%,d bytes", size);
 	}
