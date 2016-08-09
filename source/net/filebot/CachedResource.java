@@ -89,7 +89,7 @@ public class CachedResource<K, R> implements Resource<R> {
 				}
 
 				if (data == null) {
-					throw new IllegalStateException(String.format("Response data is null: %s => %s", key, url));
+					throw new IOException(String.format("Response data is null: %s => %s", key, url));
 				}
 
 				return parse.transform(data);
