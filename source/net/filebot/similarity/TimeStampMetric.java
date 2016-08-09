@@ -21,22 +21,20 @@ public class TimeStampMetric implements SimilarityMetric {
 		return min / max;
 	}
 
-	public long getTimeStamp(Object obj) {
-		if (obj instanceof File) {
+	public long getTimeStamp(Object object) {
+		if (object instanceof File) {
+			File f = (File) object;
 			try {
-				BasicFileAttributes attr = Files.readAttributes(((File) obj).toPath(), BasicFileAttributes.class);
+				BasicFileAttributes attr = Files.readAttributes(f.toPath(), BasicFileAttributes.class);
 				long creationTime = attr.creationTime().toMillis();
 				if (creationTime > 0) {
 					return creationTime;
 				} else {
 					return attr.lastModifiedTime().toMillis();
 				}
-			} catch (Throwable e) {
-				// ignore Java 6 issues
-				return ((File) obj).lastModified();
+			} catch (Exception e) {
+				// ignore, default to -1
 			}
-		} else if (obj instanceof Number) {
-			return ((Number) obj).longValue();
 		}
 
 		return -1;

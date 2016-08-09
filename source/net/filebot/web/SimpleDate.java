@@ -48,17 +48,13 @@ public class SimpleDate implements Serializable, Comparable<Object> {
 		return day;
 	}
 
-	public long getTimeStamp() {
-		return this.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-	}
-
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SimpleDate) {
 			SimpleDate other = (SimpleDate) obj;
 			return year == other.year && month == other.month && day == other.day;
 		} else if (obj instanceof CharSequence) {
-			return this.toString().equals(obj.toString());
+			return toString().equals(obj.toString());
 		}
 
 		return super.equals(obj);
@@ -79,7 +75,7 @@ public class SimpleDate implements Serializable, Comparable<Object> {
 	}
 
 	public int compareTo(SimpleDate other) {
-		return Long.compare(this.getTimeStamp(), other.getTimeStamp());
+		return Long.compare(getTimeStamp(), other.getTimeStamp());
 	}
 
 	@Override
@@ -93,11 +89,19 @@ public class SimpleDate implements Serializable, Comparable<Object> {
 	}
 
 	public String format(String pattern) {
-		return DateTimeFormatter.ofPattern(pattern, Locale.ENGLISH).format(this.toLocalDate());
+		return DateTimeFormatter.ofPattern(pattern, Locale.ENGLISH).format(toLocalDate());
 	}
 
 	public LocalDate toLocalDate() {
 		return LocalDate.of(year, month, day);
+	}
+
+	public Instant toInstant() {
+		return toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
+	}
+
+	public long getTimeStamp() {
+		return toInstant().toEpochMilli();
 	}
 
 	@Override

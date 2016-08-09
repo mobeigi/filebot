@@ -13,6 +13,7 @@ import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -520,34 +521,49 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			return f >= 0.9 ? 1 : f >= 0 ? 0 : -1;
 		}
 
-		@Override
-		public long getTimeStamp(Object object) {
-			if (object instanceof Episode) {
-				SimpleDate date = ((Episode) object).getAirdate();
-
-				// some episodes may not have a defined airdate
-				if (date != null) {
-					long ts = date.getTimeStamp();
-
-					// big penalty for episodes not yet aired
-					return ts > System.currentTimeMillis() ? -1 : ts;
-				}
-			} else if (object instanceof File) {
-				File file = (File) object;
-				if (VIDEO_FILES.accept(file) && file.length() > ONE_MEGABYTE) {
-					try (MediaInfo mi = new MediaInfo().open(file)) {
-						String date = mi.get(StreamKind.General, 0, "Encoded_Date"); // e.g. UTC 2008-01-08 19:54:39
-						if (date.length() > 0) {
-							ZonedDateTime time = ZonedDateTime.parse(date, DateTimeFormatter.ofPattern("zzz uuuu-MM-dd HH:mm:ss"));
-							return time.toInstant().toEpochMilli();
-						}
-					} catch (Exception e) {
-						debug.warning(format("Failed to read media encoding date: %s", e.getMessage()));
-					}
+		private long getTimeStamp(SimpleDate date) {
+			// some episodes may not have a defined airdate
+			if (date != null) {
+				Instant t = date.toInstant();
+				if (t.isBefore(Instant.now())) {
+					return t.toEpochMilli();
 				}
 			}
 
-			return super.getTimeStamp(object);
+			// big penalty for episodes not yet aired
+			return -1;
+		}
+
+		private long getTimeStamp(File file) {
+			if (VIDEO_FILES.accept(file) && file.length() > ONE_MEGABYTE) {
+				try (MediaInfo mi = new MediaInfo().open(file)) {
+					String date = mi.get(StreamKind.General, 0, "Encoded_Date"); // e.g. UTC 2008-01-08 19:54:39
+					if (date.length() > 0) {
+						ZonedDateTime time = ZonedDateTime.parse(date, DateTimeFormatter.ofPattern("zzz uuuu-MM-dd HH:mm:ss"));
+						return time.toInstant().toEpochMilli();
+					}
+				} catch (Exception e) {
+					debug.warning(format("Failed to read media encoding date: %s", e.getMessage()));
+				}
+			}
+
+			return super.getTimeStamp(file); // default to file creation date
+		}
+
+		@Override
+		public long getTimeStamp(Object object) {
+			if (object instanceof Episode) {
+				Episode e = (Episode) object;
+				return getTimeStamp(e.getAirdate());
+			} else if (object instanceof Movie) {
+				Movie m = (Movie) object;
+				return getTimeStamp(new SimpleDate(m.getYear(), 1, 1));
+			} else if (object instanceof File) {
+				File file = (File) object;
+				return getTimeStamp(file);
+			}
+
+			return -1;
 		}
 	}),
 
