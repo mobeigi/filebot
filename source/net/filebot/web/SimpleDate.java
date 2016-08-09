@@ -14,9 +14,9 @@ import java.util.regex.Pattern;
 
 public class SimpleDate implements Serializable, Comparable<Object> {
 
-	private int year;
-	private int month;
-	private int day;
+	protected int year;
+	protected int month;
+	protected int day;
 
 	protected SimpleDate() {
 		// used by serializer
