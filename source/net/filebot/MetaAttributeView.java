@@ -17,15 +17,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.filebot.mac.xattr.XAttrUtil;
-
 import com.sun.jna.Platform;
+
+import net.filebot.mac.xattr.XAttrUtil;
 
 public class MetaAttributeView extends AbstractMap<String, String> {
 
-	// UserDefinedFileAttributeView (for Windows and Linux) OR our own xattr.h JNA wrapper via MacXattrView (for Mac) because UserDefinedFileAttributeView is not supported (Oracle Java 7/8)
 	private Object xattr;
-	private Charset encoding;
+	private Charset encoding = UTF_8;
 
 	public MetaAttributeView(File file) throws IOException {
 		Path path = file.getCanonicalFile().toPath();
@@ -37,17 +36,15 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 			path = link;
 		}
 
-		xattr = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
+		// UserDefinedFileAttributeView (for Windows and Linux) OR our own xattr.h JNA wrapper via MacXattrView (for Mac) because UserDefinedFileAttributeView is not supported (Oracle Java 7/8)
+		if (Platform.isMac()) {
+			xattr = new MacXattrView(path);
+		} else {
+			xattr = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
 
-		if (xattr == null) {
-			if (Platform.isMac()) {
-				xattr = new MacXattrView(path);
-			} else {
+			if (xattr == null) {
 				throw new IOException("UserDefinedFileAttributeView is not supported");
 			}
-		} else {
-			// UserDefinedFileAttributeView
-			this.encoding = UTF_8;
 		}
 	}
 
