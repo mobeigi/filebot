@@ -161,18 +161,20 @@ public enum SubtitleMetrics implements SimilarityMetric {
 			return emptyMap();
 		};
 
+		private Map<String, Object> getProperties(float fps, long millis) {
+			Map<String, Object> props = new HashMap<String, Object>(2);
+			if (fps > 0) {
+				props.put(FPS, Math.round(fps)); // round because most FPS values in the database are bad anyway
+			}
+			if (millis > 0) {
+				props.put(SECONDS, Math.round(Math.floor(millis / 1000d)));
+			}
+			return props;
+		}
+
 		private Map<String, Object> getSubtitleProperties(OpenSubtitlesSubtitleDescriptor subtitle) {
 			try {
-				Map<String, Object> props = new HashMap<String, Object>(2);
-				float fps = Math.round(subtitle.getMovieFPS()); // round because most FPS values in the database are bad anyway
-				if (fps > 0) {
-					props.put(FPS, fps);
-				}
-				long seconds = (long) Math.floor(subtitle.getMovieTimeMS() / (double) 1000);
-				if (seconds > 0) {
-					props.put(SECONDS, seconds);
-				}
-				return props;
+				return getProperties(subtitle.getMovieFPS(), subtitle.getMovieTimeMS());
 			} catch (Exception e) {
 				debug.warning("Failed to read subtitle properties: " + e);
 			}
@@ -183,17 +185,10 @@ public enum SubtitleMetrics implements SimilarityMetric {
 
 		private Map<String, Object> getVideoProperties(File file) {
 			return mediaInfoCache.computeIfAbsent(file, key -> {
-				try (MediaInfo mediaInfo = new MediaInfo().open(file)) {
-					Map<String, Object> props = new HashMap<String, Object>(2);
-					float fps = Math.round(Float.parseFloat(mediaInfo.get(StreamKind.Video, 0, "FrameRate")));
-					if (fps > 0) {
-						props.put(FPS, fps);
-					}
-					long seconds = (long) Math.floor(Long.parseLong(mediaInfo.get(StreamKind.Video, 0, "Duration")) / (double) 1000);
-					if (seconds > 0) {
-						props.put(SECONDS, seconds);
-					}
-					return props;
+				try (MediaInfo mi = new MediaInfo().open(file)) {
+					float fps = Float.parseFloat(mi.get(StreamKind.Video, 0, "FrameRate"));
+					long millis = Long.parseLong(mi.get(StreamKind.Video, 0, "Duration"));
+					return getProperties(fps, millis);
 				} catch (Exception e) {
 					debug.warning("Failed to read video properties: " + e.getMessage());
 				}
