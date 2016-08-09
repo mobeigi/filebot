@@ -163,7 +163,7 @@ public enum SubtitleMetrics implements SimilarityMetric {
 
 		private Map<String, Object> getSubtitleProperties(OpenSubtitlesSubtitleDescriptor subtitle) {
 			try {
-				Map<String, Object> props = new HashMap<String, Object>();
+				Map<String, Object> props = new HashMap<String, Object>(2);
 				float fps = Math.round(subtitle.getMovieFPS()); // round because most FPS values in the database are bad anyway
 				if (fps > 0) {
 					props.put(FPS, fps);
@@ -179,30 +179,26 @@ public enum SubtitleMetrics implements SimilarityMetric {
 			return emptyMap();
 		}
 
-		private final Map<File, Map<String, Object>> mediaInfoCache = new WeakHashMap<File, Map<String, Object>>(64);
+		private final Map<File, Map<String, Object>> mediaInfoCache = synchronizedMap(new WeakHashMap<File, Map<String, Object>>(64));
 
 		private Map<String, Object> getVideoProperties(File file) {
-			synchronized (mediaInfoCache) {
-				return mediaInfoCache.computeIfAbsent(file, (f) -> {
-					try {
-						Map<String, Object> props = new HashMap<String, Object>();
-						MediaInfo mediaInfo = new MediaInfo().open(file);
-
-						float fps = Math.round(Float.parseFloat(mediaInfo.get(StreamKind.Video, 0, "FrameRate")));
-						if (fps > 0) {
-							props.put(FPS, fps);
-						}
-						long seconds = (long) Math.floor(Long.parseLong(mediaInfo.get(StreamKind.Video, 0, "Duration")) / (double) 1000);
-						if (seconds > 0) {
-							props.put(SECONDS, seconds);
-						}
-						return props;
-					} catch (Exception e) {
-						debug.warning("Failed to read video properties: " + e.getMessage());
+			return mediaInfoCache.computeIfAbsent(file, key -> {
+				try (MediaInfo mediaInfo = new MediaInfo().open(file)) {
+					Map<String, Object> props = new HashMap<String, Object>(2);
+					float fps = Math.round(Float.parseFloat(mediaInfo.get(StreamKind.Video, 0, "FrameRate")));
+					if (fps > 0) {
+						props.put(FPS, fps);
 					}
-					return emptyMap();
-				});
-			}
+					long seconds = (long) Math.floor(Long.parseLong(mediaInfo.get(StreamKind.Video, 0, "Duration")) / (double) 1000);
+					if (seconds > 0) {
+						props.put(SECONDS, seconds);
+					}
+					return props;
+				} catch (Exception e) {
+					debug.warning("Failed to read video properties: " + e.getMessage());
+				}
+				return emptyMap();
+			});
 		}
 	});
 

@@ -1013,7 +1013,7 @@ public class MediaBindingBean {
 		return getMediaFile();
 	}
 
-	private static final Map<File, MediaInfo> sharedMediaInfoObjects = new WeakValueHashMap<File, MediaInfo>(64);
+	private static final Map<File, MediaInfo> sharedMediaInfoObjects = synchronizedMap(new WeakValueHashMap<File, MediaInfo>(64));
 
 	private synchronized MediaInfo getMediaInfo() {
 		// lazy initialize
@@ -1021,15 +1021,13 @@ public class MediaBindingBean {
 			// use inferred media file (e.g. actual movie file instead of subtitle file)
 			File inferredMediaFile = getInferredMediaFile();
 
-			synchronized (sharedMediaInfoObjects) {
-				mediaInfo = sharedMediaInfoObjects.computeIfAbsent(inferredMediaFile, f -> {
-					try {
-						return new MediaInfo().open(f);
-					} catch (Exception e) {
-						throw new MediaInfoException(e.getMessage());
-					}
-				});
-			}
+			mediaInfo = sharedMediaInfoObjects.computeIfAbsent(inferredMediaFile, f -> {
+				try {
+					return new MediaInfo().open(f);
+				} catch (Exception e) {
+					throw new MediaInfoException(e.getMessage());
+				}
+			});
 		}
 
 		return mediaInfo;
