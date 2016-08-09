@@ -9,8 +9,6 @@ import net.filebot.mediainfo.MediaInfo.StreamKind;
 
 public class MediaDurationFilter implements FileFilter {
 
-	private final MediaInfo mediaInfo = new MediaInfo();
-
 	private final long min;
 	private final long max;
 	private final boolean acceptByDefault;
@@ -25,21 +23,21 @@ public class MediaDurationFilter implements FileFilter {
 		this.acceptByDefault = acceptByDefault;
 	}
 
-	public long getDuration(File file) {
-		synchronized (mediaInfo) {
-			try {
-				String duration = mediaInfo.open(file).get(StreamKind.General, 0, "Duration");
+	public long getDuration(File f) {
+		try (MediaInfo mi = new MediaInfo().open(f)) {
+			String duration = mi.get(StreamKind.General, 0, "Duration");
+			if (duration.length() > 0) {
 				return Long.parseLong(duration);
-			} catch (Exception e) {
-				debug.warning("Failed to read video duration: " + e.getMessage());
 			}
+		} catch (Exception e) {
+			debug.warning(format("Failed to read video duration: %s", e.getMessage()));
 		}
 		return -1;
 	}
 
 	@Override
-	public boolean accept(File file) {
-		long d = getDuration(file);
+	public boolean accept(File f) {
+		long d = getDuration(f);
 		if (d >= 0) {
 			return d >= min && d <= max;
 		}
