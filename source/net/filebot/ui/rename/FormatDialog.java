@@ -73,6 +73,7 @@ import net.filebot.format.BindingException;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.mac.MacAppUtilities;
+import net.filebot.mediainfo.MediaInfo;
 import net.filebot.util.DefaultThreadFactory;
 import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.PreferencesList;
@@ -313,10 +314,9 @@ public class FormatDialog extends JDialog {
 
 	public void setFormatCode(String text) {
 		editor.setText(text);
-		editor.setEditable(true);
-		editor.requestFocusInWindow();
 		editor.scrollRectToVisible(new Rectangle(0, 0)); // reset scroll
 		editor.setCaretPosition(text.length()); // scroll to end of format
+		editor.requestFocusInWindow();
 	}
 
 	private RSyntaxTextArea createEditor() {
@@ -731,6 +731,17 @@ public class FormatDialog extends JDialog {
 
 	protected void fireSampleChanged() {
 		firePropertyChange("sample", null, sample);
+	}
+
+	static {
+		try {
+			// load all necessarily classes to avoid focus issues with RSyntaxTextArea
+			new RSyntaxTextArea(new RSyntaxDocument(SyntaxConstants.SYNTAX_STYLE_GROOVY));
+			new ExpressionFormat("{n} - {s00e00} - {t}");
+			new MediaInfo();
+		} catch (Throwable e) {
+			debug.log(Level.SEVERE, "Failed to initialize FormatDialog", e);
+		}
 	}
 
 }

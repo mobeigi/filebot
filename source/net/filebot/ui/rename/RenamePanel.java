@@ -274,17 +274,11 @@ public class RenamePanel extends JComponent {
 			if (evt.getClickCount() == 2) {
 				JList list = (JList) evt.getSource();
 				if (list.getSelectedIndex() >= 0) {
-					try {
-						withWaitCursor(list, () -> {
-							Match<Object, File> match = renameModel.getMatch(list.getSelectedIndex());
-							Map<File, Object> context = renameModel.getMatchContext(match);
+					Match<Object, File> match = renameModel.getMatch(list.getSelectedIndex());
+					Map<File, Object> context = renameModel.getMatchContext(match);
 
-							MediaBindingBean sample = new MediaBindingBean(match.getValue(), match.getCandidate(), context);
-							showFormatEditor(sample);
-						});
-					} catch (Exception e) {
-						debug.log(Level.WARNING, e.getMessage(), e);
-					}
+					MediaBindingBean sample = new MediaBindingBean(match.getValue(), match.getCandidate(), context);
+					showFormatEditor(sample);
 				}
 			}
 		}));
@@ -443,9 +437,7 @@ public class RenamePanel extends JComponent {
 		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("Options:"));
 
-		actionPopup.add(newAction("Edit Format", ResourceManager.getIcon("action.format"), evt -> {
-			showFormatEditor(null);
-		}));
+		actionPopup.add(newAction("Edit Format", ResourceManager.getIcon("action.format"), evt -> showFormatEditor(null)));
 
 		actionPopup.add(newAction("Preferences", ResourceManager.getIcon("action.preferences"), evt -> {
 			String[] modes = new String[] { MATCH_MODE_OPPORTUNISTIC, MATCH_MODE_STRICT };
@@ -533,57 +525,64 @@ public class RenamePanel extends JComponent {
 		return actionPopup;
 	}
 
-	protected void showFormatEditor(MediaBindingBean lockOnBinding) {
-		// default to Episode mode
-		Mode initMode = Mode.Episode;
-
-		if (lockOnBinding != null) {
-			if (lockOnBinding.getInfoObject() instanceof Episode) {
-				initMode = Mode.Episode;
-			} else if (lockOnBinding.getInfoObject() instanceof Movie) {
-				initMode = Mode.Movie;
-			} else if (lockOnBinding.getInfoObject() instanceof AudioTrack) {
-				initMode = Mode.Music;
-			} else if (lockOnBinding.getInfoObject() instanceof File) {
-				initMode = Mode.File;
+	protected Mode getFormatEditorMode(MediaBindingBean binding) {
+		if (binding != null) {
+			if (binding.getInfoObject() instanceof Episode) {
+				return Mode.Episode;
+			} else if (binding.getInfoObject() instanceof Movie) {
+				return Mode.Movie;
+			} else if (binding.getInfoObject() instanceof AudioTrack) {
+				return Mode.Music;
+			} else if (binding.getInfoObject() instanceof File) {
+				return Mode.File;
 			} else {
-				return; // ignore objects that cannot be formatted
-			}
-		} else {
-			try {
-				initMode = Mode.valueOf(persistentLastFormatState.getValue()); // restore previous mode
-			} catch (Exception e) {
-				debug.log(Level.WARNING, e.getMessage(), e);
+				throw new IllegalArgumentException("Cannot format class: " + binding.getClass()); // ignore objects that cannot be formatted
 			}
 		}
 
-		FormatDialog dialog = new FormatDialog(getWindowAncestor(RenamePanel.this), initMode, lockOnBinding);
-		dialog.setLocation(getOffsetLocation(dialog.getOwner()));
-		dialog.setVisible(true);
+		try {
+			return Mode.valueOf(persistentLastFormatState.getValue()); // restore previous mode
+		} catch (Exception e) {
+			debug.log(Level.WARNING, e.getMessage(), e);
+		}
 
-		if (dialog.submit()) {
-			switch (dialog.getMode()) {
-			case Episode:
-				renameModel.useFormatter(Episode.class, new ExpressionFormatter(dialog.getFormat().getExpression(), EpisodeFormat.SeasonEpisode, Episode.class));
-				persistentEpisodeFormat.setValue(dialog.getFormat().getExpression());
-				break;
-			case Movie:
-				renameModel.useFormatter(Movie.class, new ExpressionFormatter(dialog.getFormat().getExpression(), MovieFormat.NameYear, Movie.class));
-				persistentMovieFormat.setValue(dialog.getFormat().getExpression());
-				break;
-			case Music:
-				renameModel.useFormatter(AudioTrack.class, new ExpressionFormatter(dialog.getFormat().getExpression(), new AudioTrackFormat(), AudioTrack.class));
-				persistentMusicFormat.setValue(dialog.getFormat().getExpression());
-				break;
-			case File:
-				renameModel.useFormatter(File.class, new ExpressionFormatter(dialog.getFormat().getExpression(), new FileNameFormat(), File.class));
-				persistentFileFormat.setValue(dialog.getFormat().getExpression());
-				break;
-			}
+		return Mode.Episode; // default to Episode mode
+	}
 
-			if (lockOnBinding == null) {
-				persistentLastFormatState.setValue(dialog.getMode().name());
-			}
+	protected void showFormatEditor(MediaBindingBean binding) {
+		try {
+			withWaitCursor(this, () -> {
+				FormatDialog dialog = new FormatDialog(getWindowAncestor(RenamePanel.this), getFormatEditorMode(binding), binding);
+				dialog.setLocation(getOffsetLocation(dialog.getOwner()));
+				dialog.setVisible(true);
+
+				if (dialog.submit()) {
+					switch (dialog.getMode()) {
+					case Episode:
+						renameModel.useFormatter(Episode.class, new ExpressionFormatter(dialog.getFormat().getExpression(), EpisodeFormat.SeasonEpisode, Episode.class));
+						persistentEpisodeFormat.setValue(dialog.getFormat().getExpression());
+						break;
+					case Movie:
+						renameModel.useFormatter(Movie.class, new ExpressionFormatter(dialog.getFormat().getExpression(), MovieFormat.NameYear, Movie.class));
+						persistentMovieFormat.setValue(dialog.getFormat().getExpression());
+						break;
+					case Music:
+						renameModel.useFormatter(AudioTrack.class, new ExpressionFormatter(dialog.getFormat().getExpression(), new AudioTrackFormat(), AudioTrack.class));
+						persistentMusicFormat.setValue(dialog.getFormat().getExpression());
+						break;
+					case File:
+						renameModel.useFormatter(File.class, new ExpressionFormatter(dialog.getFormat().getExpression(), new FileNameFormat(), File.class));
+						persistentFileFormat.setValue(dialog.getFormat().getExpression());
+						break;
+					}
+
+					if (binding == null) {
+						persistentLastFormatState.setValue(dialog.getMode().name());
+					}
+				}
+			});
+		} catch (Exception e) {
+			debug.log(Level.WARNING, e::getMessage);
 		}
 	}
 
