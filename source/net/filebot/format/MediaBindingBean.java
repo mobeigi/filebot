@@ -22,8 +22,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -575,8 +577,7 @@ public class MediaBindingBean {
 
 	@Define("runtime")
 	public Integer getRuntime() {
-		Object runtime = getMetaInfo().getProperty("runtime");
-		return runtime instanceof Integer ? (Integer) runtime : Integer.parseInt(runtime.toString());
+		return (Integer) getMetaInfo().getProperty("runtime");
 	}
 
 	@Define("actors")
@@ -900,14 +901,21 @@ public class MediaBindingBean {
 		return String.format("%.1f", getFileSize() / Math.pow(1000, 3));
 	}
 
+	@Define("encodedDate")
+	public SimpleDate getEncodedDate() {
+		String date = getMediaInfo(StreamKind.General, 0, "Encoded_Date"); // e.g. UTC 2008-01-08 19:54:39
+		ZonedDateTime time = ZonedDateTime.parse(date, DateTimeFormatter.ofPattern("zzz uuuu-MM-dd HH:mm:ss"));
+		return new SimpleDate(time);
+	}
+
+	@Define("today")
+	public SimpleDate getToday() {
+		return new SimpleDate(LocalDate.now());
+	}
+
 	@Define("home")
 	public File getUserHome() {
 		return ApplicationFolder.UserHome.getCanonicalFile();
-	}
-
-	@Define("now")
-	public Date getNow() {
-		return new Date();
 	}
 
 	@Define("output")

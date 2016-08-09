@@ -3,9 +3,10 @@ package net.filebot.web;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.Temporal;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -27,12 +28,12 @@ public class SimpleDate implements Serializable, Comparable<Object> {
 		this.day = day;
 	}
 
-	public SimpleDate(LocalDate date) {
-		this(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
+	public SimpleDate(Temporal date) {
+		this(date.get(ChronoField.YEAR), date.get(ChronoField.MONTH_OF_YEAR), date.get(ChronoField.DAY_OF_MONTH));
 	}
 
 	public SimpleDate(long t) {
-		this(LocalDateTime.ofInstant(Instant.ofEpochMilli(t), ZoneId.systemDefault()).toLocalDate());
+		this(Instant.ofEpochMilli(t).atZone(ZoneId.systemDefault()));
 	}
 
 	public int getYear() {
