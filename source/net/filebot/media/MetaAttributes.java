@@ -1,15 +1,26 @@
 package net.filebot.media;
 
+import static java.util.stream.Collectors.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.FileTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
 
 import net.filebot.MetaAttributeView;
+import net.filebot.web.AudioTrack;
+import net.filebot.web.Episode;
+import net.filebot.web.Movie;
+import net.filebot.web.MoviePart;
+import net.filebot.web.SeriesInfo;
+import net.filebot.web.SimpleDate;
 
 public class MetaAttributes {
 
@@ -46,7 +57,7 @@ public class MetaAttributes {
 
 	public void setObject(Object object) {
 		try {
-			metaAttributeView.put(METADATA_KEY, JsonWriter.objectToJson(object));
+			metaAttributeView.put(METADATA_KEY, JsonWriter.objectToJson(object, jsonOptions));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -56,7 +67,7 @@ public class MetaAttributes {
 		try {
 			String jsonObject = metaAttributeView.get(METADATA_KEY);
 			if (jsonObject != null && jsonObject.length() > 0) {
-				return JsonReader.jsonToJava(jsonObject);
+				return JsonReader.jsonToJava(jsonObject, jsonOptions);
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -67,6 +78,15 @@ public class MetaAttributes {
 	public void clear() {
 		metaAttributeView.put(FILENAME_KEY, null);
 		metaAttributeView.put(METADATA_KEY, null);
+	}
+
+	private static final Map<String, Object> jsonOptions = getJsonOptions();
+
+	private static Map<String, Object> getJsonOptions() {
+		Map<String, Object> opts = new HashMap<String, Object>(2);
+		opts.put(JsonWriter.TYPE_NAME_MAP, Stream.of(Episode.class, Movie.class, MoviePart.class, AudioTrack.class, SeriesInfo.class, SimpleDate.class).collect(toMap(Class::getName, Class::getSimpleName)));
+		opts.put(JsonWriter.SKIP_NULL_FIELDS, true);
+		return opts;
 	}
 
 }
