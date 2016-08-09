@@ -183,8 +183,10 @@ class MovieMatcher implements AutoCompleteMatcher {
 					Movie movie = grabMovieName(file, options, strict, locale, autodetect, parent);
 
 					// make sure to use language-specific movie object if possible
+					movie = getLocalizedMovie(service, movie, locale);
+
 					if (movie != null) {
-						movieByFile.put(file, getLocalizedMovie(service, movie, locale));
+						movieByFile.put(file, movie);
 					}
 				}
 			}
@@ -415,7 +417,11 @@ class MovieMatcher implements AutoCompleteMatcher {
 		if (input != null && input.length() > 0) {
 			for (Movie movie : detectMovie(new File(input), service, locale, false)) {
 				// make sure to use language-specific movie object if possible
-				matches.add(new Match<File, Movie>(null, getLocalizedMovie(service, movie, locale)));
+				movie = getLocalizedMovie(service, movie, locale);
+
+				if (movie != null) {
+					matches.add(new Match<File, Movie>(null, movie));
+				}
 			}
 		}
 		return matches;

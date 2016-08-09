@@ -699,16 +699,15 @@ public class MediaDetection {
 	}
 
 	public static Movie getLocalizedMovie(MovieIdentificationService service, Movie movie, Locale locale) throws Exception {
-		// retrieve language-specific movie object if possible
-		try {
-			Movie localized = service.getMovieDescriptor(movie, locale);
-			if (localized != null) {
-				return localized;
+		// retrieve language and service specific movie object
+		if (movie != null) {
+			try {
+				return service.getMovieDescriptor(movie, locale);
+			} catch (Exception e) {
+				debug.log(Level.WARNING, "Failed to retrieve localized movie data", e);
 			}
-		} catch (Exception e) {
-			debug.log(Level.WARNING, "Failed to retrieve localized movie data", e);
 		}
-		return movie;
+		return null;
 	}
 
 	public static SimilarityMetric getSeriesMatchMetric() {
