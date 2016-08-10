@@ -136,9 +136,7 @@ public class MainFrame extends JFrame {
 			}
 		}));
 
-		installAction(this.getRootPane(), getKeyStroke(VK_F1, 0), newAction("Help", evt -> {
-			GettingStartedStage.start();
-		}));
+		installAction(this.getRootPane(), getKeyStroke(VK_F1, 0), newAction("Help", evt -> GettingStartedStage.start()));
 
 		SwingEventBus.getInstance().register(this);
 	}

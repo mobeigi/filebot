@@ -298,13 +298,9 @@ public class UserFiles {
 
 			public <T> T runAndWait(Callable<T> c) {
 				try {
-					// initialize JavaFX
-					new javafx.embed.swing.JFXPanel();
-					javafx.application.Platform.setImplicitExit(false);
-
 					// run on FX Thread
 					FutureTask<T> task = new FutureTask<T>(c);
-					javafx.application.Platform.runLater(task);
+					invokeJavaFX(task);
 					return task.get();
 				} catch (Exception e) {
 					throw new RuntimeException(e);
