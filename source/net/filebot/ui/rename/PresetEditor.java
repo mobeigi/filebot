@@ -3,7 +3,6 @@ package net.filebot.ui.rename;
 import static java.awt.Font.*;
 import static javax.swing.BorderFactory.*;
 import static net.filebot.Logging.*;
-import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Component;
@@ -31,8 +30,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -205,13 +202,7 @@ public class PresetEditor extends JDialog {
 	}
 
 	private RSyntaxTextArea createEditor() {
-		final RSyntaxTextArea editor = new RSyntaxTextArea(new RSyntaxDocument(SyntaxConstants.SYNTAX_STYLE_GROOVY) {
-
-			@Override
-			public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
-				super.insertString(offs, replaceSpace(str, " "), a); // FORCE SINGLE LINE
-			}
-		}, null, 1, 80);
+		RSyntaxTextArea editor = new RSyntaxTextArea(new RSyntaxDocument(SyntaxConstants.SYNTAX_STYLE_GROOVY), "", 1, 80);
 
 		editor.setAntiAliasingEnabled(true);
 		editor.setAnimateBracketMatching(false);
@@ -224,6 +215,9 @@ public class PresetEditor extends JDialog {
 		editor.setUseFocusableTips(false);
 		editor.setHighlightCurrentLine(false);
 		editor.setLineWrap(false);
+		editor.setPaintMarkOccurrencesBorder(false);
+		editor.setPaintTabLines(false);
+		editor.setMarkOccurrences(false);
 		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
 
 		return editor;

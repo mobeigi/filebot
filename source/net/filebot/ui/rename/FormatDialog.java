@@ -327,7 +327,6 @@ public class FormatDialog extends JDialog {
 		editor.setPaintMarkOccurrencesBorder(false);
 		editor.setPaintTabLines(false);
 		editor.setMarkOccurrences(false);
-
 		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
 
 		// update format on change

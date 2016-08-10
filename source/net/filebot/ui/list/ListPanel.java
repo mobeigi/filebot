@@ -29,8 +29,6 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -169,12 +167,7 @@ public class ListPanel extends JComponent {
 	}
 
 	private RSyntaxTextArea createEditor() {
-		RSyntaxTextArea editor = new RSyntaxTextArea(new RSyntaxDocument(SyntaxConstants.SYNTAX_STYLE_GROOVY) {
-			@Override
-			public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
-				super.insertString(offs, str.replaceAll("\\R", ""), a); // FORCE SINGLE LINE
-			}
-		}, null, 1, 80);
+		RSyntaxTextArea editor = new RSyntaxTextArea(new RSyntaxDocument(SyntaxConstants.SYNTAX_STYLE_GROOVY), "", 1, 80);
 
 		editor.setAntiAliasingEnabled(true);
 		editor.setAnimateBracketMatching(false);
@@ -187,7 +180,9 @@ public class ListPanel extends JComponent {
 		editor.setUseFocusableTips(false);
 		editor.setHighlightCurrentLine(false);
 		editor.setLineWrap(false);
-
+		editor.setPaintMarkOccurrencesBorder(false);
+		editor.setPaintTabLines(false);
+		editor.setMarkOccurrences(false);
 		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
 
 		// update format on change
