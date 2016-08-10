@@ -3,6 +3,7 @@ package net.filebot.format;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.RegularExpressions.*;
 
 import java.security.AccessController;
 import java.text.FieldPosition;
@@ -212,7 +213,7 @@ public class ExpressionFormat extends Format {
 	}
 
 	protected String normalizeResult(CharSequence value) {
-		return replaceSpace(value.toString(), " ").trim();
+		return replaceSpace(NEWLINE.matcher(value).replaceAll(""), " ").trim();
 	}
 
 	protected void handleException(ScriptException exception) {

@@ -18,4 +18,6 @@ public class RegularExpressions {
 	public static final Pattern SLASH = compile("\\s*[\\\\/]+\\s*", UNICODE_CHARACTER_CLASS);
 	public static final Pattern SPACE = compile("\\s+", UNICODE_CHARACTER_CLASS); // French No-Break Space U+00A0
 
+	public static final Pattern NEWLINE = compile("\\R+", UNICODE_CHARACTER_CLASS);
+
 }
