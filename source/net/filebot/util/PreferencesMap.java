@@ -2,12 +2,6 @@ package net.filebot.util;
 
 import static net.filebot.Logging.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +13,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+
+import com.cedarsoftware.util.io.JsonReader;
+import com.cedarsoftware.util.io.JsonWriter;
 
 public class PreferencesMap<T> implements Map<String, T> {
 
@@ -220,40 +217,32 @@ public class PreferencesMap<T> implements Map<String, T> {
 
 	}
 
-	public static class SerializableAdapter<T extends Serializable> extends AbstractAdapter<T> {
+	public static class JsonAdapter<T> extends AbstractAdapter<T> {
 
-		@SuppressWarnings("unchecked")
+		private Class<T> type;
+
+		public JsonAdapter(Class<T> type) {
+			this.type = type;
+		}
+
 		@Override
 		public T get(Preferences prefs, String key) {
-			byte[] bytes = prefs.getByteArray(key, null);
+			String json = prefs.get(key, null);
 
-			if (bytes == null)
-				return null;
-
-			try {
-				ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes));
-				Object object = in.readObject();
-				in.close();
-
-				return (T) object;
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+			if (json != null) {
+				try {
+					return type.cast(JsonReader.jsonToJava(json));
+				} catch (Exception e) {
+					debug.log(Level.WARNING, e, e::getMessage);
+				}
 			}
+
+			return null;
 		}
 
 		@Override
 		public void put(Preferences prefs, String key, T value) {
-			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
-			try {
-				ObjectOutputStream out = new ObjectOutputStream(buffer);
-				out.writeObject(value);
-				out.close();
-
-				prefs.putByteArray(key, buffer.toByteArray());
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
+			prefs.put(key, JsonWriter.objectToJson(value));
 		}
 	}
 

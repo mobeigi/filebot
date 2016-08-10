@@ -139,20 +139,24 @@ public final class SwingUI {
 	}
 
 	public static void installAction(JComponent component, KeyStroke keystroke, Action action) {
+		installAction(component, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keystroke, action);
+	}
+
+	public static void installAction(JComponent component, int condition, KeyStroke keystroke, Action action) {
 		Object key = action.getValue(Action.NAME);
 
 		if (key == null) {
 			throw new IllegalArgumentException("Action must have a name");
 		}
 
-		component.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(keystroke, key);
+		component.getInputMap(condition).put(keystroke, key);
 		component.getActionMap().put(key, action);
 
 		// automatically add Mac OS X compatibility (on Mac the BACKSPACE key is called DELETE, and there is no DELETE key)
 		if (keystroke.getKeyCode() == KeyEvent.VK_DELETE) {
 			KeyStroke macKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, keystroke.getModifiers(), keystroke.isOnKeyRelease());
 			Object macKey = "mac." + action.getValue(Action.NAME);
-			component.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(macKeyStroke, macKey);
+			component.getInputMap(condition).put(macKeyStroke, macKey);
 			component.getActionMap().put(macKey, action);
 		}
 	}

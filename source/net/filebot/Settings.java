@@ -16,6 +16,7 @@ import net.filebot.archive.Archive.Extractor;
 import net.filebot.cli.ArgumentBean;
 import net.filebot.util.PreferencesList;
 import net.filebot.util.PreferencesMap;
+import net.filebot.util.PreferencesMap.JsonAdapter;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.PreferencesMap.StringAdapter;
 
@@ -234,8 +235,16 @@ public final class Settings {
 		return PreferencesMap.map(prefs);
 	}
 
+	public <T> PreferencesMap<T> asTypedMap(Class<T> cls) {
+		return PreferencesMap.map(prefs, new JsonAdapter(cls));
+	}
+
 	public PreferencesList<String> asList() {
 		return PreferencesList.map(prefs);
+	}
+
+	public <T> PreferencesList<T> asTypedList(Class<T> cls) {
+		return PreferencesList.map(prefs, new JsonAdapter(cls));
 	}
 
 	public void clear() {

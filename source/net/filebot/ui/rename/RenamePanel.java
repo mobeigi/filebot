@@ -41,12 +41,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 
-import com.cedarsoftware.util.io.JsonReader;
-import com.cedarsoftware.util.io.JsonWriter;
 import com.google.common.eventbus.Subscribe;
 
 import ca.odell.glazedlists.EventList;
@@ -109,6 +108,8 @@ public class RenamePanel extends JComponent {
 	private static final PreferencesEntry<String> persistentPreferredMatchMode = Settings.forPackage(RenamePanel.class).entry("rename.match.mode").defaultValue(MATCH_MODE_OPPORTUNISTIC);
 	private static final PreferencesEntry<String> persistentPreferredLanguage = Settings.forPackage(RenamePanel.class).entry("rename.language").defaultValue("en");
 	private static final PreferencesEntry<String> persistentPreferredEpisodeOrder = Settings.forPackage(RenamePanel.class).entry("rename.episode.order").defaultValue("Airdate");
+
+	private static final Map<String, Preset> persistentPresets = Settings.forPackage(RenamePanel.class).node("presets").asTypedMap(Preset.class);
 
 	public RenamePanel() {
 		namesList.setTitle("New Names");
@@ -241,9 +242,8 @@ public class RenamePanel extends JComponent {
 		filesList.getButtonPanel().add(createImageButton(openHistoryAction), "gap indent");
 
 		// create macros popup
-		final Action macrosAction = new ShowPresetsPopupAction("Presets", ResourceManager.getIcon("action.script"));
-		JButton macrosButton = createImageButton(macrosAction);
-		filesList.getButtonPanel().add(macrosButton, "gap 0");
+		JButton presetsButton = createImageButton(new ShowPresetsPopupAction("Presets", ResourceManager.getIcon("action.script")));
+		filesList.getButtonPanel().add(presetsButton, "gap 0");
 
 		// show popup on actionPerformed only when names list is empty
 		matchButton.addActionListener(evt -> {
@@ -302,8 +302,13 @@ public class RenamePanel extends JComponent {
 
 		add(new LoadingOverlayPane(namesList, namesList, "37px", "30px"), "grow, sizegroupx list");
 
+		// install F2 and 1..9 keystroke actions
+		SwingUtilities.invokeLater(this::installKeyStrokeActions);
+	}
+
+	private void installKeyStrokeActions() {
 		// manual force name via F2
-		installAction(namesList.getListComponent(), getKeyStroke(VK_F2, 0), newAction("Force Name", evt -> {
+		installAction(this, WHEN_IN_FOCUSED_WINDOW, getKeyStroke(VK_F2, 0), newAction("Force Name", evt -> {
 			try {
 				if (namesList.getModel().isEmpty()) {
 					withWaitCursor(evt.getSource(), () -> {
@@ -336,61 +341,72 @@ public class RenamePanel extends JComponent {
 					}
 				}
 			} catch (Exception e) {
-				debug.log(Level.WARNING, e.getMessage(), e);
+				debug.log(Level.WARNING, e::toString);
 			}
 		}));
+
+		// map 1..9 number keys to presets
+		try {
+			Preset[] presets = persistentPresets.values().toArray(new Preset[0]);
+
+			for (int i = 0; i < presets.length && i < 9; i++) {
+				Preset preset = presets[i];
+				int key = Character.forDigit(i + 1, 10);
+
+				installAction(this, WHEN_IN_FOCUSED_WINDOW, getKeyStroke(key, 0), newAction(preset.getName(), new ApplyPresetAction(preset)::actionPerformed));
+			}
+		} catch (Exception e) {
+			debug.log(Level.WARNING, e::toString);
+		}
 	}
 
 	private boolean isMatchModeStrict() {
 		return MATCH_MODE_STRICT.equalsIgnoreCase(persistentPreferredMatchMode.getValue());
 	}
 
-	protected ActionPopup createPresetsPopup() {
-		Map<String, String> persistentPresets = Settings.forPackage(RenamePanel.class).node("presets").asMap();
+	private ActionPopup createPresetsPopup() {
 		ActionPopup actionPopup = new ActionPopup("Presets", ResourceManager.getIcon("action.script"));
 
-		if (persistentPresets.size() > 0) {
-			for (String it : persistentPresets.values()) {
-				try {
-					Preset p = (Preset) JsonReader.jsonToJava(it);
-					actionPopup.add(new ApplyPresetAction(p));
-				} catch (Exception e) {
-					debug.log(Level.SEVERE, e.getMessage(), e);
+		try {
+			if (persistentPresets.size() > 0) {
+				for (Preset preset : persistentPresets.values()) {
+					actionPopup.add(new ApplyPresetAction(preset));
 				}
+				actionPopup.addSeparator();
 			}
-			actionPopup.addSeparator();
+		} catch (Exception e) {
+			debug.log(Level.WARNING, e, e::toString);
 		}
 
 		actionPopup.add(newAction("Edit Presets", ResourceManager.getIcon("script.add"), evt -> {
 			try {
-				String newPresetOption = "New Preset …";
+				String newPreset = "New Preset …";
 				List<String> presetNames = new ArrayList<String>(persistentPresets.keySet());
-				presetNames.add(newPresetOption);
+				presetNames.add(newPreset);
 
-				String selection = (String) showInputDialog(getWindow(evt.getSource()), "Edit or create a preset:", "Edit Preset", PLAIN_MESSAGE, null, presetNames.toArray(), newPresetOption);
-				if (selection == null)
+				String selection = (String) showInputDialog(getWindow(evt.getSource()), "Edit or create a preset:", "Edit Preset", PLAIN_MESSAGE, null, presetNames.toArray(), newPreset);
+				if (selection == null) {
 					return;
-
-				Preset preset = null;
-				if (selection == newPresetOption) {
-					selection = (String) showInputDialog(getWindow(evt.getSource()), "Preset Name:", newPresetOption, PLAIN_MESSAGE, null, null, "My Preset");
-					if (selection == null || selection.trim().isEmpty())
-						return;
-
-					preset = new Preset(selection.trim(), null, null, null, null, null, null, null, null);
-				} else {
-					preset = (Preset) JsonReader.jsonToJava(persistentPresets.get(selection.toString()));
 				}
 
 				PresetEditor presetEditor = new PresetEditor(getWindow(evt.getSource()));
+
+				if (selection == newPreset) {
+					selection = (String) showInputDialog(getWindow(evt.getSource()), "Preset Name:", newPreset, PLAIN_MESSAGE, null, null, "My Preset");
+					if (selection == null || selection.trim().isEmpty()) {
+						return;
+					}
+					presetEditor.setPreset(new Preset(selection.trim(), null, null, null, null, null, null, null, null));
+				} else {
+					presetEditor.setPreset(persistentPresets.get(selection));
+				}
+
 				presetEditor.setLocation(getOffsetLocation(presetEditor.getOwner()));
-				presetEditor.setPreset(preset);
 				presetEditor.setVisible(true);
 
 				switch (presetEditor.getResult()) {
 				case SET:
-					preset = presetEditor.getPreset();
-					persistentPresets.put(selection, JsonWriter.objectToJson(preset));
+					persistentPresets.put(selection, presetEditor.getPreset());
 					break;
 				case DELETE:
 					persistentPresets.remove(selection);
@@ -399,14 +415,14 @@ public class RenamePanel extends JComponent {
 					break;
 				}
 			} catch (Exception e) {
-				debug.log(Level.WARNING, e.toString());
+				debug.log(Level.WARNING, e, e::toString);
 			}
 		}));
 
 		return actionPopup;
 	}
 
-	protected ActionPopup createFetchPopup() {
+	private ActionPopup createFetchPopup() {
 		ActionPopup actionPopup = new ActionPopup("Fetch & Match Data", ResourceManager.getIcon("action.fetch"));
 
 		actionPopup.addDescription(new JLabel("Episode Mode:"));
@@ -508,7 +524,7 @@ public class RenamePanel extends JComponent {
 		return actionPopup;
 	}
 
-	protected ActionPopup createSettingsPopup() {
+	private ActionPopup createSettingsPopup() {
 		ActionPopup actionPopup = new ActionPopup("Rename Options", ResourceManager.getIcon("action.settings"));
 
 		actionPopup.addDescription(new JLabel("Extension:"));
@@ -525,7 +541,7 @@ public class RenamePanel extends JComponent {
 		return actionPopup;
 	}
 
-	protected Mode getFormatEditorMode(MediaBindingBean binding) {
+	private Mode getFormatEditorMode(MediaBindingBean binding) {
 		if (binding != null) {
 			if (binding.getInfoObject() instanceof Episode) {
 				return Mode.Episode;
@@ -549,7 +565,7 @@ public class RenamePanel extends JComponent {
 		return Mode.Episode; // default to Episode mode
 	}
 
-	protected void showFormatEditor(MediaBindingBean binding) {
+	private void showFormatEditor(MediaBindingBean binding) {
 		try {
 			withWaitCursor(this, () -> {
 				FormatDialog dialog = new FormatDialog(getWindowAncestor(RenamePanel.this), getFormatEditorMode(binding), binding);
@@ -586,7 +602,7 @@ public class RenamePanel extends JComponent {
 		}
 	}
 
-	protected final Action clearFilesAction = newAction("Clear All", ResourceManager.getIcon("action.clear"), evt -> {
+	private final Action clearFilesAction = newAction("Clear All", ResourceManager.getIcon("action.clear"), evt -> {
 		if (isShiftOrAltDown(evt)) {
 			renameModel.files().clear();
 		} else {
@@ -594,7 +610,7 @@ public class RenamePanel extends JComponent {
 		}
 	});
 
-	protected final Action openHistoryAction = newAction("Open History", ResourceManager.getIcon("action.report"), evt -> {
+	private final Action openHistoryAction = newAction("Open History", ResourceManager.getIcon("action.report"), evt -> {
 		try {
 			History model = HistorySpooler.getInstance().getCompleteHistory();
 
@@ -619,7 +635,7 @@ public class RenamePanel extends JComponent {
 		}
 	}
 
-	protected static class ShowPopupAction extends AbstractAction {
+	private static class ShowPopupAction extends AbstractAction {
 
 		public ShowPopupAction(String name, Icon icon) {
 			super(name, icon);
@@ -633,7 +649,7 @@ public class RenamePanel extends JComponent {
 		}
 	};
 
-	protected class ShowPresetsPopupAction extends AbstractAction {
+	private class ShowPresetsPopupAction extends AbstractAction {
 
 		public ShowPresetsPopupAction(String name, Icon icon) {
 			super(name, icon);
@@ -647,7 +663,7 @@ public class RenamePanel extends JComponent {
 		}
 	};
 
-	protected class ApplyPresetAction extends AutoCompleteAction {
+	private class ApplyPresetAction extends AutoCompleteAction {
 
 		private Preset preset;
 
@@ -724,7 +740,7 @@ public class RenamePanel extends JComponent {
 		}
 	}
 
-	protected class SetRenameMode extends AbstractAction {
+	private class SetRenameMode extends AbstractAction {
 
 		private final boolean activate;
 
@@ -745,7 +761,7 @@ public class RenamePanel extends JComponent {
 		}
 	}
 
-	protected class SetRenameAction extends AbstractAction {
+	private class SetRenameAction extends AbstractAction {
 
 		private final StandardRenameAction action;
 
@@ -766,7 +782,7 @@ public class RenamePanel extends JComponent {
 		}
 	}
 
-	protected class AutoCompleteAction extends AbstractAction {
+	private class AutoCompleteAction extends AbstractAction {
 
 		protected final Supplier<AutoCompleteMatcher> matcher;
 

@@ -14,7 +14,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import net.filebot.util.PreferencesMap.SerializableAdapter;
+import net.filebot.util.PreferencesMap.JsonAdapter;
 import net.filebot.util.PreferencesMap.SimpleAdapter;
 
 public class PreferencesMapTest {
@@ -144,11 +144,12 @@ public class PreferencesMapTest {
 	}
 
 	@Test
-	public void serializableAdapter() {
-		Map<String, Color> map = PreferencesMap.map(temp, new SerializableAdapter<Color>());
+	public void jsonAdapter() {
+		Map<String, Color> map = PreferencesMap.map(temp, new JsonAdapter<Color>(Color.class));
 		Color color = new Color(0.25f, 0.50f, 1.00f);
 
 		map.put("color", color);
 		assertEquals(color, map.get("color"));
 	}
+
 }
