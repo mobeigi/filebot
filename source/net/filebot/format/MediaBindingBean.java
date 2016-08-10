@@ -712,12 +712,12 @@ public class MediaBindingBean {
 
 	@Define("sy")
 	public List<Integer> getSeasonYears() throws Exception {
-		return getEpisodeList().stream().filter(e -> getSeasonNumber().equals(e.getSeason()) && e.getAirdate() != null).map(e -> e.getAirdate().getYear()).sorted().distinct().collect(toList());
+		return getEpisodeList().stream().filter(e -> isRegular(e) && e.getSeason().equals(getSeasonNumber()) && e.getAirdate() != null).map(e -> e.getAirdate().getYear()).sorted().distinct().collect(toList());
 	}
 
 	@Define("sc")
 	public Integer getSeasonCount() throws Exception {
-		return getEpisodeList().stream().map(Episode::getSeason).filter(Objects::nonNull).max(Integer::compare).get();
+		return getEpisodeList().stream().filter(e -> isRegular(e) && e.getSeason() != null).map(Episode::getSeason).max(Integer::compare).get();
 	}
 
 	@Define("localize")
