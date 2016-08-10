@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import groovy.lang.Closure;
+import groovy.util.XmlSlurper;
 
 /**
  * Global functions available in the {@link ExpressionFormat}
@@ -70,6 +71,10 @@ public class ExpressionFormatFunctions {
 
 	public static List<String> readLines(String path) throws IOException {
 		return streamLines(new File(path)).collect(toList());
+	}
+
+	public static Object readXml(String path) throws Exception {
+		return new XmlSlurper().parse(new File(path));
 	}
 
 }
