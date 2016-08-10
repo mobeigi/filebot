@@ -18,8 +18,6 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.text.Format;
 import java.util.LinkedHashSet;
@@ -229,17 +227,13 @@ public class FormatDialog extends JDialog {
 		pane.add(header, "h 60px, growx, dock north");
 		pane.add(content, "grow");
 
-		addPropertyChangeListener("sample", new PropertyChangeListener() {
-
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				if (isMacSandbox()) {
-					if (sample != null && sample.getFileObject() != null && sample.getFileObject().exists()) {
-						MacAppUtilities.askUnlockFolders(getWindow(evt.getSource()), singleton(sample.getFileObject()));
-					}
+		addPropertyChangeListener("sample", evt -> {
+			if (isMacSandbox()) {
+				if (sample != null && sample.getFileObject() != null && sample.getFileObject().exists()) {
+					MacAppUtilities.askUnlockFolders(getWindow(evt.getSource()), singleton(sample.getFileObject()));
 				}
-				checkFormatInBackground();
 			}
+			checkFormatInBackground();
 		});
 
 		// focus editor by default and finish dialog and close window manually
@@ -375,7 +369,7 @@ public class FormatDialog extends JDialog {
 		panel.setBorder(createLineBorder(new Color(0xACA899)));
 		panel.setBackground(new Color(0xFFFFE1));
 
-		for (final String format : mode.getSampleExpressions()) {
+		for (String format : mode.getSampleExpressions()) {
 			LinkButton formatLink = new LinkButton(newAction(format, e -> setFormatCode(format)));
 			formatLink.setFont(new Font(MONOSPACED, PLAIN, 11));
 
@@ -383,27 +377,14 @@ public class FormatDialog extends JDialog {
 			JLabel formatExample = new JLabel("[evaluate]");
 
 			// bind text to preview
-			addPropertyChangeListener("sample", new PropertyChangeListener() {
-
-				@Override
-				public void propertyChange(PropertyChangeEvent evt) {
-					new SwingWorker<String, Void>() {
-
-						@Override
-						protected String doInBackground() throws Exception {
-							return new ExpressionFormat(format).format(sample);
-						}
-
-						@Override
-						protected void done() {
-							try {
-								formatExample.setText(get());
-							} catch (Exception e) {
-								debug.log(Level.SEVERE, e.getMessage(), e);
-							}
-						}
-					}.execute();
-				}
+			addPropertyChangeListener("sample", evt -> {
+				newSwingWorker(() -> {
+					return new ExpressionFormat(format).format(sample);
+				}, s -> {
+					formatExample.setText(s);
+				}, e -> {
+					debug.log(Level.SEVERE, e.getMessage(), e);
+				}).execute();
 			});
 
 			panel.add(formatLink);
