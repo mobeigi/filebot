@@ -170,14 +170,10 @@ class HistoryDialog extends JDialog {
 		});
 
 		// clear sequence selection when elements are selected
-		elementTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				if (elementTable.getSelectedRow() >= 0) {
-					// allow selected rows only in one of the two tables
-					sequenceTable.getSelectionModel().clearSelection();
-				}
+		elementTable.getSelectionModel().addListSelectionListener(evt -> {
+			if (elementTable.getSelectedRow() >= 0) {
+				// allow selected rows only in one of the two tables
+				sequenceTable.getSelectionModel().clearSelection();
 			}
 		});
 
@@ -718,17 +714,14 @@ class HistoryDialog extends JDialog {
 			case 1:
 				return "Name";
 			case 2:
-				return "Count";
-			case 3:
 				return "Date";
-			default:
-				return null;
 			}
+			return null;
 		}
 
 		@Override
 		public int getColumnCount() {
-			return 4;
+			return 3;
 		}
 
 		@Override
@@ -744,12 +737,9 @@ class HistoryDialog extends JDialog {
 			case 1:
 				return String.class;
 			case 2:
-				return Integer.class;
-			case 3:
 				return Date.class;
-			default:
-				return null;
 			}
+			return null;
 		}
 
 		@Override
@@ -760,12 +750,9 @@ class HistoryDialog extends JDialog {
 			case 1:
 				return getName(data.get(row));
 			case 2:
-				return data.get(row).elements().size();
-			case 3:
 				return data.get(row).date();
-			default:
-				return null;
 			}
+			return null;
 		}
 
 		public Sequence getRow(int row) {
