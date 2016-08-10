@@ -35,7 +35,6 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingUtilities;
-import javax.swing.event.DocumentEvent;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
@@ -180,13 +179,9 @@ public class SubtitleViewer extends JFrame {
 		};
 
 		// update sequence and element filter on change
-		editor.getDocument().addDocumentListener(new LazyDocumentListener(0) {
-
-			@Override
-			public void update(DocumentEvent e) {
-				setTableFilter(editor.getText());
-			}
-		});
+		editor.getDocument().addDocumentListener(new LazyDocumentListener(0, evt -> {
+			setTableFilter(editor.getText());
+		}));
 
 		return editor;
 	}

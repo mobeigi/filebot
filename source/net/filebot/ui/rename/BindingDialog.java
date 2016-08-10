@@ -106,17 +106,13 @@ class BindingDialog extends JDialog {
 		}
 
 		// update preview on change
-		DocumentListener changeListener = new LazyDocumentListener(1000) {
+		DocumentListener changeListener = new LazyDocumentListener(1000, evt -> {
+			// ignore lazy events that come in after the window has been closed
+			if (bindingModel.executor.isShutdown())
+				return;
 
-			@Override
-			public void update(DocumentEvent evt) {
-				// ignore lazy events that come in after the window has been closed
-				if (bindingModel.executor.isShutdown())
-					return;
-
-				bindingModel.setModel(getSampleExpressions(), new MediaBindingBean(getInfoObject(), getMediaFile()));
-			}
-		};
+			bindingModel.setModel(getSampleExpressions(), new MediaBindingBean(getInfoObject(), getMediaFile()));
+		});
 
 		// update example bindings on change
 		infoTextField.getDocument().addDocumentListener(changeListener);

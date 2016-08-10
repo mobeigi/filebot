@@ -50,7 +50,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
-import javax.swing.event.DocumentEvent;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
@@ -332,13 +331,9 @@ public class FormatDialog extends JDialog {
 		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
 
 		// update format on change
-		editor.getDocument().addDocumentListener(new LazyDocumentListener() {
-
-			@Override
-			public void update(DocumentEvent e) {
-				checkFormatInBackground();
-			}
-		});
+		editor.getDocument().addDocumentListener(new LazyDocumentListener(evt -> {
+			checkFormatInBackground();
+		}));
 
 		return editor;
 	}

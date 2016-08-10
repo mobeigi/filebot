@@ -29,7 +29,6 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
-import javax.swing.event.DocumentEvent;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 
@@ -192,22 +191,15 @@ public class ListPanel extends JComponent {
 		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
 
 		// update format on change
-		editor.getDocument().addDocumentListener(new LazyDocumentListener(20) {
-
-			private Color valid = editor.getForeground();
-			private Color invalid = Color.red;
-
-			@Override
-			public void update(DocumentEvent evt) {
-				try {
-					String expression = editor.getText().trim();
-					setFormat(expression.isEmpty() ? null : new ExpressionFormat(expression));
-					editor.setForeground(valid);
-				} catch (ScriptException e) {
-					editor.setForeground(invalid);
-				}
+		editor.getDocument().addDocumentListener(new LazyDocumentListener(20, evt -> {
+			try {
+				String expression = editor.getText().trim();
+				setFormat(expression.isEmpty() ? null : new ExpressionFormat(expression));
+				editor.setForeground(editor.getForeground());
+			} catch (ScriptException e) {
+				editor.setForeground(Color.RED);
 			}
-		});
+		}));
 
 		return editor;
 	}

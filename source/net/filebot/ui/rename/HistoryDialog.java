@@ -60,7 +60,6 @@ import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.DocumentEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
@@ -219,29 +218,25 @@ class HistoryDialog extends JDialog {
 		});
 
 		// update sequence and element filter on change
-		filterEditor.getDocument().addDocumentListener(new LazyDocumentListener() {
+		filterEditor.getDocument().addDocumentListener(new LazyDocumentListener(evt -> {
+			List<HistoryFilter> filterList = new ArrayList<HistoryFilter>();
 
-			@Override
-			public void update(DocumentEvent e) {
-				List<HistoryFilter> filterList = new ArrayList<HistoryFilter>();
-
-				// filter by all words
-				for (String word : SPACE.split(filterEditor.getText())) {
-					filterList.add(new HistoryFilter(word));
-				}
-
-				// use filter on both tables
-				for (JTable table : Arrays.asList(sequenceTable, elementTable)) {
-					TableRowSorter sorter = (TableRowSorter) table.getRowSorter();
-					sorter.setRowFilter(RowFilter.andFilter(filterList));
-				}
-
-				if (sequenceTable.getSelectedRow() < 0 && sequenceTable.getRowCount() > 0) {
-					// selection lost, maybe due to filtering, auto-select next row
-					sequenceTable.getSelectionModel().addSelectionInterval(0, 0);
-				}
+			// filter by all words
+			for (String word : SPACE.split(filterEditor.getText())) {
+				filterList.add(new HistoryFilter(word));
 			}
-		});
+
+			// use filter on both tables
+			for (JTable table : Arrays.asList(sequenceTable, elementTable)) {
+				TableRowSorter sorter = (TableRowSorter) table.getRowSorter();
+				sorter.setRowFilter(RowFilter.andFilter(filterList));
+			}
+
+			if (sequenceTable.getSelectedRow() < 0 && sequenceTable.getRowCount() > 0) {
+				// selection lost, maybe due to filtering, auto-select next row
+				sequenceTable.getSelectionModel().addSelectionInterval(0, 0);
+			}
+		}));
 
 		// install context menu
 		sequenceTable.addMouseListener(contextMenuProvider);
