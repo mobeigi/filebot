@@ -53,8 +53,6 @@ import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -314,12 +312,7 @@ public class FormatDialog extends JDialog {
 	}
 
 	private RSyntaxTextArea createEditor() {
-		RSyntaxTextArea editor = new RSyntaxTextArea(new RSyntaxDocument(SyntaxConstants.SYNTAX_STYLE_GROOVY) {
-			@Override
-			public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
-				super.insertString(offs, str.replaceAll("\\R", ""), a); // FORCE SINGLE LINE
-			}
-		}, null, 1, 80);
+		RSyntaxTextArea editor = new RSyntaxTextArea(new RSyntaxDocument(SyntaxConstants.SYNTAX_STYLE_GROOVY), "", 1, 80);
 
 		editor.setAntiAliasingEnabled(true);
 		editor.setAnimateBracketMatching(false);
