@@ -178,7 +178,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 
 		// fix poster path
 		try {
-			fields.computeIfPresent(MovieProperty.poster_path, (k, v) -> resolveImage(v).toString());
+			fields.computeIfPresent(MovieProperty.poster_path, (k, v) -> extendedInfo ? resolveImage(v).toString() : null);
 		} catch (Exception e) {
 			// movie does not belong to any collection
 			debug.warning(format("Bad data: poster_path => %s", response));
