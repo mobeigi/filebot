@@ -181,8 +181,8 @@ public class MainFrame extends JFrame {
 		public PanelSelectionList(PanelBuilder[] builders) {
 			super(builders);
 
-			setPrototypeCellValue(stream(builders).max(comparingInt(p -> p.getName().length())).get());
 			setCellRenderer(new PanelCellRenderer());
+			setPrototypeCellValue(stream(builders).max(comparingInt(p -> p.getName().length())).get());
 
 			setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			setBorder(new EmptyBorder(4, 5, 4, 5));
