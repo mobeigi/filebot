@@ -4,21 +4,28 @@ package net.filebot.similarity;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.temporal.ChronoUnit;
 
 public class TimeStampMetric implements SimilarityMetric {
+
+	private long epoch;
+
+	public TimeStampMetric(int i, ChronoUnit unit) {
+		this.epoch = unit.getDuration().multipliedBy(i).toMillis();
+	}
 
 	@Override
 	public float getSimilarity(Object o1, Object o2) {
 		long t1 = getTimeStamp(o1);
 		long t2 = getTimeStamp(o2);
 
-		if (t1 <= 0 || t2 <= 0)
-			return -1;
+		if (t1 > 0 && t2 > 0) {
+			float delta = Math.abs(t1 - t2);
 
-		float min = Math.min(t1, t2);
-		float max = Math.max(t1, t2);
+			return delta > epoch ? 1 : 1 - (delta / epoch);
+		}
 
-		return min / max;
+		return -1;
 	}
 
 	public long getTimeStamp(Object object) {

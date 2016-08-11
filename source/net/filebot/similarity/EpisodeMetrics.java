@@ -512,13 +512,14 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	}),
 
 	// Match by file last modified and episode release dates
-	TimeStamp(new TimeStampMetric() {
+	TimeStamp(new TimeStampMetric(10, ChronoUnit.YEARS) {
 
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
-			// adjust differentiation accuracy to about 3 years
+			// adjust differentiation accuracy to about 2.5 years
 			float f = super.getSimilarity(o1, o2);
-			return f >= 0.9 ? 1 : f >= 0 ? 0 : -1;
+
+			return f >= 0.75 ? 1 : f >= 0 ? 0 : -1;
 		}
 
 		private long getTimeStamp(SimpleDate date) {
