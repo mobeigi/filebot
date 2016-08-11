@@ -173,7 +173,16 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 	public MovieInfo getMovieInfo(String id, Locale locale, boolean extendedInfo) throws Exception {
 		Object response = request("movie/" + id, extendedInfo ? singletonMap("append_to_response", "alternative_titles,releases,casts,trailers") : emptyMap(), locale, REQUEST_LIMIT);
 
+		// read all basic movie properties
 		Map<MovieProperty, String> fields = getEnumMap(response, MovieProperty.class);
+
+		// fix poster path
+		try {
+			fields.computeIfPresent(MovieProperty.poster_path, (k, v) -> resolveImage(v).toString());
+		} catch (Exception e) {
+			// movie does not belong to any collection
+			debug.warning(format("Bad data: poster_path => %s", response));
+		}
 
 		try {
 			Map<?, ?> collection = getMap(response, "belongs_to_collection");
@@ -508,6 +517,10 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 
 		public URL getHomepage() {
 			return get(MovieProperty.homepage, URL::new);
+		}
+
+		public URL getPoster() {
+			return get(MovieProperty.poster_path, URL::new);
 		}
 
 		public List<String> getGenres() {
