@@ -390,13 +390,13 @@ public class CmdlineOperations implements CmdlineInterface {
 		} else {
 			log.fine(format("Looking up movie by query [%s]", query));
 			List<Movie> results = service.searchMovie(query, locale);
-			List<Movie> validResults = applyExpressionFilter(results, filter);
-			if (validResults.isEmpty()) {
+			List<Movie> options = applyExpressionFilter(results, filter);
+			if (options.isEmpty()) {
 				throw new CmdlineException("Failed to find a valid match: " + results);
 			}
 
 			// force all mappings
-			Movie result = (Movie) selectSearchResult(query, validResults, false, strict).get(0);
+			Movie result = (Movie) selectSearchResult(query, options, false, strict).get(0);
 			for (File file : files) {
 				movieByFile.put(file, result);
 			}
@@ -1038,8 +1038,11 @@ public class CmdlineOperations implements CmdlineInterface {
 		Locale locale = getLanguage(languageName).getLocale();
 
 		// fetch episode data
-		SearchResult hit = selectSearchResult(query, service.search(query, locale), false, false).get(0);
-		List<Episode> episodes = service.getEpisodeList(hit, sortOrder, locale);
+		List<SearchResult> options = selectSearchResult(query, service.search(query, locale), false, false);
+		if (options.isEmpty())
+			throw new CmdlineException(service.getName() + ": no results");
+
+		List<Episode> episodes = service.getEpisodeList(options.get(0), sortOrder, locale);
 
 		// apply filter
 		episodes = applyExpressionFilter(episodes, filter);
