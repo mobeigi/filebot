@@ -115,11 +115,11 @@ public class CachedResource<K, R> implements Resource<R> {
 			throw e;
 		} catch (IOException e) {
 			// retry or rethrow exception
-			if (retryCount > 0) {
+			if (retryCount <= 0) {
 				throw e;
 			}
 
-			debug.fine(format("Fetch failed: Retry %d => %s", retryCount, e.getMessage()));
+			debug.fine(format("Fetch failed: Try again in %d seconds (%d more) => %s", retryWaitTime.getSeconds(), retryCount, e));
 			Thread.sleep(retryWaitTime.toMillis());
 			return retry(callable, retryCount - 1, retryWaitTime.multipliedBy(2));
 		}
