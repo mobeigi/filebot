@@ -22,7 +22,7 @@ public class TimeStampMetric implements SimilarityMetric {
 		if (t1 > 0 && t2 > 0) {
 			float delta = Math.abs(t1 - t2);
 
-			return delta > epoch ? 1 : 1 - (delta / epoch);
+			return delta > epoch ? 0 : 1 - (delta / epoch);
 		}
 
 		return -1;
