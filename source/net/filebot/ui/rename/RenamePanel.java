@@ -109,7 +109,7 @@ public class RenamePanel extends JComponent {
 	private static final PreferencesEntry<String> persistentPreferredLanguage = Settings.forPackage(RenamePanel.class).entry("rename.language").defaultValue("en");
 	private static final PreferencesEntry<String> persistentPreferredEpisodeOrder = Settings.forPackage(RenamePanel.class).entry("rename.episode.order").defaultValue("Airdate");
 
-	private static final Map<String, Preset> persistentPresets = Settings.forPackage(RenamePanel.class).node("presets").asTypedMap(Preset.class);
+	private static final Map<String, Preset> persistentPresets = Settings.forPackage(RenamePanel.class).node("presets").asMap(Preset.class);
 
 	public RenamePanel() {
 		namesList.setTitle("New Names");

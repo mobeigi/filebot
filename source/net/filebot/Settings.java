@@ -235,7 +235,7 @@ public final class Settings {
 		return PreferencesMap.map(prefs);
 	}
 
-	public <T> PreferencesMap<T> asTypedMap(Class<T> cls) {
+	public <T> PreferencesMap<T> asMap(Class<T> cls) {
 		return PreferencesMap.map(prefs, new JsonAdapter(cls));
 	}
 
@@ -243,7 +243,7 @@ public final class Settings {
 		return PreferencesList.map(prefs);
 	}
 
-	public <T> PreferencesList<T> asTypedList(Class<T> cls) {
+	public <T> PreferencesList<T> asList(Class<T> cls) {
 		return PreferencesList.map(prefs, new JsonAdapter(cls));
 	}
 

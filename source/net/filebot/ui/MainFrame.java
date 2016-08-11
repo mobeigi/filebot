@@ -2,6 +2,8 @@ package net.filebot.ui;
 
 import static java.awt.event.InputEvent.*;
 import static java.awt.event.KeyEvent.*;
+import static java.util.Arrays.*;
+import static java.util.Comparator.*;
 import static javax.swing.KeyStroke.*;
 import static javax.swing.ScrollPaneConstants.*;
 import static net.filebot.Logging.*;
@@ -33,8 +35,6 @@ import javax.swing.Timer;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -65,7 +65,7 @@ public class MainFrame extends JFrame {
 		try {
 			selectionList.setSelectedIndex(Integer.parseInt(persistentSelectedPanel.getValue()));
 		} catch (Exception e) {
-			debug.warning(e.getMessage());
+			debug.warning(e::getMessage);
 		}
 
 		JScrollPane selectionListScrollPane = new JScrollPane(selectionList, VERTICAL_SCROLLBAR_NEVER, HORIZONTAL_SCROLLBAR_NEVER);
@@ -88,15 +88,11 @@ public class MainFrame extends JFrame {
 		// show initial panel
 		showPanel((PanelBuilder) selectionList.getSelectedValue());
 
-		selectionList.addListSelectionListener(new ListSelectionListener() {
+		selectionList.addListSelectionListener(evt -> {
+			showPanel((PanelBuilder) selectionList.getSelectedValue());
 
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				showPanel((PanelBuilder) selectionList.getSelectedValue());
-
-				if (!e.getValueIsAdjusting()) {
-					persistentSelectedPanel.setValue(Integer.toString(selectionList.getSelectedIndex()));
-				}
+			if (!evt.getValueIsAdjusting()) {
+				persistentSelectedPanel.setValue(Integer.toString(selectionList.getSelectedIndex()));
 			}
 		});
 
@@ -185,9 +181,10 @@ public class MainFrame extends JFrame {
 		public PanelSelectionList(PanelBuilder[] builders) {
 			super(builders);
 
+			setPrototypeCellValue(stream(builders).max(comparingInt(p -> p.getName().length())).get());
 			setCellRenderer(new PanelCellRenderer());
-			setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
+			setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			setBorder(new EmptyBorder(4, 5, 4, 5));
 
 			// initialize "drag over" panel selection
