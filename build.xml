@@ -128,7 +128,7 @@
 	</target>
 
 
-	<target name="fatjar" depends="resolve, jar" description="Build executable jar">
+	<target name="fatjar" depends="jar" description="Build executable jar">
 		<jar destfile="${path.fatjar}" filesetmanifest="merge" duplicate="fail" index="yes">
 			<!-- include main jar -->
 			<zipfileset src="${dir.dist}/filebot.jar" />
