@@ -88,7 +88,7 @@ class RenameAction extends AbstractAction {
 				Map<File, File> renameLog = new LinkedHashMap<File, File>();
 
 				try {
-					if (useNativeShell() && isNativeActionSupported(action)) {
+					if (useNativeShell() && NativeRenameAction.isSupported(action)) {
 						// call on EDT
 						RenameWorker worker = new NativeRenameWorker(renameMap, renameLog, NativeRenameAction.valueOf(action.name()));
 						worker.call(null, null, null);
@@ -188,14 +188,6 @@ class RenameAction extends AbstractAction {
 			}
 		} catch (Throwable e) {
 			debug.log(Level.WARNING, e, e::getMessage);
-		}
-	}
-
-	public boolean isNativeActionSupported(StandardRenameAction action) {
-		try {
-			return NativeRenameAction.isSupported() && NativeRenameAction.valueOf(action.name()) != null;
-		} catch (IllegalArgumentException e) {
-			return false;
 		}
 	}
 
@@ -348,13 +340,15 @@ class RenameAction extends AbstractAction {
 
 			// prepare delta, ignore files already named as desired
 			Map<File, File> renamePlan = new LinkedHashMap<File, File>();
-			for (Entry<File, File> mapping : renameMap.entrySet()) {
-				File source = mapping.getKey();
-				File destination = resolve(mapping.getKey(), mapping.getValue());
-				if (!source.equals(destination)) {
+
+			renameMap.forEach((source, destination) -> {
+				// resolve relative paths
+				destination = resolve(source, destination);
+
+				if (!equalsCaseSensitive(source, destination)) {
 					renamePlan.put(source, destination);
 				}
-			}
+			});
 
 			// call native shell move/copy
 			try {
