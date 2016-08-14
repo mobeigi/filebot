@@ -203,6 +203,7 @@ public class FormatDialog extends JDialog {
 		editorScrollPane.setHorizontalScrollBarPolicy(RTextScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		editorScrollPane.setViewportBorder(createEmptyBorder(7, 2, 7, 2));
 		editorScrollPane.setOpaque(true);
+		editorScrollPane.setBackground(new JTextField().getBackground());
 		editorScrollPane.setBorder(new JTextField().getBorder());
 
 		content.add(editorScrollPane, "w 120px:min(pref, 420px), h pref!, growx, wrap 4px, id editor");
