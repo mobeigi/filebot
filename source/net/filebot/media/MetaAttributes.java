@@ -25,6 +25,11 @@ public class MetaAttributes {
 
 	private final Map<String, String> jsonTypeMap;
 
+	// compatibility constructor for sysinfo.groovy script
+	public MetaAttributes(File file) throws IOException {
+		this(file, emptyMap());
+	}
+
 	public MetaAttributes(File file, Map<String, String> jsonTypeMap) throws IOException {
 		this.metaAttributeView = new MetaAttributeView(file);
 		this.fileAttributeView = Files.getFileAttributeView(file.toPath(), BasicFileAttributeView.class);
