@@ -255,7 +255,7 @@ class RenameAction extends AbstractAction {
 	}
 
 	private List<Entry<File, File>> validate(Map<File, String> renameMap, Window parent) {
-		final List<Entry<File, File>> source = new ArrayList<Entry<File, File>>(renameMap.size());
+		List<Entry<File, File>> source = new ArrayList<Entry<File, File>>(renameMap.size());
 
 		for (Entry<File, String> entry : renameMap.entrySet()) {
 			source.add(new SimpleEntry<File, File>(entry.getKey(), new File(entry.getValue())));

@@ -105,7 +105,7 @@ public class RenameModel extends MatchModel<Object, File> {
 
 				// insert mapping
 				if (map.put(source, destination.toString()) != null) {
-					throw new IllegalStateException(String.format("Duplicate file: \"%s\"", source.getName()));
+					throw new IllegalStateException("Duplicate source file: " + source.getName());
 				}
 			}
 		}
