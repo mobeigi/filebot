@@ -27,7 +27,6 @@ import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 
 import org.fife.ui.rsyntaxtextarea.FileLocation;
@@ -298,25 +297,20 @@ public class GroovyPad extends JFrame {
 				try {
 					String message = this.toString("UTF-8");
 					reset();
-
 					commit(message);
-				} catch (UnsupportedEncodingException e) {
+				} catch (Exception e) {
 					// can't happen
 				}
 			}
 
 			private void commit(final String line) {
-				SwingUtilities.invokeLater(new Runnable() {
-
-					@Override
-					public void run() {
-						try {
-							int offset = textComponent.getDocument().getLength();
-							textComponent.getDocument().insertString(offset, line, null);
-							textComponent.setCaretPosition(textComponent.getDocument().getLength());
-						} catch (BadLocationException e) {
-							// ignore
-						}
+				SwingUtilities.invokeLater(() -> {
+					try {
+						int offset = textComponent.getDocument().getLength();
+						textComponent.getDocument().insertString(offset, line, null);
+						textComponent.setCaretPosition(textComponent.getDocument().getLength());
+					} catch (Exception e) {
+						// ignore
 					}
 				});
 			}

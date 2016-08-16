@@ -219,7 +219,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 			@Override
 			protected void done() {
-				SwingUtilities.invokeLater(() -> mappingModel.fireTableStructureChanged()); // make sure UI is refershed after completion
+				SwingUtilities.invokeLater(mappingModel::fireTableStructureChanged); // make sure UI is refershed after completion
 			}
 		};
 

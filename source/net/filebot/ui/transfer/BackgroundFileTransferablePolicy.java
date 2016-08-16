@@ -75,14 +75,8 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 		worker.offer(chunks);
 	}
 
-	protected final void publish(final Exception exception) {
-		SwingUtilities.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				process(exception);
-			}
-		});
+	protected final void publish(Exception exception) {
+		SwingUtilities.invokeLater(() -> process(exception));
 	}
 
 	protected class BackgroundWorker extends SwingWorker<Object, V> {

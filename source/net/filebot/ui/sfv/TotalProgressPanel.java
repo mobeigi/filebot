@@ -1,7 +1,6 @@
 
 package net.filebot.ui.sfv;
 
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -15,13 +14,11 @@ import javax.swing.border.TitledBorder;
 
 import net.miginfocom.swing.MigLayout;
 
-
 class TotalProgressPanel extends JComponent {
 
 	private final JProgressBar progressBar = new JProgressBar(0, 0);
 
 	private final int millisToSetVisible = 200;
-
 
 	public TotalProgressPanel(ChecksumComputationService computationService) {
 		setLayout(new MigLayout("insets 1px"));
@@ -45,35 +42,27 @@ class TotalProgressPanel extends JComponent {
 
 		private final DelayedToggle delayed = new DelayedToggle();
 
-
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
-			final int completedTaskCount = getComputationService(evt).getCompletedTaskCount();
-			final int totalTaskCount = getComputationService(evt).getTotalTaskCount();
+			int completedTaskCount = getComputationService(evt).getCompletedTaskCount();
+			int totalTaskCount = getComputationService(evt).getTotalTaskCount();
 
 			// invoke on EDT
-			SwingUtilities.invokeLater(new Runnable() {
+			SwingUtilities.invokeLater(() -> {
+				if (completedTaskCount == totalTaskCount) {
+					// delayed hide on reset, immediate hide on finish
+					delayed.toggle(HIDE, totalTaskCount == 0 ? millisToSetVisible : 0, visibilityActionHandler);
+				} else if (totalTaskCount != 0) {
+					delayed.toggle(SHOW, millisToSetVisible, visibilityActionHandler);
+				}
 
-				@Override
-				public void run() {
-
-					if (completedTaskCount == totalTaskCount) {
-						// delayed hide on reset, immediate hide on finish
-						delayed.toggle(HIDE, totalTaskCount == 0 ? millisToSetVisible : 0, visibilityActionHandler);
-					} else if (totalTaskCount != 0) {
-						delayed.toggle(SHOW, millisToSetVisible, visibilityActionHandler);
-					}
-
-					if (totalTaskCount != 0) {
-						progressBar.setValue(completedTaskCount);
-						progressBar.setMaximum(totalTaskCount);
-
-						progressBar.setString(String.format("%d / %d", completedTaskCount, totalTaskCount));
-					}
-				};
+				if (totalTaskCount != 0) {
+					progressBar.setValue(completedTaskCount);
+					progressBar.setMaximum(totalTaskCount);
+					progressBar.setString(String.format("%d / %d", completedTaskCount, totalTaskCount));
+				}
 			});
 		}
-
 
 		private ChecksumComputationService getComputationService(PropertyChangeEvent evt) {
 			return ((ChecksumComputationService) evt.getSource());
@@ -89,11 +78,9 @@ class TotalProgressPanel extends JComponent {
 
 	};
 
-
 	protected static class DelayedToggle {
 
 		private Timer timer = null;
-
 
 		public void toggle(String action, int delay, final ActionListener actionHandler) {
 			if (timer != null) {

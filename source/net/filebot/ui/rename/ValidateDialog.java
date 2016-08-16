@@ -37,7 +37,7 @@ import net.miginfocom.swing.MigLayout;
 
 class ValidateDialog extends JDialog {
 
-	private final JList list;
+	private JList list;
 
 	private File[] model;
 
@@ -61,7 +61,7 @@ class ValidateDialog extends JDialog {
 		c.add(new JButton(continueAction), "tag ok");
 
 		// focus "Validate" button
-		SwingUtilities.invokeLater(() -> c.getComponent(2).requestFocusInWindow());
+		SwingUtilities.invokeLater(c.getComponent(2)::requestFocusInWindow);
 
 		installAction(c, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), cancelAction);
 
@@ -140,9 +140,8 @@ class ValidateDialog extends JDialog {
 
 	private static class IndexView<E> extends AbstractList<E> {
 
-		private final List<Integer> mapping = new ArrayList<Integer>();
-
-		private final List<E> source;
+		private List<Integer> mapping = new ArrayList<Integer>();
+		private List<E> source;
 
 		public IndexView(List<E> source) {
 			this.source = source;

@@ -81,7 +81,7 @@ class ConflictDialog extends JDialog {
 		c.add(b, "tag next");
 
 		// focus "Continue" button
-		SwingUtilities.invokeLater(() -> c.getComponent(2).requestFocusInWindow());
+		SwingUtilities.invokeLater(c.getComponent(2)::requestFocusInWindow);
 
 		installAction(c, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), newAction("Cancel", this::cancel));
 
