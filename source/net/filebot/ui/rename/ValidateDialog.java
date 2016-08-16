@@ -1,5 +1,6 @@
 package net.filebot.ui.rename;
 
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
@@ -15,7 +16,6 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -26,10 +26,10 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
 import net.filebot.ResourceManager;
@@ -41,53 +41,29 @@ class ValidateDialog extends JDialog {
 
 	private File[] model;
 
-	private boolean cancelled = true;
+	private boolean cancel = true;
 
 	public ValidateDialog(Window owner, Collection<File> source) {
-		super(owner, "Invalid Names", ModalityType.DOCUMENT_MODAL);
+		super(owner, "Illegal Characters", ModalityType.DOCUMENT_MODAL);
 
 		model = source.toArray(new File[0]);
 
 		list = new JList(model);
 		list.setEnabled(false);
+		list.setCellRenderer(new IllegalCharactersListCellRenderer());
 
-		list.setCellRenderer(new HighlightListCellRenderer(ILLEGAL_CHARACTERS, new CharacterHighlightPainter(new Color(0xFF4200), new Color(0xFF1200)), 4) {
+		JComponent c = (JComponent) getContentPane();
+		c.setLayout(new MigLayout("insets dialog, nogrid, fill", "", "[fill][pref!]"));
 
-			@Override
-			protected void updateHighlighter() {
-				textComponent.getHighlighter().removeAllHighlights();
+		c.add(new JScrollPane(list), "grow, wrap");
+		c.add(new JButton(cancelAction), "tag left");
+		c.add(new JButton(validateAction), "tag next");
+		c.add(new JButton(continueAction), "tag ok");
 
-				Matcher matcher = pattern.matcher(textComponent.getText());
-				File file = new File(textComponent.getText());
+		// focus "Validate" button
+		SwingUtilities.invokeLater(() -> c.getComponent(2).requestFocusInWindow());
 
-				// highlight path components separately to ignore "illegal characters" that are either path separators or part of the drive letter (e.g. ':' in 'E:')
-				for (File element : listPath(file)) {
-					int limit = element.getPath().length();
-					matcher.region(limit - element.getName().length(), limit);
-
-					while (matcher.find()) {
-						try {
-							textComponent.getHighlighter().addHighlight(matcher.start(0), matcher.end(0), highlightPainter);
-						} catch (BadLocationException e) {
-							// should not happen
-							debug.log(Level.SEVERE, e.getMessage(), e);
-						}
-					}
-				}
-			}
-		});
-
-		JLabel label = new JLabel("Some filenames contain invalid characters:");
-
-		JComponent content = (JComponent) getContentPane();
-		content.setLayout(new MigLayout("insets dialog, nogrid, fill", "", "[pref!][fill][pref!]"));
-		content.add(label, "wrap");
-		content.add(new JScrollPane(list), "grow, wrap 2mm");
-		content.add(new JButton(validateAction), "align center");
-		content.add(new JButton(continueAction), "gap related");
-		content.add(new JButton(cancelAction), "gap 12mm");
-
-		installAction(content, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), cancelAction);
+		installAction(c, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), cancelAction);
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setMinimumSize(new Dimension(365, 280));
@@ -95,24 +71,22 @@ class ValidateDialog extends JDialog {
 	}
 
 	public List<File> getModel() {
-		return unmodifiableList(Arrays.asList(model));
+		return unmodifiableList(asList(model));
 	}
 
-	public boolean isCancelled() {
-		return cancelled;
+	public boolean cancel() {
+		return cancel;
 	}
 
-	private void finish(boolean cancelled) {
-		this.cancelled = cancelled;
-
+	private void finish(boolean cancel) {
+		this.cancel = cancel;
 		setVisible(false);
-		dispose();
 	}
 
 	private final Action validateAction = new AbstractAction("Validate", ResourceManager.getIcon("dialog.continue")) {
 
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void actionPerformed(ActionEvent evt) {
 			// validate names
 			for (int i = 0; i < model.length; i++) {
 				// remove illegal characters
@@ -130,21 +104,70 @@ class ValidateDialog extends JDialog {
 		}
 	};
 
-	private final Action continueAction = new AbstractAction("Continue", ResourceManager.getIcon("dialog.continue.invalid")) {
+	private final Action continueAction = newAction("Continue", ResourceManager.getIcon("dialog.continue.invalid"), evt -> finish(false));
+
+	private final Action cancelAction = newAction("Cancel", ResourceManager.getIcon("dialog.cancel"), evt -> finish(true));
+
+	private static class IllegalCharactersListCellRenderer extends HighlightListCellRenderer {
+
+		public IllegalCharactersListCellRenderer() {
+			super(ILLEGAL_CHARACTERS, new CharacterHighlightPainter(new Color(0xFF4200), new Color(0xFF1200)), 4);
+		}
 
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			finish(false);
-		}
-	};
+		protected void updateHighlighter() {
+			textComponent.getHighlighter().removeAllHighlights();
 
-	private final Action cancelAction = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
+			Matcher matcher = pattern.matcher(textComponent.getText());
+			File file = new File(textComponent.getText());
+
+			// highlight path components separately to ignore "illegal characters" that are either path separators or part of the drive letter (e.g. ':' in 'E:')
+			for (File element : listPath(file)) {
+				int limit = element.getPath().length();
+				matcher.region(limit - element.getName().length(), limit);
+
+				while (matcher.find()) {
+					try {
+						textComponent.getHighlighter().addHighlight(matcher.start(0), matcher.end(0), highlightPainter);
+					} catch (BadLocationException e) {
+						// should not happen
+						debug.log(Level.SEVERE, e.getMessage(), e);
+					}
+				}
+			}
+		}
+	}
+
+	private static class IndexView<E> extends AbstractList<E> {
+
+		private final List<Integer> mapping = new ArrayList<Integer>();
+
+		private final List<E> source;
+
+		public IndexView(List<E> source) {
+			this.source = source;
+		}
+
+		public boolean addIndex(int index) {
+			return mapping.add(index);
+		}
 
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			finish(true);
+		public E get(int index) {
+			int sourceIndex = mapping.get(index);
+			return sourceIndex >= 0 ? source.get(sourceIndex) : null;
 		}
-	};
+
+		@Override
+		public E set(int index, E element) {
+			return source.set(mapping.get(index), element);
+		}
+
+		@Override
+		public int size() {
+			return mapping.size();
+		}
+	}
 
 	public static boolean validate(Component parent, List<File> source) {
 		IndexView<File> invalidFilePaths = new IndexView<File>(source);
@@ -167,7 +190,7 @@ class ValidateDialog extends JDialog {
 		// show and block
 		dialog.setVisible(true);
 
-		if (dialog.isCancelled()) {
+		if (dialog.cancel()) {
 			// no output
 			return false;
 		}
@@ -180,41 +203,6 @@ class ValidateDialog extends JDialog {
 		}
 
 		return true;
-	}
-
-	private static class IndexView<E> extends AbstractList<E> {
-
-		private final List<Integer> mapping = new ArrayList<Integer>();
-
-		private final List<E> source;
-
-		public IndexView(List<E> source) {
-			this.source = source;
-		}
-
-		public boolean addIndex(int index) {
-			return mapping.add(index);
-		}
-
-		@Override
-		public E get(int index) {
-			int sourceIndex = mapping.get(index);
-
-			if (sourceIndex >= 0)
-				return source.get(sourceIndex);
-
-			return null;
-		}
-
-		@Override
-		public E set(int index, E element) {
-			return source.set(mapping.get(index), element);
-		}
-
-		@Override
-		public int size() {
-			return mapping.size();
-		}
 	}
 
 }
