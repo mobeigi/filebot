@@ -90,11 +90,11 @@ class RenameAction extends AbstractAction {
 				try {
 					if (useNativeShell() && NativeRenameAction.isSupported(action)) {
 						// call on EDT
-						RenameWorker worker = new NativeRenameWorker(renameMap, renameLog, NativeRenameAction.valueOf(action.name()));
+						NativeRenameWorker worker = new NativeRenameWorker(renameMap, renameLog, NativeRenameAction.valueOf(action.name()));
 						worker.call(null, null, null);
 					} else {
 						// call and wait
-						RenameWorker worker = new RenameWorker(renameMap, renameLog, action);
+						StandardRenameWorker worker = new StandardRenameWorker(renameMap, renameLog, action);
 						String message = String.format("%sing %d %s. This may take a while.", action.getDisplayName(), renameMap.size(), renameMap.size() == 1 ? "file" : "files");
 						ProgressMonitor.runTask(action.getDisplayName(), message, worker).get();
 					}
@@ -288,16 +288,14 @@ class RenameAction extends AbstractAction {
 		return emptyList();
 	}
 
-	protected static class RenameWorker implements ProgressWorker<Map<File, File>> {
+	protected static class StandardRenameWorker implements ProgressWorker<Map<File, File>> {
 
-		protected final Map<File, File> renameMap;
-		protected final Map<File, File> renameLog;
+		private Map<File, File> renameMap;
+		private Map<File, File> renameLog;
 
-		protected final net.filebot.RenameAction action;
+		private StandardRenameAction action;
 
-		protected boolean cancelled = false;
-
-		public RenameWorker(Map<File, File> renameMap, Map<File, File> renameLog, net.filebot.RenameAction action) {
+		public StandardRenameWorker(Map<File, File> renameMap, Map<File, File> renameLog, StandardRenameAction action) {
 			this.renameMap = renameMap;
 			this.renameLog = renameLog;
 			this.action = action;
@@ -328,40 +326,47 @@ class RenameAction extends AbstractAction {
 		}
 	}
 
-	protected static class NativeRenameWorker extends RenameWorker {
+	protected static class NativeRenameWorker implements ProgressWorker<Map<File, File>> {
+
+		private Map<File, File> renameMap;
+		private Map<File, File> renameLog;
+
+		private NativeRenameAction action;
 
 		public NativeRenameWorker(Map<File, File> renameMap, Map<File, File> renameLog, NativeRenameAction action) {
-			super(renameMap, renameLog, action);
+			this.renameMap = renameMap;
+			this.renameLog = renameLog;
+			this.action = action;
 		}
 
 		@Override
 		public Map<File, File> call(Consumer<String> message, BiConsumer<Long, Long> progress, Supplier<Boolean> cancelled) throws Exception {
-			NativeRenameAction shell = (NativeRenameAction) action;
-
 			// prepare delta, ignore files already named as desired
 			Map<File, File> renamePlan = new LinkedHashMap<File, File>();
 
-			renameMap.forEach((source, destination) -> {
+			renameMap.forEach((from, to) -> {
 				// resolve relative paths
-				destination = resolve(source, destination);
+				to = resolve(from, to);
 
-				if (!equalsCaseSensitive(source, destination)) {
-					renamePlan.put(source, destination);
+				if (!equalsCaseSensitive(from, to)) {
+					renamePlan.put(from, to);
 				}
 			});
 
 			// call native shell move/copy
 			try {
-				shell.rename(renamePlan);
+				action.rename(renamePlan);
 			} catch (CancellationException e) {
 				debug.finest(e::getMessage);
 			}
 
-			for (Entry<File, File> it : renameMap.entrySet()) {
-				if (resolve(it.getKey(), it.getValue()).exists()) {
-					renameLog.put(it.getKey(), it.getValue());
+			// confirm results
+			renameMap.forEach((from, to) -> {
+				// resolve relative paths
+				if (resolve(from, to).exists()) {
+					renameLog.put(from, to);
 				}
-			}
+			});
 
 			return renameLog;
 		}
