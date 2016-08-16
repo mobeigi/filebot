@@ -15,7 +15,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,80 +29,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import net.filebot.ResourceManager;
-import net.filebot.StandardRenameAction;
 import net.filebot.UserFiles;
 import net.miginfocom.swing.MigLayout;
 
 class ConflictDialog extends JDialog {
-
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(() -> {
-			File s = new File(args[0]);
-			File d = new File(args[1]);
-
-			Map<File, File> map = new HashMap<>();
-			map.put(s, d);
-
-			Map<File, File> check = ConflictDialog.check(null, map);
-			System.out.println(check);
-			System.exit(0);
-		});
-	}
-
-	public static Map<File, File> check(Component parent, Map<File, File> renameMap) {
-		List<Conflict> conflicts = new ArrayList<Conflict>();
-
-		// sanity checks
-		Set<File> destFiles = new HashSet<File>();
-
-		renameMap.forEach((from, to) -> {
-			List<Object> issues = new ArrayList<Object>();
-
-			// resolve relative paths
-			to = resolve(from, to);
-
-			// output files must have a valid file extension
-			if (getExtension(to) == null && to.isFile()) {
-				issues.add("Missing extension");
-			}
-
-			// one file per unique output path
-			if (!destFiles.add(to)) {
-				issues.add("Duplicate destination path");
-			}
-
-			// check if destination path already exists
-			if (to.exists() && !to.equals(from)) {
-				issues.add("File already exists");
-			}
-
-			if (issues.size() > 0) {
-				conflicts.add(new Conflict(from, to, issues));
-			}
-		});
-
-		if (conflicts.isEmpty()) {
-			return renameMap;
-		}
-
-		ConflictDialog dialog = new ConflictDialog(getWindow(parent), conflicts);
-		dialog.setVisible(true);
-
-		if (dialog.cancel()) {
-			return emptyMap();
-		}
-
-		// exclude conflicts from rename map
-		for (Conflict it : dialog.getConflicts()) {
-			renameMap.remove(it.source);
-		}
-		return renameMap;
-	}
 
 	private ConflictTableModel model = new ConflictTableModel();
 	private boolean cancel = true;
@@ -168,7 +101,7 @@ class ConflictDialog extends JDialog {
 
 			if (c.destination.exists()) {
 				try {
-					StandardRenameAction.trash(c.destination);
+					UserFiles.trash(c.destination);
 				} catch (Exception e) {
 					return new Conflict(c.source, c.destination, singletonList(e.getMessage()));
 				}
@@ -314,6 +247,57 @@ class ConflictDialog extends JDialog {
 				}
 			}
 		}
+	}
+
+	public static boolean check(Component parent, Map<File, File> renameMap) {
+		List<Conflict> conflicts = new ArrayList<Conflict>();
+
+		// sanity checks
+		Set<File> destFiles = new HashSet<File>();
+
+		renameMap.forEach((from, to) -> {
+			List<Object> issues = new ArrayList<Object>();
+
+			// resolve relative paths
+			to = resolve(from, to);
+
+			// output files must have a valid file extension
+			if (getExtension(to) == null && to.isFile()) {
+				issues.add("Missing extension");
+			}
+
+			// one file per unique output path
+			if (!destFiles.add(to)) {
+				issues.add("Duplicate destination path");
+			}
+
+			// check if destination path already exists
+			if (to.exists() && !to.equals(from)) {
+				issues.add("File already exists");
+			}
+
+			if (issues.size() > 0) {
+				conflicts.add(new Conflict(from, to, issues));
+			}
+		});
+
+		if (conflicts.isEmpty()) {
+			return true;
+		}
+
+		ConflictDialog dialog = new ConflictDialog(getWindow(parent), conflicts);
+		dialog.setLocation(getOffsetLocation(dialog.getOwner()));
+		dialog.setVisible(true);
+
+		if (dialog.cancel()) {
+			return false;
+		}
+
+		// exclude conflicts from rename map
+		for (Conflict it : dialog.getConflicts()) {
+			renameMap.remove(it.source);
+		}
+		return true;
 	}
 
 }
