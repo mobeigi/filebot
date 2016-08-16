@@ -24,9 +24,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.function.Supplier;
 import java.util.logging.Level;
+import java.util.stream.IntStream;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -242,7 +244,7 @@ public class RenamePanel extends JComponent {
 		filesList.getButtonPanel().add(createImageButton(openHistoryAction), "gap indent");
 
 		// create macros popup
-		JButton presetsButton = createImageButton(new ShowPresetsPopupAction("Presets", ResourceManager.getIcon("action.script")));
+		JButton presetsButton = createImageButton(new ShowPresetsPopupAction());
 		filesList.getButtonPanel().add(presetsButton, "gap 0");
 
 		// show popup on actionPerformed only when names list is empty
@@ -346,18 +348,21 @@ public class RenamePanel extends JComponent {
 		}));
 
 		// map 1..9 number keys to presets
-		try {
-			Preset[] presets = persistentPresets.values().toArray(new Preset[0]);
+		IntStream.rangeClosed(1, 9).forEach(i -> {
+			installAction(this, WHEN_IN_FOCUSED_WINDOW, getKeyStroke(Character.forDigit(i, 10), 0), newAction("Preset " + i, evt -> {
+				try {
+					Optional<Preset> preset = persistentPresets.values().stream().skip(i - 1).findFirst();
 
-			for (int i = 0; i < presets.length && i < 9; i++) {
-				Preset preset = presets[i];
-				int key = Character.forDigit(i + 1, 10);
-
-				installAction(this, WHEN_IN_FOCUSED_WINDOW, getKeyStroke(key, 0), newAction(preset.getName(), new ApplyPresetAction(preset)::actionPerformed));
-			}
-		} catch (Exception e) {
-			debug.log(Level.WARNING, e::toString);
-		}
+					if (preset.isPresent()) {
+						new ApplyPresetAction(preset.get()).actionPerformed(evt);
+					} else {
+						new ShowPresetsPopupAction().actionPerformed(evt);
+					}
+				} catch (Exception e) {
+					debug.log(Level.WARNING, e, e::getMessage);
+				}
+			}));
+		});
 	}
 
 	private boolean isMatchModeStrict() {
@@ -643,7 +648,6 @@ public class RenamePanel extends JComponent {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// display popup below component
 			JComponent source = (JComponent) e.getSource();
 			source.getComponentPopupMenu().show(source, -3, source.getHeight() + 4);
 		}
@@ -651,14 +655,13 @@ public class RenamePanel extends JComponent {
 
 	private class ShowPresetsPopupAction extends AbstractAction {
 
-		public ShowPresetsPopupAction(String name, Icon icon) {
-			super(name, icon);
+		public ShowPresetsPopupAction() {
+			super("Presets", ResourceManager.getIcon("action.script"));
 		}
 
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			// display popup below component
-			JComponent source = (JComponent) e.getSource();
+		public void actionPerformed(ActionEvent evt) {
+			JComponent source = (JComponent) evt.getSource();
 			createPresetsPopup().show(source, -3, source.getHeight() + 4);
 		}
 	};
