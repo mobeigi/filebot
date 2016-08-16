@@ -1,16 +1,12 @@
 package net.filebot;
 
-import static net.filebot.Logging.*;
+import static net.filebot.UserFiles.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.attribute.BasicFileAttributes;
-
-import com.apple.eio.FileManager;
-import com.sun.jna.Platform;
-import com.sun.jna.platform.FileUtils;
 
 import net.filebot.util.FileUtilities;
 
@@ -199,29 +195,6 @@ public enum StandardRenameAction implements RenameAction {
 		}
 
 		throw new IllegalArgumentException(String.format("Cannot revert file: %s => %s", current, original));
-	}
-
-	public static void trash(File file) throws IOException {
-		// use system trash if possible
-		try {
-			if (Platform.isMac()) {
-				// use com.apple.eio package on OS X platform
-				if (FileManager.moveToTrash(file)) {
-					return;
-				}
-			} else if (FileUtils.getInstance().hasTrash()) {
-				// use com.sun.jna.platform package on Windows and Linux
-				FileUtils.getInstance().moveToTrash(new File[] { file });
-				return;
-			}
-		} catch (Exception e) {
-			debug.warning(e::toString);
-		}
-
-		// delete permanently if necessary
-		if (file.exists()) {
-			FileUtilities.delete(file);
-		}
 	}
 
 }

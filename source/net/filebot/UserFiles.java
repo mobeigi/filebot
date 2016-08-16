@@ -13,6 +13,7 @@ import java.awt.FileDialog;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -21,26 +22,58 @@ import java.util.logging.Level;
 
 import javax.swing.JFileChooser;
 
+import com.apple.eio.FileManager;
+import com.sun.jna.platform.FileUtils;
+
 import net.filebot.mac.MacAppUtilities;
+import net.filebot.util.FileUtilities;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
 
 public class UserFiles {
 
+	public static void trash(File file) throws IOException {
+		// use system trash if possible
+		try {
+			if (isMacApp()) {
+				// use com.apple.eio package on OS X platform
+				if (FileManager.moveToTrash(file)) {
+					return;
+				}
+			} else if (FileUtils.getInstance().hasTrash()) {
+				// use com.sun.jna.platform package on Windows and Linux
+				FileUtils.getInstance().moveToTrash(new File[] { file });
+				return;
+			}
+		} catch (Exception e) {
+			debug.log(Level.WARNING, e::toString);
+		}
+
+		// delete permanently if necessary
+		if (file.exists()) {
+			FileUtilities.delete(file);
+		}
+	}
+
 	public static void revealFiles(Collection<File> files) {
 		if (isMacApp()) {
-			for (File it : files) {
-				MacAppUtilities.revealInFinder(it);
-			}
-		} else {
-			// if we can't reveal the file in folder, just reveal the parent folder
-			files.stream().map(it -> it.getParentFile()).distinct().forEach(it -> {
+			files.forEach(f -> {
 				try {
-					Desktop.getDesktop().open(it);
+					FileManager.revealInFinder(f);
 				} catch (Exception e) {
-					debug.log(Level.SEVERE, e.getMessage(), e);
+					debug.log(Level.WARNING, e::toString);
 				}
 			});
+			return;
 		}
+
+		// if we can't reveal the file in folder, just reveal the parent folder
+		files.stream().map(it -> it.getParentFile()).distinct().forEach(it -> {
+			try {
+				Desktop.getDesktop().open(it);
+			} catch (Exception e) {
+				debug.log(Level.WARNING, e::toString);
+			}
+		});
 	}
 
 	private static FileChooser defaultFileChooser = getPreferredFileChooser();
