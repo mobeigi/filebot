@@ -2,6 +2,7 @@ package net.filebot;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.similarity.Normalization.*;
@@ -56,9 +57,9 @@ public class UserFiles {
 
 	public static void revealFiles(Collection<File> files) {
 		if (isMacApp()) {
-			files.forEach(f -> {
+			files.stream().collect(groupingBy(File::getParentFile)).forEach((parent, children) -> {
 				try {
-					FileManager.revealInFinder(f);
+					FileManager.revealInFinder(children.get(children.size() - 1));
 				} catch (Exception e) {
 					debug.log(Level.WARNING, e::toString);
 				}
