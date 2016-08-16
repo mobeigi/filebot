@@ -8,6 +8,7 @@ import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -23,12 +24,14 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -57,8 +60,8 @@ class ConflictDialog extends JDialog {
 		table.setColumnSelectionAllowed(false);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-		table.getColumnModel().getColumn(0).setMaxWidth(30);
-		table.setRowHeight(20);
+		table.getColumnModel().getColumn(0).setMaxWidth(40);
+		table.setRowHeight(25);
 
 		table.addMouseListener(new OpenListener());
 
@@ -69,17 +72,21 @@ class ConflictDialog extends JDialog {
 		c.setLayout(new MigLayout("insets dialog, nogrid, fill", "", "[fill][pref!]"));
 
 		c.add(new JScrollPane(table), "grow, wrap");
+		c.add(newButton("Cancel", ResourceManager.getIcon("dialog.cancel"), this::cancel), "tag left");
+		c.add(newButton("Continue", ResourceManager.getIcon("dialog.continue"), this::ignore), "tag ok");
 
-		c.add(newButton("Ignore", ResourceManager.getIcon("dialog.continue"), this::ignore), "tag ok");
-		c.add(newButton("Cancel", ResourceManager.getIcon("dialog.cancel"), this::cancel), "tag cancel");
+		JButton b = newButton("Override", ResourceManager.getIcon("dialog.continue.invalid"), this::override);
+		b.setEnabled(conflicts.stream().anyMatch(it -> it.override));
+		b.addActionListener(evt -> b.setEnabled(false));
+		c.add(b, "tag next");
 
-		if (conflicts.stream().anyMatch(it -> it.destination.exists())) {
-			c.add(newButton("Override", ResourceManager.getIcon("dialog.continue.invalid"), this::override), "tag left");
-		}
+		// focus "Continue" button
+		SwingUtilities.invokeLater(() -> c.getComponent(2).requestFocusInWindow());
 
 		installAction(c, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), newAction("Cancel", this::cancel));
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setMinimumSize(new Dimension(365, 280));
 		pack();
 	}
 
@@ -95,16 +102,14 @@ class ConflictDialog extends JDialog {
 		// delete existing destination files and create new data model
 		List<Conflict> data = model.getData().stream().map(c -> {
 			// safety check
-			if (c.source.equals(c.destination)) {
+			if (!c.override) {
 				return c;
 			}
 
-			if (c.destination.exists()) {
-				try {
-					UserFiles.trash(c.destination);
-				} catch (Exception e) {
-					return new Conflict(c.source, c.destination, singletonList(e.getMessage()));
-				}
+			try {
+				UserFiles.trash(c.destination);
+			} catch (Exception e) {
+				return new Conflict(c.source, c.destination, singletonList(e.getMessage()), false);
 			}
 
 			// resolved => remove conflict
@@ -136,18 +141,20 @@ class ConflictDialog extends JDialog {
 		public final File destination;
 
 		public final List<Object> issues;
+		public final boolean override;
 
-		public Conflict(File source, File destination, List<Object> issues) {
+		public Conflict(File source, File destination, List<Object> issues, boolean override) {
 			this.source = source;
 			this.destination = destination;
 			this.issues = issues;
+			this.override = override;
 		}
 
 	}
 
 	private static class ConflictTableModel extends AbstractTableModel {
 
-		private Conflict[] data;
+		private Conflict[] data = new Conflict[0];
 
 		public void setData(List<Conflict> data) {
 			this.data = data.toArray(new Conflict[0]);
@@ -206,7 +213,7 @@ class ConflictDialog extends JDialog {
 			case 0:
 				return ResourceManager.getIcon(conflict.issues.isEmpty() ? "status.ok" : "status.error");
 			case 1:
-				return conflict.issues.isEmpty() ? "OK" : conflict.issues.stream().map(Objects::toString).collect(joining("; "));
+				return conflict.issues.isEmpty() ? "OK" : conflict.issues.stream().map(Objects::toString).collect(joining(" • "));
 			case 2:
 				return conflict.source;
 			case 3:
@@ -257,6 +264,7 @@ class ConflictDialog extends JDialog {
 
 		renameMap.forEach((from, to) -> {
 			List<Object> issues = new ArrayList<Object>();
+			boolean override = false;
 
 			// resolve relative paths
 			to = resolve(from, to);
@@ -264,6 +272,11 @@ class ConflictDialog extends JDialog {
 			// output files must have a valid file extension
 			if (getExtension(to) == null && to.isFile()) {
 				issues.add("Missing extension");
+			}
+
+			// check if input and output overlap
+			if (renameMap.containsKey(to)) {
+				issues.add("Conflict with source path");
 			}
 
 			// one file per unique output path
@@ -274,10 +287,13 @@ class ConflictDialog extends JDialog {
 			// check if destination path already exists
 			if (to.exists() && !to.equals(from)) {
 				issues.add("File already exists");
+
+				// allow override if this is the only issue
+				override = issues.size() == 1;
 			}
 
 			if (issues.size() > 0) {
-				conflicts.add(new Conflict(from, to, issues));
+				conflicts.add(new Conflict(from, to, issues, override));
 			}
 		});
 
