@@ -55,37 +55,38 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				return emptySet();
 			}
 
-			Collection<SxE> result = transformCache.get(object);
-			if (result != null) {
-				return result;
-			}
-
-			if (object instanceof Episode) {
-				Episode episode = (Episode) object;
-
-				// get SxE from episode, both SxE for season/episode numbering and SxE for absolute episode numbering
-				Set<SxE> sxe = new HashSet<SxE>(2);
-
-				// default SxE numbering
-				if (episode.getEpisode() != null) {
-					sxe.add(new SxE(episode.getSeason(), episode.getEpisode()));
+			return transformCache.computeIfAbsent(object, key -> {
+				if (object instanceof Episode) {
+					Episode episode = (Episode) object;
+					return parse(episode);
 				}
-				// absolute numbering
-				if (episode.getAbsolute() != null) {
-					sxe.add(new SxE(null, episode.getAbsolute()));
-				}
-				// 0xSpecial numbering
-				if (episode.getSpecial() != null) {
-					sxe.add(new SxE(0, episode.getSpecial()));
-				}
-				result = sxe;
-			} else {
-				result = super.parse(object);
-			}
 
-			transformCache.put(object, result);
-			return result;
+				return super.parse(object);
+			});
 		}
+
+		private Set<SxE> parse(Episode e) {
+			// get SxE from episode, both SxE for season/episode numbering and SxE for absolute episode numbering
+			Set<SxE> sxe = new HashSet<SxE>(2);
+
+			// default SxE numbering
+			if (e.getEpisode() != null) {
+				sxe.add(new SxE(e.getSeason(), e.getEpisode()));
+
+				// absolute numbering
+				if (e.getAbsolute() != null) {
+					sxe.add(new SxE(null, e.getAbsolute()));
+				}
+			} else {
+				// 0xSpecial numbering
+				if (e.getSpecial() != null) {
+					sxe.add(new SxE(0, e.getSpecial()));
+				}
+			}
+
+			return sxe;
+		}
+
 	}),
 
 	// Match episode airdate
