@@ -62,10 +62,11 @@ class ConflictDialog extends JDialog {
 
 		table.getColumnModel().getColumn(0).setMaxWidth(40);
 		table.setRowHeight(25);
+		table.setPreferredScrollableViewportSize(new Dimension(500, 250));
 
 		table.addMouseListener(new OpenListener());
 
-		// force white background (e.g. gtk-laf default table background is gray)
+		// force white background (e.g. GTK LaF default table background is gray)
 		setBackground(Color.WHITE);
 
 		JComponent c = (JComponent) getContentPane();
