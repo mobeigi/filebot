@@ -141,6 +141,11 @@ public class MediaBindingBean {
 
 	@Define("s")
 	public Integer getSeasonNumber() {
+		// look up season numbers via TheTVDB for AniDB episode data
+		if (isAnime(getEpisode())) {
+			return getSeasonEpisode().getSeason();
+		}
+
 		return getEpisode().getSeason();
 	}
 
