@@ -304,7 +304,7 @@
 	<target name="appbundle" description="Build Mac application bundle">
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="jars.classpath" />
 
-		<bundleapp minimumsystemversion="10.9" jvmrequired="1.8" outputdirectory="${dir.dist}" executablename="FileBotAppLauncher" name="${application.name}" displayname="${title} ${version}" version="${revision}" shortversion="${version}" identifier="net.filebot.app" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} Reinhard Pointner" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
+		<bundleapp minimumsystemversion="10.8" jvmrequired="1.8" outputdirectory="${dir.dist}" executablename="FileBotAppLauncher" name="${application.name}" displayname="${title} ${version}" version="${revision}" shortversion="${version}" identifier="net.filebot.app" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} Reinhard Pointner" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<arch name="x86_64" />
@@ -388,7 +388,7 @@
 		<property name="jre.version" value="jdk1.8.0_102.jdk" />
 		<property name="jre.path" value="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Home" />
 
-		<bundleapp minimumsystemversion="10.9" outputdirectory="${dir.dist}" executablename="${application.executable}AppLauncher" name="${application.name}" displayname="${application.name}" version="${revision}" shortversion="${version}" identifier="${application.identifier}" mainclassname="net.filebot.Main" icon="${application.icon}" copyright="${tstamp.year} Point Planck" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
+		<bundleapp minimumsystemversion="10.8" outputdirectory="${dir.dist}" executablename="${application.executable}AppLauncher" name="${application.name}" displayname="${application.name}" version="${revision}" shortversion="${version}" identifier="${application.identifier}" mainclassname="net.filebot.Main" icon="${application.icon}" copyright="${tstamp.year} Point Planck" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<arch name="x86_64" />
