@@ -136,7 +136,7 @@ public class MediaDetection {
 			return metaInfo instanceof Movie;
 		}
 
-		if (isEpisode(file, strict)) {
+		if (isEpisode(file, true)) {
 			return false;
 		}
 
