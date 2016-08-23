@@ -174,16 +174,16 @@ public class MediaBindingBean {
 
 	@Define("t")
 	public String getTitle() {
-		if (infoObject instanceof AudioTrack) {
-			return getMusic().getTrackTitle() != null ? getMusic().getTrackTitle() : getMusic().getTitle();
-		}
-
 		if (infoObject instanceof Episode) {
 			// support multi-episode title formatting
 			String t = infoObject instanceof MultiEpisode ? EpisodeFormat.SeasonEpisode.formatMultiTitle(getEpisodes()) : getEpisode().getTitle();
 
 			// enforce title length limit by default
 			return truncateText(t, NamingStandard.TITLE_MAX_LENGTH);
+		}
+
+		if (infoObject instanceof AudioTrack) {
+			return getMusic().getTrackTitle() != null ? getMusic().getTrackTitle() : getMusic().getTitle();
 		}
 
 		return null;
