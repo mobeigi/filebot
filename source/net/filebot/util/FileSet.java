@@ -158,13 +158,13 @@ public class FileSet extends AbstractSet<Path> {
 	}
 
 	public void load(File f) throws IOException {
-		streamLines(f).forEach(path -> {
+		for (String path : readLines(f)) {
 			try {
 				add(Paths.get(path));
 			} catch (InvalidPathException e) {
 				debug.warning(e::toString);
 			}
-		});
+		}
 	}
 
 	public void append(File f, Collection<?>... paths) throws IOException {

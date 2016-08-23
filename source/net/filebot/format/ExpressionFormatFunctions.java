@@ -1,7 +1,6 @@
 package net.filebot.format;
 
 import static java.util.stream.Collectors.*;
-import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.RegularExpressions.*;
 
 import java.io.File;
@@ -15,6 +14,7 @@ import java.util.stream.Stream;
 
 import groovy.lang.Closure;
 import groovy.util.XmlSlurper;
+import net.filebot.util.FileUtilities;
 
 /**
  * Global functions available in the {@link ExpressionFormat}
@@ -57,7 +57,7 @@ public class ExpressionFormatFunctions {
 	public static Map<String, String> csv(String path) throws IOException {
 		Pattern[] delimiter = { TAB, SEMICOLON };
 		Map<String, String> map = new LinkedHashMap<String, String>();
-		streamLines(new File(path)).forEach(line -> {
+		for (String line : readLines(path)) {
 			for (Pattern d : delimiter) {
 				String[] field = d.split(line, 2);
 				if (field.length >= 2) {
@@ -65,12 +65,12 @@ public class ExpressionFormatFunctions {
 					break;
 				}
 			}
-		});
+		}
 		return map;
 	}
 
 	public static List<String> readLines(String path) throws IOException {
-		return streamLines(new File(path)).collect(toList());
+		return FileUtilities.readLines(new File(path));
 	}
 
 	public static Object readXml(String path) throws Exception {
