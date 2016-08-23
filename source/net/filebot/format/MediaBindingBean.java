@@ -63,6 +63,7 @@ import net.filebot.web.EpisodeFormat;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.Movie;
 import net.filebot.web.MoviePart;
+import net.filebot.web.MultiEpisode;
 import net.filebot.web.SeriesInfo;
 import net.filebot.web.SimpleDate;
 import net.filebot.web.SortOrder;
@@ -177,8 +178,15 @@ public class MediaBindingBean {
 			return getMusic().getTrackTitle() != null ? getMusic().getTrackTitle() : getMusic().getTitle();
 		}
 
-		// enforce title length limit by default
-		return truncateText(EpisodeFormat.SeasonEpisode.formatMultiTitle(getEpisodes()), NamingStandard.TITLE_MAX_LENGTH);
+		if (infoObject instanceof Episode) {
+			// support multi-episode title formatting
+			String t = infoObject instanceof MultiEpisode ? EpisodeFormat.SeasonEpisode.formatMultiTitle(getEpisodes()) : getEpisode().getTitle();
+
+			// enforce title length limit by default
+			return truncateText(t, NamingStandard.TITLE_MAX_LENGTH);
+		}
+
+		return null;
 	}
 
 	@Define("d")
