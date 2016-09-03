@@ -35,7 +35,9 @@ import net.filebot.ResourceManager;
 
 public class TheTVDBClientV1 extends AbstractEpisodeListProvider implements ArtworkProvider {
 
-	private final Map<MirrorType, String> mirrors = MirrorType.newMap();
+	private static final String DEFAULT_MIRROR = "http://thetvdb.com";
+
+	private static final Map<MirrorType, String> mirrors = MirrorType.newMap();
 
 	private final String apikey;
 
@@ -233,7 +235,7 @@ public class TheTVDBClientV1 extends AbstractEpisodeListProvider implements Artw
 	protected String getMirror(MirrorType mirrorType) throws Exception {
 		// use default server
 		if (mirrorType == MirrorType.NULL) {
-			return "http://thetvdb.com";
+			return DEFAULT_MIRROR;
 		}
 
 		synchronized (mirrors) {
@@ -259,7 +261,7 @@ public class TheTVDBClientV1 extends AbstractEpisodeListProvider implements Artw
 			}
 
 			// return selected mirror
-			return mirrors.get(mirrorType);
+			return mirrors.getOrDefault(mirrorType, DEFAULT_MIRROR);
 		}
 	}
 
