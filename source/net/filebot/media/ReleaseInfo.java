@@ -120,8 +120,12 @@ public class ReleaseInfo {
 		if (languageTag == null) {
 			languageTag = getSubtitleLanguageTagPattern(getDefaultLanguageMap().keySet());
 		}
+
 		String lang = matchLast(languageTag, null, name);
-		return lang == null ? null : getDefaultLanguageMap().get(lang);
+		if (lang != null) {
+			return getDefaultLanguageMap().get(lang);
+		}
+		return null;
 	}
 
 	private Pattern categoryTag;

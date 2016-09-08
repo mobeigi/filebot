@@ -444,6 +444,12 @@ public final class SubtitleUtilities {
 			return Language.getLanguage(languageTag);
 		}
 
+		// check if file name matches a language name (e.g. English.srt)
+		Language languageName = Language.findLanguage(getName(file));
+		if (languageName != null) {
+			return languageName;
+		}
+
 		// detect language from subtitle text content
 		MemoryFile data = new MemoryFile(file.getName(), ByteBuffer.wrap(readFile(file)));
 		List<DetectedLanguage> options = detectSubtitleLanguage(data);
