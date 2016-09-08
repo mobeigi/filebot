@@ -11,15 +11,12 @@ import static net.filebot.similarity.CommonSequenceMatcher.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.subtitle.SubtitleUtilities.*;
 import static net.filebot.util.FileUtilities.*;
-import static net.filebot.util.RegularExpressions.*;
 import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.io.Serializable;
 import java.text.CollationKey;
-import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -50,7 +47,6 @@ import net.filebot.WebServices;
 import net.filebot.archive.Archive;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
-import net.filebot.similarity.CommonSequenceMatcher;
 import net.filebot.similarity.DateMatcher;
 import net.filebot.similarity.EpisodeMetrics;
 import net.filebot.similarity.MetricAvg;
@@ -554,7 +550,7 @@ public class MediaDetection {
 			for (String term : terms) {
 				if (term.contains(name)) {
 					if (metric.getSimilarity(term, name) >= similarityThreshold) {
-						seriesList.add(it.object);
+						seriesList.add(it.getObject());
 					}
 					break;
 				}
@@ -1325,109 +1321,6 @@ public class MediaDetection {
 		}
 
 		return sortBySimilarity(probableMatches, singleton(query), new NameSimilarityMetric(), names);
-	}
-
-	public static class IndexEntry<T> implements Serializable {
-
-		private T object;
-		private String lenientName;
-		private String strictName;
-
-		private transient CollationKey[] lenientKey;
-		private transient CollationKey[] strictKey;
-
-		public IndexEntry(T object, String lenientName, String strictName) {
-			this.object = object;
-			this.lenientName = lenientName;
-			this.strictName = strictName;
-		}
-
-		public T getObject() {
-			return object;
-		}
-
-		public String getLenientName() {
-			return lenientName;
-		}
-
-		public String getStrictName() {
-			return strictName;
-		}
-
-		public CollationKey[] getLenientKey() {
-			if (lenientKey == null && lenientName != null) {
-				lenientKey = HighPerformanceMatcher.prepare(lenientName);
-			}
-			return lenientKey;
-		}
-
-		public CollationKey[] getStrictKey() {
-			if (strictKey == null && strictName != null) {
-				strictKey = HighPerformanceMatcher.prepare(strictName);
-			}
-			return strictKey;
-		}
-
-		@Override
-		public String toString() {
-			return strictName != null ? strictName : lenientName;
-		}
-	}
-
-	/*
-	 * Heavy-duty name matcher used for matching a file to or more movies (out of a list of ~50k)
-	 */
-	private static class HighPerformanceMatcher extends CommonSequenceMatcher {
-
-		private static final Collator collator = getLenientCollator(Locale.ENGLISH);
-
-		public static CollationKey[] prepare(String sequence) {
-			String[] words = SPACE.split(sequence);
-			CollationKey[] keys = new CollationKey[words.length];
-			for (int i = 0; i < words.length; i++) {
-				keys[i] = collator.getCollationKey(words[i]);
-			}
-			return keys;
-		}
-
-		public static List<CollationKey[]> prepare(Collection<String> sequences) {
-			return sequences.stream().filter(Objects::nonNull).map(s -> {
-				return prepare(normalizePunctuation(s));
-			}).collect(toList());
-		}
-
-		public static List<IndexEntry<Movie>> prepare(Movie m) {
-			List<String> effectiveNamesWithoutYear = m.getEffectiveNamesWithoutYear();
-			List<String> effectiveNames = m.getEffectiveNames();
-			List<IndexEntry<Movie>> index = new ArrayList<IndexEntry<Movie>>(effectiveNames.size());
-
-			for (int i = 0; i < effectiveNames.size(); i++) {
-				String lenientName = normalizePunctuation(effectiveNamesWithoutYear.get(i));
-				String strictName = normalizePunctuation(effectiveNames.get(i));
-				index.add(new IndexEntry<Movie>(m, lenientName, strictName));
-			}
-			return index;
-		}
-
-		public static List<IndexEntry<SearchResult>> prepare(SearchResult r) {
-			List<String> effectiveNames = r.getEffectiveNames();
-			List<IndexEntry<SearchResult>> index = new ArrayList<IndexEntry<SearchResult>>(effectiveNames.size());
-
-			for (int i = 0; i < effectiveNames.size(); i++) {
-				String lenientName = normalizePunctuation(effectiveNames.get(i));
-				index.add(new IndexEntry<SearchResult>(r, lenientName, null));
-			}
-			return index;
-		}
-
-		public HighPerformanceMatcher(int maxStartIndex) {
-			super(collator, maxStartIndex, true);
-		}
-
-		@Override
-		public CollationKey[] split(String sequence) {
-			throw new UnsupportedOperationException("requires ahead-of-time collation");
-		}
 	}
 
 	public static void warmupCachedResources() throws Exception {
