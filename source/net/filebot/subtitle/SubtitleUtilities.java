@@ -33,6 +33,15 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.optimaize.langdetect.DetectedLanguage;
+import com.optimaize.langdetect.LanguageDetector;
+import com.optimaize.langdetect.LanguageDetectorBuilder;
+import com.optimaize.langdetect.i18n.LdLocale;
+import com.optimaize.langdetect.ngram.NgramExtractors;
+import com.optimaize.langdetect.profiles.BuiltInLanguages;
+import com.optimaize.langdetect.profiles.LanguageProfile;
+import com.optimaize.langdetect.profiles.LanguageProfileReader;
+
 import net.filebot.Language;
 import net.filebot.similarity.EpisodeMetrics;
 import net.filebot.similarity.Match;
@@ -52,15 +61,6 @@ import net.filebot.web.SubtitleDescriptor;
 import net.filebot.web.SubtitleProvider;
 import net.filebot.web.SubtitleSearchResult;
 import net.filebot.web.VideoHashSubtitleService;
-
-import com.optimaize.langdetect.DetectedLanguage;
-import com.optimaize.langdetect.LanguageDetector;
-import com.optimaize.langdetect.LanguageDetectorBuilder;
-import com.optimaize.langdetect.i18n.LdLocale;
-import com.optimaize.langdetect.ngram.NgramExtractors;
-import com.optimaize.langdetect.profiles.BuiltInLanguages;
-import com.optimaize.langdetect.profiles.LanguageProfile;
-import com.optimaize.langdetect.profiles.LanguageProfileReader;
 
 public final class SubtitleUtilities {
 
@@ -437,17 +437,29 @@ public final class SubtitleUtilities {
 		return new MemoryFile(descriptor.getPath(), data);
 	}
 
-	public static String detectSubtitleLanguage(File file) throws IOException {
-		MemoryFile subtitleFile = new MemoryFile(file.getName(), ByteBuffer.wrap(readFile(file)));
-		String subtitleText = decodeSubtitles(subtitleFile).stream().map(SubtitleElement::getText).collect(Collectors.joining("\n"));
-
-		// detect language
-		List<DetectedLanguage> probabilities = createLanguageDetector().getProbabilities(subtitleText);
-
-		if (probabilities.size() > 0) {
-			return probabilities.get(0).getLocale().getLanguage();
+	public static Language detectSubtitleLanguage(File file) throws IOException {
+		// grep language from filename
+		Locale languageTag = releaseInfo.getSubtitleLanguageTag(getName(file));
+		if (languageTag != null) {
+			return Language.getLanguage(languageTag);
 		}
+
+		// detect language from subtitle text content
+		MemoryFile data = new MemoryFile(file.getName(), ByteBuffer.wrap(readFile(file)));
+		List<DetectedLanguage> options = detectSubtitleLanguage(data);
+		if (options.size() > 0) {
+			return Language.getLanguage(options.get(0).getLocale().getLanguage());
+		}
+
 		return null;
+	}
+
+	public static List<DetectedLanguage> detectSubtitleLanguage(MemoryFile file) throws IOException {
+		// decode subtitles
+		String text = decodeSubtitles(file).stream().map(SubtitleElement::getText).collect(Collectors.joining("\n"));
+
+		// detect text language
+		return createLanguageDetector().getProbabilities(text);
 	}
 
 	private static LanguageDetectorBuilder languageDetector;

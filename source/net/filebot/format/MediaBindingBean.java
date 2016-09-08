@@ -558,17 +558,18 @@ public class MediaBindingBean {
 
 	@Define("lang")
 	public Language getLanguageTag() throws Exception {
-		Locale languageSuffix = releaseInfo.getSubtitleLanguageTag(getFileNames(getMediaFile()));
-		if (languageSuffix != null) {
-			return Language.getLanguage(languageSuffix);
+		// grep language from filename
+		Locale languageTag = releaseInfo.getSubtitleLanguageTag(getFileNames(getMediaFile()));
+		if (languageTag != null) {
+			return Language.getLanguage(languageTag);
 		}
 
-		// try to auto-detect subtitle language
+		// detect language from subtitle text content
 		if (SUBTITLE_FILES.accept(getMediaFile())) {
 			try {
-				return Language.getLanguage(detectSubtitleLanguage(getMediaFile()));
-			} catch (Throwable e) {
-				throw new RuntimeException("Failed to auto-detect subtitle language: " + e, e);
+				return detectSubtitleLanguage(getMediaFile());
+			} catch (Exception e) {
+				throw new RuntimeException("Failed to detect subtitle language: " + e, e);
 			}
 		}
 

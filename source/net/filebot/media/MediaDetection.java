@@ -9,6 +9,7 @@ import static net.filebot.MediaTypes.*;
 import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.similarity.CommonSequenceMatcher.*;
 import static net.filebot.similarity.Normalization.*;
+import static net.filebot.subtitle.SubtitleUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.RegularExpressions.*;
 import static net.filebot.util.StringUtilities.*;
@@ -43,6 +44,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.filebot.ApplicationFolder;
+import net.filebot.Language;
 import net.filebot.Resource;
 import net.filebot.WebServices;
 import net.filebot.archive.Archive;
@@ -1106,6 +1108,15 @@ public class MediaDetection {
 							return asList(v, a, w, h);
 						} catch (Exception e) {
 							debug.warning(format("Failed to read media characteristics: %s", e.getMessage()));
+						}
+					} else if (SUBTITLE_FILES.accept(f) && f.length() > ONE_KILOBYTE) {
+						try {
+							Language language = detectSubtitleLanguage(f);
+							if (language != null) {
+								return asList(language.getCode());
+							}
+						} catch (Exception e) {
+							debug.warning(format("Failed to detect subtitle language: %s", e.getMessage()));
 						}
 					}
 					return emptyList();
