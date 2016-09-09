@@ -57,13 +57,24 @@ public class TMDbClientTest {
 	}
 
 	@Test
-	public void searchByNameGermanResults() throws Exception {
+	public void searchByNameGerman() throws Exception {
 		List<Movie> result = db.searchMovie("East of Eden", Locale.GERMAN);
 		Movie movie = result.get(0);
 
 		assertEquals("Jenseits von Eden", movie.getName());
 		assertEquals(1955, movie.getYear());
 		assertEquals(Arrays.asList("Jenseits von Eden (1955)", "East of Eden (1955)"), movie.getEffectiveNames());
+	}
+
+	@Test
+	public void searchByNameMexican() throws Exception {
+		List<Movie> result = db.searchMovie("Suicide Squad", new Locale("es", "MX"));
+		Movie movie = result.get(0);
+
+		assertEquals("Escuadrón suicida", movie.getName());
+		assertEquals(2016, movie.getYear());
+		assertEquals(-1, movie.getImdbId());
+		assertEquals(297761, movie.getTmdbId());
 	}
 
 	@Test
@@ -92,15 +103,14 @@ public class TMDbClientTest {
 	public void getAlternativeTitles() throws Exception {
 		Map<String, List<String>> titles = db.getAlternativeTitles(16320); // Serenity
 
-		assertEquals("[衝出寧靜號]", titles.get("TW").toString());
-		assertEquals("[萤火虫, 宁静号]", titles.get("CN").toString());
+		assertEquals("[宁静号]", titles.get("HK").toString());
 	}
 
 	@Test
 	public void getArtwork() throws Exception {
 		Artwork a = db.getArtwork(16320, "backdrops", Locale.ROOT).get(0);
 		assertEquals("[backdrops, 1920x1080]", a.getTags().toString());
-		assertEquals("https://image.tmdb.org/t/p/original/424MxHQe5Hfu92hTeRvZb5Giv0X.jpg", a.getUrl().toString());
+		assertEquals("http://image.tmdb.org/t/p/original/mQPg3iZyztfzFNwrW40nCUtXy2l.jpg", a.getUrl().toString());
 	}
 
 	@Test

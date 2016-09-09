@@ -390,7 +390,10 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		// require 2-letter language code
 		String language = locale.getLanguage();
 		if (language.length() == 2) {
-			return language;
+			if (locale.getCountry().length() == 2) {
+				return locale.getLanguage() + '-' + locale.getCountry(); // e.g. es-MX
+			}
+			return locale.getLanguage(); // e.g. en
 		}
 
 		Language lang = Language.getLanguage(locale);
