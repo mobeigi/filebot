@@ -208,7 +208,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			return stream(objects).map(EpisodeMetrics::normalizeObject).toArray(String[]::new);
 		}
 
-		protected static final int MAX_FIELDS = 5;
+		protected final int MAX_FIELDS = 5;
 
 		protected Object[] fields(Object object) {
 			if (object instanceof Episode) {
