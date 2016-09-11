@@ -305,10 +305,17 @@ public class FormatDialog extends JDialog {
 	}
 
 	public void setFormatCode(String text) {
+		// update format code
 		editor.setText(text);
-		editor.scrollRectToVisible(new Rectangle(0, 0)); // reset scroll
-		editor.setCaretPosition(text.length()); // scroll to end of format
-		editor.requestFocusInWindow();
+
+		// scroll to last character and focus
+		try {
+			editor.scrollRectToVisible(new Rectangle(0, 0)); // reset scroll
+			editor.setCaretPosition(text.length()); // scroll to end of format
+			editor.requestFocusInWindow();
+		} catch (Exception e) {
+			log.warning(e::getMessage);
+		}
 	}
 
 	private RSyntaxTextArea createEditor() {
