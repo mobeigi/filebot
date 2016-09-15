@@ -615,10 +615,10 @@
 			<fileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd, *.sh" />
 		</copy>
 
-		<zip destfile="${dir.dist}/FileBot_${version}-portable.zip">
+		<tar destfile="${dir.dist}/FileBot_${version}-portable.tar.bz2" compression="bzip2" longfile="gnu" encoding="utf8">
 			<zipfileset dir="${dir.dist}/portable" includes="*.jar, *.exe, *.ini, *.cmd" />
 			<zipfileset dir="${dir.dist}/portable" includes="*.sh" filemode="755" />
-		</zip>
+		</tar>
 	</target>
 
 
@@ -709,7 +709,6 @@
 				<include name="*.ipk" />
 				<include name="*.msi" />
 				<include name="*.spk" />
-				<include name="*-portable.zip" />
 			</fileset>
 		</copy>
 
