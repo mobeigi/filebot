@@ -18,7 +18,7 @@ public enum SupportDialog {
 
 		@Override
 		String getMessage(int renameCount) {
-			return String.format("<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider a donation to me and my work. It will help to<br>make FileBot even better!<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", renameCount);
+			return String.format("<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken thousands of hours to develop this application. If you enjoy using it,<br>please consider making a donation. It'll help make FileBot even better!<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", renameCount);
 		}
 
 		@Override
@@ -50,7 +50,7 @@ public enum SupportDialog {
 
 		@Override
 		String getMessage(int renameCount) {
-			return String.format("<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider writing a nice review on the %s.<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", getAppStoreName(), renameCount);
+			return String.format("<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken thousands of hours to develop this application. If you enjoy using it,<br>please consider writing a nice review on the %s.<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", getAppStoreName(), renameCount);
 		}
 
 		@Override
@@ -78,16 +78,16 @@ public enum SupportDialog {
 
 	};
 
-	public void show(int renameCount) {
+	public void show(int totalRenameCount) {
 		PreferencesEntry<String> support = Settings.forPackage(SupportDialog.class).entry("support.revision").defaultValue("0");
 		int supportRev = Integer.parseInt(support.getValue());
 		int currentRev = getApplicationRevisionNumber();
 
-		if (supportRev >= currentRev) {
+		if (supportRev > 0) {
 			return;
 		}
 
-		String message = getMessage(renameCount);
+		String message = getMessage(totalRenameCount);
 		String[] actions = getActions(supportRev <= 0);
 		JOptionPane pane = new JOptionPane(message, INFORMATION_MESSAGE, YES_NO_OPTION, getIcon(), actions, actions[0]);
 		pane.createDialog(null, getTitle()).setVisible(true);
@@ -112,17 +112,21 @@ public enum SupportDialog {
 	abstract String getURI();
 
 	public static void maybeShow() {
-		int renameCount = HistorySpooler.getInstance().getPersistentHistoryTotalSize();
+		int sessionRenameCount = HistorySpooler.getInstance().getSessionHistory().totalSize();
+		int totalRenameCount = HistorySpooler.getInstance().getPersistentHistoryTotalSize();
+
 		int renameLimit = 1000;
+		boolean lucky = Math.random() >= 0.777;
 
 		// show donation / review reminders to power users
-		if ((renameCount >= renameLimit && Math.random() >= 0.777) || (HistorySpooler.getInstance().getSessionHistory().totalSize() >= renameLimit)) {
+		if ((totalRenameCount >= renameLimit && lucky) || sessionRenameCount >= renameLimit) {
 			if (isAppStore()) {
-				AppStoreReview.show(renameCount);
+				AppStoreReview.show(totalRenameCount);
 			} else {
-				Donation.show(renameCount);
+				Donation.show(totalRenameCount);
 			}
 		}
+
 	}
 
 }
