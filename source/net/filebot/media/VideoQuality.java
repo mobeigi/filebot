@@ -30,7 +30,7 @@ public class VideoQuality implements Comparator<File> {
 			try {
 				return comparingDouble(c).compare(f1, f2);
 			} catch (Throwable e) {
-				debug.warning(format("Failed to read media info: %s", e.getMessage()));
+				debug.warning(format("Failed to read media info: %s", e));
 				return 0;
 			}
 		}).filter(i -> i != 0).findFirst().orElse(0);

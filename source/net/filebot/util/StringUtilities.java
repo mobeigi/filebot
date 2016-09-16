@@ -63,6 +63,10 @@ public final class StringUtilities {
 	}
 
 	public static boolean find(String s, Pattern pattern) {
+		if (s == null || s.length() == 0) {
+			return false;
+		}
+
 		return pattern.matcher(s).find();
 	}
 
