@@ -304,7 +304,7 @@
 	<target name="appbundle" description="Build Mac application bundle">
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="jars.classpath" />
 
-		<bundleapp minimumsystemversion="10.8" jvmrequired="1.8" outputdirectory="${dir.dist}" executablename="FileBotAppLauncher" name="${application.name}" displayname="${title} ${version}" version="${revision}" shortversion="${version}" identifier="net.filebot.app" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} Reinhard Pointner" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
+		<bundleapp minimumsystemversion="10.8" jvmrequired="1.8" outputdirectory="${dir.dist}" executablename="purchase.sh" hidedockicon="true" name="${application.name}" displayname="${title} ${version}" version="${revision}" shortversion="${version}" identifier="net.filebot.app" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} Reinhard Pointner" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<arch name="x86_64" />
@@ -340,8 +340,6 @@
 			<tarfileset dir="${dir.dist}" includes="${application.name}.app/**" excludes="**/MacOS/**" />
 			<tarfileset dir="${dir.dist}" includes="${application.name}.app/**/**.dylib" />
 
-			<!-- IMPORTANT application stub must be executable!! -->
-			<tarfileset dir="${dir.dist}" includes="${application.name}.app/**/**Launcher" filemode="755" />
 			<tarfileset dir="${dir.dist}" includes="${application.name}.app/**/fpcalc" filemode="755" />
 			<tarfileset prefix="${application.name}.app/Contents/MacOS" dir="${dir.installer}/appbundle" includes="*.sh" filemode="755" />
 		</tar>
