@@ -16,7 +16,7 @@ else if (strlen($type) > 0)
 
 
 // insert product name and redirect to paypal donation page
-$url = 'https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=rednoah%40filebot%2enet&lc=US&item_name='.urlencode($name).'&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted';
+$url = 'https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=rednoah%40filebot%2enet&lc=US&item_name='.urlencode($name).'&amount=20%2e00&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted';
 
 header('HTTP/1.1 302 Found');
 header('Location: '.$url);
