@@ -577,12 +577,15 @@
 	<target name="msi" description="Build Windows Installer packages">
 		<antcall target="msi-arch">
 			<param name="arch" value="x86" />
-			<param name="libgcc_name" value="gcc_s_seh-1.dll" />
 		</antcall>
 		<antcall target="msi-arch">
 			<param name="arch" value="x64" />
-			<param name="libgcc_name" value="gcc_s_seh-1.dll" />
 		</antcall>
+
+		<apply executable="signtool.exe" dir="${dir.installer}/msi" parallel="true" failonerror="true">
+			<arg line="sign /fd SHA256 /t http://time.certum.pl/ /v /a" />
+			<fileset dir="${dir.dist}" includes="*.msi" />
+		</apply>
 	</target>
 
 
@@ -590,7 +593,7 @@
 		<property name="jnidispatch" location="${dir.lib}/native/win32-${arch}/jnidispatch.dll" />
 		<property name="mediainfo" location="${dir.lib}/native/win32-${arch}/MediaInfo.dll" />
 		<property name="lib7z_binding" location="${dir.lib}/native/win32-${arch}/7-Zip-JBinding.dll" />
-		<property name="libgcc_path" location="${dir.lib}/native/win32-${arch}/${libgcc_name}" />
+		<property name="libgcc_path" location="${dir.lib}/native/win32-${arch}/gcc_s_seh-1.dll" />
 		<property name="fpcalc_path" location="${dir.lib}/native/win32-${arch}/fpcalc.exe" />
 		<property name="installer" location="${dir.dist}/${title}_${version}_${arch}.msi" />
 
@@ -599,9 +602,6 @@
 		</exec>
 		<exec executable="light.exe" dir="${dir.installer}/msi" failonerror="true">
 			<arg line="${dir.dist}/msi.wixobj -sval -ext WixUIExtension -out ${installer}" />
-		</exec>
-		<exec executable="signtool.exe" dir="${dir.installer}/msi" failonerror="true">
-			<arg line="sign /fd SHA256 /t http://time.certum.pl/ /v /a ${installer}" />
 		</exec>
 	</target>
 
