@@ -27,6 +27,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import com.ibm.icu.text.Transliterator;
 
@@ -40,7 +41,6 @@ import net.filebot.web.EpisodeFormat;
 import net.filebot.web.Movie;
 import net.filebot.web.SeriesInfo;
 import net.filebot.web.SimpleDate;
-import one.util.streamex.StreamEx;
 
 public enum EpisodeMetrics implements SimilarityMetric {
 
@@ -208,13 +208,14 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			return stream(objects).map(EpisodeMetrics::normalizeObject).toArray(String[]::new);
 		}
 
-		protected final int MAX_FIELDS = 5;
+		protected static final int MAX_FIELDS = 5;
 
 		protected Object[] fields(Object object) {
 			if (object instanceof Episode) {
 				Episode e = (Episode) object;
-				Object[] names = StreamEx.of(e.getSeriesName(), e.getTitle()).append(e.getSeriesNames()).filter(Objects::nonNull).map(Normalization::removeTrailingBrackets).distinct().limit(MAX_FIELDS).toArray();
-				return copyOf(names, MAX_FIELDS);
+
+				Stream<String> names = Stream.concat(Stream.of(e.getSeriesName(), e.getTitle()), e.getSeriesNames().stream()).filter(Objects::nonNull).map(Normalization::removeTrailingBrackets).distinct();
+				return copyOf(names.limit(MAX_FIELDS).toArray(), MAX_FIELDS);
 			}
 
 			if (object instanceof File) {
