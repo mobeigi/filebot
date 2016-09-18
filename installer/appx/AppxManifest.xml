@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+	xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+	xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+	xmlns:cap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities">
+
+	<Identity
+		Name="FileBot"
+		ProcessorArchitecture="x64"
+		Publisher="CN=761A0D2B-9B86-4FE4-B664-18E4E0AFC3F1"
+		Version="4.7.2.0"
+	/>
+
+	<Properties>
+		<DisplayName>FileBot</DisplayName>
+		<PublisherDisplayName>Point Planck Limited</PublisherDisplayName>
+		<Description>FileBot is the ultimate tool for organizing and renaming Movies, TV Shows, Anime or Music. It's smart, highly customizable, and just works.</Description>
+		<Logo>icon.png</Logo>
+	</Properties>
+	<Resources>
+		<Resource Language="en-us" />
+	</Resources>
+	<Dependencies>
+		<TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.14316.0" MaxVersionTested="10.0.14316.0" />
+	</Dependencies>
+	<Capabilities>
+		<cap:Capability Name="runFullTrust" />
+	</Capabilities>
+	<Applications>
+		<Application Id="app" Executable="filebot.launcher.exe" EntryPoint="Windows.FullTrustApplication">
+			<uap:VisualElements			
+				BackgroundColor="transparent"
+				DisplayName="FileBot"
+				Square150x150Logo="icon150.png"
+				Square44x44Logo="icon44.png"
+				Description="FileBot is the ultimate tool for organizing and renaming Movies, TV Shows, Anime or Music."
+			/>
+		</Application>
+	</Applications>
+</Package>
