@@ -96,7 +96,7 @@ public class MainFrame extends JFrame {
 			}
 		});
 
-		setSize(980, 630);
+		setSize(1050, 650);
 
 		// KEYBOARD SHORTCUTS
 		installAction(this.getRootPane(), getKeyStroke(VK_DELETE, CTRL_MASK | SHIFT_MASK), newAction("Clear Cache", evt -> {
