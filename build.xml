@@ -594,10 +594,8 @@
 		</copy>
 
 		<exec executable="makeappx" dir="${dir.dist}" failonerror="yes">
-			<arg line="pack /d appx /p ${title}_${version}.appx" />
+			<arg line="pack /d appx /p ${title}_${version}_r${revision}.appx" />
 		</exec>
-
-		<copy todir="${dir.release}" file="${dir.dist}/${title}_${version}.appx" verbose="yes" />
 	</target>
 
 
