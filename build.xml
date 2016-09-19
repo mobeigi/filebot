@@ -597,10 +597,6 @@
 			<arg line="pack /d appx /p ${title}_${version}.appx" />
 		</exec>
 
-		<exec executable="signtool" dir="${dir.dist}" failonerror="yes">
-			<arg line="sign /fd SHA256 /t http://time.certum.pl/ /v /a ${title}_${version}.appx" />
-		</exec>
-
 		<copy todir="${dir.release}" file="${dir.dist}/${title}_${version}.appx" verbose="yes" />
 	</target>
 
