@@ -526,7 +526,7 @@
 		</copy>
 		<chmod perm="+x" file="${dir.dist}/snappy/filebot/filebot.sh" verbose="yes" />
 
-		<exec dir="${dir.dist}/snappy" executable="snapcraft" failonerror="on">
+		<exec executable="snapcraft" dir="${dir.dist}/snappy" failonerror="yes">
 			<arg line="snap" />
 		</exec>
 	</target>
@@ -579,6 +579,29 @@
 	</target>
 
 
+	<target name="appx" description="Build Windows 10 package">
+		<copy tofile="${dir.dist}/appx/FileBot.jar" file="${path.fatjar}" />
+		<copy todir="${dir.dist}/appx">
+			<fileset dir="${dir.installer}/appx" includes="*.exe, *.ini, *.png" />
+			<fileset dir="${dir.lib}/native/win32-x64" />
+		</copy>
+
+		<!-- copy files and resolve ant variables -->
+		<copy todir="${dir.dist}/appx" overwrite="yes" encoding="UTF-8" verbose="true">
+			<fileset dir="${dir.installer}/appx" includes="AppxManifest.xml" />
+			<filterset begintoken="@{" endtoken="}">
+				<propertyset>
+					<propertyref builtin="all" />
+				</propertyset>
+			</filterset>
+		</copy>
+
+		<exec executable="makeappx" dir="${dir.dist}" failonerror="yes">
+			<arg line="pack /d appx /p ${title}_${version}.appx" />
+		</exec>
+	</target>
+
+
 	<target name="msi" description="Build Windows Installer packages">
 		<antcall target="msi-arch">
 			<param name="arch" value="x86" />
@@ -587,7 +610,7 @@
 			<param name="arch" value="x64" />
 		</antcall>
 
-		<apply executable="signtool.exe" dir="${dir.installer}/msi" parallel="true" failonerror="true">
+		<apply executable="signtool" dir="${dir.installer}/msi" parallel="true" failonerror="true">
 			<arg line="sign /fd SHA256 /t http://time.certum.pl/ /v /a" />
 			<srcfile />
 			<fileset dir="${dir.dist}" includes="*.msi" />
@@ -603,10 +626,10 @@
 		<property name="fpcalc_path" location="${dir.lib}/native/win32-${arch}/fpcalc.exe" />
 		<property name="installer" location="${dir.dist}/${title}_${version}_${arch}.msi" />
 
-		<exec executable="candle.exe" dir="${dir.installer}/msi" failonerror="true">
+		<exec executable="candle" dir="${dir.installer}/msi" failonerror="true">
 			<arg line="filebot-wix.xml -out ${dir.dist}/msi.wixobj -darch=${arch} -dreleaseversion=${version} -dfatjar=${path.fatjar} -djnidispatch=${jnidispatch} -dmediainfo=${mediainfo} -dlib7z_binding=${lib7z_binding} -dlibgcc_name=${libgcc_name} -dlibgcc_path=${libgcc_path} -dfpcalc_path=${fpcalc_path}" />
 		</exec>
-		<exec executable="light.exe" dir="${dir.installer}/msi" failonerror="true">
+		<exec executable="light" dir="${dir.installer}/msi" failonerror="true">
 			<arg line="${dir.dist}/msi.wixobj -sval -ext WixUIExtension -out ${installer}" />
 		</exec>
 	</target>
@@ -832,10 +855,10 @@
 		</copy>
 
 		<!-- chocolatey pack and push -->
-		<exec executable="chocolatey.exe" dir="${dir.dist}\chocolatey" failonerror="true">
+		<exec executable="chocolatey" dir="${dir.dist}\chocolatey" failonerror="true">
 			<arg value="pack" />
 		</exec>
-		<exec executable="chocolatey.exe" dir="${dir.dist}\chocolatey" failonerror="true">
+		<exec executable="chocolatey" dir="${dir.dist}\chocolatey" failonerror="true">
 			<arg value="push" />
 			<arg value="${dir.dist}\chocolatey\filebot.${version}.nupkg" />
 		</exec>
