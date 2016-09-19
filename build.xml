@@ -28,16 +28,6 @@
 	<property name="basedir.release" location="${basedir}/release" />
 	<property name="dir.release" location="${basedir.release}/${title}_${version}" />
 
-	<!-- ant contribs -->
-	<path id="lib.classpath">
-		<fileset dir="${dir.lib}" includes="**/*.jar" excludes="**/*-jdk14.jar" />
-	</path>
-
-	<taskdef uri="antlib:org.apache.ant.compress" resource="org/apache/ant/compress/antlib.xml" classpathref="lib.classpath" />
-	<taskdef resource="net/filebot/ant/spk/antlib.xml" classpathref="lib.classpath" />
-	<taskdef resource="com/googlecode/ant_deb_task/antlib.xml" classpathref="lib.classpath" />
-	<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="lib.classpath" />
-
 	<!-- target JRE -->
 	<property name="jre.major" value="8" />
 	<property name="jre.build" value="102" />
@@ -308,7 +298,7 @@
 	</target>
 
 
-	<target name="appbundle" description="Build Mac application bundle">
+	<target name="appbundle" description="Build Mac application bundle" depends="revision">
 		<bundleapp minimumsystemversion="10.8" jvmrequired="1.8" outputdirectory="${dir.dist}" executablename="purchase.sh" hidedockicon="true" name="${application.name}" displayname="${title} ${version}" version="${revision}" shortversion="${version}" identifier="net.filebot.app" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} Reinhard Pointner" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
@@ -387,7 +377,7 @@
 	</target>
 
 
-	<target name="appbundle-maspkg">
+	<target name="appbundle-maspkg" depends="revision">
 		<property name="path.app" value="${application.name}.app" />
 		<property name="path.pkg" value="${application.executable}_${version}_r${revision}.pkg" />
 
@@ -512,7 +502,7 @@
 	</target>
 
 
-	<target name="snap">
+	<target name="snap" depends="revision">
 		<copy tofile="${dir.dist}/snappy/filebot/FileBot.jar" file="${path.fatjar}" />
 		<copy todir="${dir.dist}/snappy/filebot/lib/amd64">
 			<fileset dir="${dir.lib}/native/linux-amd64" excludes="fpcalc, libmediainfo.so, libzen.so" />
@@ -535,7 +525,7 @@
 	</target>
 
 
-	<target name="deb" description="Build Debian Linux packages">
+	<target name="deb" description="Build Debian Linux packages" depends="revision">
 		<antcall target="deb-arch">
 			<param name="arch" value="i686" />
 			<!-- arch i686 not allowed by deb specification, must be i386 for 32-bit x86 systems -->
@@ -567,7 +557,7 @@
 	</target>
 
 
-	<target name="ipkg" description="Build embedded Linux packages">
+	<target name="ipkg" description="Build embedded Linux packages" depends="revision">
 		<!-- stage created .deb files in a temporary folder -->
 		<property name="ipkg.staging" location="${dir.dist}/deb-ipkg" />
 		<mkdir dir="${ipkg.staging}" />
@@ -582,7 +572,7 @@
 	</target>
 
 
-	<target name="appx" description="Build Windows 10 package">
+	<target name="appx" description="Build Windows 10 package" depends="revision">
 		<copy tofile="${dir.dist}/appx/FileBot.jar" file="${path.fatjar}" />
 		<copy todir="${dir.dist}/appx">
 			<fileset dir="${dir.installer}/appx" includes="*.exe, *.ini, *.png" />
@@ -610,7 +600,7 @@
 	</target>
 
 
-	<target name="msi" description="Build Windows Installer packages">
+	<target name="msi" description="Build Windows Installer packages" depends="revision">
 		<antcall target="msi-arch">
 			<param name="arch" value="x86" />
 		</antcall>
@@ -643,7 +633,7 @@
 	</target>
 
 
-	<target name="portable" description="Build portable package">
+	<target name="portable" description="Build portable package" depends="revision">
 		<mkdir dir="${dir.dist}/portable" />
 		<copy file="${path.fatjar}" tofile="${dir.dist}/portable/FileBot.jar" />
 		<copy todir="${dir.dist}/portable">
@@ -659,7 +649,7 @@
 	</target>
 
 
-	<target name="spk" description="Build Synology NAS package">
+	<target name="spk" description="Build Synology NAS package" depends="revision">
 		<spk destdir="${dir.dist}" name="filebot" version="${version}" arch="noarch">
 			<info name="displayname" value="FileBot" />
 			<info name="description" value="FileBot is the ultimate tool for organizing and renaming your movies, TV shows or anime, as well as downloading subtitles and artwork. It's smart and just works." />
@@ -723,11 +713,22 @@
 	</target>
 
 
-	<target name="revision">
+	<target name="revision" depends="taskdef">
 		<exec executable="git" outputproperty="revision" failonerror="true">
 			<arg line="rev-list --count master" />
 		</exec>
 		<echo>Revision: ${revision}</echo>
+	</target>
+
+
+	<target name="taskdef">
+		<path id="lib.classpath">
+			<fileset dir="${dir.lib}" includes="**/*.jar" excludes="**/*-jdk14.jar" />
+		</path>
+		<taskdef uri="antlib:org.apache.ant.compress" resource="org/apache/ant/compress/antlib.xml" classpathref="lib.classpath" />
+		<taskdef resource="net/filebot/ant/spk/antlib.xml" classpathref="lib.classpath" />
+		<taskdef resource="com/googlecode/ant_deb_task/antlib.xml" classpathref="lib.classpath" />
+		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="lib.classpath" />
 	</target>
 
 
