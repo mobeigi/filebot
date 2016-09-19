@@ -87,15 +87,15 @@ public final class Settings {
 	}
 
 	public static boolean isAppStore() {
-		return isApplicationDeployment("mas", "usc");
+		return isApplicationDeployment("mas", "appx");
 	}
 
 	public static boolean isWindowsApp() {
-		return isApplicationDeployment("msi");
+		return isApplicationDeployment("appx", "msi");
 	}
 
 	public static boolean isUbuntuApp() {
-		return isApplicationDeployment("usc");
+		return isApplicationDeployment("snap");
 	}
 
 	public static boolean isMacApp() {
@@ -107,7 +107,7 @@ public final class Settings {
 	}
 
 	public static boolean isInstalled() {
-		return isApplicationDeployment("mas", "usc", "msi", "spk", "aur");
+		return isApplicationDeployment("mas", "appx", "snap", "msi", "spk", "aur");
 	}
 
 	private static boolean isApplicationDeployment(String... ids) {
@@ -143,6 +143,8 @@ public final class Settings {
 	public static String getAppStoreName() {
 		if (isMacApp())
 			return "Mac App Store";
+		if (isWindowsApp())
+			return "Windows Store";
 		if (isUbuntuApp())
 			return "Ubuntu Software Center";
 
@@ -152,8 +154,10 @@ public final class Settings {
 	public static String getAppStoreLink() {
 		if (isMacApp())
 			return getApplicationProperty("link.mas");
+		if (isWindowsApp())
+			return null;
 		if (isUbuntuApp())
-			return getApplicationProperty("link.usc");
+			return null;
 
 		return null;
 	}
