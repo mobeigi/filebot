@@ -1,8 +1,15 @@
 package net.filebot.ui;
 
+import static java.util.stream.Collectors.*;
 import static javax.swing.JOptionPane.*;
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
+import static net.filebot.util.StringUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
+
+import java.util.List;
+import java.util.logging.Level;
+import java.util.stream.Stream;
 
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
@@ -78,30 +85,35 @@ public enum SupportDialog {
 
 	};
 
-	public void show(int totalRenameCount) {
-		PreferencesEntry<String> support = Settings.forPackage(SupportDialog.class).entry("support.revision").defaultValue("0");
-		int supportRev = Integer.parseInt(support.getValue());
-		int currentRev = getApplicationRevisionNumber();
-
-		if (supportRev > 0) {
-			return;
+	public boolean feelingLucky(int sessionRenameCount, int totalRenameCount, int currentRevision, int lastSupportRevision, int supportRevisionCount) {
+		// ask only once per revision
+		if (currentRevision <= lastSupportRevision && this == AppStoreReview) {
+			return false;
 		}
 
+		if (sessionRenameCount >= 2000) {
+			return true;
+		}
+
+		return totalRenameCount >= 1000 * Math.pow(4, supportRevisionCount) && Math.random() >= 0.777;
+	}
+
+	public boolean show(int totalRenameCount, boolean first) {
 		String message = getMessage(totalRenameCount);
-		String[] actions = getActions(supportRev <= 0);
+		String[] actions = getActions(first);
 		JOptionPane pane = new JOptionPane(message, INFORMATION_MESSAGE, YES_NO_OPTION, getIcon(), actions, actions[0]);
 		pane.createDialog(null, getTitle()).setVisible(true);
-
-		// store support revision
-		support.setValue(String.valueOf(currentRev));
 
 		// open URI of OK
 		if (pane.getValue() == actions[0]) {
 			openURI(getURI());
+			return true;
 		}
+
+		return false;
 	}
 
-	abstract String getMessage(int renameCount);
+	abstract String getMessage(int totalRenameCount);
 
 	abstract String[] getActions(boolean first);
 
@@ -112,21 +124,28 @@ public enum SupportDialog {
 	abstract String getURI();
 
 	public static void maybeShow() {
-		int sessionRenameCount = HistorySpooler.getInstance().getSessionHistory().totalSize();
-		int totalRenameCount = HistorySpooler.getInstance().getPersistentHistoryTotalSize();
+		try {
+			PreferencesEntry<String> persistentSupportRevision = Settings.forPackage(SupportDialog.class).entry("support.revision");
+			List<Integer> supportRevision = matchIntegers(persistentSupportRevision.getValue());
 
-		int renameLimit = 1000;
-		boolean lucky = Math.random() >= 0.777;
+			int lastSupportRevision = supportRevision.stream().max(Integer::compare).orElse(0);
+			int currentRevision = getApplicationRevisionNumber();
 
-		// show donation / review reminders to power users
-		if ((totalRenameCount >= renameLimit && lucky) || sessionRenameCount >= renameLimit) {
-			if (isAppStore()) {
-				AppStoreReview.show(totalRenameCount);
-			} else {
-				Donation.show(totalRenameCount);
+			int sessionRenameCount = HistorySpooler.getInstance().getSessionHistory().totalSize();
+			int totalRenameCount = HistorySpooler.getInstance().getPersistentHistoryTotalSize();
+
+			// show donation / review reminders to power users
+			SupportDialog dialog = isAppStore() ? AppStoreReview : Donation;
+
+			if (dialog.feelingLucky(sessionRenameCount, totalRenameCount, currentRevision, lastSupportRevision, supportRevision.size())) {
+				if (dialog.show(totalRenameCount, supportRevision.isEmpty())) {
+					supportRevision = Stream.concat(supportRevision.stream(), Stream.of(currentRevision)).sorted().distinct().collect(toList());
+					persistentSupportRevision.setValue(supportRevision.toString());
+				}
 			}
+		} catch (Exception e) {
+			log.log(Level.WARNING, e, e::toString);
 		}
-
 	}
 
 }

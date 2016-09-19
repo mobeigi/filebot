@@ -12,12 +12,13 @@ import net.filebot.mediainfo.MediaInfoTest;
 import net.filebot.similarity.EpisodeMetricsTest;
 import net.filebot.similarity.SimilarityTestSuite;
 import net.filebot.subtitle.SubtitleReaderTestSuite;
+import net.filebot.ui.SupportDialogTest;
 import net.filebot.ui.rename.MatchModelTest;
 import net.filebot.util.UtilTestSuite;
 import net.filebot.web.WebTestSuite;
 
 @RunWith(Suite.class)
-@SuiteClasses({ SimilarityTestSuite.class, WebTestSuite.class, ExpressionFormatTest.class, VerificationFormatTest.class, MatchModelTest.class, EpisodeMetricsTest.class, SubtitleReaderTestSuite.class, ReleaseInfoTest.class, MediaDetectionTest.class, MediaInfoTest.class, UtilTestSuite.class })
+@SuiteClasses({ ExpressionFormatTest.class, VerificationFormatTest.class, MatchModelTest.class, SupportDialogTest.class, EpisodeMetricsTest.class, ReleaseInfoTest.class, MediaDetectionTest.class, MediaInfoTest.class, SimilarityTestSuite.class, WebTestSuite.class, SubtitleReaderTestSuite.class, UtilTestSuite.class })
 public class AllTests {
 
 }
