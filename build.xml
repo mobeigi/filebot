@@ -577,11 +577,14 @@
 		<copy todir="${dir.dist}/appx">
 			<fileset dir="${dir.installer}/appx" includes="*.exe, *.ini, *.png" />
 			<fileset dir="${dir.lib}/native/win32-x64" />
+		</copy>
+		<copy todir="${dir.dist}/appx/jre">
 			<tarfileset>
 				<gzipresource>
 					<file file="${dir.cache}/jre-${jre.major}u${jre.build}-windows-x64.tar.gz" />
 				</gzipresource>
 			</tarfileset>
+			<cutdirsmapper dirs="1" />
 		</copy>
 
 		<!-- copy files and resolve ant variables -->
