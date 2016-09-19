@@ -103,9 +103,6 @@
 
 
 	<target name="jar" depends="build">
-		<!-- create dist dir -->
-		<mkdir dir="${dir.dist}" />
-
 		<!-- main jar -->
 		<jar destfile="${dir.dist}/filebot.jar">
 			<fileset dir="${dir.build}" />
@@ -496,8 +493,7 @@
 			<arg line="--component '${path.app}' /Applications --sign '${application.cert.installer}' ${path.pkg}" />
 		</exec>
 
-		<!-- store this build in releases -->
-		<mkdir dir="${dir.release}" />
+		<!-- store as release build-->
 		<copy todir="${dir.release}" file="${dir.dist}/${path.pkg}" verbose="yes" />
 	</target>
 
@@ -600,6 +596,8 @@
 		<exec executable="makeappx" dir="${dir.dist}" failonerror="yes">
 			<arg line="pack /d appx /p ${title}_${version}.appx" />
 		</exec>
+
+		<copy todir="${dir.release}" file="${dir.dist}/${title}_${version}.appx" verbose="yes" />
 	</target>
 
 
@@ -684,9 +682,6 @@
 
 
 	<target name="build" depends="revision">
-		<!-- create build dir -->
-		<mkdir dir="${dir.build}" />
-
 		<!-- compile -->
 		<javac srcdir="${dir.source}" destdir="${dir.build}" target="1.8" source="1.8" encoding="utf-8" debug="true" debuglevel="lines,vars,source" includeAntRuntime="false">
 			<classpath>
@@ -716,7 +711,7 @@
 	</target>
 
 
-	<target name="revision" depends="taskdef">
+	<target name="revision" depends="init">
 		<exec executable="git" outputproperty="revision" failonerror="true">
 			<arg line="rev-list --count master" />
 		</exec>
@@ -724,7 +719,11 @@
 	</target>
 
 
-	<target name="taskdef">
+	<target name="init">
+		<mkdir dir="${dir.build}" />
+		<mkdir dir="${dir.dist}" />
+		<mkdir dir="${dir.release}" />
+
 		<path id="lib.classpath">
 			<fileset dir="${dir.lib}" includes="**/*.jar" excludes="**/*-jdk14.jar" />
 		</path>
@@ -736,6 +735,7 @@
 
 
 	<target name="stage-release" depends="fatjar, portable, spk, ipkg, deb, msi, appbundle">
+		<!-- ensure clean release dir -->
 		<delete dir="${dir.release}" />
 		<mkdir dir="${dir.release}" />
 
