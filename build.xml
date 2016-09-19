@@ -309,6 +309,8 @@
 		<bundleapp minimumsystemversion="10.8" jvmrequired="1.8" outputdirectory="${dir.dist}" executablename="purchase.sh" hidedockicon="true" name="${application.name}" displayname="${title} ${version}" version="${revision}" shortversion="${version}" identifier="net.filebot.app" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} Reinhard Pointner" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
+			<librarypath dir="${dir.installer}/appbundle/MacOS" />
+
 			<arch name="x86_64" />
 
 			<option value="-Dnet.filebot.UserFiles.fileChooser=COCOA" />
@@ -344,7 +346,7 @@
 				<cmp:tarfileset dir="${dir.dist}" includes="${application.name}.app/**/**.dylib" />
 
 				<cmp:tarfileset dir="${dir.dist}" includes="${application.name}.app/**/fpcalc" filemode="755" />
-				<cmp:tarfileset prefix="${application.name}.app/Contents/MacOS" dir="${dir.installer}/appbundle" includes="*.sh" filemode="755" />
+				<cmp:tarfileset dir="${dir.dist}" includes="${application.name}.app/**/**.sh" filemode="755" />
 			</cmp:tar>
 		</cmp:xz>
 	</target>
@@ -392,6 +394,8 @@
 		<bundleapp minimumsystemversion="10.8" jvmrequired="1.8" outputdirectory="${dir.dist}" executablename="${application.executable}AppLauncher" name="${application.name}" displayname="${application.name}" version="${revision}" shortversion="${version}" identifier="${application.identifier}" mainclassname="net.filebot.Main" icon="${application.icon}" copyright="${tstamp.year} Point Planck" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
+			<librarypath dir="${dir.installer}/appbundle/MacOS" excludes="purchase.sh" />
+
 			<arch name="x86_64" />
 			<runtime dir="${jre.path}" />
 
@@ -445,9 +449,9 @@
 		<copy verbose="yes" failonerror="yes" overwrite="yes" file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/MacOS/libjli.dylib" tofile="${dir.dist}/${path.app}/Contents/PlugIns/${jre.version}/Contents/MacOS/libjli.dylib" />
 
 		<!-- fix permissions -->
-		<chmod verbose="yes" dir="${dir.dist}" includes="**/fpcalc" perm="755" />
+		<chmod verbose="yes" dir="${dir.dist}" includes="**/fpcalc" perm="+x" />
+		<chmod verbose="yes" dir="${dir.dist}" includes="**/*.sh" perm="+x" />
 		<chmod verbose="yes" dir="${dir.dist}/${path.app}/Contents/PlugIns" perm="+rw" />
-
 
 		<!-- JRE sign all jars, dylibs and executables -->
 		<property name="codesign.opts" value="--verbose=4 --force --sign '${application.cert.appbundle}'" />
