@@ -20,13 +20,13 @@
 	<property name="dir.lib" location="${basedir}/lib" />
 	<property name="dir.website" location="${basedir}/website" />
 	<property name="dir.installer" location="${basedir}/installer" />
+	<property name="dir.cache" location="${basedir}/cache" />
 
 	<!-- define output paths -->
 	<property name="path.fatjar" location="${dir.dist}/${title}_${version}.jar" />
 
 	<property name="basedir.release" location="${basedir}/release" />
 	<property name="dir.release" location="${basedir.release}/${title}_${version}" />
-	<property name="dir.cache" location="${basedir}/cache/${title}_${version}" />
 
 	<!-- ant contribs -->
 	<path id="lib.classpath">
@@ -38,6 +38,9 @@
 	<taskdef resource="com/googlecode/ant_deb_task/antlib.xml" classpathref="lib.classpath" />
 	<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="lib.classpath" />
 
+	<!-- target JRE -->
+	<property name="jre.major" value="8" />
+	<property name="jre.build" value="102" />
 
 
 	<target name="resolve" description="Retrieve dependencies with Apache Ivy">
@@ -388,7 +391,7 @@
 		<property name="path.app" value="${application.name}.app" />
 		<property name="path.pkg" value="${application.executable}_${version}_r${revision}.pkg" />
 
-		<property name="jre.version" value="jdk1.8.0_102.jdk" />
+		<property name="jre.version" value="jdk1.${jre.major}.0_${jre.build}.jdk" />
 		<property name="jre.path" value="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Home" />
 
 		<bundleapp minimumsystemversion="10.8" jvmrequired="1.8" outputdirectory="${dir.dist}" executablename="${application.executable}AppLauncher" name="${application.name}" displayname="${application.name}" version="${revision}" shortversion="${version}" identifier="${application.identifier}" mainclassname="net.filebot.Main" icon="${application.icon}" copyright="${tstamp.year} Point Planck" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
@@ -584,6 +587,11 @@
 		<copy todir="${dir.dist}/appx">
 			<fileset dir="${dir.installer}/appx" includes="*.exe, *.ini, *.png" />
 			<fileset dir="${dir.lib}/native/win32-x64" />
+			<tarfileset>
+				<gzipresource>
+					<file basedir="${dir.cache}" file="jre-${jre.major}u${jre.build}-windows-x64.tar.gz" />
+				</gzipresource>
+			</tarfileset>
 		</copy>
 
 		<!-- copy files and resolve ant variables -->
@@ -739,12 +747,12 @@
 			</fileset>
 		</copy>
 
-		<checksum algorithm="SHA-256" pattern="{0}	{1}" todir="${dir.cache}/sha">
+		<checksum algorithm="SHA-256" pattern="{0}	{1}" todir="${dir.cache}/sha/${title}_${version}">
 			<fileset dir="${dir.release}" />
 		</checksum>
 		<concat destfile="${dir.release}/README.md" overwrite="true" eol="unix" outputencoding="UTF-8">
 			<fileset file="${dir.installer}/ant/digest.header.md" />
-			<fileset dir="${dir.cache}/sha" />
+			<fileset dir="${dir.cache}/sha/${title}_${version}" />
 			<fileset file="${dir.installer}/ant/digest.footer.md" />
 		</concat>
 	</target>
@@ -804,7 +812,7 @@
 		<scp todir="${deploy.website}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
 			<fileset dir="${dir.dist}/website">
 				<modified>
-					<param name="cache.cachefile" value="scp.cache" />
+					<param name="cache.cachefile" value="${dir.cache}/scp.cache" />
 				</modified>
 			</fileset>
 		</scp>
@@ -871,7 +879,7 @@
 				<include name="data/*.txt" />
 				<include name="data/*.xz" />
 				<modified>
-					<param name="cache.cachefile" value="scp.cache" />
+					<param name="cache.cachefile" value="${dir.cache}/scp.cache" />
 				</modified>
 			</fileset>
 		</scp>
