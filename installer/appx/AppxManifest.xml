@@ -2,7 +2,9 @@
 <Package
 	xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
 	xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
-	xmlns:cap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities">
+	xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+	xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+	xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10">
 
 	<Identity
 		Name="net.filebot.FileBot"
@@ -17,24 +19,36 @@
 		<Description>FileBot is the ultimate tool for organizing and renaming Movies, TV Shows, Anime or Music. It's smart, highly customizable, and just works.</Description>
 		<Logo>icon.png</Logo>
 	</Properties>
+
 	<Resources>
 		<Resource Language="en-us" />
 	</Resources>
+
 	<Dependencies>
 		<TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.14316.0" MaxVersionTested="10.0.14316.0" />
 	</Dependencies>
+
 	<Capabilities>
-		<cap:Capability Name="runFullTrust" />
+		<rescap:Capability Name="runFullTrust" />
 	</Capabilities>
+
 	<Applications>
-		<Application Id="app" Executable="filebot.launcher.exe" EntryPoint="Windows.FullTrustApplication">
-			<uap:VisualElements			
-				BackgroundColor="transparent"
+		<Application Id="FileBot" Executable="filebot.launcher.exe" EntryPoint="Windows.FullTrustApplication">
+			<uap:VisualElements
 				DisplayName="FileBot"
-				Square150x150Logo="icon150.png"
-				Square44x44Logo="icon44.png"
 				Description="FileBot is the ultimate tool for organizing and renaming Movies, TV Shows, Anime or Music."
+				BackgroundColor="transparent"
+				Square44x44Logo="icon44.png"
+				Square150x150Logo="icon150.png"
 			/>
+			<Extensions>
+				<uap3:Extension Category="windows.appExecutionAlias" Executable="filebot.exe" EntryPoint="Windows.FullTrustApplication">
+					<uap3:AppExecutionAlias>
+						<desktop:ExecutionAlias Alias="filebot.exe" />
+					</uap3:AppExecutionAlias>
+				</uap3:Extension>
+			</Extensions>
 		</Application>
 	</Applications>
+
 </Package>
