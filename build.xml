@@ -579,7 +579,7 @@
 			<fileset dir="${dir.lib}/native/win32-x64" />
 			<tarfileset>
 				<gzipresource>
-					<file basedir="${dir.cache}" file="jre-${jre.major}u${jre.build}-windows-x64.tar.gz" />
+					<file file="${dir.cache}/jre-${jre.major}u${jre.build}-windows-x64.tar.gz" />
 				</gzipresource>
 			</tarfileset>
 		</copy>
