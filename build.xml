@@ -479,6 +479,7 @@
 			<srcfile />
 			<fileset dir="${dir.dist}/${path.app}/Contents">
 				<include name="MacOS/*.dylib" />
+				<include name="MacOS/*.sh" />
 				<include name="Java/*.jar" />
 			</fileset>
 		</apply>
