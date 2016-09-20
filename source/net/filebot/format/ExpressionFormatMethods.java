@@ -1,7 +1,9 @@
 package net.filebot.format;
 
 import static java.util.regex.Pattern.*;
+import static net.filebot.MediaTypes.*;
 import static net.filebot.format.ExpressionFormatFunctions.*;
+import static net.filebot.media.MediaDetection.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -377,6 +379,23 @@ public class ExpressionFormatMethods {
 	/**
 	 * File utilities
 	 */
+	public static File derive(File self, Object tag, Object... tagN) {
+		// e.g. plex.derive{" by $director"}{" [$vc, $ac]"}
+		String name = FileUtilities.getName(self);
+		String extension = self.getName().substring(name.length());
+
+		// e.g. Avatar (2009).eng.srt => Avatar (2009) 1080p.eng.srt
+		if (SUBTITLE_FILES.accept(self)) {
+			Matcher nameMatcher = releaseInfo.getSubtitleLanguageTagPattern().matcher(name);
+			if (nameMatcher.find()) {
+				extension = name.substring(nameMatcher.start() - 1) + extension;
+				name = name.substring(0, nameMatcher.start() - 1);
+			}
+		}
+
+		return new File(self.getParentFile(), concat(name, concat(tag, null, tagN), extension));
+	}
+
 	public static File getRoot(File self) {
 		return FileUtilities.listPath(self).get(0);
 	}
