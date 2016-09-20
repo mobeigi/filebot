@@ -118,24 +118,24 @@ public class ReleaseInfo {
 	public Locale getSubtitleLanguageTag(CharSequence... name) {
 		// match locale identifier and lookup Locale object
 		if (languageTag == null) {
-			languageTag = getSubtitleLanguageTagPattern(getDefaultLanguageMap().keySet());
+			languageTag = getSubtitleLanguageTagPattern();
 		}
 
 		String lang = matchLast(languageTag, null, name);
-		if (lang != null) {
-			return getDefaultLanguageMap().get(lang);
-		}
-		return null;
+		return lang == null ? null : getDefaultLanguageMap().get(lang);
 	}
 
 	private Pattern categoryTag;
+	private String[] categoryTags;
 
 	public String getSubtitleCategoryTag(CharSequence... name) {
 		// match locale identifier and lookup Locale object
-		if (categoryTag == null) {
-			categoryTag = getSubtitleCategoryTagPattern(getDefaultLanguageMap().keySet());
+		if (categoryTag == null || categoryTags == null) {
+			categoryTag = getSubtitleCategoryTagPattern();
+			categoryTags = getSubtitleCategoryTags();
 		}
-		return matchLast(categoryTag, getSubtitleCategoryTags(), name);
+
+		return matchLast(categoryTag, categoryTags, name);
 	}
 
 	protected String matchLast(Pattern pattern, String[] paragon, CharSequence... sequence) {
@@ -171,12 +171,11 @@ public class ReleaseInfo {
 
 		// initialize cached patterns
 		if (stopwords[b] == null || blacklist[b] == null) {
-			Set<String> languages = getDefaultLanguageMap().keySet();
 			Pattern clutterBracket = getClutterBracketPattern(strict);
 			Pattern releaseGroup = getReleaseGroupPattern(strict);
 			Pattern releaseGroupTrim = getReleaseGroupTrimPattern();
-			Pattern languageSuffix = getSubtitleLanguageTagPattern(languages);
-			Pattern languageTag = getLanguageTagPattern(languages, strict);
+			Pattern languageSuffix = getSubtitleLanguageTagPattern();
+			Pattern languageTag = getLanguageTagPattern(strict);
 			Pattern videoSource = getVideoSourcePattern();
 			Pattern videoTags = getVideoTagPattern();
 			Pattern videoFormat = getVideoFormatPattern(strict);
@@ -274,25 +273,25 @@ public class ReleaseInfo {
 		return structureRootFolderPattern;
 	}
 
-	public Pattern getLanguageTagPattern(Collection<String> languages, boolean strict) {
+	public Pattern getLanguageTagPattern(boolean strict) {
 		// [en]
 		if (strict) {
-			return compile("(?<=[-\\[\\{\\(])" + or(quoteAll(languages)) + "(?=[-\\]\\}\\)]|$)", CASE_INSENSITIVE);
+			return compile("(?<=[-\\[\\{\\(])" + or(quoteAll(getDefaultLanguageMap().keySet())) + "(?=[-\\]\\}\\)]|$)", CASE_INSENSITIVE);
 		}
 
 		// FR
-		List<String> allCapsLanguageTags = languages.stream().map(String::toUpperCase).collect(toList());
+		List<String> allCapsLanguageTags = getDefaultLanguageMap().keySet().stream().map(String::toUpperCase).collect(toList());
 		return compile("(?<!\\p{Alnum})" + or(quoteAll(allCapsLanguageTags)) + "(?!\\p{Alnum})");
 	}
 
-	public Pattern getSubtitleCategoryTagPattern(Collection<String> languages) {
+	public Pattern getSubtitleCategoryTagPattern() {
 		// e.g. ".en.srt" or ".en.forced.srt"
-		return compile("(?<=[._-](" + or(quoteAll(languages)) + ")[._-])" + or(getSubtitleCategoryTags()) + "$", CASE_INSENSITIVE);
+		return compile("(?<=[._-](" + or(quoteAll(getDefaultLanguageMap().keySet())) + ")[._-])" + or(getSubtitleCategoryTags()) + "$", CASE_INSENSITIVE);
 	}
 
-	public Pattern getSubtitleLanguageTagPattern(Collection<String> languages) {
+	public Pattern getSubtitleLanguageTagPattern() {
 		// e.g. ".en.srt" or ".en.forced.srt"
-		return compile("(?<=[._-])" + or(quoteAll(languages)) + "(?=([._-]" + or(getSubtitleCategoryTags()) + ")?$)", CASE_INSENSITIVE);
+		return compile("(?<=[._-])" + or(quoteAll(getDefaultLanguageMap().keySet())) + "(?=([._-]" + or(getSubtitleCategoryTags()) + ")?$)", CASE_INSENSITIVE);
 	}
 
 	public Pattern getResolutionPattern() {
