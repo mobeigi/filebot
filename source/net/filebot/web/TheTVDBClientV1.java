@@ -126,6 +126,7 @@ public class TheTVDBClientV1 extends AbstractEpisodeListProvider implements Artw
 
 		seriesInfo.setName(getTextContent("SeriesName", seriesNode));
 		seriesInfo.setAirsDayOfWeek(getTextContent("Airs_DayOfWeek", seriesNode));
+		seriesInfo.setAirsTime(getTextContent("Airs_Time", seriesNode));
 		seriesInfo.setCertification(getTextContent("ContentRating", seriesNode));
 		seriesInfo.setImdbId(getTextContent("IMDB_ID", seriesNode));
 		seriesInfo.setNetwork(getTextContent("Network", seriesNode));
