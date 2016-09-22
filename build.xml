@@ -435,10 +435,9 @@
 				<include name="**/Contents/Info.plist" />
 				<include name="**/Contents/MacOS/libjli.dylib" />
 			</fileset>
-			<fileset dir="${dir.dist}/${path.app}/Contents/Resources">
-				<exclude name="en.**" />
-				<exclude name="*.icns" />
-			</fileset>
+			<dirset dir="${dir.dist}/${path.app}/Contents/Resources">
+				<exclude name="en.lproj" />
+			</dirset>
 		</delete>
 		<copy verbose="yes" failonerror="yes" overwrite="yes" file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Info.plist" tofile="${dir.dist}/${path.app}/Contents/PlugIns/${jre.version}/Contents/Info.plist" />
 		<copy verbose="yes" failonerror="yes" overwrite="yes" file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/MacOS/libjli.dylib" tofile="${dir.dist}/${path.app}/Contents/PlugIns/${jre.version}/Contents/MacOS/libjli.dylib" />
