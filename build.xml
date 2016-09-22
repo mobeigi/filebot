@@ -428,16 +428,17 @@
 		</bundleapp>
 
 		<!-- fix code signing and submission issues -->
-		<delete verbose="yes">
+		<delete verbose="yes" includeEmptyDirs="yes">
 			<fileset dir="${dir.dist}/${path.app}/Contents/PlugIns">
 				<include name="**/libjfxmedia_qtkit.dylib" />
 				<include name="**/libjfxwebkit.dylib" />
 				<include name="**/Contents/Info.plist" />
 				<include name="**/Contents/MacOS/libjli.dylib" />
 			</fileset>
-			<dirset dir="${dir.dist}/${path.app}/Contents/Resources">
-				<exclude name="en.lproj" />
-			</dirset>
+			<fileset dir="${dir.dist}/${path.app}/Contents/Resources">
+				<exclude name="en.lproj/**" />
+				<exclude name="*.icns" />
+			</fileset>
 		</delete>
 		<copy verbose="yes" failonerror="yes" overwrite="yes" file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Info.plist" tofile="${dir.dist}/${path.app}/Contents/PlugIns/${jre.version}/Contents/Info.plist" />
 		<copy verbose="yes" failonerror="yes" overwrite="yes" file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/MacOS/libjli.dylib" tofile="${dir.dist}/${path.app}/Contents/PlugIns/${jre.version}/Contents/MacOS/libjli.dylib" />
