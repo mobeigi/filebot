@@ -1,14 +1,11 @@
 package net.filebot.archive;
 
-import static net.filebot.Logging.*;
 import net.sf.sevenzipjbinding.IArchiveOpenCallback;
 import net.sf.sevenzipjbinding.IInArchive;
 import net.sf.sevenzipjbinding.IInStream;
 import net.sf.sevenzipjbinding.SevenZip;
 import net.sf.sevenzipjbinding.SevenZipException;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
-
-import com.sun.jna.Platform;
 
 public class SevenZipLoader {
 
@@ -21,14 +18,6 @@ public class SevenZipLoader {
 
 		// initialize 7z-JBinding native libs
 		try {
-			try {
-				if (Platform.isWindows() && Platform.is64Bit()) {
-					System.loadLibrary("gcc_s_seh-1");
-				}
-			} catch (Throwable e) {
-				debug.warning("Failed to preload library: " + e);
-			}
-
 			System.loadLibrary("7-Zip-JBinding");
 			SevenZip.initLoadedLibraries(); // NATIVE LIBS MUST BE LOADED WITH SYSTEM CLASSLOADER
 			nativeLibrariesLoaded = true;
