@@ -1,10 +1,10 @@
 package net.filebot;
 
+import static java.nio.channels.Channels.*;
 import static net.filebot.Logging.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.StandardOpenOption;
@@ -27,22 +27,16 @@ public final class HistorySpooler {
 		return instance;
 	}
 
-	// commit session history on shutdown
 	static {
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-
-			@Override
-			public void run() {
-				HistorySpooler.getInstance().commit();
-			}
-		});
+		Runtime.getRuntime().addShutdownHook(new Thread(HistorySpooler.getInstance()::commit, "HistorySpoolerShutdownHook")); // commit session history on shutdown
 	}
 
-	private File persistentHistoryFile = ApplicationFolder.AppData.resolve("history.xml");
+	private final File persistentHistoryFile = ApplicationFolder.AppData.resolve("history.xml");
+
 	private int persistentHistoryTotalSize = -1;
 	private boolean persistentHistoryEnabled = true;
 
-	private History sessionHistory = new History();
+	private final History sessionHistory = new History();
 
 	public synchronized History getCompleteHistory() throws IOException {
 		if (persistentHistoryFile.length() <= 0) {
@@ -51,7 +45,7 @@ public final class HistorySpooler {
 
 		try (FileChannel channel = FileChannel.open(persistentHistoryFile.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE)) {
 			try (FileLock lock = channel.lock()) {
-				History history = History.importHistory(new CloseShieldInputStream(Channels.newInputStream(channel))); // keep JAXB from closing the stream
+				History history = History.importHistory(new CloseShieldInputStream(newInputStream(channel))); // keep JAXB from closing the stream
 				history.addAll(sessionHistory.sequences());
 				return history;
 			}
@@ -59,7 +53,7 @@ public final class HistorySpooler {
 	}
 
 	public synchronized void commit() {
-		if (!persistentHistoryEnabled || sessionHistory.sequences().isEmpty()) {
+		if (sessionHistory.sequences().isEmpty() || !persistentHistoryEnabled) {
 			return;
 		}
 
@@ -72,9 +66,9 @@ public final class HistorySpooler {
 					if (channel.size() > 0) {
 						try {
 							channel.position(0);
-							history = History.importHistory(new CloseShieldInputStream(Channels.newInputStream(channel))); // keep JAXB from closing the stream
+							history = History.importHistory(new CloseShieldInputStream(newInputStream(channel))); // keep JAXB from closing the stream
 						} catch (Exception e) {
-							debug.log(Level.SEVERE, "Failed to load rename history", e);
+							debug.log(Level.SEVERE, "Failed to read history file", e);
 						}
 					}
 
@@ -82,14 +76,15 @@ public final class HistorySpooler {
 					history.addAll(sessionHistory.sequences());
 
 					channel.position(0);
-					History.exportHistory(history, new CloseShieldOutputStream(Channels.newOutputStream(channel))); // keep JAXB from closing the stream
+					History.exportHistory(history, new CloseShieldOutputStream(newOutputStream(channel))); // keep JAXB from closing the stream
+					channel.truncate(channel.position());
 
 					sessionHistory.clear();
 					persistentHistoryTotalSize = history.totalSize();
 				}
 			}
 		} catch (Exception e) {
-			debug.log(Level.SEVERE, "Failed to write rename history", e);
+			debug.log(Level.SEVERE, "Failed to write history file", e);
 		}
 	}
 
@@ -104,21 +99,28 @@ public final class HistorySpooler {
 			sequence.add(new Element(element.getKey().getName(), element.getValue().getPath(), element.getKey().getParentFile()));
 		}
 
-		// append to session history
 		if (sequence.size() > 0) {
-			sessionHistory.add(sequence);
+			sessionHistory.add(sequence); // append to session history
 		}
 	}
 
-	public History getSessionHistory() {
-		return sessionHistory;
+	public synchronized void append(History importHistory) {
+		sessionHistory.merge(importHistory);
 	}
 
-	public int getPersistentHistoryTotalSize() {
+	public synchronized History getSessionHistory() {
+		return new History(sessionHistory.sequences());
+	}
+
+	public synchronized int getSessionHistoryTotalSize() {
+		return sessionHistory.totalSize();
+	}
+
+	public synchronized int getPersistentHistoryTotalSize() {
 		return persistentHistoryTotalSize;
 	}
 
-	public void setPersistentHistoryEnabled(boolean persistentHistoryEnabled) {
+	public synchronized void setPersistentHistoryEnabled(boolean persistentHistoryEnabled) {
 		this.persistentHistoryEnabled = persistentHistoryEnabled;
 	}
 

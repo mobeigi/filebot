@@ -10,6 +10,7 @@ import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.media.XattrMetaInfo.*;
+import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.RegularExpressions.*;
 import static net.filebot.util.ui.SwingUI.*;
 
@@ -71,6 +72,7 @@ import javax.swing.table.TableRowSorter;
 import net.filebot.History;
 import net.filebot.History.Element;
 import net.filebot.History.Sequence;
+import net.filebot.HistorySpooler;
 import net.filebot.ResourceManager;
 import net.filebot.StandardRenameAction;
 import net.filebot.mac.MacAppUtilities;
@@ -79,8 +81,6 @@ import net.filebot.ui.transfer.FileTransferablePolicy;
 import net.filebot.ui.transfer.LoadAction;
 import net.filebot.ui.transfer.SaveAction;
 import net.filebot.ui.transfer.TransferablePolicy;
-import net.filebot.ui.transfer.TransferablePolicy.TransferAction;
-import net.filebot.util.FileUtilities;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
 import net.filebot.util.ui.GradientStyle;
 import net.filebot.util.ui.LazyDocumentListener;
@@ -126,15 +126,7 @@ class HistoryDialog extends JDialog {
 		content.add(createScrollPaneGroup("Sequences", sequenceTable), "growx, wrap paragraph");
 		content.add(createScrollPaneGroup("Elements", elementTable), "growx, wrap paragraph");
 
-		// use ADD by default
-		Action importAction = new LoadAction("Import", ResourceManager.getIcon("action.load"), this::getTransferablePolicy) {
-
-			@Override
-			public TransferAction getTransferAction(ActionEvent evt) {
-				// if SHIFT was pressed when the button was clicked, assume PUT action, use ADD by default
-				return ((evt.getModifiers() & ActionEvent.SHIFT_MASK) != 0) ? TransferAction.PUT : TransferAction.ADD;
-			}
-		};
+		Action importAction = new LoadAction("Import", ResourceManager.getIcon("action.load"), this::getTransferablePolicy);
 
 		content.add(new JButton(importAction), "wmin button, hmin 25px, gap indent, sg button");
 		content.add(new JButton(new SaveAction("Export", ResourceManager.getIcon("action.save"), exportHandler)), "gap rel, sg button");
@@ -597,26 +589,25 @@ class HistoryDialog extends JDialog {
 
 		@Override
 		protected boolean accept(List<File> files) {
-			return FileUtilities.containsOnly(files, new ExtensionFileFilter("xml"));
+			return containsOnly(files, new ExtensionFileFilter("xml"));
 		}
 
 		@Override
 		protected void clear() {
-			setModel(new History());
+			// do nothing
 		}
 
 		@Override
 		protected void load(List<File> files, TransferAction action) throws IOException {
-			History history = getModel();
-
-			try {
-				for (File file : files) {
-					history.merge(History.importHistory(new FileInputStream(file)));
+			for (File file : files) {
+				try {
+					HistorySpooler.getInstance().append(History.importHistory(new FileInputStream(file)));
+				} catch (Exception e) {
+					log.log(Level.SEVERE, "Failed to import history: " + file, e);
 				}
-			} finally {
-				// update view
-				setModel(history);
 			}
+
+			setModel(HistorySpooler.getInstance().getCompleteHistory()); // update view
 		}
 
 		@Override

@@ -210,10 +210,10 @@ public class History {
 			return ((History) unmarshaller.unmarshal(stream));
 		} catch (Exception e) {
 			debug.log(Level.SEVERE, "Failed to read history", e);
-
-			// fail-safe => default to empty history
-			return new History();
 		}
+
+		// default to empty history
+		return new History();
 	}
 
 }

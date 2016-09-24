@@ -133,7 +133,7 @@ public enum SupportDialog {
 			int lastSupportRevision = supportRevision.stream().max(Integer::compare).orElse(0);
 			int currentRevision = getApplicationRevisionNumber();
 
-			int sessionRenameCount = HistorySpooler.getInstance().getSessionHistory().totalSize();
+			int sessionRenameCount = HistorySpooler.getInstance().getSessionHistoryTotalSize();
 			int totalRenameCount = HistorySpooler.getInstance().getPersistentHistoryTotalSize();
 
 			// show donation / review reminders to power users
