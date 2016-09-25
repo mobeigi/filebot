@@ -2,9 +2,13 @@
 redirect 302 /files/FileBot-setup.exe https://github.com/filebot/filebot-installer/releases/download/v1.0/FileBot-setup.exe
 redirect 302 /files/FileBot.app https://itunes.apple.com/us/app/filebot/id905384638?mt=12&uo=6&at=1l3vupy&ct=app
 redirect 302 /purchase/FileBot.app https://itunes.apple.com/us/app/filebot/id905384638?mt=12&uo=6&at=1l3vupy&ct=darwin
-redirect 302 /brew.html https://www.filebot.net/forums/viewtopic.php?f=4&t=2049#p11797
 redirect 302 /donate.html https://app.filebot.net/donate.php
-redirect 302 /manual.html https://www.filebot.net/forums/viewtopic.php?f=3&t=7#p7
+redirect 302 /manual.html https://www.filebot.net/forums/viewtopic.php?f=3&t=7
+redirect 302 /report.html https://www.filebot.net/forums/viewforum.php?f=6
+redirect 302 /support.html https://www.filebot.net/forums/viewforum.php?f=8
+redirect 302 /mac/support.html https://www.filebot.net/forums/viewforum.php?f=12
+redirect 302 /mac/subtitles.html https://www.filebot.net/forums/viewtopic.php?f=12&t=3350
+redirect 302 /mac/brew.html https://www.filebot.net/forums/viewtopic.php?f=4&t=2049
 redirect 302 /files/ https://sourceforge.net/projects/filebot/files/
 
 # redirect filebot.sourceforge.net to www.filebot.net

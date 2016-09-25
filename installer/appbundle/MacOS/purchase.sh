@@ -9,7 +9,7 @@ function purchase {
 }
 
 function help {
-	/usr/bin/open https://app.filebot.net/brew.html
+	/usr/bin/open https://app.filebot.net/mac/brew.html
 }
 
 function start {
