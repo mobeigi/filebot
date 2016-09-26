@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -191,16 +190,23 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			String[] f2 = normalize(fields(o2));
 
 			// match all fields and average similarity
-			float sum = 0;
-			for (String s1 : f1) {
-				for (String s2 : f2) {
-					sum += super.getSimilarity(s1, s2);
+			double sum = 0;
+			for (int i1 = 0; i1 < f1.length; i1++) {
+				for (int i2 = 0; i2 < f2.length; i2++) {
+					float f = super.getSimilarity(f1[i1], f2[i2]);
+					if (f > 0) {
+						// 2-sqrt(x) from 0 to 1
+						double multiplier = 2 - Math.sqrt((double) (i1 + i2) / (f1.length + f2.length));
+
+						// bonus points for primary matches (e.g. primary title matches filename > alias title matches folder path)
+						sum += f * multiplier;
+					}
 				}
 			}
 			sum /= f1.length * f2.length;
 
 			// normalize into 3 similarity levels
-			return (float) (Math.ceil(sum * 3) / 3);
+			return (float) (Math.ceil(Math.min(sum, 1) * 3) / 3);
 		}
 
 		protected String[] normalize(Object[] objects) {
@@ -214,13 +220,16 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			if (object instanceof Episode) {
 				Episode e = (Episode) object;
 
-				Stream<String> names = Stream.concat(Stream.of(e.getSeriesName(), e.getTitle()), e.getSeriesNames().stream()).filter(Objects::nonNull).map(Normalization::removeTrailingBrackets).distinct();
+				Stream<String> primaryNames = Stream.of(e.getSeriesName(), e.getTitle());
+				Stream<String> aliasNames = e.getSeriesInfo().getAliasNames().stream().limit(MAX_FIELDS);
+
+				Stream<String> names = Stream.concat(primaryNames, aliasNames).filter(s -> s != null && s.length() > 0).map(Normalization::removeTrailingBrackets).distinct();
 				return copyOf(names.limit(MAX_FIELDS).toArray(), MAX_FIELDS);
 			}
 
 			if (object instanceof File) {
 				File f = (File) object;
-				return new Object[] { f.getParentFile().getAbsolutePath(), f };
+				return new Object[] { f, f.getParentFile().getPath() };
 			}
 
 			if (object instanceof Movie) {
