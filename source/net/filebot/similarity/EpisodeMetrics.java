@@ -191,12 +191,12 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 			// match all fields and average similarity
 			double sum = 0;
-			for (int i1 = 0; i1 < f1.length; i1++) {
-				for (int i2 = 0; i2 < f2.length; i2++) {
-					float f = super.getSimilarity(f1[i1], f2[i2]);
+			for (int i = 0; i < f1.length; i++) {
+				for (int j = 0; j < f2.length; j++) {
+					float f = super.getSimilarity(f1[i], f2[j]);
 					if (f > 0) {
 						// 2-sqrt(x) from 0 to 1
-						double multiplier = 2 - Math.sqrt((double) (i1 + i2) / (f1.length + f2.length));
+						double multiplier = 2 - Math.sqrt((double) (i + j) / (f1.length + f2.length));
 
 						// bonus points for primary matches (e.g. primary title matches filename > alias title matches folder path)
 						sum += f * multiplier;
@@ -205,8 +205,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			}
 			sum /= f1.length * f2.length;
 
-			// normalize into 3 similarity levels
-			return (float) (Math.ceil(Math.min(sum, 1) * 3) / 3);
+			return sum >= 0.9 ? 1 : sum >= 0.1 ? 0.5f : 0;
 		}
 
 		protected String[] normalize(Object[] objects) {
