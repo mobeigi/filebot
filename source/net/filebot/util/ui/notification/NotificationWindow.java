@@ -4,30 +4,24 @@
 
 package net.filebot.util.ui.notification;
 
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Window;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JWindow;
 import javax.swing.Timer;
 
-import net.filebot.util.ui.SwingUI;
-
-
 public class NotificationWindow extends JWindow {
 
 	private final int timeout;
 
-
 	public NotificationWindow(Window owner, int timeout) {
 		this(owner, timeout, true);
 	}
-
 
 	public NotificationWindow(Window owner, int timeout, boolean closeOnClick) {
 		super(owner);
@@ -36,21 +30,19 @@ public class NotificationWindow extends JWindow {
 		setAlwaysOnTop(true);
 
 		if (closeOnClick) {
-			getGlassPane().addMouseListener(clickListener);
+			getGlassPane().addMouseListener(mouseClicked(evt -> close()));
 			getGlassPane().setVisible(true);
 		}
 
 		addComponentListener(closeOnTimeout);
 	}
 
-
 	public NotificationWindow(Window owner) {
 		this(owner, -1);
 	}
 
-
 	public final void close() {
-		SwingUI.checkEventDispatchThread();
+		checkEventDispatchThread();
 
 		// window events are not fired automatically, required for layout updates
 		processWindowEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
@@ -67,20 +59,12 @@ public class NotificationWindow extends JWindow {
 
 		private Timer timer = null;
 
-
 		@Override
 		public void componentShown(ComponentEvent e) {
 			if (timeout >= 0) {
-				timer = SwingUI.invokeLater(timeout, new Runnable() {
-
-					@Override
-					public void run() {
-						close();
-					}
-				});
+				timer = invokeLater(timeout, () -> close());
 			}
 		}
-
 
 		@Override
 		public void componentHidden(ComponentEvent e) {
@@ -89,14 +73,6 @@ public class NotificationWindow extends JWindow {
 			}
 		}
 
-	};
-
-	private final MouseAdapter clickListener = new MouseAdapter() {
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			close();
-		}
 	};
 
 }

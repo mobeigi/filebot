@@ -84,21 +84,24 @@ public class QueueNotificationLayout implements NotificationLayout {
 
 		// avoid flickering by moving windows in reverse order
 		Point anchor = getBaseAnchor(screen, insets);
-		align(anchor, notifications.iterator());
+		align(anchor, screen, notifications.iterator());
 	}
 
-	private void align(Point anchor, Iterator<NotificationWindow> seq) {
+	private void align(Point anchor, Dimension screen, Iterator<NotificationWindow> seq) {
 		if (!seq.hasNext()) {
 			return;
 		}
 
 		NotificationWindow window = seq.next();
+
 		Dimension size = window.getSize();
+		size.width = Math.min(size.width, (int) (screen.width * 0.8));
+		size.height = Math.min(size.height, (int) (screen.height * 0.2));
 
 		Point p = getLocation(anchor, size);
-		align(getNextAnchor(anchor, size), seq);
+		align(getNextAnchor(anchor, size), screen, seq);
 
-		window.setLocation(p);
+		window.setBounds(p.x, p.y, size.width, size.height);
 	}
 
 	@Override
