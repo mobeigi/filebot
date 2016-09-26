@@ -8,7 +8,6 @@ import java.lang.reflect.Field;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -19,7 +18,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -66,7 +64,7 @@ public class GettingStartedStage {
 			// Windows / Linux specific configuration
 			stage.initStyle(StageStyle.UTILITY);
 			stage.initModality(Modality.NONE);
-			stage.getIcons().addAll(ResourceManager.getApplicationIconURLs().stream().map((url) -> new Image(url.toString())).collect(Collectors.toList()));
+			stage.getIcons().addAll(ResourceManager.getApplicationIconsFX());
 		}
 
 		return new GettingStartedStage(stage);
