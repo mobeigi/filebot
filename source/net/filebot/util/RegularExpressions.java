@@ -15,6 +15,8 @@ public class RegularExpressions {
 	public static final Pattern SEMICOLON = compile(";", LITERAL);
 
 	public static final Pattern COMMA = compile("\\s*[,;:]\\s*", UNICODE_CHARACTER_CLASS);
+	public static final Pattern RATIO = compile("(?<=\\w)[:\u2236](?=\\w)", UNICODE_CHARACTER_CLASS);
+	public static final Pattern COLON = compile("\\s*[:]+\\s*", UNICODE_CHARACTER_CLASS);
 	public static final Pattern SLASH = compile("\\s*[\\\\/]+\\s*", UNICODE_CHARACTER_CLASS);
 	public static final Pattern SPACE = compile("\\s+", UNICODE_CHARACTER_CLASS); // French No-Break Space U+00A0
 

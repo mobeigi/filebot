@@ -72,7 +72,7 @@ public enum NamingStandard {
 
 	private static String path(String... name) {
 		return stream(name).filter(Objects::nonNull).map(s -> {
-			s = s.replace(":", " - ");
+			s = replaceColon(s, ".", " - ");
 			s = replacePathSeparators(s, " ");
 			s = normalizeQuotationMarks(s);
 			s = trimTrailingPunctuation(s);

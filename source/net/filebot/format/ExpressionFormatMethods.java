@@ -4,6 +4,7 @@ import static java.util.regex.Pattern.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.format.ExpressionFormatFunctions.*;
 import static net.filebot.media.MediaDetection.*;
+import static net.filebot.util.RegularExpressions.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -142,8 +143,17 @@ public class ExpressionFormatMethods {
 	 *
 	 * e.g. "Sissi: The Young Empress" -> "Sissi - The Young Empress"
 	 */
-	public static String colon(String self, String replacement) {
-		return compile("\\s*[:]\\s*", UNICODE_CHARACTER_CLASS).matcher(self).replaceAll(replacement);
+	public static String colon(String self, String colon) {
+		return COLON.matcher(self).replaceAll(colon);
+	}
+
+	/**
+	 * Replace colon to make the name more Windows friendly.
+	 *
+	 * e.g. "12:00 A.M.-1:00 A.M." -> "12.00 A.M.-1.00 A.M."
+	 */
+	public static String colon(String self, String ratio, String colon) {
+		return COLON.matcher(RATIO.matcher(self).replaceAll(ratio)).replaceAll(colon);
 	}
 
 	/**
@@ -152,7 +162,7 @@ public class ExpressionFormatMethods {
 	 * e.g. "V_MPEG4/ISO/AVC" -> "V_MPEG4.ISO.AVC"
 	 */
 	public static String slash(String self, String replacement) {
-		return compile("\\s*[\\\\/]+\\s*", UNICODE_CHARACTER_CLASS).matcher(self).replaceAll(replacement);
+		return SLASH.matcher(self).replaceAll(replacement);
 	}
 
 	/**

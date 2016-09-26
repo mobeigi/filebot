@@ -57,6 +57,10 @@ public class Normalization {
 		return SPACE.matcher(name).replaceAll(replacement);
 	}
 
+	public static String replaceColon(String name, String ratio, String colon) {
+		return COLON.matcher(RATIO.matcher(name).replaceAll(ratio)).replaceAll(colon);
+	}
+
 	public static String getEmbeddedChecksum(String name) {
 		Matcher m = EMBEDDED_CHECKSUM.matcher(name);
 		if (m.find()) {
