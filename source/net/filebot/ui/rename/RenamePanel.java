@@ -677,19 +677,20 @@ public class RenamePanel extends JComponent {
 
 		@Override
 		public List<File> getFiles(ActionEvent evt) {
-			List<File> input = preset.selectInputFiles(evt);
+			List<File> selection = preset.selectInputFiles(evt);
 
-			if (input != null) {
+			if (selection != null) {
 				renameModel.clear();
-				renameModel.files().addAll(input);
+				renameModel.files().addAll(selection);
 			} else {
-				input = new ArrayList<File>(super.getFiles(evt));
+				selection = new ArrayList<File>(super.getFiles(evt));
 			}
 
-			if (input.isEmpty()) {
+			if (selection.isEmpty()) {
 				throw new IllegalStateException("No files selected.");
 			}
-			return input;
+
+			return selection;
 		}
 
 		@Override

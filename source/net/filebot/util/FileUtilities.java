@@ -443,8 +443,10 @@ public final class FileUtilities {
 
 		// children array may be null if folder permissions do not allow listing of files
 		if (files == null) {
-			files = new File[0];
-		} else if (order != null) {
+			return emptyList();
+		}
+
+		if (order != null) {
 			sort(files, order);
 		}
 

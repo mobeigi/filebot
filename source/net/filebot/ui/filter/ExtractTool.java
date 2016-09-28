@@ -1,6 +1,5 @@
 package net.filebot.ui.filter;
 
-import static java.util.Collections.*;
 import static net.filebot.Logging.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.util.ExceptionUtilities.*;
@@ -78,20 +77,21 @@ class ExtractTool extends Tool<TableModel> {
 
 	@Override
 	protected TableModel createModelInBackground(File root) throws InterruptedException {
-		List<File> files = root != null ? listFiles(root) : emptyList();
+		if (root == null) {
+			return new ArchiveEntryModel();
+		}
+
+		// ignore non-archives files and trailing multi-volume parts
+		List<File> files = filter(listFiles(root), Archive.VOLUME_ONE_FILTER);
+		files.sort(HUMAN_ORDER);
 
 		List<ArchiveEntry> entries = new ArrayList<ArchiveEntry>();
+
 		try {
 			for (File file : files) {
-				// ignore non-archives files and trailing multi-volume parts
-				if (Archive.VOLUME_ONE_FILTER.accept(file)) {
-					Archive archive = Archive.open(file);
-					try {
-						for (FileInfo it : archive.listFiles()) {
-							entries.add(new ArchiveEntry(file, it));
-						}
-					} finally {
-						archive.close();
+				try (Archive archive = Archive.open(file)) {
+					for (FileInfo it : archive.listFiles()) {
+						entries.add(new ArchiveEntry(file, it));
 					}
 				}
 

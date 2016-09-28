@@ -56,6 +56,7 @@ class AttributeTool extends Tool<TableModel> {
 		}
 
 		List<File> files = filter(listFiles(root), VIDEO_FILES, SUBTITLE_FILES);
+		files.sort(HUMAN_ORDER);
 
 		for (File file : files) {
 			Object metaObject = xattr.getMetaInfo(file);

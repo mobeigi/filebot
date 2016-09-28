@@ -1,6 +1,7 @@
 package net.filebot.ui.rename;
 
 import static java.util.Collections.*;
+import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.event.ActionEvent;
@@ -15,7 +16,6 @@ import net.filebot.format.ExpressionFileFilter;
 import net.filebot.format.ExpressionFilter;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.mac.MacAppUtilities;
-import net.filebot.util.FileUtilities;
 import net.filebot.web.Datasource;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.MovieIdentificationService;
@@ -84,10 +84,12 @@ public class Preset {
 			}
 		}
 
-		List<File> files = FileUtilities.listFiles(getInputFolder());
+		List<File> files = listFiles(getInputFolder());
 		if (filter != null) {
-			files = FileUtilities.filter(files, filter);
+			files = filter(files, filter);
 		}
+		files.sort(HUMAN_ORDER);
+
 		return files;
 	}
 

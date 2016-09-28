@@ -1,5 +1,6 @@
 package net.filebot.ui.filter;
 
+import static java.util.Collections.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.awt.Color;
@@ -68,10 +69,15 @@ class SplitTool extends Tool<TreeModel> {
 
 	@Override
 	protected TreeModel createModelInBackground(File root) throws InterruptedException {
+		if (root == null) {
+			return new DefaultTreeModel(new FolderNode("Volumes", emptyList()));
+		}
+
 		int nextPart = 1;
 		long splitSize = getSplitSize();
 
-		List<File> files = (root != null) ? listFiles(root) : new ArrayList<File>();
+		List<File> files = listFiles(root);
+		files.sort(HUMAN_ORDER);
 
 		List<TreeNode> rootGroup = new ArrayList<TreeNode>();
 		List<File> currentPart = new ArrayList<File>();
