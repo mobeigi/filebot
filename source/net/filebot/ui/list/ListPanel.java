@@ -27,7 +27,6 @@ import javax.swing.JSpinner;
 import javax.swing.JSpinner.NumberEditor;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
@@ -56,7 +55,7 @@ public class ListPanel extends JComponent {
 
 	public static final String DEFAULT_SEQUENCE_FORMAT = "Sequence - {i.pad(2)}";
 	public static final String DEFAULT_FILE_FORMAT = "{fn}";
-	public static final String DEFAULT_EPISODE_FORMAT = "{n} - {s00e00} - [{airdate.format(/dd MMM YYYY/)}] - {t}";
+	public static final String DEFAULT_EPISODE_FORMAT = "{n} - {s00e00} - [{absolute}] - [{airdate}] - {t}";
 
 	private RSyntaxTextArea editor = createEditor();
 	private SpinnerNumberModel fromSpinnerModel = new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1);
@@ -159,11 +158,7 @@ public class ListPanel extends JComponent {
 		list.add(buttonPanel, BorderLayout.SOUTH);
 
 		// initialize with default values
-		SwingUtilities.invokeLater(() -> {
-			if (list.getModel().isEmpty()) {
-				createItemSequence();
-			}
-		});
+		createItemSequence();
 	}
 
 	private RSyntaxTextArea createEditor() {
@@ -185,12 +180,14 @@ public class ListPanel extends JComponent {
 		editor.setMarkOccurrences(false);
 		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
 
+		Color defaultForeground = editor.getForeground();
+
 		// update format on change
 		editor.getDocument().addDocumentListener(new LazyDocumentListener(20, evt -> {
 			try {
 				String expression = editor.getText().trim();
 				setFormat(expression.isEmpty() ? null : new ExpressionFormat(expression));
-				editor.setForeground(editor.getForeground());
+				editor.setForeground(defaultForeground);
 			} catch (ScriptException e) {
 				editor.setForeground(Color.RED);
 			}
