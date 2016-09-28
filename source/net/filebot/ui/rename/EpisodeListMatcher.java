@@ -297,7 +297,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 
 	protected String getQueryInputMessage(String header, String message, Collection<File> files) throws Exception {
-		List<File> selection = files.stream().sorted(comparing(File::length).reversed()).limit(5).collect(toList());
+		List<File> selection = files.stream().sorted(comparing(File::length).reversed()).limit(5).sorted(HUMAN_ORDER).collect(toList());
 		if (selection.isEmpty()) {
 			return "";
 		}
@@ -309,7 +309,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		}
 
 		TextColorizer colorizer = new TextColorizer("<nobr>• ", "</nobr><br>");
-		for (File file : sortByUniquePath(selection)) {
+		for (File file : selection) {
 			File path = getStructurePathTail(file);
 			if (path == null) {
 				path = getRelativePathTail(file, 3);

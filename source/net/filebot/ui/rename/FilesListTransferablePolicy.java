@@ -5,14 +5,15 @@ import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.RegularExpressions.*;
 
 import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 
 import net.filebot.media.MediaDetection;
@@ -50,26 +51,21 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 
 	@Override
 	protected void load(List<File> files, TransferAction action) {
-		Set<File> fileset = new LinkedHashSet<File>();
+		Set<File> fileset = new TreeSet<File>(CASE_INSENSITIVE_ORDER);
 
 		// load files recursively by default
 		load(files, action != TransferAction.LINK, fileset);
 
-		// use fast file to minimize system calls like length(), isDirectory(), isFile(), ...
-		publish(fileset.stream().map(FastFile::new).toArray(File[]::new));
+		// use fast file to minimize system calls like length(), isDirectory(), isFile(), ... and list files in human order
+		publish(fileset.stream().sorted(HUMAN_ORDER).map(FastFile::new).toArray(File[]::new));
 	}
 
 	private void load(List<File> files, boolean recursive, Collection<File> sink) {
 		for (File f : files) {
-			// ignore hidden files
-			if (f.isHidden()) {
-				continue;
-			}
-
 			// load file paths from text files
 			if (recursive && LIST_FILES.accept(f)) {
 				try {
-					String[] lines = readTextFile(f).split("\\R");
+					String[] lines = NEWLINE.split(readTextFile(f));
 					List<File> paths = stream(lines).filter(s -> s.length() > 0).map(path -> {
 						try {
 							File file = new File(path);
@@ -96,7 +92,7 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 
 			// load folders recursively
 			else if (f.isDirectory()) {
-				load(sortByUniquePath(getChildren(f)), true, sink); // FORCE NATURAL FILE ORDER
+				load(getChildren(f, NOT_HIDDEN), true, sink); // FORCE NATURAL FILE ORDER
 			}
 		}
 	}

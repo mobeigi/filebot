@@ -3,6 +3,7 @@ package net.filebot.util;
 import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static java.util.Comparator.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.util.RegularExpressions.*;
@@ -39,6 +40,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -363,7 +365,7 @@ public final class FileUtilities {
 
 	public static List<File> sortByUniquePath(Collection<File> files) {
 		// sort by unique lower-case paths
-		TreeSet<File> sortedSet = new TreeSet<File>(CASE_INSENSITIVE_PATH);
+		TreeSet<File> sortedSet = new TreeSet<File>(CASE_INSENSITIVE_ORDER);
 		sortedSet.addAll(files);
 
 		return new ArrayList<File>(sortedSet);
@@ -385,7 +387,7 @@ public final class FileUtilities {
 	}
 
 	public static FileFilter not(FileFilter filter) {
-		return new NotFileFilter(filter);
+		return f -> !filter.accept(f);
 	}
 
 	public static List<File> listPath(File file) {
@@ -436,14 +438,14 @@ public final class FileUtilities {
 		return getChildren(folder, filter, null);
 	}
 
-	public static List<File> getChildren(File folder, FileFilter filter, Comparator<File> sorter) {
+	public static List<File> getChildren(File folder, FileFilter filter, Comparator<File> order) {
 		File[] files = filter == null ? folder.listFiles() : folder.listFiles(filter);
 
 		// children array may be null if folder permissions do not allow listing of files
 		if (files == null) {
 			files = new File[0];
-		} else if (sorter != null) {
-			sort(files, sorter);
+		} else if (order != null) {
+			sort(files, order);
 		}
 
 		return asList(files);
@@ -667,21 +669,11 @@ public final class FileUtilities {
 			return String.format("%,d bytes", size);
 	}
 
-	public static final FileFilter FOLDERS = new FileFilter() {
+	public static final FileFilter FOLDERS = File::isDirectory;
 
-		@Override
-		public boolean accept(File file) {
-			return file.isDirectory();
-		}
-	};
+	public static final FileFilter FILES = File::isFile;
 
-	public static final FileFilter FILES = new FileFilter() {
-
-		@Override
-		public boolean accept(File file) {
-			return file.isFile();
-		}
-	};
+	public static final FileFilter NOT_HIDDEN = not(File::isHidden);
 
 	public static final FileFilter TEMPORARY = new FileFilter() {
 
@@ -689,15 +681,7 @@ public final class FileUtilities {
 
 		@Override
 		public boolean accept(File file) {
-			return file.getAbsolutePath().startsWith(tmpdir);
-		}
-	};
-
-	public static final FileFilter NOT_HIDDEN = new FileFilter() {
-
-		@Override
-		public boolean accept(File file) {
-			return !file.isHidden();
+			return file.getPath().startsWith(tmpdir);
 		}
 	};
 
@@ -801,27 +785,9 @@ public final class FileUtilities {
 		}
 	}
 
-	public static class NotFileFilter implements FileFilter {
+	public static final Comparator<File> CASE_INSENSITIVE_ORDER = comparing(File::getPath, String.CASE_INSENSITIVE_ORDER);
 
-		public FileFilter filter;
-
-		public NotFileFilter(FileFilter filter) {
-			this.filter = filter;
-		}
-
-		@Override
-		public boolean accept(File file) {
-			return !filter.accept(file);
-		}
-	}
-
-	public static final Comparator<File> CASE_INSENSITIVE_PATH = new Comparator<File>() {
-
-		@Override
-		public int compare(File o1, File o2) {
-			return o1.getPath().compareToIgnoreCase(o2.getPath());
-		}
-	};
+	public static final Comparator<File> HUMAN_ORDER = comparing(File::getPath, new AlphanumComparator(Locale.ENGLISH));
 
 	/**
 	 * Dummy constructor to prevent instantiation.

@@ -96,7 +96,7 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 			// handle single folder drop
 			if (files.size() == 1 && containsOnly(files, FOLDERS)) {
 				for (File folder : files) {
-					for (File file : getChildren(folder, NOT_HIDDEN, CASE_INSENSITIVE_PATH)) {
+					for (File file : getChildren(folder, NOT_HIDDEN, CASE_INSENSITIVE_ORDER)) {
 						load(file, null, folder);
 					}
 				}
@@ -179,7 +179,7 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 
 		if (absoluteFile.isDirectory()) {
 			// load all files in the file tree
-			for (File child : getChildren(absoluteFile, NOT_HIDDEN, CASE_INSENSITIVE_PATH)) {
+			for (File child : getChildren(absoluteFile, NOT_HIDDEN, CASE_INSENSITIVE_ORDER)) {
 				load(child, relativeFile, root);
 			}
 		} else {
