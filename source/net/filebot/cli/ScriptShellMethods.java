@@ -180,7 +180,7 @@ public class ScriptShellMethods {
 					return FileVisitResult.SKIP_SUBTREE;
 				}
 
-				if (FileUtilities.filter(FileUtilities.getChildren(folder), VIDEO_FILES).size() > 0 || MediaDetection.isDiskFolder(folder)) {
+				if (FileUtilities.getChildren(folder, VIDEO_FILES).size() > 0 || MediaDetection.isDiskFolder(folder)) {
 					mediaFolders.add(folder);
 					return FileVisitResult.SKIP_SUBTREE;
 				}

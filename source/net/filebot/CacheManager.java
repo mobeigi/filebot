@@ -56,7 +56,7 @@ public class CacheManager {
 	}
 
 	private void clearDiskStore(File cache) {
-		getChildren(cache).stream().filter(f -> f.isFile() && !f.getName().startsWith(".")).forEach(f -> {
+		getChildren(cache, FILES).stream().filter(f -> !f.getName().startsWith(".")).forEach(f -> {
 			try {
 				delete(f);
 			} catch (Exception e) {
