@@ -789,7 +789,7 @@ public final class FileUtilities {
 
 	public static final Comparator<File> CASE_INSENSITIVE_ORDER = comparing(File::getPath, String.CASE_INSENSITIVE_ORDER);
 
-	public static final Comparator<File> HUMAN_ORDER = comparing(File::getPath, new AlphanumComparator(Locale.ENGLISH));
+	public static final Comparator<File> HUMAN_ORDER = comparing(File::getName, new AlphanumComparator(Locale.ENGLISH));
 
 	/**
 	 * Dummy constructor to prevent instantiation.
