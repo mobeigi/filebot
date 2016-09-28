@@ -97,7 +97,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 			loadTorrentFiles(files, values);
 		} else {
 			// load all files from the given folders recursively up do a depth of 32
-			listFiles(files).stream().map(FastFile::new).forEach(values::add);
+			listFiles(files).stream().sorted(HUMAN_ORDER).map(FastFile::new).forEach(values::add);
 		}
 
 		model.addAll(values);
