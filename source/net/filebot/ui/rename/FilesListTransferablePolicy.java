@@ -10,10 +10,10 @@ import static net.filebot.util.RegularExpressions.*;
 import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.logging.Level;
 
 import net.filebot.media.MediaDetection;
@@ -51,13 +51,13 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 
 	@Override
 	protected void load(List<File> files, TransferAction action) {
-		Set<File> fileset = new TreeSet<File>(CASE_INSENSITIVE_ORDER);
+		Set<File> fileset = new LinkedHashSet<File>();
 
 		// load files recursively by default
 		load(files, action != TransferAction.LINK, fileset);
 
 		// use fast file to minimize system calls like length(), isDirectory(), isFile(), ... and list files in human order
-		publish(fileset.stream().sorted(HUMAN_ORDER).map(FastFile::new).toArray(File[]::new));
+		publish(fileset.stream().map(FastFile::new).toArray(File[]::new));
 	}
 
 	private void load(List<File> files, boolean recursive, Collection<File> sink) {
@@ -92,7 +92,7 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 
 			// load folders recursively
 			else if (f.isDirectory()) {
-				load(getChildren(f, NOT_HIDDEN), true, sink); // FORCE NATURAL FILE ORDER
+				load(getChildren(f, NOT_HIDDEN, HUMAN_ORDER), true, sink); // FORCE NATURAL FILE ORDER
 			}
 		}
 	}
