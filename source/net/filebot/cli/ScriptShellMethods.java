@@ -6,6 +6,7 @@ import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.media.XattrMetaInfo.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -117,7 +118,7 @@ public class ScriptShellMethods {
 	}
 
 	public static List<File> listTree(File self, int maxDepth) {
-		return FileUtilities.listFiles(singleton(self), maxDepth, false, true, true);
+		return FileUtilities.listFiles(singleton(self), maxDepth, FILES, HUMAN_ORDER);
 	}
 
 	public static List<File> getFiles(File self) {
@@ -125,7 +126,7 @@ public class ScriptShellMethods {
 	}
 
 	public static List<File> getFiles(File self, Closure<?> closure) {
-		return getFiles(singletonList(self), closure);
+		return getFiles(singleton(self), closure);
 	}
 
 	public static List<File> getFiles(Collection<?> self) {
@@ -133,14 +134,14 @@ public class ScriptShellMethods {
 	}
 
 	public static List<File> getFiles(Collection<?> self, Closure<?> closure) {
-		final List<File> roots = FileUtilities.asFileList(self.toArray());
+		List<File> roots = FileUtilities.asFileList(self.toArray());
 
-		List<File> files = FileUtilities.listFiles(roots);
+		List<File> files = FileUtilities.listFiles(roots, FILES, HUMAN_ORDER);
 		if (closure != null) {
 			files = DefaultGroovyMethods.findAll(files, closure);
 		}
 
-		return FileUtilities.sortByUniquePath(files);
+		return files;
 	}
 
 	public static List<File> getFolders(File self) {
@@ -156,14 +157,14 @@ public class ScriptShellMethods {
 	}
 
 	public static List<File> getFolders(Collection<?> self, Closure<?> closure) {
-		final List<File> roots = FileUtilities.asFileList(self.toArray());
+		List<File> roots = FileUtilities.asFileList(self.toArray());
 
-		List<File> folders = FileUtilities.listFolders(roots);
+		List<File> folders = FileUtilities.listFolders(roots, HUMAN_ORDER);
 		if (closure != null) {
 			folders = DefaultGroovyMethods.findAll(folders, closure);
 		}
 
-		return FileUtilities.sortByUniquePath(folders);
+		return folders;
 	}
 
 	public static List<File> getMediaFolders(File self) throws IOException {

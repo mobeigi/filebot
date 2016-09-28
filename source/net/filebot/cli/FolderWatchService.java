@@ -145,7 +145,7 @@ public abstract class FolderWatchService implements Closeable {
 					// start watching newly created folder
 					if (watchTree) {
 						try {
-							commitSet.addAll(listFiles(file));
+							commitSet.addAll(listFiles(file, FILES));
 							watchFolder(file);
 						} catch (IOException e) {
 							debug.log(Level.SEVERE, e.getMessage(), e);

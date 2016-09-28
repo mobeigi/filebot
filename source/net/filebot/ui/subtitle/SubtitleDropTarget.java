@@ -19,13 +19,11 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.logging.Level;
 
@@ -162,7 +160,7 @@ abstract class SubtitleDropTarget extends JButton {
 		@Override
 		protected DropAction getDropAction(List<File> selection) {
 			// accept video files and folders
-			return filter(input, VIDEO_FILES, FOLDERS).size() > 0 ? DropAction.Accept : DropAction.Cancel;
+			return filter(selection, VIDEO_FILES, FOLDERS).size() > 0 ? DropAction.Accept : DropAction.Cancel;
 		}
 
 		@Override
@@ -177,8 +175,7 @@ abstract class SubtitleDropTarget extends JButton {
 				return false;
 			}
 
-			List<File> files = filter(listFiles(selection), VIDEO_FILES);
-			files.sort(HUMAN_ORDER);
+			List<File> files = listFiles(selection, VIDEO_FILES, HUMAN_ORDER);
 
 			if (files.size() > 0) {
 				handleDownload(files);
@@ -252,13 +249,10 @@ abstract class SubtitleDropTarget extends JButton {
 			}
 
 			// perform a drop action depending on the given files
-			List<File> files = listFiles(selection);
+			List<File> files = listFiles(selection, FILES, HUMAN_ORDER);
 
 			List<File> videos = filter(files, VIDEO_FILES);
-			videos.sort(HUMAN_ORDER);
-
 			List<File> subtitles = filter(files, SUBTITLE_FILES);
-			subtitles.sort(HUMAN_ORDER);
 
 			Map<File, File> uploadPlan = new LinkedHashMap<File, File>();
 

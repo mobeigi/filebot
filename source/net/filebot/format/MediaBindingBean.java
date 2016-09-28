@@ -34,8 +34,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import com.cedarsoftware.util.io.JsonWriter;
@@ -992,9 +990,9 @@ public class MediaBindingBean {
 	public File getInferredMediaFile() {
 		if (getMediaFile().isDirectory()) {
 			// just select the first video file in the folder as media sample
-			SortedSet<File> videos = new TreeSet<File>(filter(listFiles(getMediaFile()), VIDEO_FILES));
+			List<File> videos = listFiles(getMediaFile(), VIDEO_FILES, CASE_INSENSITIVE_ORDER);
 			if (videos.size() > 0) {
-				return videos.iterator().next();
+				return videos.get(0);
 			}
 		} else if (SUBTITLE_FILES.accept(getMediaFile()) || ((infoObject instanceof Episode || infoObject instanceof Movie) && !VIDEO_FILES.accept(getMediaFile()))) {
 			// prefer equal match from current context if possible

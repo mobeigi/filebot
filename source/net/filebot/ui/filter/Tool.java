@@ -101,7 +101,7 @@ abstract class Tool<M> extends JComponent {
 		long totalSize = 0;
 
 		for (File f : files) {
-			totalCount += FileUtilities.listFiles(f).size();
+			totalCount += FileUtilities.listFiles(f, FileUtilities.FILES).size();
 			totalSize += FileUtils.sizeOf(f);
 		}
 

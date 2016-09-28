@@ -45,7 +45,11 @@ class TypeTool extends Tool<TreeModel> {
 
 	@Override
 	protected TreeModel createModelInBackground(File root) throws InterruptedException {
-		List<File> filesAndFolders = (root != null) ? listFiles(singleton(root), FILE_WALK_MAX_DEPTH, true, true, true) : new ArrayList<File>();
+		if (root == null) {
+			return new DefaultTreeModel(new FolderNode("Types", emptyList()));
+		}
+
+		List<File> filesAndFolders = listFiles(root, f -> true, HUMAN_ORDER);
 		List<TreeNode> groups = new ArrayList<TreeNode>();
 
 		for (Entry<String, FileFilter> it : getMetaTypes().entrySet()) {

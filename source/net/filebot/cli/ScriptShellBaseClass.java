@@ -4,6 +4,7 @@ import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.Logging.*;
 import static net.filebot.media.XattrMetaInfo.*;
+import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
 
 import java.io.BufferedReader;
@@ -46,7 +47,6 @@ import net.filebot.WebServices;
 import net.filebot.format.AssociativeScriptObject;
 import net.filebot.media.MediaDetection;
 import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
-import net.filebot.util.FileUtilities;
 import net.filebot.web.Movie;
 
 public abstract class ScriptShellBaseClass extends Script {
@@ -95,7 +95,7 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public Object executeScript(String input, Map<String, ?> bindings, Object... args) throws Throwable {
-		return executeScript(input, asList(getArgumentBean().getArray()), bindings, FileUtilities.asFileList(args));
+		return executeScript(input, asList(getArgumentBean().getArray()), bindings, asFileList(args));
 	}
 
 	public Object executeScript(String input, List<String> argv, Map<String, ?> bindings, List<File> args) throws Throwable {
@@ -212,7 +212,7 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public String detectSeriesName(Object files, boolean anime) throws Exception {
-		List<File> input = FileUtilities.asFileList(files);
+		List<File> input = asFileList(files);
 		if (input.isEmpty())
 			return null;
 
@@ -425,7 +425,7 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public List<String> getMediaInfo(Collection<?> files, String format) throws Exception {
-		return cli.getMediaInfo(FileUtilities.asFileList(files), format, null); // explicitly ignore the --filter option
+		return cli.getMediaInfo(asFileList(files), format, null); // explicitly ignore the --filter option
 	}
 
 	public Object getMediaInfo(Map<String, ?> parameters) throws Exception {
@@ -453,12 +453,12 @@ public abstract class ScriptShellBaseClass extends Script {
 	private List<File> getInputFileList(Map<String, ?> parameters) {
 		Object file = parameters.get("file");
 		if (file != null) {
-			return FileUtilities.asFileList(file);
+			return asFileList(file);
 		}
 
 		Object folder = parameters.get("folder");
 		if (folder != null) {
-			return FileUtilities.listFiles(FileUtilities.asFileList(folder), 0, false, true, false);
+			return listFiles(asFileList(folder), 0, FILES, HUMAN_ORDER);
 		}
 
 		return emptyList();
@@ -469,8 +469,8 @@ public abstract class ScriptShellBaseClass extends Script {
 		Map<File, File> files = new LinkedHashMap<File, File>();
 		if (map != null) {
 			for (Entry<?, ?> it : map.entrySet()) {
-				List<File> key = FileUtilities.asFileList(it.getKey());
-				List<File> value = FileUtilities.asFileList(it.getValue());
+				List<File> key = asFileList(it.getKey());
+				List<File> value = asFileList(it.getValue());
 				if (key.size() == 1 && value.size() == 1) {
 					files.put(key.get(0), value.get(0));
 				} else {

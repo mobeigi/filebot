@@ -84,13 +84,7 @@ public class Preset {
 			}
 		}
 
-		List<File> files = listFiles(getInputFolder());
-		if (filter != null) {
-			files = filter(files, filter);
-		}
-		files.sort(HUMAN_ORDER);
-
-		return files;
+		return listFiles(getInputFolder(), f -> f.isFile() && filter.accept(f), HUMAN_ORDER);
 	}
 
 	public AutoCompleteMatcher getAutoCompleteMatcher() {

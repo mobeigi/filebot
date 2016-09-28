@@ -160,9 +160,9 @@ public class ArgumentBean {
 
 			if (resolveFolders && file.isDirectory()) {
 				if (recursive) {
-					files.addAll(listFiles(file));
+					files.addAll(listFiles(file, FILES));
 				} else {
-					files.addAll(filter(getChildren(file, FILES), NOT_HIDDEN));
+					files.addAll(getChildren(file, FILES));
 				}
 			} else {
 				files.add(file);

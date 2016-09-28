@@ -58,9 +58,7 @@ class MediaInfoTool extends Tool<TableModel> {
 			return new MediaInfoTableModel();
 		}
 
-		List<File> files = filter(listFiles(root), VIDEO_FILES, AUDIO_FILES);
-		files.sort(HUMAN_ORDER);
-
+		List<File> files = listFiles(root, filter(VIDEO_FILES, AUDIO_FILES), HUMAN_ORDER);
 		Map<MediaInfoKey, String[]> data = new TreeMap<MediaInfoKey, String[]>();
 
 		try (MediaInfo mi = new MediaInfo()) {

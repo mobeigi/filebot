@@ -390,6 +390,10 @@ public final class FileUtilities {
 		return f -> !filter.accept(f);
 	}
 
+	public static FileFilter filter(FileFilter... filters) {
+		return f -> stream(filters).anyMatch(it -> it.accept(f));
+	}
+
 	public static List<File> listPath(File file) {
 		return listPathTail(file, Integer.MAX_VALUE, false);
 	}
@@ -455,54 +459,50 @@ public final class FileUtilities {
 
 	public static final int FILE_WALK_MAX_DEPTH = 32;
 
-	public static List<File> listFiles(File... folders) {
-		return listFiles(asList(folders));
+	public static List<File> listFiles(File folder, FileFilter filter) {
+		return listFiles(singleton(folder), FILE_WALK_MAX_DEPTH, filter, null);
 	}
 
-	public static List<File> listFiles(Iterable<File> folders) {
-		return listFiles(folders, FILE_WALK_MAX_DEPTH, false, true, false);
+	public static List<File> listFiles(File folder, FileFilter filter, Comparator<File> order) {
+		return listFiles(singleton(folder), FILE_WALK_MAX_DEPTH, filter, order);
 	}
 
-	public static List<File> listFolders(Iterable<File> folders) {
-		return listFiles(folders, FILE_WALK_MAX_DEPTH, false, false, true);
+	public static List<File> listFiles(Iterable<File> folders, FileFilter filter, Comparator<File> order) {
+		return listFiles(folders, FILE_WALK_MAX_DEPTH, filter, order);
 	}
 
-	public static List<File> listFiles(Iterable<File> folders, int maxDepth, boolean addHidden, boolean addFiles, boolean addFolders) {
-		List<File> files = new ArrayList<File>();
+	public static List<File> listFolders(Iterable<File> folders, Comparator<File> order) {
+		return listFiles(folders, FILE_WALK_MAX_DEPTH, FOLDERS, order);
+	}
 
-		// collect files from directory tree
+	public static List<File> listFiles(Iterable<File> folders, int maxDepth, FileFilter filter, Comparator<File> order) {
+		List<File> sink = new ArrayList<File>();
+
 		for (File it : folders) {
-			if (!addHidden && it.isHidden()) // ignore hidden files
-				continue;
-
 			if (it.isDirectory()) {
-				if (addFolders) {
-					files.add(it);
-				}
-				listFiles(it, files, 0, maxDepth, addHidden, addFiles, addFolders);
-			} else if (addFiles && it.isFile()) {
-				files.add(it);
+				listFiles(it, sink, 0, maxDepth, filter, order);
+			}
+
+			if (filter.accept(it)) {
+				sink.add(it);
 			}
 		}
 
-		return files;
+		return sink;
 	}
 
-	private static void listFiles(File folder, List<File> files, int depth, int maxDepth, boolean addHidden, boolean addFiles, boolean addFolders) {
-		if (depth > maxDepth)
+	private static void listFiles(File folder, List<File> sink, int depth, int maxDepth, FileFilter filter, Comparator<File> order) {
+		if (depth > maxDepth) {
 			return;
+		}
 
-		for (File it : getChildren(folder)) {
-			if (!addHidden && it.isHidden()) // ignore hidden files
-				continue;
-
+		for (File it : getChildren(folder, NOT_HIDDEN, order)) {
 			if (it.isDirectory()) {
-				if (addFolders) {
-					files.add(it);
-				}
-				listFiles(it, files, depth + 1, maxDepth, addHidden, addFiles, addFolders);
-			} else if (addFiles) {
-				files.add(it);
+				listFiles(it, sink, depth + 1, maxDepth, filter, order);
+			}
+
+			if (filter.accept(it)) {
+				sink.add(it);
 			}
 		}
 	}
