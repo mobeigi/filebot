@@ -1,5 +1,6 @@
 package net.filebot.ui.filter;
 
+import static java.util.Collections.*;
 import static net.filebot.Logging.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.util.ExceptionUtilities.*;
@@ -77,7 +78,7 @@ class ExtractTool extends Tool<TableModel> {
 
 	@Override
 	protected TableModel createModelInBackground(File root) throws InterruptedException {
-		List<File> files = (root != null) ? FileUtilities.listFiles(root) : new ArrayList<File>();
+		List<File> files = root != null ? listFiles(root) : emptyList();
 
 		List<ArchiveEntry> entries = new ArrayList<ArchiveEntry>();
 		try {

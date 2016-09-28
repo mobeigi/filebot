@@ -24,7 +24,6 @@ import javax.swing.table.TableModel;
 
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
-import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.LoadingOverlayPane;
 import net.miginfocom.swing.MigLayout;
 
@@ -54,13 +53,13 @@ class MediaInfoTool extends Tool<TableModel> {
 	}
 
 	@Override
-	protected TableModel createModelInBackground(File root) throws InterruptedException {
+	protected TableModel createModelInBackground(File root) {
 		if (root == null) {
 			return new MediaInfoTableModel();
 		}
 
-		List<File> files = filter(FileUtilities.listFiles(root), VIDEO_FILES, AUDIO_FILES);
-		Map<MediaInfoKey, String[]> data = new TreeMap<>();
+		List<File> files = filter(listFiles(root), VIDEO_FILES, AUDIO_FILES);
+		Map<MediaInfoKey, String[]> data = new TreeMap<MediaInfoKey, String[]>();
 
 		try (MediaInfo mi = new MediaInfo()) {
 			IntStream.range(0, files.size()).forEach(f -> {

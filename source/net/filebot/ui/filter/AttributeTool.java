@@ -16,7 +16,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
-import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.LoadingOverlayPane;
 import net.filebot.web.Episode;
 import net.filebot.web.Movie;
@@ -49,14 +48,16 @@ class AttributeTool extends Tool<TableModel> {
 	}
 
 	@Override
-	protected TableModel createModelInBackground(File root) throws InterruptedException {
+	protected TableModel createModelInBackground(File root) {
 		FileAttributesTableModel model = new FileAttributesTableModel();
 
 		if (root == null) {
 			return model;
 		}
 
-		for (File file : filter(FileUtilities.listFiles(root), VIDEO_FILES, SUBTITLE_FILES)) {
+		List<File> files = filter(listFiles(root), VIDEO_FILES, SUBTITLE_FILES);
+
+		for (File file : files) {
 			Object metaObject = xattr.getMetaInfo(file);
 			String originalName = xattr.getOriginalName(file);
 
