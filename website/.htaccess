@@ -1,4 +1,4 @@
-# redirect donate.html
+# redirect dynamic links
 redirect 302 /files/FileBot-setup.exe https://github.com/filebot/filebot-installer/releases/download/v1.0/FileBot-setup.exe
 redirect 302 /files/FileBot.app https://itunes.apple.com/us/app/filebot/id905384638?mt=12&uo=6&at=1l3vupy&ct=app
 redirect 302 /purchase/FileBot.app https://itunes.apple.com/us/app/filebot/id905384638?mt=12&uo=6&at=1l3vupy&ct=darwin
@@ -11,7 +11,9 @@ redirect 302 /mac/support.html https://www.filebot.net/forums/viewforum.php?f=12
 redirect 302 /mac/subtitles.html https://www.filebot.net/forums/viewtopic.php?f=12&t=3350
 redirect 302 /mac/brew.html https://www.filebot.net/forums/viewtopic.php?f=4&t=2049
 redirect 302 /amc.html https://www.filebot.net/forums/viewtopic.php?f=4&t=215
+redirect 302 /channel.html https://discord.gg/cKVvZ2S
 redirect 302 /files/ https://sourceforge.net/projects/filebot/files/
+
 
 # redirect filebot.sourceforge.net to www.filebot.net
 RewriteEngine on
