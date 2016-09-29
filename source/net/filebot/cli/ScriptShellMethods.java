@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 
@@ -168,7 +170,7 @@ public class ScriptShellMethods {
 	}
 
 	public static List<File> getMediaFolders(File self) throws IOException {
-		final List<File> mediaFolders = new ArrayList<File>();
+		SortedSet<File> folders = new TreeSet<File>(CASE_INSENSITIVE_PATH_ORDER);
 
 		Files.walkFileTree(self.toPath(), new SimpleFileVisitor<Path>() {
 
@@ -181,7 +183,7 @@ public class ScriptShellMethods {
 				}
 
 				if (FileUtilities.getChildren(folder, VIDEO_FILES).size() > 0 || MediaDetection.isDiskFolder(folder)) {
-					mediaFolders.add(folder);
+					folders.add(folder);
 					return FileVisitResult.SKIP_SUBTREE;
 				}
 
@@ -189,19 +191,13 @@ public class ScriptShellMethods {
 			}
 		});
 
-		return FileUtilities.sortByUniquePath(mediaFolders);
+		return new ArrayList<File>(folders);
 	}
 
-	public static Iterable<File> eachMediaFolder(Collection<?> folders, Closure<?> closure) throws IOException {
-		List<File> mediaFolders = new ArrayList<File>();
-		for (File root : FileUtilities.asFileList(folders)) {
-			mediaFolders.addAll(getMediaFolders(root));
+	public static void eachMediaFolder(Collection<?> self, Closure<?> closure) throws IOException {
+		for (File it : FileUtilities.asFileList(self)) {
+			DefaultGroovyMethods.each(getMediaFolders(it), closure);
 		}
-
-		// remove duplicates
-		mediaFolders = FileUtilities.sortByUniquePath(mediaFolders);
-
-		return DefaultGroovyMethods.each(mediaFolders, closure);
 	}
 
 	public static String getNameWithoutExtension(File self) {
