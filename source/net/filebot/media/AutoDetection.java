@@ -300,7 +300,7 @@ public class AutoDetection {
 		}
 
 		public boolean commonNumberPattern() {
-			return getChildren(f.getParentFile(), VIDEO_FILES, HUMAN_ORDER).stream().filter(it -> {
+			return getChildren(f.getParentFile(), VIDEO_FILES, HUMAN_NAME_ORDER).stream().filter(it -> {
 				return find(dn, snm) || find(normalize(it.getName()), snm);
 			}).map(it -> {
 				return streamMatches(it.getName(), EPISODE_NUMBERS).map(Integer::new).collect(toSet());

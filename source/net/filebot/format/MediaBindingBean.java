@@ -990,7 +990,7 @@ public class MediaBindingBean {
 	public File getInferredMediaFile() {
 		if (getMediaFile().isDirectory()) {
 			// just select the first video file in the folder as media sample
-			List<File> videos = listFiles(getMediaFile(), VIDEO_FILES, CASE_INSENSITIVE_ORDER);
+			List<File> videos = listFiles(getMediaFile(), VIDEO_FILES, CASE_INSENSITIVE_PATH_ORDER);
 			if (videos.size() > 0) {
 				return videos.get(0);
 			}

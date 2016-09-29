@@ -87,7 +87,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<TreeNo
 		if (file.isDirectory()) {
 			LinkedList<TreeNode> children = new LinkedList<TreeNode>();
 
-			for (File f : getChildren(file, NOT_HIDDEN, HUMAN_ORDER)) {
+			for (File f : getChildren(file, NOT_HIDDEN, HUMAN_NAME_ORDER)) {
 				if (f.isDirectory()) {
 					children.addFirst(getTreeNode(f));
 				} else {

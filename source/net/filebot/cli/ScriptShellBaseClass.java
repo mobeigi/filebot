@@ -458,7 +458,7 @@ public abstract class ScriptShellBaseClass extends Script {
 
 		Object folder = parameters.get("folder");
 		if (folder != null) {
-			return listFiles(asFileList(folder), 0, FILES, HUMAN_ORDER);
+			return listFiles(asFileList(folder), 0, FILES, HUMAN_NAME_ORDER);
 		}
 
 		return emptyList();

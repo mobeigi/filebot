@@ -49,7 +49,7 @@ class TypeTool extends Tool<TreeModel> {
 			return new DefaultTreeModel(new FolderNode("Types", emptyList()));
 		}
 
-		List<File> filesAndFolders = listFiles(root, NOT_HIDDEN, HUMAN_ORDER);
+		List<File> filesAndFolders = listFiles(root, NOT_HIDDEN, HUMAN_NAME_ORDER);
 		List<TreeNode> groups = new ArrayList<TreeNode>();
 
 		for (Entry<String, FileFilter> it : getMetaTypes().entrySet()) {

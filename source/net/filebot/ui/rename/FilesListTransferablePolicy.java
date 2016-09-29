@@ -92,7 +92,7 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 
 			// load folders recursively
 			else if (f.isDirectory()) {
-				load(getChildren(f, NOT_HIDDEN, HUMAN_ORDER), true, sink); // FORCE NATURAL FILE ORDER
+				load(getChildren(f, NOT_HIDDEN, HUMAN_NAME_ORDER), true, sink); // FORCE NATURAL FILE ORDER
 			}
 		}
 	}

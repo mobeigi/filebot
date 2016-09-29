@@ -76,7 +76,7 @@ class SplitTool extends Tool<TreeModel> {
 		int nextPart = 1;
 		long splitSize = getSplitSize();
 
-		List<File> files = listFiles(root, FILES, HUMAN_ORDER);
+		List<File> files = listFiles(root, FILES, HUMAN_NAME_ORDER);
 
 		List<TreeNode> rootGroup = new ArrayList<TreeNode>();
 		List<File> currentPart = new ArrayList<File>();

@@ -82,7 +82,7 @@ class ExtractTool extends Tool<TableModel> {
 		}
 
 		// ignore non-archives files and trailing multi-volume parts
-		List<File> files = listFiles(root, Archive.VOLUME_ONE_FILTER, HUMAN_ORDER);
+		List<File> files = listFiles(root, Archive.VOLUME_ONE_FILTER, HUMAN_NAME_ORDER);
 		List<ArchiveEntry> entries = new ArrayList<ArchiveEntry>();
 
 		try {

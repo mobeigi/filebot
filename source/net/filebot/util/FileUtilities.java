@@ -365,7 +365,7 @@ public final class FileUtilities {
 
 	public static List<File> sortByUniquePath(Collection<File> files) {
 		// sort by unique lower-case paths
-		TreeSet<File> sortedSet = new TreeSet<File>(CASE_INSENSITIVE_ORDER);
+		TreeSet<File> sortedSet = new TreeSet<File>(CASE_INSENSITIVE_PATH_ORDER);
 		sortedSet.addAll(files);
 
 		return new ArrayList<File>(sortedSet);
@@ -787,9 +787,9 @@ public final class FileUtilities {
 		}
 	}
 
-	public static final Comparator<File> CASE_INSENSITIVE_ORDER = comparing(File::getPath, String.CASE_INSENSITIVE_ORDER);
+	public static final Comparator<File> CASE_INSENSITIVE_PATH_ORDER = comparing(File::getPath, String.CASE_INSENSITIVE_ORDER);
 
-	public static final Comparator<File> HUMAN_ORDER = comparing(File::getName, new AlphanumComparator(Locale.ENGLISH));
+	public static final Comparator<File> HUMAN_NAME_ORDER = comparing(File::getName, new AlphanumComparator(Locale.ENGLISH));
 
 	/**
 	 * Dummy constructor to prevent instantiation.

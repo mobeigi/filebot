@@ -84,7 +84,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 
 			// load all files from the given folders recursively up do a depth of 32
 			format.accept(ListPanel.DEFAULT_FILE_FORMAT);
-			model.accept(listFiles(files, FILES, HUMAN_ORDER));
+			model.accept(listFiles(files, FILES, HUMAN_NAME_ORDER));
 		}
 	}
 

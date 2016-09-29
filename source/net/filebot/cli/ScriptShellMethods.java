@@ -118,7 +118,7 @@ public class ScriptShellMethods {
 	}
 
 	public static List<File> listTree(File self, int maxDepth) {
-		return FileUtilities.listFiles(singleton(self), maxDepth, FILES, HUMAN_ORDER);
+		return FileUtilities.listFiles(singleton(self), maxDepth, FILES, HUMAN_NAME_ORDER);
 	}
 
 	public static List<File> getFiles(File self) {
@@ -136,7 +136,7 @@ public class ScriptShellMethods {
 	public static List<File> getFiles(Collection<?> self, Closure<?> closure) {
 		List<File> roots = FileUtilities.asFileList(self.toArray());
 
-		List<File> files = FileUtilities.listFiles(roots, FILES, HUMAN_ORDER);
+		List<File> files = FileUtilities.listFiles(roots, FILES, HUMAN_NAME_ORDER);
 		if (closure != null) {
 			files = DefaultGroovyMethods.findAll(files, closure);
 		}
@@ -159,7 +159,7 @@ public class ScriptShellMethods {
 	public static List<File> getFolders(Collection<?> self, Closure<?> closure) {
 		List<File> roots = FileUtilities.asFileList(self.toArray());
 
-		List<File> folders = FileUtilities.listFolders(roots, HUMAN_ORDER);
+		List<File> folders = FileUtilities.listFolders(roots, HUMAN_NAME_ORDER);
 		if (closure != null) {
 			folders = DefaultGroovyMethods.findAll(folders, closure);
 		}

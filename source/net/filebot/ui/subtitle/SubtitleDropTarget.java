@@ -175,7 +175,7 @@ abstract class SubtitleDropTarget extends JButton {
 				return false;
 			}
 
-			List<File> files = listFiles(selection, VIDEO_FILES, HUMAN_ORDER);
+			List<File> files = listFiles(selection, VIDEO_FILES, HUMAN_NAME_ORDER);
 
 			if (files.size() > 0) {
 				handleDownload(files);
@@ -249,7 +249,7 @@ abstract class SubtitleDropTarget extends JButton {
 			}
 
 			// perform a drop action depending on the given files
-			List<File> files = listFiles(selection, FILES, HUMAN_ORDER);
+			List<File> files = listFiles(selection, FILES, HUMAN_NAME_ORDER);
 
 			List<File> videos = filter(files, VIDEO_FILES);
 			List<File> subtitles = filter(files, SUBTITLE_FILES);

@@ -55,7 +55,7 @@ class AttributeTool extends Tool<TableModel> {
 			return model;
 		}
 
-		List<File> files = listFiles(root, filter(VIDEO_FILES, SUBTITLE_FILES), HUMAN_ORDER);
+		List<File> files = listFiles(root, filter(VIDEO_FILES, SUBTITLE_FILES), HUMAN_NAME_ORDER);
 
 		for (File file : files) {
 			Object metaObject = xattr.getMetaInfo(file);
