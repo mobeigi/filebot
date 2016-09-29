@@ -669,7 +669,7 @@
 			<info name="silent_upgrade" value="yes" />
 			<info name="thirdparty" value="yes" />
 
-			<!-- Dependencies are troublesome for some users because they cannot be skipped or ignored (i.e. DSM does not support for optional or recommended dependencies) -->
+			<!-- Dependencies are troublesome for some users because they cannot be skipped or ignored (i.e. DSM does not support optional or recommended dependencies) -->
 			<!-- <info name="start_dep_services" value="ssh" /> -->
 			<!-- <info name="install_dep_packages" value="oracle-java" /> -->
 
