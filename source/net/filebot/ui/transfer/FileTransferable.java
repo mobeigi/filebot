@@ -1,5 +1,6 @@
 package net.filebot.ui.transfer;
 
+import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.util.FileUtilities.*;
@@ -31,6 +32,14 @@ public class FileTransferable implements Transferable {
 			// will never happen
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static boolean isFileListFlavor(DataFlavor flavor) {
+		return flavor.isFlavorJavaFileListType() || flavor.equals(uriListFlavor);
+	}
+
+	public static boolean hasFileListFlavor(Transferable tr) {
+		return tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor) || tr.isDataFlavorSupported(FileTransferable.uriListFlavor);
 	}
 
 	private final File[] files;
@@ -78,14 +87,6 @@ public class FileTransferable implements Transferable {
 		return isFileListFlavor(flavor);
 	}
 
-	public static boolean isFileListFlavor(DataFlavor flavor) {
-		return flavor.isFlavorJavaFileListType() || flavor.equals(uriListFlavor);
-	}
-
-	public static boolean hasFileListFlavor(Transferable tr) {
-		return tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor) || tr.isDataFlavorSupported(FileTransferable.uriListFlavor);
-	}
-
 	@SuppressWarnings("unchecked")
 	public static List<File> getFilesFromTransferable(Transferable tr) throws IOException, UnsupportedFlavorException {
 		// On Linux, if a file is dragged from a smb share to into a java application (e.g. Ubuntu Files to FileBot)
@@ -96,45 +97,50 @@ public class FileTransferable implements Transferable {
 			if (tr.isDataFlavorSupported(FileTransferable.uriListFlavor)) {
 				// file URI list flavor (Linux)
 				Readable transferData = (Readable) tr.getTransferData(FileTransferable.uriListFlavor);
-				Scanner scanner = new Scanner(transferData);
-				List<File> files = new ArrayList<File>();
 
-				while (scanner.hasNextLine()) {
-					String line = scanner.nextLine();
+				try (Scanner scanner = new Scanner(transferData)) {
+					List<File> files = new ArrayList<File>();
 
-					if (line.startsWith("#")) {
-						// the line is a comment (as per RFC 2483)
-						continue;
-					}
+					while (scanner.hasNextLine()) {
+						String line = scanner.nextLine();
 
-					try {
-						URI uri = new URI(line);
-						File file = GVFS.getDefaultVFS().getPathForURI(uri);
-
-						if (file == null || !file.exists()) {
-							throw new FileNotFoundException(line);
+						if (line.startsWith("#")) {
+							// the line is a comment (as per RFC 2483)
+							continue;
 						}
 
-						files.add(file);
-					} catch (Throwable e) {
-						// URISyntaxException, IllegalArgumentException, FileNotFoundException, LinkageError, etc
-						debug.warning("Invalid file URI: " + line);
-					}
-				}
+						try {
+							URI uri = new URI(line);
+							File file = GVFS.getDefaultVFS().getPathForURI(uri);
 
-				return sortByUniquePath(files); // FORCE NATURAL FILE ORDER
+							if (file == null || !file.exists()) {
+								throw new FileNotFoundException(line);
+							}
+
+							files.add(file);
+						} catch (Throwable e) {
+							// URISyntaxException, IllegalArgumentException, FileNotFoundException, LinkageError, etc
+							debug.warning("Invalid file URI: " + line);
+						}
+					}
+
+					return files.stream().distinct().sorted(HUMAN_NAME_ORDER).collect(toList());
+				}
 			}
 		}
 
-		// Windows, Mac and default handling
+		// Windows / Mac and default handling
 		if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
 			// file list flavor
 			Object transferable = tr.getTransferData(DataFlavor.javaFileListFlavor);
+
 			if (transferable instanceof List) {
-				return sortByUniquePath((List<File>) transferable); // FORCE NATURAL FILE ORDER
-			} else {
-				return null; // on some platforms transferable data will not be available until the drop has been accepted
+				List<File> files = (List<File>) transferable;
+				return files.stream().distinct().sorted(HUMAN_NAME_ORDER).collect(toList());
 			}
+
+			// on some platforms transferable data will not be available until the drop has been accepted
+			return null;
 		}
 
 		// cannot get files from transferable

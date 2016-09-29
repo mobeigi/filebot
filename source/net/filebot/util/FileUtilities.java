@@ -364,10 +364,8 @@ public final class FileUtilities {
 	}
 
 	public static List<File> sortByUniquePath(Collection<File> files) {
-		// sort by unique lower-case paths
-		TreeSet<File> sortedSet = new TreeSet<File>(CASE_INSENSITIVE_PATH_ORDER);
+		TreeSet<File> sortedSet = new TreeSet<File>(CASE_INSENSITIVE_PATH_ORDER); // sort by unique lower-case paths
 		sortedSet.addAll(files);
-
 		return new ArrayList<File>(sortedSet);
 	}
 
