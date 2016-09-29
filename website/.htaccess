@@ -10,6 +10,7 @@ redirect 302 /support.html https://www.filebot.net/forums/viewforum.php?f=8
 redirect 302 /mac/support.html https://www.filebot.net/forums/viewforum.php?f=12
 redirect 302 /mac/subtitles.html https://www.filebot.net/forums/viewtopic.php?f=12&t=3350
 redirect 302 /mac/brew.html https://www.filebot.net/forums/viewtopic.php?f=4&t=2049
+redirect 302 /syno/support.html https://www.filebot.net/forums/viewforum.php?f=13
 redirect 302 /amc.html https://www.filebot.net/forums/viewtopic.php?f=4&t=215
 redirect 302 /channel.html https://discord.gg/cKVvZ2S
 redirect 302 /files/ https://sourceforge.net/projects/filebot/files/
