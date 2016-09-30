@@ -1,5 +1,6 @@
 package net.filebot.cli;
 
+import static net.filebot.Logging.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.BorderLayout;
@@ -15,6 +16,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import javax.script.Bindings;
 import javax.script.ScriptException;
@@ -188,28 +191,17 @@ public class GroovyPad extends JFrame {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	protected void cancelScript(ActionEvent evt) {
-		// persist script file and clear output
-		try {
-			editor.save();
-		} catch (IOException e) {
-			// won't happen
-		}
-		output.setText("");
+		if (currentRunner != null && !currentRunner.isDone()) {
+			currentRunner.cancel(true);
+			currentRunner.getExecutionThread().stop();
 
-		if (currentRunner == null || currentRunner.isDone()) {
-			currentRunner = new Runner(editor.getText()) {
-
-				@Override
-				protected void done() {
-					run.setEnabled(true);
-					cancel.setEnabled(false);
-				}
-			};
-
-			run.setEnabled(false);
-			cancel.setEnabled(true);
-			currentRunner.execute();
+			try {
+				currentRunner.get(2, TimeUnit.SECONDS);
+			} catch (Exception e) {
+				log.log(Level.WARNING, e, e::getMessage);
+			}
 		}
 	}
 
