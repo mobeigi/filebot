@@ -713,7 +713,7 @@ public class FormatDialog extends JDialog {
 		try {
 			// load all necessarily classes to avoid focus issues with RSyntaxTextArea
 			new RSyntaxTextArea(new RSyntaxDocument(SyntaxConstants.SYNTAX_STYLE_GROOVY));
-			new ExpressionFormat("{n} - {s00e00} - {t}");
+			new ExpressionFormat("{n.space('.').lower()}.{s}{e.pad(2)}");
 			new MediaInfo();
 		} catch (Throwable e) {
 			debug.log(Level.SEVERE, "Failed to initialize FormatDialog", e);
