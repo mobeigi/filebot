@@ -246,7 +246,7 @@ public class ExpressionFormat extends Format {
 
 	protected static synchronized CompiledScript compileScriptlet(String expression) throws ScriptException {
 		// simple expressions like {n} don't need to be interpreted by the script engine
-		if (SourceVersion.isIdentifier(expression)) {
+		if (SourceVersion.isIdentifier(expression) && !SourceVersion.isKeyword(expression)) {
 			return new Variable(expression);
 		}
 
