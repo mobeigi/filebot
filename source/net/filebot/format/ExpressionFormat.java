@@ -270,7 +270,13 @@ public class ExpressionFormat extends Format {
 		@Override
 		public Object eval(ScriptContext context) throws ScriptException {
 			try {
-				return context.getAttribute(name);
+				Object value = context.getAttribute(name);
+				if (value == null) {
+					throw new MissingPropertyException(name, Variable.class);
+				}
+				return value;
+			} catch (Exception e) {
+				throw new ScriptException(e);
 			} catch (Throwable t) {
 				throw new ScriptException(new ExecutionException(t));
 			}
