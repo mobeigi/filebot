@@ -385,7 +385,7 @@ public class MediaBindingBean {
 		String channels = getMediaInfo(StreamKind.Audio, 0, "Channel(s)_Original", "Channel(s)");
 
 		// get first number, e.g. 6ch
-		return SPACE.splitAsStream(channels).findFirst().get() + "ch";
+		return SPACE.splitAsStream(channels).filter(DIGIT.asPredicate()).findFirst().get() + "ch";
 	}
 
 	@Define("channels")
@@ -394,7 +394,11 @@ public class MediaBindingBean {
 
 		// e.g. ChannelPositions/String2: 3/2/2.1 / 3/2/0.1 (one audio stream may contain multiple multi-channel streams)
 		double d = SPACE.splitAsStream(channels).mapToDouble(s -> {
-			return SLASH.splitAsStream(s).mapToDouble(Double::parseDouble).reduce(0, (a, b) -> a + b);
+			try {
+				return SLASH.splitAsStream(s).mapToDouble(Double::parseDouble).reduce(0, (a, b) -> a + b);
+			} catch (NumberFormatException e) {
+				return 0;
+			}
 		}).filter(it -> it > 0).max().getAsDouble();
 
 		return BigDecimal.valueOf(d).setScale(1, RoundingMode.HALF_UP).toPlainString();
