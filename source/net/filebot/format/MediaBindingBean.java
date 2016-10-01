@@ -338,7 +338,7 @@ public class MediaBindingBean {
 		String codec = getMediaInfo(StreamKind.Audio, 0, "CodecID/Hint", "Format");
 
 		// remove punctuation (e.g. AC-3 => AC3)
-		return codec.replaceAll("\\p{Punct}", "");
+		return PUNCTUATION_OR_SPACE.matcher(codec).replaceAll("");
 	}
 
 	@Define("cf")
