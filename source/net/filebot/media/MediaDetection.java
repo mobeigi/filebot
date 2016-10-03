@@ -448,6 +448,11 @@ public class MediaDetection {
 								queries.add(sn);
 								break;
 							}
+
+							// account for {n}/{s00e00} folder structure (e.g. Firefly/S01E01 - Pilot)
+							if (sn == null && path.isDirectory()) {
+								queries.addAll(stripBlacklistedTerms(stripReleaseInfo(singleton(path.getName()), true)));
+							}
 						}
 					}
 				}
