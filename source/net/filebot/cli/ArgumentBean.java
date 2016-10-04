@@ -148,10 +148,14 @@ public class ArgumentBean {
 		// resolve given paths
 		List<File> files = new ArrayList<File>();
 
-		for (String argument : arguments) {
-			File file = new File(argument);
+		for (String it : arguments) {
+			// ignore empty arguments
+			if (it.trim().isEmpty())
+				continue;
 
 			// resolve relative paths
+			File file = new File(it);
+
 			try {
 				file = file.getCanonicalFile();
 			} catch (Exception e) {
