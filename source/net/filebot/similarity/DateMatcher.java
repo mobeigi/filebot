@@ -217,7 +217,7 @@ public class DateMatcher {
 		}
 
 		public boolean acceptYear(int year) {
-			return minYear < year && year < maxYear;
+			return minYear <= year && year <= maxYear;
 		}
 
 		public boolean acceptDate(int year, int month, int day) {
