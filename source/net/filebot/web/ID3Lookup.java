@@ -56,7 +56,7 @@ public class ID3Lookup implements MusicIdentificationService {
 						Integer mediumCount = null;
 						Integer trackIndex = getInteger(mediaInfo, "Track/Position");
 						Integer trackCount = getInteger(mediaInfo, "Track/Position_Total");
-						String mbid = null;
+						String mbid = getString(mediaInfo, "Acoustid Id");
 
 						// try to parse 2016-03-10
 						String dateString = getString(mediaInfo, "Recorded_Date");
