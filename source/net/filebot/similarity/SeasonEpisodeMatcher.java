@@ -151,7 +151,7 @@ public class SeasonEpisodeMatcher {
 		};
 
 		// (last-resort) match patterns like 101, 102 (and greedily just grab the first)
-		Num101_SUBSTRING = new SeasonEpisodePattern(STRICT_SANITY, "([1-9]{1})(\\d{2}).*") {
+		Num101_SUBSTRING = new SeasonEpisodePattern(STRICT_SANITY, "(?<!\\p{Digit})(\\d{1})(\\d{2})(?!\\p{Digit})(.*)") {
 
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
