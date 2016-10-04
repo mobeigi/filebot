@@ -164,9 +164,9 @@ public class ArgumentBean {
 
 			if (resolveFolders && file.isDirectory()) {
 				if (recursive) {
-					files.addAll(listFiles(file, FILES));
+					files.addAll(listFiles(file, FILES, HUMAN_NAME_ORDER));
 				} else {
-					files.addAll(getChildren(file, FILES));
+					files.addAll(getChildren(file, FILES, HUMAN_NAME_ORDER));
 				}
 			} else {
 				files.add(file);
