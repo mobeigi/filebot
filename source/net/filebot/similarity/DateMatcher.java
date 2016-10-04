@@ -9,6 +9,7 @@ import java.time.chrono.ChronoLocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -197,25 +198,30 @@ public class DateMatcher {
 
 	public static class DateFilter implements Predicate<ChronoLocalDate> {
 
-		public final ChronoLocalDate lowerBound;
-		public final ChronoLocalDate upperBound;
+		public final ChronoLocalDate min;
+		public final ChronoLocalDate max;
 
-		public DateFilter(ChronoLocalDate lowerBound, ChronoLocalDate upperBound) {
-			this.lowerBound = lowerBound;
-			this.upperBound = upperBound;
+		private final int minYear;
+		private final int maxYear;
+
+		public DateFilter(ChronoLocalDate min, ChronoLocalDate max) {
+			this.min = min;
+			this.max = max;
+			this.minYear = min.get(ChronoField.YEAR);
+			this.maxYear = max.get(ChronoField.YEAR);
 		}
 
 		@Override
 		public boolean test(ChronoLocalDate date) {
-			return date.isAfter(lowerBound) && date.isBefore(upperBound);
-		}
-
-		public boolean acceptDate(int year, int month, int day) {
-			return test(LocalDate.of(year, month, day));
+			return date.isAfter(min) && date.isBefore(max);
 		}
 
 		public boolean acceptYear(int year) {
-			return test(LocalDate.of(year, 1, 1));
+			return minYear < year && year < maxYear;
+		}
+
+		public boolean acceptDate(int year, int month, int day) {
+			return acceptYear(year) && test(LocalDate.of(year, month, day));
 		}
 
 	}
