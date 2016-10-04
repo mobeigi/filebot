@@ -274,11 +274,13 @@ public class MediaBindingBean {
 	}
 
 	@Define("id")
-	public Integer getId() throws Exception {
+	public Object getId() throws Exception {
 		if (infoObject instanceof Episode)
 			return getEpisode().getSeriesInfo().getId();
 		if (infoObject instanceof Movie)
 			return getMovie().getId();
+		if (infoObject instanceof AudioTrack)
+			return getMusic().getMBID();
 
 		return null;
 	}
