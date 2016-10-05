@@ -155,7 +155,7 @@ public final class Settings {
 		if (isMacApp())
 			return getApplicationProperty("link.mas");
 		if (isWindowsApp())
-			return null;
+			return getApplicationProperty("link.mws");
 		if (isUbuntuApp())
 			return null;
 
