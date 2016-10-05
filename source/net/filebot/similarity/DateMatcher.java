@@ -5,11 +5,9 @@ import static net.filebot.util.FileUtilities.*;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.Month;
-import java.time.chrono.ChronoLocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
-import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -24,7 +22,7 @@ import one.util.streamex.StreamEx;
 
 public class DateMatcher {
 
-	public static final DateFilter DEFAULT_SANITY = new DateFilter(LocalDate.of(1930, Month.JANUARY, 1), LocalDate.of(2050, Month.JANUARY, 1));
+	public static final DateFilter DEFAULT_SANITY = new DateFilter(1930, 2050);
 
 	private final DatePattern[] patterns;
 
@@ -196,23 +194,30 @@ public class DateMatcher {
 
 	}
 
-	public static class DateFilter implements Predicate<ChronoLocalDate> {
+	public static class DateFilter implements Predicate<LocalDate> {
 
-		public final ChronoLocalDate min;
-		public final ChronoLocalDate max;
+		public final LocalDate min;
+		public final LocalDate max;
 
 		private final int minYear;
 		private final int maxYear;
 
-		public DateFilter(ChronoLocalDate min, ChronoLocalDate max) {
+		public DateFilter(LocalDate min, LocalDate max) {
 			this.min = min;
 			this.max = max;
-			this.minYear = min.get(ChronoField.YEAR);
-			this.maxYear = max.get(ChronoField.YEAR);
+			this.minYear = min.getYear();
+			this.maxYear = max.getYear();
+		}
+
+		public DateFilter(int minYear, int maxYear) {
+			this.min = LocalDate.of(minYear, Month.JANUARY, 1);
+			this.max = LocalDate.of(maxYear, Month.JANUARY, 1);
+			this.minYear = minYear;
+			this.maxYear = maxYear;
 		}
 
 		@Override
-		public boolean test(ChronoLocalDate date) {
+		public boolean test(LocalDate date) {
 			return date.isAfter(min) && date.isBefore(max);
 		}
 
