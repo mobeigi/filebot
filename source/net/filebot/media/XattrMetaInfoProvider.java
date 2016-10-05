@@ -1,8 +1,7 @@
 package net.filebot.media;
 
-import static net.filebot.media.XattrMetaInfo.*;
-
 import java.io.File;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -22,13 +21,19 @@ public class XattrMetaInfoProvider implements Datasource {
 		return null;
 	}
 
-	public Map<File, Object> getMetaData(Iterable<File> files) {
+	public Map<File, Object> match(Collection<File> files, boolean strict) {
+		// enable xattr regardless of -DuseExtendedFileAttributes system properties
+		XattrMetaInfo xattr = new XattrMetaInfo(true, false);
+
 		Map<File, Object> result = new LinkedHashMap<File, Object>();
 
 		for (File f : files) {
-			Object metaObject = xattr.getMetaInfo(f);
-			if (metaObject != null) {
-				result.put(f, metaObject);
+			Object object = xattr.getMetaInfo(f);
+
+			if (object != null) {
+				result.put(f, object);
+			} else if (!strict) {
+				result.put(f, f);
 			}
 		}
 

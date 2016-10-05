@@ -314,21 +314,11 @@ public class RenamePanel extends JComponent {
 			try {
 				if (namesList.getModel().isEmpty()) {
 					withWaitCursor(evt.getSource(), () -> {
-						// try to read xattr from all files
-						Map<File, Object> xattr = WebServices.XattrMetaData.getMetaData(renameModel.files());
-
-						// upper list is based on xattr metadata
-						List<File> files = new ArrayList<File>(xattr.keySet());
-						List<Object> objects = new ArrayList<Object>(xattr.values());
-
-						// lower list is just the fallback file object
-						renameModel.files().stream().filter(f -> !xattr.containsKey(f)).forEach(f -> {
-							files.add(f);
-							objects.add(f);
-						});
+						// match to xattr metadata object or the file itself
+						Map<File, Object> xattr = WebServices.XattrMetaData.match(renameModel.files(), false);
 
 						renameModel.clear();
-						renameModel.addAll(objects, files);
+						renameModel.addAll(xattr.values(), xattr.keySet());
 					});
 				} else {
 					int index = namesList.getListComponent().getSelectedIndex();

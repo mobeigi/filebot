@@ -115,8 +115,8 @@ public class CmdlineOperations implements CmdlineInterface {
 			return renameMusic(files, action, conflictAction, outputDir, format, getMusicIdentificationService(db));
 		}
 
-		if (XattrMetaData.getName().equalsIgnoreCase(db)) {
-			return renameByMetaData(files, action, conflictAction, outputDir, format, filter, XattrMetaData);
+		if (XattrMetaData.getIdentifier().equalsIgnoreCase(db)) {
+			return renameFiles(files, action, conflictAction, outputDir, format, XattrMetaData, filter, strict);
 		}
 
 		// auto-detect mode for each fileset
@@ -534,23 +534,23 @@ public class CmdlineOperations implements CmdlineInterface {
 		return renameAll(renameMap, renameAction, conflictAction, null);
 	}
 
-	public List<File> renameByMetaData(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, ExpressionFilter filter, XattrMetaInfoProvider service) throws Exception {
+	public List<File> renameFiles(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, XattrMetaInfoProvider service, ExpressionFilter filter, boolean strict) throws Exception {
 		log.config(format("Rename files using [%s]", service.getName()));
 
-		// force sort order
-		List<File> selection = sortByUniquePath(files);
+		// match to xattr metadata object or the file itself
+		Map<File, Object> matches = service.match(files, strict);
+
 		Map<File, File> renameMap = new LinkedHashMap<File, File>();
 
-		for (Entry<File, Object> it : service.getMetaData(selection).entrySet()) {
-			MediaBindingBean bindingBean = new MediaBindingBean(it.getValue(), it.getKey());
+		for (Entry<File, Object> it : matches.entrySet()) {
+			MediaBindingBean bindingBean = new MediaBindingBean(it.getValue(), it.getKey(), matches);
 
 			if (filter == null || filter.matches(bindingBean)) {
-				String newName = (format != null) ? format.format(bindingBean) : validateFileName(it.getValue().toString());
+				String newName = format != null ? format.format(bindingBean) : bindingBean.getInfoObject() instanceof File ? bindingBean.getInfoObject().toString() : validateFileName(bindingBean.getInfoObject().toString());
 				renameMap.put(it.getKey(), getDestinationFile(it.getKey(), newName, outputDir));
 			}
 		}
 
-		// rename files according to xattr metadata objects
 		return renameAll(renameMap, renameAction, conflictAction, null);
 	}
 
