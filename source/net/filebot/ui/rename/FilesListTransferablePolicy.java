@@ -51,14 +51,16 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 
 	@Override
 	protected void load(List<File> files, TransferAction action) {
+		// use fast file to minimize system calls like length(), isDirectory(), isFile(), ...
+		files.replaceAll(FastFile::new);
+
 		// collect files recursively and eliminate duplicates
 		Set<File> sink = new LinkedHashSet<File>(64, 4);
 
 		// load files recursively by default
 		load(files, action != TransferAction.LINK, sink);
 
-		// use fast file to minimize system calls like length(), isDirectory(), isFile(), ... and list files in human order
-		publish(sink.stream().map(FastFile::new).toArray(File[]::new));
+		publish(sink.toArray(new File[0]));
 	}
 
 	private void load(List<File> files, boolean recursive, Collection<File> sink) {
