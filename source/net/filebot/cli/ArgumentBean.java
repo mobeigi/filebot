@@ -93,7 +93,7 @@ public class ArgumentBean {
 	@Option(name = "--log-lock", usage = "Lock log file", metaVar = "[yes, no]", handler = ExplicitBooleanOptionHandler.class)
 	public boolean logLock = true;
 
-	@Option(name = "-r", usage = "Resolve folders recursively")
+	@Option(name = "-r", usage = "Recursively process folders")
 	public boolean recursive = false;
 
 	@Option(name = "-clear-cache", usage = "Clear cached and temporary data")
