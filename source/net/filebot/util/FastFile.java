@@ -5,18 +5,24 @@ import static java.util.Arrays.*;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.BitSet;
 
 public class FastFile extends File {
 
-	private String name;
-	private Long length;
-	private Long lastModified;
-	private Boolean isDirectory;
-	private Boolean isFile;
-	private Boolean isHidden;
+	private static final long UNDEFINED = -1;
 
-	private Long totalSpace;
-	private Long freeSpace;
+	public static final int HIDDEN = 0;
+	public static final int DIRECTORY = 1;
+	public static final int FILE = 2;
+
+	private BitSet stats;
+
+	private String name;
+	private long length = UNDEFINED;
+	private long lastModified = UNDEFINED;
+
+	private long totalSpace = UNDEFINED;
+	private long freeSpace = UNDEFINED;
 
 	private String[] list;
 	private File[] listFiles;
@@ -32,6 +38,37 @@ public class FastFile extends File {
 		super(parent, child);
 	}
 
+	public boolean stats(int bitIndex) {
+		if (stats == null) {
+			stats = new BitSet(3);
+			stats.set(HIDDEN, super.isHidden());
+
+			if (super.isFile()) {
+				stats.set(FILE);
+			} else if (super.isDirectory()) {
+				stats.set(DIRECTORY);
+			}
+		}
+
+		return stats.get(bitIndex);
+
+	}
+
+	@Override
+	public boolean isDirectory() {
+		return stats(DIRECTORY);
+	}
+
+	@Override
+	public boolean isFile() {
+		return stats(FILE);
+	}
+
+	@Override
+	public boolean isHidden() {
+		return stats(HIDDEN);
+	}
+
 	@Override
 	public String getName() {
 		return name != null ? name : (name = super.getName());
@@ -39,27 +76,12 @@ public class FastFile extends File {
 
 	@Override
 	public long length() {
-		return length != null ? length : (length = super.length());
-	}
-
-	@Override
-	public boolean isDirectory() {
-		return isDirectory != null ? isDirectory : (isDirectory = super.isDirectory());
-	}
-
-	@Override
-	public boolean isFile() {
-		return isFile != null ? isFile : (isFile = super.isFile());
-	}
-
-	@Override
-	public boolean isHidden() {
-		return isHidden != null ? isHidden : (isHidden = super.isHidden());
+		return length != UNDEFINED ? length : (length = super.length());
 	}
 
 	@Override
 	public long lastModified() {
-		return lastModified != null ? lastModified : (lastModified = super.lastModified());
+		return lastModified != UNDEFINED ? lastModified : (lastModified = super.lastModified());
 	}
 
 	@Override
@@ -122,17 +144,17 @@ public class FastFile extends File {
 
 	@Override
 	public long getTotalSpace() {
-		return totalSpace != null ? totalSpace : (totalSpace = super.getTotalSpace());
-	}
-
-	@Override
-	public long getFreeSpace() {
-		return freeSpace != null ? freeSpace : (freeSpace = super.getFreeSpace());
+		return totalSpace != UNDEFINED ? totalSpace : (totalSpace = super.getTotalSpace());
 	}
 
 	@Override
 	public long getUsableSpace() {
-		return freeSpace != null ? freeSpace : (freeSpace = super.getFreeSpace());
+		return freeSpace != UNDEFINED ? freeSpace : (freeSpace = super.getUsableSpace());
+	}
+
+	@Override
+	public long getFreeSpace() {
+		return freeSpace != UNDEFINED ? freeSpace : (freeSpace = super.getUsableSpace());
 	}
 
 	@Override
