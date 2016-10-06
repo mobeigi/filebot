@@ -513,14 +513,7 @@ public class ReleaseInfo {
 
 		@Override
 		public boolean accept(File dir) {
-			if (dir.isDirectory()) {
-				for (File f : getChildren(dir)) {
-					if (entryPattern.matcher(f.getName()).matches()) {
-						return true;
-					}
-				}
-			}
-			return false;
+			return getChildren(dir, f -> entryPattern.matcher(f.getName()).matches()).size() > 0;
 		}
 	}
 

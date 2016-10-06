@@ -1,6 +1,9 @@
 package net.filebot.util;
 
+import static java.util.Arrays.*;
+
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 
 public class FastFile extends File {
@@ -11,6 +14,9 @@ public class FastFile extends File {
 	private Boolean isDirectory;
 	private Boolean isFile;
 	private Boolean isHidden;
+
+	private Long totalSpace;
+	private Long freeSpace;
 
 	private String[] list;
 	private File[] listFiles;
@@ -86,13 +92,12 @@ public class FastFile extends File {
 			return listFiles;
 		}
 
-		String[] names = list();
-		File[] files = new File[names.length];
-		for (int i = 0; i < names.length; i++) {
-			files[i] = new FastFile(this, names[i]);
-		}
+		return (listFiles = stream(list()).map(s -> new FastFile(this, s)).toArray(File[]::new));
+	}
 
-		return (listFiles = files);
+	@Override
+	public File[] listFiles(FileFilter filter) {
+		return stream(listFiles()).filter(filter::accept).toArray(File[]::new);
 	}
 
 	@Override
@@ -113,6 +118,21 @@ public class FastFile extends File {
 	@Override
 	public boolean canExecute() {
 		return false;
+	}
+
+	@Override
+	public long getTotalSpace() {
+		return totalSpace != null ? totalSpace : (totalSpace = super.getTotalSpace());
+	}
+
+	@Override
+	public long getFreeSpace() {
+		return freeSpace != null ? freeSpace : (freeSpace = super.getFreeSpace());
+	}
+
+	@Override
+	public long getUsableSpace() {
+		return freeSpace != null ? freeSpace : (freeSpace = super.getFreeSpace());
 	}
 
 	@Override
@@ -190,23 +210,6 @@ public class FastFile extends File {
 	public boolean setExecutable(boolean executable) {
 		throw new UnsupportedOperationException();
 
-	}
-
-	@Override
-	public long getTotalSpace() {
-		throw new UnsupportedOperationException();
-
-	}
-
-	@Override
-	public long getFreeSpace() {
-		throw new UnsupportedOperationException();
-
-	}
-
-	@Override
-	public long getUsableSpace() {
-		throw new UnsupportedOperationException();
 	}
 
 	public static FastFile get(File f) {
