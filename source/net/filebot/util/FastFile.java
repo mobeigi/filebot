@@ -34,8 +34,11 @@ public class FastFile extends File {
 		super(file.getPath());
 	}
 
-	public FastFile(File parent, String child) {
-		super(parent, child);
+	public FastFile(File parentFile, String name) {
+		super(parentFile, name);
+
+		this.parentFile = parentFile;
+		this.name = name;
 	}
 
 	public boolean stats(int bitIndex) {
