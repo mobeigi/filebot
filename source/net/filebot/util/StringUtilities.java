@@ -17,6 +17,7 @@ import java.util.function.Function;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public final class StringUtilities {
@@ -60,6 +61,11 @@ public final class StringUtilities {
 
 	public static <T> Stream<T> streamMatches(CharSequence s, Pattern pattern, Function<MatchResult, T> mapper) {
 		return stream(new MatcherSpliterator(pattern.matcher(s)), false).map(mapper);
+	}
+
+	public static Stream<String> streamCapturingGroups(MatchResult match) {
+		// Group 0 is the entire match and not the first capturing group
+		return IntStream.rangeClosed(1, match.groupCount()).mapToObj(match::group).filter(Objects::nonNull);
 	}
 
 	public static boolean find(String s, Pattern pattern) {
@@ -127,7 +133,8 @@ public final class StringUtilities {
 			if (!m.find()) {
 				return false;
 			}
-			f.accept(m.toMatchResult());
+
+			f.accept(m);
 			return true;
 		}
 

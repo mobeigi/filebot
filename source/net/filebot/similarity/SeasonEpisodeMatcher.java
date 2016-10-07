@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.IntSummaryStatistics;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.MatchResult;
@@ -72,7 +71,7 @@ public class SeasonEpisodeMatcher {
 
 		// match patterns like 01, 102, 1003, 10102 (enclosed in separators)
 		Num101_TOKEN = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})([0-2]?\\d?)(\\d{2})(\\d{2})?(?!\\p{Alnum})", m -> {
-			return numbers(m.group(1), IntStream.rangeClosed(2, m.groupCount()).mapToObj(m::group).filter(Objects::nonNull).toArray(String[]::new));
+			return numbers(m.group(1), streamCapturingGroups(m).skip(1).toArray(String[]::new));
 		});
 
 		// match patterns like "1 of 2" as Episode 1

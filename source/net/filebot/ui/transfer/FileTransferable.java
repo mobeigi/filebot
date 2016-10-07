@@ -124,7 +124,7 @@ public class FileTransferable implements Transferable {
 						}
 					}
 
-					return files.stream().distinct().sorted(HUMAN_NAME_ORDER).collect(toList());
+					return sortUnique(files);
 				}
 			}
 		}
@@ -136,7 +136,7 @@ public class FileTransferable implements Transferable {
 
 			if (transferable instanceof List) {
 				List<File> files = (List<File>) transferable;
-				return files.stream().distinct().sorted(HUMAN_NAME_ORDER).collect(toList());
+				return sortUnique(files);
 			}
 
 			// on some platforms transferable data will not be available until the drop has been accepted
@@ -146,4 +146,9 @@ public class FileTransferable implements Transferable {
 		// cannot get files from transferable
 		throw new UnsupportedFlavorException(DataFlavor.javaFileListFlavor);
 	}
+
+	private static List<File> sortUnique(List<File> files) {
+		return files.stream().distinct().sorted(HUMAN_NAME_ORDER).collect(toList());
+	}
+
 }

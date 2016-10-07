@@ -1,6 +1,8 @@
 package net.filebot.similarity;
 
+import static java.util.stream.Collectors.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -17,7 +19,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.filebot.web.SimpleDate;
-import one.util.streamex.IntStreamEx;
 import one.util.streamex.StreamEx;
 
 public class DateMatcher {
@@ -153,7 +154,7 @@ public class DateMatcher {
 
 		protected SimpleDate process(MatchResult match) {
 			try {
-				String dateString = IntStreamEx.rangeClosed(1, match.groupCount()).mapToObj(match::group).joining(DELIMITER);
+				String dateString = streamCapturingGroups(match).collect(joining(DELIMITER));
 				LocalDate date = LocalDate.parse(dateString, format);
 
 				if (sanity == null || sanity.test(date)) {
