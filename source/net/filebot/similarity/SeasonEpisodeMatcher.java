@@ -1,7 +1,9 @@
 package net.filebot.similarity;
 
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.RegularExpressions.*;
 import static net.filebot.util.StringUtilities.*;
@@ -9,13 +11,16 @@ import static net.filebot.util.StringUtilities.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.IntSummaryStatistics;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 public class SeasonEpisodeMatcher {
 
@@ -31,133 +36,54 @@ public class SeasonEpisodeMatcher {
 		SeasonEpisodePattern Season_00_Episode_00, S00E00SEQ, S00E00, SxE1_SxE2, SxE, Dot101, EP0, Num101_TOKEN, E1of2, Num101_SUBSTRING;
 
 		// match patterns like Season 01 Episode 02, ...
-		Season_00_Episode_00 = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})(?i:season|series)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?i:episode)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?!\\p{Digit})");
+		Season_00_Episode_00 = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})(?i:season|series)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?i:episode)[^\\p{Alnum}]{0,3}((\\d{1,3}(\\D|$))+)[^\\p{Alnum}]{0,3}(?!\\p{Digit})", m -> {
+			return range(m.group(1), m.group(2));
+		});
 
 		// match patterns like S01E01-E05
-		S00E00SEQ = new SeasonEpisodePattern(null, "(?<!\\p{Alnum}|[-])[Ss](\\d{1,2}|\\d{4})[Ee](\\d{2,3})[-][Ee](\\d{2,3})(?!\\p{Alnum}|[-])") {
-
-			@Override
-			protected Collection<SxE> process(MatchResult match) {
-				List<SxE> seq = new ArrayList<SxE>();
-				int s = Integer.parseInt(match.group(1));
-				int e1 = Integer.parseInt(match.group(2));
-				int e2 = Integer.parseInt(match.group(3));
-				for (int i = e1; i <= e2; i++) {
-					seq.add(new SxE(s, i));
-				}
-				return seq;
-			}
-		};
+		S00E00SEQ = new SeasonEpisodePattern(null, "(?<!\\p{Alnum}|[-])[Ss](\\d{1,2}|\\d{4})[Ee](\\d{2,3})[-][Ee](\\d{2,3})(?!\\p{Alnum}|[-])", m -> {
+			return range(m.group(1), m.group(2), m.group(3));
+		});
 
 		// match patterns like S01E01, s01e02, ... [s01]_[e02], s01.e02, s01e02a, s2010e01 ... s01e01-02-03-04, [s01]_[e01-02-03-04] ...
-		S00E00 = new SeasonEpisodePattern(null, "(?<!\\p{Digit})[Ss](\\d{1,2}|\\d{4})[^\\p{Alnum}]{0,3}(?i:ep|e|p)(((?<=[^._ ])[Ee]?[Pp]?\\d{1,3}(\\D|$))+)") {
-
-			@Override
-			protected Collection<SxE> process(MatchResult match) {
-				List<SxE> matches = new ArrayList<SxE>(2);
-				int seasonNumber = Integer.parseInt(match.group(1));
-				for (int episodeNumber : matchIntegers(match.group(2))) {
-					matches.add(new SxE(seasonNumber, episodeNumber));
-				}
-				return matches;
-			}
-		};
+		S00E00 = new SeasonEpisodePattern(null, "(?<!\\p{Digit})[Ss](\\d{1,2}|\\d{4})[^\\p{Alnum}]{0,3}(?i:ep|e|p)(((?<=[^._ ])[Ee]?[Pp]?\\d{1,3}(\\D|$))+)", m -> {
+			return multi(m.group(1), m.group(2));
+		});
 
 		// match patterns 1x01-1x02, ...
-		SxE1_SxE2 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{1,2}x\\d{2}([-._ ]\\d{1,2}x\\d{2})+)(?!\\p{Digit})") {
-
-			@Override
-			protected Collection<SxE> process(MatchResult match) {
-				List<SxE> matches = new ArrayList<SxE>(2);
-				String[] numbers = NON_DIGIT.split(match.group(0));
-				for (int i = 0; i < numbers.length; i += 2) {
-					matches.add(new SxE(numbers[i], numbers[i + 1])); // SxE-SxE-SxE
-				}
-				return matches;
-			}
-		};
+		SxE1_SxE2 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{1,2}x\\d{2}([-._ ]\\d{1,2}x\\d{2})+)(?!\\p{Digit})", m -> {
+			return pairs(m.group());
+		});
 
 		// match patterns like 1x01, 1.02, ..., 1x01a, 10x01, 10.02, ... 1x01-02-03-04, 1x01x02x03x04 ...
-		SxE = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{1,2})[xe](((?<=[^._ ])\\d{2,3}(\\D|$))+)") {
-
-			@Override
-			protected Collection<SxE> process(MatchResult match) {
-				List<SxE> matches = new ArrayList<SxE>(2);
-				int seasonNumber = Integer.parseInt(match.group(1));
-				for (int episodeNumber : matchIntegers(match.group(2))) {
-					matches.add(new SxE(seasonNumber, episodeNumber));
-				}
-				return matches;
-			}
-		};
+		SxE = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{1,2})[xe](((?<=[^._ ])\\d{2,3}(\\D|$))+)", m -> {
+			return multi(m.group(1), m.group(2));
+		});
 
 		// match patterns 1.02, ..., 10.02, ...
-		Dot101 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum}|\\d{4}[.])(\\d{1,2})[.](((?<=[^._ ])\\d{2}(\\D|$))+)") {
-
-			@Override
-			protected Collection<SxE> process(MatchResult match) {
-				List<SxE> matches = new ArrayList<SxE>(2);
-				int seasonNumber = Integer.parseInt(match.group(1));
-				for (int episodeNumber : matchIntegers(match.group(2))) {
-					matches.add(new SxE(seasonNumber, episodeNumber));
-				}
-				return matches;
-			}
-		};
+		Dot101 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum}|\\d{4}[.])(\\d{1,2})[.](((?<=[^._ ])\\d{2}(\\D|$))+)", m -> {
+			return multi(m.group(1), m.group(2));
+		});
 
 		// match patterns like ep1, ep.1, ...
-		EP0 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{2}|\\d{4})?[^\\p{Alnum}]{0,3}(?i:e|ep|episode|p|part)[^\\p{Alnum}]{0,3}(\\d{1,3})(?!\\p{Digit})") {
-
-			@Override
-			protected Collection<SxE> process(MatchResult match) {
-				// regex doesn't match season
-				return singleton(new SxE(match.group(1), match.group(2)));
-			}
-		};
+		EP0 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{2}|\\d{4})?[^\\p{Alnum}]{0,3}(?i:e|ep|episode|p|part)[^\\p{Alnum}]{0,3}(\\d{1,3})(?!\\p{Digit})", m -> {
+			return single(m.group(1), m.group(2));
+		});
 
 		// match patterns like 01, 102, 1003, 10102 (enclosed in separators)
-		Num101_TOKEN = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})([0-2]?\\d?)(\\d{2})(\\d{2})?(?!\\p{Alnum})") {
+		Num101_TOKEN = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})([0-2]?\\d?)(\\d{2})(\\d{2})?(?!\\p{Alnum})", m -> {
+			return numbers(m.group(1), IntStream.rangeClosed(2, m.groupCount()).mapToObj(m::group).filter(Objects::nonNull).toArray(String[]::new));
+		});
 
-			@Override
-			protected Collection<SxE> process(MatchResult match) {
-				Set<SxE> sxe = new LinkedHashSet<SxE>(2);
-
-				// interpret match as season and episode, but ignore 001 => 0x01 Season 0 matches
-				if (match.group(1).length() > 0 && Integer.parseInt(match.group(1)) > 0) {
-					for (int i = 2; i <= match.groupCount(); i++) {
-						if (match.group(i) != null) {
-							sxe.add(new SxE(match.group(1), match.group(i)));
-						}
-					}
-				}
-
-				// interpret match both ways, as SxE match as well as episode number only match if it's not an double episode
-				if (sxe.size() < 2) {
-					sxe.add(new SxE(null, match.group(1) + match.group(2)));
-				}
-
-				// return both matches, unless they are one and the same
-				return sxe;
-			}
-		};
-
-		E1of2 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{1,2})[^._ ]?(?i:of)[^._ ]?(\\d{1,2})(?!\\p{Digit})") {
-
-			@Override
-			protected Collection<SxE> process(MatchResult match) {
-				// regex doesn't match season
-				return singleton(new SxE(null, match.group(1)));
-			}
-		};
+		// match patterns like "1 of 2" as Episode 1
+		E1of2 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{1,2})[^._ ]?(?i:of)[^._ ]?(\\d{1,2})(?!\\p{Digit})", m -> {
+			return single(null, m.group(1));
+		});
 
 		// (last-resort) match patterns like 101, 102 (and greedily just grab the first)
-		Num101_SUBSTRING = new SeasonEpisodePattern(STRICT_SANITY, "(?<!\\p{Digit})(\\d{1})(\\d{2})(?!\\p{Digit})(.*)") {
-
-			@Override
-			protected Collection<SxE> process(MatchResult match) {
-				return singleton(new SxE(match.group(1), match.group(2)));
-			}
-		};
+		Num101_SUBSTRING = new SeasonEpisodePattern(STRICT_SANITY, "(?<!\\p{Digit})(\\d{1})(\\d{2})(?!\\p{Digit})(.*)", m -> {
+			return single(m.group(1), m.group(2));
+		});
 
 		// only use S00E00 and SxE pattern in strict mode
 		if (strict) {
@@ -168,6 +94,57 @@ public class SeasonEpisodeMatcher {
 
 		// season folder pattern for complementing partial sxe info from filename
 		seasonPattern = compile("Season[-._ ]?(\\d{1,2})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+	}
+
+	protected List<SxE> single(String season, String episode) {
+		return singletonList(new SxE(season, episode));
+	}
+
+	protected List<SxE> multi(String season, String... episodes) {
+		int s = Integer.parseInt(season);
+		return stream(episodes).flatMap(e -> matchIntegers(e).stream()).map(e -> new SxE(s, e)).collect(toList());
+	}
+
+	protected List<SxE> range(String season, String... episodes) {
+		IntSummaryStatistics stats = stream(episodes).flatMap(s -> matchIntegers(s).stream()).mapToInt(i -> i).summaryStatistics();
+
+		int s = Integer.parseInt(season);
+		return IntStream.rangeClosed(stats.getMin(), stats.getMax()).mapToObj(e -> new SxE(s, e)).collect(toList());
+	}
+
+	protected List<SxE> pairs(String text) {
+		List<SxE> matches = new ArrayList<SxE>(2);
+
+		// SxE-SxE-SxE
+		String[] numbers = NON_DIGIT.split(text);
+		for (int i = 0; i < numbers.length; i += 2) {
+			matches.add(new SxE(numbers[i], numbers[i + 1]));
+		}
+
+		return matches;
+	}
+
+	protected List<SxE> numbers(String head, String... tail) {
+		List<SxE> matches = new ArrayList<SxE>(2);
+
+		// interpret match as season and episode, but ignore 001 => 0x01 Season 0 matches
+		for (String t : tail) {
+			SxE sxe = new SxE(head, t);
+			if (sxe.season > 0) {
+				matches.add(sxe);
+			}
+		}
+
+		// interpret match both ways, as SxE match as well as episode number only match if it's not an double episode
+		if (tail.length == 1) {
+			SxE absolute = new SxE(null, head + tail[0]);
+			if (!matches.contains(absolute)) {
+				matches.add(absolute);
+			}
+		}
+
+		// return both matches, unless they are one and the same
+		return matches;
 	}
 
 	/**
@@ -319,20 +296,23 @@ public class SeasonEpisodeMatcher {
 
 	public static class SeasonEpisodePattern implements SeasonEpisodeParser {
 
-		protected final Pattern pattern;
-		protected final SeasonEpisodeFilter sanity;
+		protected Pattern pattern;
+		protected Function<MatchResult, List<SxE>> process;
+
+		protected SeasonEpisodeFilter sanity;
 
 		public SeasonEpisodePattern(SeasonEpisodeFilter sanity, String pattern) {
+			this(sanity, pattern, m -> singletonList(new SxE(m.group(1), m.group(2))));
+		}
+
+		public SeasonEpisodePattern(SeasonEpisodeFilter sanity, String pattern, Function<MatchResult, List<SxE>> process) {
 			this.pattern = Pattern.compile(pattern);
+			this.process = process;
 			this.sanity = sanity;
 		}
 
 		public Matcher matcher(CharSequence name) {
 			return pattern.matcher(name);
-		}
-
-		protected Collection<SxE> process(MatchResult match) {
-			return singleton(new SxE(match.group(1), match.group(2)));
 		}
 
 		@Override
@@ -343,7 +323,7 @@ public class SeasonEpisodeMatcher {
 			Matcher matcher = matcher(name);
 
 			while (matcher.find()) {
-				for (SxE value : process(matcher)) {
+				for (SxE value : process.apply(matcher)) {
 					if (sanity == null || sanity.filter(value)) {
 						matches.add(value);
 					}
@@ -358,7 +338,7 @@ public class SeasonEpisodeMatcher {
 			Matcher matcher = matcher(name).region(fromIndex, name.length());
 
 			while (matcher.find()) {
-				for (SxE value : process(matcher)) {
+				for (SxE value : process.apply(matcher)) {
 					if (sanity == null || sanity.filter(value)) {
 						return matcher.start();
 					}
