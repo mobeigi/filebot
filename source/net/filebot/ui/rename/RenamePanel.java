@@ -359,6 +359,7 @@ public class RenamePanel extends JComponent {
 			}));
 		});
 
+		// copy debug information (paths and objects)
 		installAction(this, WHEN_IN_FOCUSED_WINDOW, getKeyStroke(VK_F7, 0), newAction("Copy Debug Information", evt -> {
 			try {
 				withWaitCursor(evt.getSource(), () -> {
@@ -366,6 +367,8 @@ public class RenamePanel extends JComponent {
 					if (text.length() > 0) {
 						copyToClipboard(text);
 						log.info("Match model has been copied to clipboard");
+					} else {
+						log.warning("Match model is empty");
 					}
 				});
 			} catch (Exception e) {
