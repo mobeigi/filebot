@@ -85,7 +85,7 @@ public class MetaAttributes {
 
 	public static String toJson(Object object) {
 		Map<String, Object> options = new HashMap<String, Object>();
-		options.put(JsonWriter.TYPE_NAME_MAP, MetaAttributes.JSON_TYPE_MAP);
+		options.put(JsonWriter.TYPE_NAME_MAP, JSON_TYPE_MAP);
 		options.put(JsonWriter.SKIP_NULL_FIELDS, true);
 
 		return JsonWriter.objectToJson(object, options);
