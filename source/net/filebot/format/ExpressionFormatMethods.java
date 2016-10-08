@@ -374,6 +374,14 @@ public class ExpressionFormatMethods {
 		return self;
 	}
 
+	public static String joining(List<?> self, String delimiter, String prefix, String suffix) {
+		String[] list = self.stream().filter(Objects::nonNull).map(Objects::toString).filter(s -> !s.isEmpty()).toArray(String[]::new);
+		if (list.length == 0) {
+			return null;
+		}
+		return prefix + String.join(delimiter, list) + suffix;
+	}
+
 	/**
 	 * Unwind if an object does not satisfy the given predicate
 	 *
