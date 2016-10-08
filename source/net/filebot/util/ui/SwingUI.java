@@ -65,7 +65,9 @@ public final class SwingUI {
 	}
 
 	public static void copyToClipboard(String text) {
-		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
+		if (text.length() > 0) {
+			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
+		}
 	}
 
 	public static void checkEventDispatchThread() {
