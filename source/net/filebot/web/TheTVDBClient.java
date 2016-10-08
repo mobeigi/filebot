@@ -53,9 +53,9 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 		return true;
 	}
 
-	protected Object postJson(String path, Object json) throws Exception {
+	protected Object postJson(String path, Object object) throws Exception {
 		// curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' 'https://api.thetvdb.com/login' --data '{"apikey":"XXXXX"}'
-		ByteBuffer response = post(getEndpoint(path), asJsonString(json).getBytes(UTF_8), "application/json", null);
+		ByteBuffer response = post(getEndpoint(path), json(object, false).getBytes(UTF_8), "application/json", null);
 		return readJson(UTF_8.decode(response));
 	}
 

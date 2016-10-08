@@ -1,27 +1,19 @@
 package net.filebot.media;
 
-import static java.util.Collections.*;
-import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.util.ExceptionUtilities.*;
 
 import java.io.File;
 import java.util.Locale;
-import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import net.filebot.Cache;
 import net.filebot.CacheType;
 import net.filebot.Resource;
 import net.filebot.WebServices;
-import net.filebot.vfs.SimpleFileInfo;
-import net.filebot.web.AudioTrack;
 import net.filebot.web.Episode;
 import net.filebot.web.Movie;
-import net.filebot.web.MoviePart;
-import net.filebot.web.MultiEpisode;
 import net.filebot.web.SimpleDate;
 
 public class XattrMetaInfo {
@@ -33,8 +25,6 @@ public class XattrMetaInfo {
 
 	private final Cache xattrMetaInfoCache = Cache.getCache(MetaAttributes.METADATA_KEY, CacheType.Ephemeral);
 	private final Cache xattrOriginalNameCache = Cache.getCache(MetaAttributes.FILENAME_KEY, CacheType.Ephemeral);
-
-	private final Map<String, String> jsonTypeMap = unmodifiableMap(Stream.of(Episode.class, MultiEpisode.class, Movie.class, MoviePart.class, AudioTrack.class, SimpleFileInfo.class).collect(toMap(Class::getName, Class::getSimpleName)));
 
 	public XattrMetaInfo(boolean useExtendedFileAttributes, boolean useCreationDate) {
 		this.useExtendedFileAttributes = useExtendedFileAttributes;
@@ -86,11 +76,7 @@ public class XattrMetaInfo {
 	}
 
 	private MetaAttributes xattr(File file) throws Exception {
-		return new MetaAttributes(file, getJsonTypeMap());
-	}
-
-	public Map<String, String> getJsonTypeMap() {
-		return jsonTypeMap;
+		return new MetaAttributes(file);
 	}
 
 	public synchronized void setMetaInfo(File file, Object model, String original) {

@@ -24,12 +24,8 @@ public class JsonUtilities {
 		return JsonReader.jsonToJava(json.toString(), singletonMap(JsonReader.USE_MAPS, true));
 	}
 
-	public static String asJsonString(Object object) {
-		return JsonWriter.objectToJson(object);
-	}
-
-	public static String asPrettyJsonString(Object object) {
-		return JsonWriter.objectToJson(object, singletonMap(JsonWriter.PRETTY_PRINT, true));
+	public static String json(Object object, boolean pretty) {
+		return JsonWriter.objectToJson(object, singletonMap(JsonWriter.PRETTY_PRINT, pretty));
 	}
 
 	public static Map<?, ?> asMap(Object node) {

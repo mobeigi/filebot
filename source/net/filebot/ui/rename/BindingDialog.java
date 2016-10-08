@@ -228,7 +228,7 @@ class BindingDialog extends JDialog {
 		infoTextField.putClientProperty("model", info);
 
 		infoTextField.setText(info == null ? "" : infoObjectFormat.format(info));
-		infoTextField.setToolTipText(info == null ? "null" : "<html><pre>" + escapeHTML(asPrettyJsonString(info)) + "</pre></html>");
+		infoTextField.setToolTipText(info == null ? "null" : "<html><pre>" + escapeHTML(json(info, true)) + "</pre></html>");
 	}
 
 	public Object getInfoObject() {

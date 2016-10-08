@@ -7,7 +7,6 @@ import static javax.swing.SwingUtilities.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.media.MediaDetection.*;
-import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.LoadingOverlayPane.*;
@@ -68,6 +67,7 @@ import net.filebot.UserFiles;
 import net.filebot.WebServices;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.mac.MacAppUtilities;
+import net.filebot.media.MetaAttributes;
 import net.filebot.similarity.Match;
 import net.filebot.ui.rename.FormatDialog.Mode;
 import net.filebot.ui.rename.RenameModel.FormattedFuture;
@@ -362,8 +362,11 @@ public class RenamePanel extends JComponent {
 		installAction(this, WHEN_IN_FOCUSED_WINDOW, getKeyStroke(VK_F7, 0), newAction("Copy Debug Information", evt -> {
 			try {
 				withWaitCursor(evt.getSource(), () -> {
-					copyToClipboard(getDebugInfo());
-					log.info("Match model has been copied to clipboard");
+					String text = getDebugInfo();
+					if (text.length() > 0) {
+						copyToClipboard(text);
+						log.info("Match model has been copied to clipboard");
+					}
 				});
 			} catch (Exception e) {
 				debug.log(Level.WARNING, e, e::getMessage);
@@ -617,12 +620,12 @@ public class RenamePanel extends JComponent {
 		StringBuilder sb = new StringBuilder();
 
 		Map<String, Object> options = new HashMap<String, Object>(2);
-		options.put(JsonWriter.TYPE_NAME_MAP, xattr.getJsonTypeMap());
+		options.put(JsonWriter.TYPE_NAME_MAP, MetaAttributes.JSON_TYPE_MAP);
 		options.put(JsonWriter.SKIP_NULL_FIELDS, true);
 
 		for (Match<Object, File> m : renameModel.matches()) {
-			Object v = m.getValue();
 			String f = getStructurePathTail(m.getCandidate()).getPath();
+			Object v = m.getValue();
 
 			// convert FastFile items
 			if (v instanceof File) {
