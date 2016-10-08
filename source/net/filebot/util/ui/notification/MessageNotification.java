@@ -10,9 +10,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
-import java.awt.Toolkit;
 import java.awt.Window;
-import java.awt.datatransfer.StringSelection;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -75,7 +73,7 @@ public class MessageNotification extends NotificationWindow {
 
 		// copy message to clipboard
 		getGlassPane().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		getGlassPane().addMouseListener(mouseClicked(evt -> Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null)));
+		getGlassPane().addMouseListener(mouseClicked(evt -> copyToClipboard(text)));
 	}
 
 }

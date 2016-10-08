@@ -16,9 +16,7 @@ import static net.filebot.util.ui.SwingUI.*;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Insets;
-import java.awt.Toolkit;
 import java.awt.Window;
-import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -364,7 +362,7 @@ public class RenamePanel extends JComponent {
 		installAction(this, WHEN_IN_FOCUSED_WINDOW, getKeyStroke(VK_F7, 0), newAction("Copy Debug Information", evt -> {
 			try {
 				withWaitCursor(evt.getSource(), () -> {
-					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(getDebugInfo()), null);
+					copyToClipboard(getDebugInfo());
 					log.info("Match model has been copied to clipboard");
 				});
 			} catch (Exception e) {

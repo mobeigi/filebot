@@ -13,7 +13,9 @@ import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.datatransfer.StringSelection;
 import java.awt.dnd.DnDConstants;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
@@ -60,6 +62,10 @@ public final class SwingUI {
 		} catch (Exception e) {
 			debug.log(Level.SEVERE, "Failed to open URI: " + uri, e);
 		}
+	}
+
+	public static void copyToClipboard(String text) {
+		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
 	}
 
 	public static void checkEventDispatchThread() {
