@@ -6,6 +6,8 @@ import static javax.swing.KeyStroke.*;
 import static javax.swing.SwingUtilities.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
+import static net.filebot.media.MediaDetection.*;
+import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.LoadingOverlayPane.*;
@@ -14,12 +16,15 @@ import static net.filebot.util.ui.SwingUI.*;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -48,6 +53,7 @@ import javax.swing.SwingWorker;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 
+import com.cedarsoftware.util.io.JsonWriter;
 import com.google.common.eventbus.Subscribe;
 
 import ca.odell.glazedlists.EventList;
@@ -74,6 +80,7 @@ import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.ui.ActionPopup;
 import net.filebot.util.ui.LoadingOverlayPane;
 import net.filebot.vfs.FileInfo;
+import net.filebot.vfs.SimpleFileInfo;
 import net.filebot.web.AudioTrack;
 import net.filebot.web.AudioTrackFormat;
 import net.filebot.web.Episode;
@@ -353,6 +360,17 @@ public class RenamePanel extends JComponent {
 				}
 			}));
 		});
+
+		installAction(this, WHEN_IN_FOCUSED_WINDOW, getKeyStroke(VK_F7, 0), newAction("Copy Debug Information", evt -> {
+			try {
+				withWaitCursor(evt.getSource(), () -> {
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(getDebugInfo()), null);
+					log.info("Match model has been copied to clipboard");
+				});
+			} catch (Exception e) {
+				debug.log(Level.WARNING, e, e::getMessage);
+			}
+		}));
 	}
 
 	private boolean isMatchModeStrict() {
@@ -595,6 +613,28 @@ public class RenamePanel extends JComponent {
 		} catch (Exception e) {
 			debug.log(Level.WARNING, e::getMessage);
 		}
+	}
+
+	private String getDebugInfo() throws Exception {
+		StringBuilder sb = new StringBuilder();
+
+		Map<String, Object> options = new HashMap<String, Object>(2);
+		options.put(JsonWriter.TYPE_NAME_MAP, xattr.getJsonTypeMap());
+		options.put(JsonWriter.SKIP_NULL_FIELDS, true);
+
+		for (Match<Object, File> m : renameModel.matches()) {
+			Object v = m.getValue();
+			String f = getStructurePathTail(m.getCandidate()).getPath();
+
+			// convert FastFile items
+			if (v instanceof File) {
+				v = new SimpleFileInfo(getStructurePathTail((File) v).getPath(), ((File) v).length());
+			}
+
+			sb.append(f).append('\t').append(JsonWriter.objectToJson(v, options)).append('\n');
+		}
+
+		return sb.toString();
 	}
 
 	private final Action clearFilesAction = newAction("Clear All", ResourceManager.getIcon("action.clear"), evt -> {
