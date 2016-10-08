@@ -26,14 +26,12 @@ import java.util.TreeSet;
 
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 
-import com.cedarsoftware.util.io.JsonReader;
-import com.cedarsoftware.util.io.JsonWriter;
-
 import groovy.lang.Closure;
 import groovy.lang.Range;
 import net.filebot.MediaTypes;
 import net.filebot.MetaAttributeView;
 import net.filebot.media.MediaDetection;
+import net.filebot.media.MetaAttributes;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.similarity.Normalization;
 import net.filebot.similarity.SimilarityMetric;
@@ -352,11 +350,11 @@ public class ScriptShellMethods {
 	}
 
 	public static String objectToJson(Object self) throws IOException {
-		return JsonWriter.objectToJson(self);
+		return MetaAttributes.toJson(self);
 	}
 
 	public static Object jsonToObject(String self) throws IOException {
-		return JsonReader.jsonToJava(self);
+		return MetaAttributes.toObject(self);
 	}
 
 	public static File getStructurePathTail(File self) throws Exception {

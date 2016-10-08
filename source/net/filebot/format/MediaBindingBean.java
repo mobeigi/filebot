@@ -36,8 +36,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import com.cedarsoftware.util.io.JsonWriter;
-
 import net.filebot.ApplicationFolder;
 import net.filebot.Cache;
 import net.filebot.CacheType;
@@ -47,6 +45,7 @@ import net.filebot.MetaAttributeView;
 import net.filebot.Settings;
 import net.filebot.WebServices;
 import net.filebot.hash.HashType;
+import net.filebot.media.MetaAttributes;
 import net.filebot.media.NamingStandard;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
@@ -990,7 +989,7 @@ public class MediaBindingBean {
 
 	@Define("json")
 	public String getInfoObjectDump() {
-		return JsonWriter.objectToJson(infoObject);
+		return MetaAttributes.toJson(infoObject);
 	}
 
 	public File getInferredMediaFile() {

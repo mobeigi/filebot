@@ -21,7 +21,6 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -50,7 +49,6 @@ import javax.swing.SwingWorker;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 
-import com.cedarsoftware.util.io.JsonWriter;
 import com.google.common.eventbus.Subscribe;
 
 import ca.odell.glazedlists.EventList;
@@ -622,10 +620,6 @@ public class RenamePanel extends JComponent {
 	private String getDebugInfo() throws Exception {
 		StringBuilder sb = new StringBuilder();
 
-		Map<String, Object> options = new HashMap<String, Object>(2);
-		options.put(JsonWriter.TYPE_NAME_MAP, MetaAttributes.JSON_TYPE_MAP);
-		options.put(JsonWriter.SKIP_NULL_FIELDS, true);
-
 		for (Match<Object, File> m : renameModel.matches()) {
 			String f = getStructurePathTail(m.getCandidate()).getPath();
 			Object v = m.getValue();
@@ -635,7 +629,7 @@ public class RenamePanel extends JComponent {
 				v = new SimpleFileInfo(getStructurePathTail((File) v).getPath(), ((File) v).length());
 			}
 
-			sb.append(f).append('\t').append(JsonWriter.objectToJson(v, options)).append('\n');
+			sb.append(f).append('\t').append(MetaAttributes.toJson(v)).append('\n');
 		}
 
 		return sb.toString();

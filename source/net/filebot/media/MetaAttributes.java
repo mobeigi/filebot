@@ -60,7 +60,7 @@ public class MetaAttributes {
 
 	public void setObject(Object object) {
 		try {
-			metaAttributeView.put(METADATA_KEY, JsonWriter.objectToJson(object, singletonMap(JsonWriter.TYPE_NAME_MAP, JSON_TYPE_MAP)));
+			metaAttributeView.put(METADATA_KEY, toJson(object));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -68,13 +68,9 @@ public class MetaAttributes {
 
 	public Object getObject() {
 		try {
-			String jsonObject = metaAttributeView.get(METADATA_KEY);
-			if (jsonObject != null && jsonObject.length() > 0) {
-				Map<String, Object> options = new HashMap<String, Object>(2);
-				options.put(JsonReader.TYPE_NAME_MAP, JSON_TYPE_MAP);
-
-				// options must be a modifiable map
-				return JsonReader.jsonToJava(jsonObject, options);
+			String json = metaAttributeView.get(METADATA_KEY);
+			if (json != null && json.length() > 0) {
+				return toObject(json);
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -85,6 +81,22 @@ public class MetaAttributes {
 	public void clear() {
 		metaAttributeView.put(FILENAME_KEY, null);
 		metaAttributeView.put(METADATA_KEY, null);
+	}
+
+	public static String toJson(Object object) {
+		Map<String, Object> options = new HashMap<String, Object>();
+		options.put(JsonWriter.TYPE_NAME_MAP, MetaAttributes.JSON_TYPE_MAP);
+		options.put(JsonWriter.SKIP_NULL_FIELDS, true);
+
+		return JsonWriter.objectToJson(object, options);
+	}
+
+	public static Object toObject(String json) {
+		Map<String, Object> options = new HashMap<String, Object>();
+		options.put(JsonReader.TYPE_NAME_MAP, JSON_TYPE_MAP);
+
+		// options must be a modifiable map
+		return JsonReader.jsonToJava(json, options);
 	}
 
 }

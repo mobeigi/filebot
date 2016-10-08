@@ -58,9 +58,6 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
-import com.cedarsoftware.util.io.JsonReader;
-import com.cedarsoftware.util.io.JsonWriter;
-
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.UserFiles;
@@ -68,6 +65,7 @@ import net.filebot.format.BindingException;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.mac.MacAppUtilities;
+import net.filebot.media.MetaAttributes;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.util.DefaultThreadFactory;
 import net.filebot.util.ExceptionUtilities;
@@ -397,7 +395,7 @@ public class FormatDialog extends JDialog {
 		try {
 			// restore sample from user preferences
 			String sample = mode.persistentSample().getValue();
-			info = JsonReader.jsonToJava(sample);
+			info = MetaAttributes.toObject(sample);
 			if (info == null) {
 				throw new NullPointerException();
 			}
@@ -406,7 +404,7 @@ public class FormatDialog extends JDialog {
 				// restore sample from application properties
 				ResourceBundle bundle = ResourceBundle.getBundle(getClass().getName());
 				String sample = bundle.getString(mode.key() + ".sample");
-				info = JsonReader.jsonToJava(sample);
+				info = MetaAttributes.toObject(sample);
 			} catch (Exception illegalSample) {
 				debug.log(Level.SEVERE, "Illegal Sample", e);
 			}
@@ -594,7 +592,7 @@ public class FormatDialog extends JDialog {
 
 				// remember sample
 				try {
-					mode.persistentSample().setValue(info == null ? "" : JsonWriter.objectToJson(info));
+					mode.persistentSample().setValue(info == null ? "" : MetaAttributes.toJson(info));
 					persistentSampleFile.setValue(file == null ? "" : sample.getFileObject().getAbsolutePath());
 				} catch (Exception e) {
 					debug.log(Level.WARNING, e.getMessage(), e);
