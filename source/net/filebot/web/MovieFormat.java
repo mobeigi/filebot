@@ -1,14 +1,12 @@
 
 package net.filebot.web;
 
-
 import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 
 public class MovieFormat extends Format {
 
@@ -18,13 +16,11 @@ public class MovieFormat extends Format {
 	private final boolean includePartIndex;
 	private final boolean smart;
 
-
 	public MovieFormat(boolean includeYear, boolean includePartIndex, boolean smart) {
 		this.includeYear = includeYear;
 		this.includePartIndex = includePartIndex;
 		this.smart = smart;
 	}
-
 
 	@Override
 	public StringBuffer format(Object obj, StringBuffer sb, FieldPosition pos) {
@@ -53,7 +49,6 @@ public class MovieFormat extends Format {
 	private final Pattern moviePattern = Pattern.compile("([^\\p{Punct}]+?)[\\p{Punct}\\s]+(\\d{4})(?:[\\p{Punct}\\s]+|$)");
 	private final Pattern partPattern = Pattern.compile("(?:Part|CD)\\D?(\\d)$", Pattern.CASE_INSENSITIVE);
 
-
 	@Override
 	public Movie parseObject(String source, ParsePosition pos) {
 		String s = source;
@@ -72,7 +67,7 @@ public class MovieFormat extends Format {
 			String name = m.group(1).trim();
 			int year = Integer.parseInt(m.group(2));
 
-			Movie movie = new Movie(name, year, -1, -1);
+			Movie movie = new Movie(name, year);
 			if (partIndex >= 0) {
 				movie = new MoviePart(movie, partIndex, partCount);
 			}
@@ -86,7 +81,6 @@ public class MovieFormat extends Format {
 		pos.setErrorIndex(0);
 		return null;
 	}
-
 
 	@Override
 	public Movie parseObject(String source) throws ParseException {

@@ -354,7 +354,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 			String title = getString(it, "title");
 			int year = getStringValue(it, "release_date", SimpleDate::parse).getYear();
 			int id = getInteger(it, "id");
-			return new Movie(title, year, 0, id);
+			return new Movie(title, null, year, 0, id, locale);
 		}).collect(toList());
 	}
 

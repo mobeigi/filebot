@@ -268,7 +268,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 				String imdb = fields.get("IDMovieImdb");
 				String name = fields.get("MovieName");
 				String year = fields.get("MovieYear");
-				identity = new Movie(name, Integer.parseInt(year), Integer.parseInt(imdb), -1);
+				identity = new Movie(name, Integer.parseInt(year), Integer.parseInt(imdb));
 			} catch (Exception e) {
 				debug.log(Level.SEVERE, "Failed to upload subtitles", e);
 			}

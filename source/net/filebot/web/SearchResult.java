@@ -28,7 +28,7 @@ public class SearchResult implements Serializable {
 	public SearchResult(int id, String name, String[] aliasNames) {
 		this.id = id;
 		this.name = name;
-		this.aliasNames = (aliasNames == null || aliasNames.length == 0) ? EMPTY_STRING_ARRAY : aliasNames.clone();
+		this.aliasNames = aliasNames == null || aliasNames.length == 0 ? EMPTY_STRING_ARRAY : aliasNames.clone();
 	}
 
 	public int getId() {

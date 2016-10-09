@@ -19,11 +19,15 @@ public class Movie extends SearchResult {
 	}
 
 	public Movie(int imdbId) {
-		this(null, 0, imdbId, 0);
+		this(null, null, 0, imdbId, 0, null);
 	}
 
-	public Movie(String name, int year, int imdbId, int tmdbId) {
-		this(name, null, year, imdbId, tmdbId, null);
+	public Movie(String name, int year) {
+		this(name, null, year, 0, 0, null);
+	}
+
+	public Movie(String name, int year, int imdbId) {
+		this(name, null, year, imdbId, 0, null);
 	}
 
 	public Movie(String name, String[] aliasNames, int year, int imdbId, int tmdbId, Locale locale) {

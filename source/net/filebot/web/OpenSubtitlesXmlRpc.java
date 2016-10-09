@@ -157,7 +157,7 @@ public class OpenSubtitlesXmlRpc {
 			String name = data.get("title");
 			int year = Integer.parseInt(data.get("year"));
 
-			return new Movie(name, year, imdbid, -1);
+			return new Movie(name, year, imdbid);
 		} catch (RuntimeException e) {
 			// ignore, invalid response
 			debug.log(Level.WARNING, String.format("Failed to lookup movie by imdbid %s: %s", imdbid, e.getMessage()));
@@ -289,7 +289,7 @@ public class OpenSubtitlesXmlRpc {
 								int year = Integer.parseInt(info.get("MovieYear"));
 								int imdb = Integer.parseInt(info.get("MovieImdbID"));
 
-								matches.add(new Movie(name, year, imdb, -1));
+								matches.add(new Movie(name, year, imdb));
 							}
 						}
 					}
