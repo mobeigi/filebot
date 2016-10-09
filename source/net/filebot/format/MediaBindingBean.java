@@ -889,6 +889,11 @@ public class MediaBindingBean {
 		return SLASH.splitAsStream(MediaTypes.getDefault().getMediaType(getExtension())).collect(toList());
 	}
 
+	@Define("path")
+	public File getMediaPath() throws Exception {
+		return getStructurePathTail(getMediaFile());
+	}
+
 	@Define("f")
 	public File getMediaFile() {
 		// make sure file is not null, and that it is an existing file
