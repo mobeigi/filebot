@@ -13,8 +13,8 @@ public class TheTVDBSeriesInfo extends SeriesInfo implements Serializable {
 	protected URL banner;
 	protected long lastUpdated;
 
-	protected TheTVDBSeriesInfo() {
-
+	public TheTVDBSeriesInfo() {
+		// used by deserializer
 	}
 
 	public TheTVDBSeriesInfo(TheTVDBSeriesInfo other) {

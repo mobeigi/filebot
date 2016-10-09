@@ -18,8 +18,8 @@ public class SimpleDate implements Serializable, Comparable<Object> {
 	protected int month;
 	protected int day;
 
-	protected SimpleDate() {
-		// used by serializer
+	public SimpleDate() {
+		// used by deserializer
 	}
 
 	public SimpleDate(int year, int month, int day) {

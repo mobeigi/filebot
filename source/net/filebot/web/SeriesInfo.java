@@ -28,8 +28,8 @@ public class SeriesInfo implements Serializable {
 	protected Integer runtime;
 	protected String status;
 
-	protected SeriesInfo() {
-
+	public SeriesInfo() {
+		// used by deserializer
 	}
 
 	public SeriesInfo(SeriesInfo other) {
