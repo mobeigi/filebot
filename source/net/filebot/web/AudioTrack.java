@@ -20,7 +20,8 @@ public class AudioTrack implements Serializable {
 
 	protected String mbid; // MusicBrainz Identifier
 
-	protected AudioTrack() {
+	public AudioTrack() {
+		// used by deserializer
 	}
 
 	public AudioTrack(AudioTrack other) {

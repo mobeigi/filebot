@@ -5,8 +5,8 @@ public class MoviePart extends Movie {
 	protected int partIndex;
 	protected int partCount;
 
-	protected MoviePart() {
-		// used by serializer
+	public MoviePart() {
+		// used by deserializer
 	}
 
 	public MoviePart(MoviePart obj) {

@@ -11,8 +11,8 @@ public class MultiEpisode extends Episode {
 
 	protected Episode[] episodes;
 
-	protected MultiEpisode() {
-		// used by serializer
+	public MultiEpisode() {
+		// used by deserializer
 	}
 
 	public MultiEpisode(Episode... episodes) {

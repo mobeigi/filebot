@@ -26,8 +26,8 @@ public class Episode implements Serializable {
 	// extended series metadata
 	protected SeriesInfo seriesInfo;
 
-	protected Episode() {
-
+	public Episode() {
+		// used by deserializer
 	}
 
 	public Episode(Episode obj) {
@@ -45,8 +45,8 @@ public class Episode implements Serializable {
 		this.title = title;
 		this.absolute = absolute;
 		this.special = special;
-		this.airdate = (airdate == null ? null : airdate.clone());
-		this.seriesInfo = (seriesInfo == null ? null : seriesInfo.clone());
+		this.airdate = airdate == null ? null : airdate.clone();
+		this.seriesInfo = seriesInfo == null ? null : seriesInfo.clone();
 	}
 
 	public String getSeriesName() {

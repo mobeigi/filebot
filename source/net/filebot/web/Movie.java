@@ -14,8 +14,8 @@ public class Movie extends SearchResult {
 	// optional movie name language hint
 	protected String language;
 
-	protected Movie() {
-		// used by serializer
+	public Movie() {
+		// used by deserializer
 	}
 
 	public Movie(int imdbId) {

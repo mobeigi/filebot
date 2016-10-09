@@ -7,8 +7,12 @@ import java.util.Arrays;
 
 public class SimpleFileInfo implements FileInfo, Comparable<FileInfo> {
 
-	private final String path;
-	private final long length;
+	private String path;
+	private long length;
+
+	public SimpleFileInfo() {
+		// used by deserializer
+	}
 
 	public SimpleFileInfo(String path, long length) {
 		this.path = path;

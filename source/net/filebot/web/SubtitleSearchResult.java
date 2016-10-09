@@ -23,6 +23,10 @@ public class SubtitleSearchResult extends Movie {
 	private Kind kind;
 	private int score;
 
+	public SubtitleSearchResult() {
+		// used by deserializer
+	}
+
 	public SubtitleSearchResult(int imdbId, String name, int year, String kind, int score) {
 		this(name, null, year, imdbId, -1, Locale.ENGLISH, Kind.forName(kind), score);
 	}
