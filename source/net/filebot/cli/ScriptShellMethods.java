@@ -31,7 +31,6 @@ import groovy.lang.Range;
 import net.filebot.MediaTypes;
 import net.filebot.MetaAttributeView;
 import net.filebot.media.MediaDetection;
-import net.filebot.media.MetaAttributes;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.similarity.Normalization;
 import net.filebot.similarity.SimilarityMetric;
@@ -347,14 +346,6 @@ public class ScriptShellMethods {
 
 		org.apache.commons.io.FileUtils.copyURLToFile(self, file);
 		return file;
-	}
-
-	public static String objectToJson(Object self) throws IOException {
-		return MetaAttributes.toJson(self);
-	}
-
-	public static Object jsonToObject(String self) throws IOException {
-		return MetaAttributes.toObject(self);
 	}
 
 	public static File getStructurePathTail(File self) throws Exception {
