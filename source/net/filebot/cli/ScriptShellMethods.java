@@ -40,16 +40,20 @@ import net.filebot.web.WebRequest;
 
 public class ScriptShellMethods {
 
-	public static File plus(File self, String name) {
-		return new File(self.getPath().concat(name));
+	public static File plus(File self, String path) {
+		return new File(self.getPath().concat(path));
 	}
 
-	public static File div(File self, String name) {
-		return new File(self, name);
+	public static File div(File self, String path) {
+		return new File(self, path);
 	}
 
-	public static File div(String self, String name) {
-		return new File(self, name);
+	public static File div(String self, String path) {
+		return new File(self, path);
+	}
+
+	public static File div(File self, File path) {
+		return new File(self, path.getPath());
 	}
 
 	public static String getAt(File self, int index) {
