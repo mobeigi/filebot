@@ -1,5 +1,6 @@
 package net.filebot.format;
 
+import static java.util.Arrays.*;
 import static java.util.regex.Pattern.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.format.ExpressionFormatFunctions.*;
@@ -12,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -20,6 +22,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 
@@ -37,11 +40,11 @@ public class ExpressionFormatMethods {
 	 * Convenience methods for String.toLowerCase() and String.toUpperCase()
 	 */
 	public static String lower(String self) {
-		return self.toLowerCase();
+		return self.toLowerCase(Locale.ENGLISH);
 	}
 
 	public static String upper(String self) {
-		return self.toUpperCase();
+		return self.toUpperCase(Locale.ENGLISH);
 	}
 
 	/**
@@ -374,12 +377,30 @@ public class ExpressionFormatMethods {
 		return self;
 	}
 
-	public static String joining(List<?> self, String delimiter, String prefix, String suffix) {
+	public static String joining(Collection<?> self, String delimiter) throws Exception {
 		String[] list = self.stream().filter(Objects::nonNull).map(Objects::toString).filter(s -> !s.isEmpty()).toArray(String[]::new);
-		if (list.length == 0) {
-			return null;
+		if (list.length > 0) {
+			return String.join(delimiter, list);
 		}
-		return prefix + String.join(delimiter, list) + suffix;
+
+		throw new Exception("Collection did not yield any values: " + self);
+	}
+
+	public static String joiningDistinct(Collection<?> self, String delimiter, Closure<?>... mapper) throws Exception {
+		Stream<?> stream = self.stream().filter(Objects::nonNull);
+
+		// apply custom mappers if any
+		if (mapper.length > 0) {
+			stream = stream.flatMap(v -> stream(mapper).map(m -> m.call(v)).filter(Objects::nonNull));
+		}
+
+		// sort unique
+		String[] list = stream.map(Objects::toString).filter(s -> !s.isEmpty()).distinct().sorted(String.CASE_INSENSITIVE_ORDER).toArray(String[]::new);
+		if (list.length > 0) {
+			return String.join(delimiter, list);
+		}
+
+		throw new Exception("Collection did not yield any values: " + self);
 	}
 
 	/**
@@ -391,7 +412,8 @@ public class ExpressionFormatMethods {
 		if (DefaultTypeTransformation.castToBoolean(c.call(self))) {
 			return self;
 		}
-		throw new Exception("Check failed");
+
+		throw new Exception("Object failed check: " + self);
 	}
 
 	/**
