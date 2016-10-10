@@ -395,7 +395,7 @@ public class ExpressionFormatMethods {
 		}
 
 		// sort unique
-		String[] list = stream.map(Objects::toString).filter(s -> !s.isEmpty()).distinct().sorted(String.CASE_INSENSITIVE_ORDER).toArray(String[]::new);
+		String[] list = stream.map(Objects::toString).filter(s -> !s.isEmpty()).distinct().sorted().toArray(String[]::new);
 		if (list.length > 0) {
 			return String.join(delimiter, list);
 		}
