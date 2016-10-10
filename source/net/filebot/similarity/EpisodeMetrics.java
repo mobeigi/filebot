@@ -15,8 +15,6 @@ import static net.filebot.util.StringUtilities.*;
 import java.io.File;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,9 +28,8 @@ import java.util.stream.Stream;
 
 import com.ibm.icu.text.Transliterator;
 
+import net.filebot.format.MediaBindingBean;
 import net.filebot.media.SmartSeasonEpisodeMatcher;
-import net.filebot.mediainfo.MediaInfo;
-import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.filebot.vfs.FileInfo;
 import net.filebot.web.Episode;
@@ -550,12 +547,8 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 		private long getTimeStamp(File file) {
 			if (VIDEO_FILES.accept(file) && file.length() > ONE_MEGABYTE) {
-				try (MediaInfo mi = new MediaInfo().open(file)) {
-					String date = mi.get(StreamKind.General, 0, "Encoded_Date"); // e.g. UTC 2008-01-08 19:54:39
-					if (date.length() > 0) {
-						ZonedDateTime time = ZonedDateTime.parse(date, DateTimeFormatter.ofPattern("zzz uuuu-MM-dd HH:mm:ss"));
-						return time.toInstant().toEpochMilli();
-					}
+				try {
+					return new MediaBindingBean(file, file).getEncodedDate().getTimeStamp();
 				} catch (Exception e) {
 					debug.warning(format("Failed to read media encoding date: %s", e.getMessage()));
 				}

@@ -38,7 +38,7 @@ public class VideoQuality implements Comparator<File> {
 
 	private Optional<MediaBindingBean> media(File f) {
 		if (VIDEO_FILES.accept(f) || SUBTITLE_FILES.accept(f)) {
-			return Optional.of(new MediaBindingBean(null, f, null));
+			return Optional.of(new MediaBindingBean(f, f));
 		}
 		return Optional.empty();
 	}
