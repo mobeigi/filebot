@@ -146,7 +146,7 @@ public class Main {
 			try {
 				initJavaFX();
 			} catch (Throwable e) {
-				debug.log(Level.WARNING, "Failed to initialize JavaFX", e);
+				log.log(Level.SEVERE, "Failed to initialize JavaFX. Please install JavaFX.", e);
 			}
 
 			// check if application help should be shown
