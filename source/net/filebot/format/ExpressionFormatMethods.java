@@ -19,6 +19,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -40,11 +41,11 @@ public class ExpressionFormatMethods {
 	 * Convenience methods for String.toLowerCase() and String.toUpperCase()
 	 */
 	public static String lower(String self) {
-		return self.toLowerCase(Locale.ENGLISH);
+		return self.toLowerCase();
 	}
 
 	public static String upper(String self) {
-		return self.toUpperCase(Locale.ENGLISH);
+		return self.toUpperCase();
 	}
 
 	/**
@@ -79,7 +80,7 @@ public class ExpressionFormatMethods {
 		if (matcher.find()) {
 			return firstCapturingGroup(matcher, matchGroup);
 		} else {
-			throw new Exception("Pattern not found");
+			throw new Exception("Pattern not found: " + self);
 		}
 	}
 
@@ -98,7 +99,7 @@ public class ExpressionFormatMethods {
 		}
 
 		if (matches.isEmpty()) {
-			throw new Exception("Pattern not found");
+			throw new Exception("Pattern not found: " + self);
 		}
 		return matches;
 	}
@@ -135,10 +136,7 @@ public class ExpressionFormatMethods {
 	 * e.g. "Doctor Who" -> "Doctor_Who"
 	 */
 	public static String space(String self, String replacement) {
-		self = self.replaceAll("[:?._]", " ").trim();
-
-		// replace space sequences with a single blank
-		return Normalization.replaceSpace(self, replacement);
+		return Normalization.normalizeSpace(self, replacement);
 	}
 
 	/**
@@ -174,15 +172,26 @@ public class ExpressionFormatMethods {
 	 * e.g. "The Day a new Demon was born" -> "The Day A New Demon Was Born"
 	 */
 	public static String upperInitial(String self) {
-		Matcher matcher = compile("(?<=[&()+.,-;<=>?\\[\\]_{|}~ ]|^)[a-z]").matcher(self);
+		return replaceHeadTail(self, String::toUpperCase, String::toString);
+	}
+
+	/**
+	 * Lower-case all letters that are not initials.
+	 *
+	 * e.g. "Gundam SEED" -> "Gundam Seed"
+	 */
+	public static String lowerTrail(String self) {
+		return replaceHeadTail(self, String::toString, String::toLowerCase);
+	}
+
+	public static String replaceHeadTail(String self, Function<String, String> head, Function<String, String> tail) {
+		Matcher matcher = compile("\\b(\\p{Alnum})(\\p{Alnum}*)\\b", UNICODE_CHARACTER_CLASS).matcher(self);
 
 		StringBuffer buffer = new StringBuffer();
 		while (matcher.find()) {
-			matcher.appendReplacement(buffer, matcher.group().toUpperCase());
+			matcher.appendReplacement(buffer, head.apply(matcher.group(1)) + tail.apply(matcher.group(2)));
 		}
-		matcher.appendTail(buffer);
-
-		return buffer.toString();
+		return matcher.appendTail(buffer).toString();
 	}
 
 	public static String sortName(String self) {
@@ -195,17 +204,15 @@ public class ExpressionFormatMethods {
 
 	public static String sortInitial(String self) {
 		// use primary initial, ignore The XY, A XY, etc
-		String s = ascii(sortName(self)).toUpperCase();
-		int c = s.codePointAt(0);
+		char c = ascii(sortName(self)).charAt(0);
 
 		if (Character.isDigit(c)) {
 			return "0-9";
+		} else if (Character.isLetter(c)) {
+			return String.valueOf(c).toUpperCase();
+		} else {
+			return null;
 		}
-		if (Character.isLetter(c)) {
-			return String.valueOf(Character.toChars(c));
-		}
-
-		return null;
 	}
 
 	/**
@@ -214,32 +221,7 @@ public class ExpressionFormatMethods {
 	 * e.g. "Deep Space 9" -> "DS9"
 	 */
 	public static String acronym(String self) {
-		String name = sortName(self, "$2");
-		Matcher matcher = compile("(?<=[&()+.,-;<=>?\\[\\]_{|}~ ]|^)[\\p{Alnum}]").matcher(name);
-
-		StringBuilder buffer = new StringBuilder();
-		while (matcher.find()) {
-			buffer.append(matcher.group().toUpperCase());
-		}
-
-		return buffer.toString();
-	}
-
-	/**
-	 * Lower-case all letters that are not initials.
-	 *
-	 * e.g. "Gundam SEED" -> "Gundam Seed"
-	 */
-	public static String lowerTrail(String self) {
-		Matcher matcher = compile("\\b(\\p{Alpha})(\\p{Alpha}+)\\b").matcher(self);
-
-		StringBuffer buffer = new StringBuffer();
-		while (matcher.find()) {
-			matcher.appendReplacement(buffer, matcher.group(1) + matcher.group(2).toLowerCase());
-		}
-		matcher.appendTail(buffer);
-
-		return buffer.toString();
+		return compile("\\s|\\B\\p{Alnum}+", UNICODE_CHARACTER_CLASS).matcher(space(sortName(self), " ")).replaceAll("");
 	}
 
 	public static String truncate(String self, int limit) {
@@ -256,9 +238,9 @@ public class ExpressionFormatMethods {
 		int softLimit = 0;
 		Matcher matcher = compile(nonWordPattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS).matcher(self);
 		while (matcher.find()) {
-			if (matcher.start() > hardLimit)
+			if (matcher.start() > hardLimit) {
 				break;
-
+			}
 			softLimit = matcher.start();
 		}
 		return truncate(self, softLimit);
@@ -307,7 +289,7 @@ public class ExpressionFormatMethods {
 	}
 
 	public static String replaceTrailingBrackets(String self, String replacement) {
-		return compile("\\s*[(]([^)]*)[)]$", UNICODE_CHARACTER_CLASS).matcher(self).replaceAll(replacement).trim();
+		return compile("\\s*[(]([^)]*)[)]$", UNICODE_CHARACTER_CLASS).matcher(self).replaceAll(replacement);
 	}
 
 	/**
@@ -353,7 +335,7 @@ public class ExpressionFormatMethods {
 	}
 
 	public static String ascii(String self, String fallback) {
-		return Transliterator.getInstance("Any-Latin;Latin-ASCII;[:Diacritic:]remove").transform(asciiQuotes(self)).replaceAll("[^\\p{ASCII}]+", fallback).trim();
+		return Transliterator.getInstance("Any-Latin;Latin-ASCII;[:Diacritic:]remove").transform(asciiQuotes(self)).replaceAll("\\P{ASCII}+", fallback).trim();
 	}
 
 	public static String asciiQuotes(String self) {
