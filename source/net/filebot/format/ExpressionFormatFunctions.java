@@ -54,6 +54,12 @@ public class ExpressionFormatFunctions {
 		return Stream.concat(Stream.of(c1, c2), Stream.of(cN)).map(ExpressionFormatFunctions::call).filter(Objects::nonNull);
 	}
 
+	public static String quote(Object c1, Object... cN) {
+		String q = String.valueOf('"');
+		String r = "\\" + q;
+		return stream(c1, null, cN).map(Objects::toString).map(s -> q + s.replace(q, r) + q).collect(joining(" "));
+	}
+
 	public static Map<String, String> csv(String path) throws IOException {
 		Pattern[] delimiter = { TAB, SEMICOLON };
 		Map<String, String> map = new LinkedHashMap<String, String>();
