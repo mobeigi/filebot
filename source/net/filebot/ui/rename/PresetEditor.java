@@ -391,19 +391,21 @@ public class PresetEditor extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			try {
-				List<File> selectInputFiles = getPreset().selectInputFiles(evt);
+				withWaitCursor(evt.getSource(), () -> {
+					List<File> selectInputFiles = getPreset().selectInputFiles(evt);
 
-				JPopupMenu popup = new JPopupMenu();
-				if (selectInputFiles == null || selectInputFiles.isEmpty()) {
-					popup.add("No files selected").setEnabled(false);
-				} else {
-					for (File file : selectInputFiles) {
-						popup.add(createListItem(evt, file));
+					JPopupMenu popup = new JPopupMenu();
+					if (selectInputFiles == null || selectInputFiles.isEmpty()) {
+						popup.add("No files selected").setEnabled(false);
+					} else {
+						for (File file : selectInputFiles) {
+							popup.add(createListItem(evt, file));
+						}
 					}
-				}
 
-				JComponent source = (JComponent) evt.getSource();
-				popup.show(source, -3, source.getHeight() + 4);
+					JComponent source = (JComponent) evt.getSource();
+					popup.show(source, -3, source.getHeight() + 4);
+				});
 			} catch (Exception e) {
 				log.log(Level.WARNING, "Invalid preset settings: " + e.getMessage(), e);
 			}
