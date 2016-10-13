@@ -283,7 +283,7 @@ public final class SwingUI {
 		return new Dimension(icon.getIconWidth(), icon.getIconHeight());
 	}
 
-	public static Timer invokeLater(int delay, final Runnable runnable) {
+	public static Timer invokeLater(int delay, Runnable runnable) {
 		Timer timer = new Timer(delay, (evt) -> {
 			runnable.run();
 		});

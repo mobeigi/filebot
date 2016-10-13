@@ -739,36 +739,40 @@ public class RenamePanel extends JComponent {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			Window window = getWindow(RenamePanel.this);
-			try {
-				window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-				if (preset.getFormat() != null) {
-					switch (FormatDialog.Mode.getMode(preset.getDatasource())) {
-					case Episode:
-						renameModel.useFormatter(Episode.class, new ExpressionFormatter(preset.getFormat().getExpression(), EpisodeFormat.SeasonEpisode, Episode.class));
-						break;
-					case Movie:
-						renameModel.useFormatter(Movie.class, new ExpressionFormatter(preset.getFormat().getExpression(), MovieFormat.NameYear, Movie.class));
-						break;
-					case Music:
-						renameModel.useFormatter(AudioTrack.class, new ExpressionFormatter(preset.getFormat().getExpression(), new AudioTrackFormat(), AudioTrack.class));
-						break;
-					case File:
-						renameModel.useFormatter(File.class, new ExpressionFormatter(preset.getFormat().getExpression(), new FileNameFormat(), File.class));
-						break;
+			// Swing Bug Workaround: heavy-weight popup window blocks parent window from being updated (i.e. set wait cursor) unless we wait a little bit until the popup window is destroyed
+			invokeLater(200, () -> {
+				try {
+					if (preset.getFormat() != null) {
+						switch (FormatDialog.Mode.getMode(preset.getDatasource())) {
+						case Episode:
+							renameModel.useFormatter(Episode.class, new ExpressionFormatter(preset.getFormat().getExpression(), EpisodeFormat.SeasonEpisode, Episode.class));
+							break;
+						case Movie:
+							renameModel.useFormatter(Movie.class, new ExpressionFormatter(preset.getFormat().getExpression(), MovieFormat.NameYear, Movie.class));
+							break;
+						case Music:
+							renameModel.useFormatter(AudioTrack.class, new ExpressionFormatter(preset.getFormat().getExpression(), new AudioTrackFormat(), AudioTrack.class));
+							break;
+						case File:
+							renameModel.useFormatter(File.class, new ExpressionFormatter(preset.getFormat().getExpression(), new FileNameFormat(), File.class));
+							break;
+						}
 					}
-				}
 
-				if (preset.getRenameAction() != null) {
-					new SetRenameAction(preset.getRenameAction()).actionPerformed(evt);
-				}
+					if (preset.getRenameAction() != null) {
+						new SetRenameAction(preset.getRenameAction()).actionPerformed(evt);
+					}
 
-				super.actionPerformed(evt);
-			} catch (Exception e) {
-				log.info(e.getMessage());
-			} finally {
-				window.setCursor(Cursor.getDefaultCursor());
-			}
+					super.actionPerformed(evt);
+				} catch (Exception e) {
+					log.log(Level.INFO, e, e::getMessage);
+				} finally {
+					System.out.println("RenamePanel.ApplyPresetAction.actionPerformed()");
+					window.setCursor(Cursor.getDefaultCursor());
+				}
+			});
 		}
 	}
 
