@@ -161,7 +161,10 @@ public class MediaBindingBean {
 
 	@Define("e00")
 	public String getE00() {
-		return getEpisodeNumbers().stream().map(i -> String.format("%02d", i)).collect(joining("-"));
+		if (isRegularEpisode())
+			return getEpisodeNumbers().stream().map(i -> String.format("%02d", i)).collect(joining("-"));
+		else
+			return "Special " + join(getEpisodeNumbers(), "-");
 	}
 
 	@Define("sxe")
