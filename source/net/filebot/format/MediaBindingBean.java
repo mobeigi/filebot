@@ -155,8 +155,13 @@ public class MediaBindingBean {
 	@Define("es")
 	public List<Integer> getEpisodeNumbers() {
 		return getEpisodes().stream().map(it -> {
-			return it.getEpisode() == null ? it.getSpecial() == null ? -1 : it.getSpecial() : it.getEpisode();
-		}).collect(toList());
+			return it.getEpisode() == null ? it.getSpecial() == null ? null : it.getSpecial() : it.getEpisode();
+		}).filter(Objects::nonNull).collect(toList());
+	}
+
+	@Define("e00")
+	public String getE00() {
+		return getEpisodeNumbers().stream().map(i -> String.format("%02d", i)).collect(joining("-"));
 	}
 
 	@Define("sxe")
