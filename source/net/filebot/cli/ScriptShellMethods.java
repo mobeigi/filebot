@@ -9,6 +9,7 @@ import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -25,6 +26,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
+import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 
 import groovy.lang.Closure;
 import groovy.lang.Range;
@@ -77,7 +79,7 @@ public class ScriptShellMethods {
 	}
 
 	public static List<File> listFiles(File self, Closure<?> closure) {
-		return DefaultGroovyMethods.findAll(FileUtilities.getChildren(self), closure);
+		return FileUtilities.getChildren(self, (FileFilter) DefaultTypeTransformation.castToType(closure, FileFilter.class), null);
 	}
 
 	public static boolean isVideo(File self) {
@@ -117,7 +119,7 @@ public class ScriptShellMethods {
 	}
 
 	public static boolean hasFile(File self, Closure<?> closure) {
-		return DefaultGroovyMethods.find(FileUtilities.getChildren(self), closure) != null;
+		return listFiles(self, closure).size() > 0;
 	}
 
 	public static List<File> listTree(File self, int maxDepth) {
