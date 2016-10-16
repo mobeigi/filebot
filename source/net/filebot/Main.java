@@ -44,6 +44,7 @@ import net.filebot.cli.ArgumentBean;
 import net.filebot.cli.ArgumentProcessor;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.mac.MacAppUtilities;
+import net.filebot.media.MediaDetection;
 import net.filebot.ui.FileBotMenuBar;
 import net.filebot.ui.GettingStartedStage;
 import net.filebot.ui.MainFrame;
@@ -136,36 +137,8 @@ public class Main {
 				SwingEventBus.getInstance().post(new FileTransferable(files));
 			}
 
-			// wait for UI to startup completely before loading more classes
-			Thread.sleep(2000);
-
-			// preload media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
-			MediaTypes.getDefault();
-
-			// JavaFX is used for ProgressMonitor and GettingStartedDialog
-			try {
-				initJavaFX();
-			} catch (Throwable e) {
-				log.log(Level.SEVERE, "Failed to initialize JavaFX. Please install JavaFX.", e);
-			}
-
-			// check if application help should be shown
-			if (!"skip".equals(System.getProperty("application.help"))) {
-				try {
-					checkGettingStarted();
-				} catch (Throwable e) {
-					debug.log(Level.WARNING, "Failed to show Getting Started help", e);
-				}
-			}
-
-			// check for application updates
-			if (!"skip".equals(System.getProperty("application.update"))) {
-				try {
-					checkUpdate();
-				} catch (Throwable e) {
-					debug.log(Level.WARNING, "Failed to check for updates", e);
-				}
-			}
+			// run background tasks
+			new Thread(Main::onStart).start();
 		} catch (CmdLineException e) {
 			// illegal arguments => print CLI error message
 			System.err.println(e.getMessage());
@@ -179,6 +152,43 @@ public class Main {
 			// unexpected error => dump stack
 			debug.log(Level.SEVERE, String.format("Error during startup: %s", e.getMessage()), e);
 			System.exit(1);
+		}
+	}
+
+	private static void onStart() {
+		// preload media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
+		MediaTypes.getDefault();
+
+		// check if application help should be shown
+		if (!"skip".equals(System.getProperty("application.help"))) {
+			try {
+				checkGettingStarted();
+			} catch (Throwable e) {
+				debug.log(Level.WARNING, "Failed to show Getting Started help", e);
+			}
+		}
+
+		// check for application updates
+		if (!"skip".equals(System.getProperty("application.update"))) {
+			try {
+				checkUpdate();
+			} catch (Throwable e) {
+				debug.log(Level.WARNING, "Failed to check for updates", e);
+			}
+		}
+
+		// JavaFX is used for ProgressMonitor and GettingStartedDialog
+		try {
+			initJavaFX();
+		} catch (Throwable e) {
+			log.log(Level.SEVERE, "Failed to initialize JavaFX. Please install JavaFX.", e);
+		}
+
+		// preload data files
+		try {
+			MediaDetection.warmupCachedResources();
+		} catch (Throwable e) {
+			debug.log(Level.WARNING, "Failed cache resources", e);
 		}
 	}
 
