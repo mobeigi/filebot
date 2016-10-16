@@ -69,12 +69,12 @@ public class SelectDialog<T> extends JDialog {
 		list.addMouseListener(mouseListener);
 
 		JComponent c = (JComponent) getContentPane();
-		c.setLayout(new MigLayout("insets 1.5mm 1.5mm 2.7mm 1.5mm, nogrid, fill", "", header == null ? "[pref!][fill][pref!]" : "[pref!][pref!][fill][pref!]"));
+		c.setLayout(new MigLayout("insets 1.5mm 1.5mm 2.7mm 1.5mm, nogrid, novisualpadding, fill", "", header == null ? "[pref!][fill][pref!]" : "[min!][min!][fill][pref!]"));
 
 		if (header != null) {
-			c.add(header, "wmin 150px, growx, wrap");
+			c.add(header, "wmin 150px, hmin pref, growx, wrap");
 		}
-		c.add(messageLabel, "wmin 150px, growx, wrap");
+		c.add(messageLabel, "wmin 150px, hmin pref, growx, wrap");
 		c.add(new JScrollPane(list), "wmin 150px, hmin 150px, grow, wrap 2mm");
 
 		c.add(new JButton(selectAction), "align center, id select");

@@ -54,7 +54,7 @@ public class SfvPanel extends JComponent {
 	public SfvPanel() {
 		table.setTransferHandler(new DefaultTransferHandler(transferablePolicy, exportHandler));
 
-		JPanel contentPane = new JPanel(new MigLayout("insets 0, nogrid, fill", "", "[fill]10px[bottom, pref!]4px"));
+		JPanel contentPane = new JPanel(new MigLayout("insets 0, nogrid, novisualpadding, fill", "", "[fill]10px[bottom, pref!]4px"));
 		contentPane.setBorder(new TitledBorder("SFV"));
 
 		setLayout(new MigLayout("insets dialog, fill"));

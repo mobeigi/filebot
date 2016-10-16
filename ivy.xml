@@ -16,7 +16,7 @@
 		<dependency org="commons-net" name="commons-net" rev="3.+" />
 		<dependency org="org.slf4j" name="slf4j-jdk14" rev="1.+" />
 		<dependency org="net.java.dev.glazedlists" name="glazedlists_java15" rev="1.+" />
-		<dependency org="com.miglayout" name="miglayout-swing" rev="4.+" />
+		<dependency org="com.miglayout" name="miglayout-swing" rev="5.+" />
 		<dependency org="org.apache.commons" name="commons-vfs2" rev="2.+" />
 		<dependency org="com.github.junrar" name="junrar" rev="0.+" />
 		<dependency org="com.fifesoft" name="rsyntaxtextarea" rev="2.+" />
