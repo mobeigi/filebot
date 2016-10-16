@@ -76,7 +76,7 @@ class BindingDialog extends JDialog {
 		this.infoObjectFormat = infoObjectFormat;
 
 		JComponent root = (JComponent) getContentPane();
-		root.setLayout(new MigLayout("nogrid, fill, insets dialog"));
+		root.setLayout(new MigLayout("nogrid, novisualpadding, fill, insets dialog"));
 
 		// decorative tabbed pane
 		JTabbedPane inputContainer = new JTabbedPane();
@@ -306,9 +306,9 @@ class BindingDialog extends JDialog {
 			JDialog dialog = new JDialog(getWindow(evt.getSource()), "MediaInfo", ModalityType.DOCUMENT_MODAL);
 
 			JComponent c = (JComponent) dialog.getContentPane();
-			c.setLayout(new MigLayout("fill", "[align center]", "[fill][pref!]"));
+			c.setLayout(new MigLayout("fill, novisualpadding", "[align center]", "[fill][pref!]"));
 			c.add(tabbedPane, "grow, wrap");
-			c.add(newButton("OK", e -> dialog.setVisible(false)), "wmin 80px, hmin 25px");
+			c.add(newButton("OK", e -> dialog.setVisible(false)), "w 80px!, h 25px!");
 
 			dialog.pack();
 			dialog.setLocationRelativeTo(BindingDialog.this);

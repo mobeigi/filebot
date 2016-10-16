@@ -106,7 +106,7 @@ public class FormatDialog extends JDialog {
 	private ProgressIndicator progressIndicator = new ProgressIndicator();
 
 	private JLabel title = new JLabel();
-	private JPanel help = new JPanel(new MigLayout("insets 0, nogrid, fillx"));
+	private JPanel help = new JPanel(new MigLayout("insets 0, nogrid, novisualpadding, fillx"));
 
 	private static final PreferencesEntry<String> persistentSampleFile = Settings.forPackage(FormatDialog.class).entry("format.sample.file");
 
@@ -180,7 +180,7 @@ public class FormatDialog extends JDialog {
 		// bold title label in header
 		title.setFont(title.getFont().deriveFont(BOLD));
 
-		JPanel header = new JPanel(new MigLayout("insets dialog, nogrid"));
+		JPanel header = new JPanel(new MigLayout("insets dialog, nogrid, novisualpadding"));
 
 		header.setBackground(Color.white);
 		header.setBorder(new SeparatorBorder(1, new Color(0xB4B4B4), new Color(0xACACAC), GradientStyle.LEFT_TO_RIGHT, Position.BOTTOM));
@@ -256,7 +256,7 @@ public class FormatDialog extends JDialog {
 
 		// initialize window properties
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		setMinimumSize(new Dimension(650, 500));
+		setMinimumSize(new Dimension(650, 520));
 
 		// initialize data
 		setState(initMode, lockOnBinding != null ? lockOnBinding : restoreSample(initMode), lockOnBinding != null);
@@ -344,14 +344,14 @@ public class FormatDialog extends JDialog {
 	}
 
 	private JComponent createSyntaxPanel(Mode mode) {
-		JPanel panel = new JPanel(new MigLayout("fill, nogrid"));
+		JPanel panel = new JPanel(new MigLayout("fill, nogrid, novisualpadding", "[pref]", "[fill, min]"));
 		panel.setBorder(createLineBorder(new Color(0xACA899)));
 		panel.setBackground(new Color(0xFFFFE1));
 		panel.setOpaque(true);
 
 		panel.add(new LinkButton(newAction(ResourceBundle.getBundle(FormatDialog.class.getName()).getString(mode.key() + ".syntax"), evt -> {
 			openURI(ResourceBundle.getBundle(FormatDialog.class.getName()).getString("help.url"));
-		})));
+		})), "h min!");
 
 		return panel;
 	}
