@@ -84,7 +84,7 @@ public class Preset {
 			}
 		}
 
-		return listFiles(getInputFolder(), f -> f.isFile() && filter.accept(f), HUMAN_NAME_ORDER);
+		return listFiles(getInputFolder(), filter == null ? FILES : filter, HUMAN_NAME_ORDER);
 	}
 
 	public AutoCompleteMatcher getAutoCompleteMatcher() {
