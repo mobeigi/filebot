@@ -44,7 +44,6 @@ import net.filebot.cli.ArgumentBean;
 import net.filebot.cli.ArgumentProcessor;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.mac.MacAppUtilities;
-import net.filebot.media.MediaDetection;
 import net.filebot.ui.FileBotMenuBar;
 import net.filebot.ui.GettingStartedStage;
 import net.filebot.ui.MainFrame;
@@ -159,6 +158,13 @@ public class Main {
 		// preload media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
 		MediaTypes.getDefault();
 
+		// JavaFX is used for ProgressMonitor and GettingStartedDialog
+		try {
+			initJavaFX();
+		} catch (Throwable e) {
+			log.log(Level.SEVERE, "Failed to initialize JavaFX. Please install JavaFX.", e);
+		}
+
 		// check if application help should be shown
 		if (!"skip".equals(System.getProperty("application.help"))) {
 			try {
@@ -175,20 +181,6 @@ public class Main {
 			} catch (Throwable e) {
 				debug.log(Level.WARNING, "Failed to check for updates", e);
 			}
-		}
-
-		// JavaFX is used for ProgressMonitor and GettingStartedDialog
-		try {
-			initJavaFX();
-		} catch (Throwable e) {
-			log.log(Level.SEVERE, "Failed to initialize JavaFX. Please install JavaFX.", e);
-		}
-
-		// preload data files
-		try {
-			MediaDetection.warmupCachedResources();
-		} catch (Throwable e) {
-			debug.log(Level.WARNING, "Failed cache resources", e);
 		}
 	}
 
