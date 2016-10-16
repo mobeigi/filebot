@@ -969,8 +969,8 @@ public class MediaDetection {
 		for (String term : terms) {
 			if (term != null && term.length() > 0) {
 				String key = keyFunction.apply(term);
-				if (key != null && key.length() > 0 && !uniqueMap.containsKey(key)) {
-					uniqueMap.put(key, valueFunction.apply(term));
+				if (key != null && key.length() > 0) {
+					uniqueMap.computeIfAbsent(key, k -> valueFunction.apply(term));
 				}
 			}
 		}
