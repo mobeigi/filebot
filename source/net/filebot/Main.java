@@ -35,7 +35,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.w3c.dom.Document;
@@ -186,10 +185,10 @@ public class Main {
 
 	private static void startUserInterface(ArgumentBean args) {
 		// use native LaF an all platforms (use platform-independent laf for standalone jar deployment)
-		try {
-			UIManager.setLookAndFeel(isExecutableJar() ? "javax.swing.plaf.nimbus.NimbusLookAndFeel" : UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-			debug.log(Level.SEVERE, e.getMessage(), e);
+		if (isExecutableJar()) {
+			setNimbusLookAndFeel();
+		} else {
+			setSystemLookAndFeel();
 		}
 
 		// default frame

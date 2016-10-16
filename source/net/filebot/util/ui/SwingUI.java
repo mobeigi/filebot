@@ -45,6 +45,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
+import javax.swing.UIManager;
 import javax.swing.event.MouseInputListener;
 import javax.swing.plaf.basic.BasicTableUI;
 import javax.swing.text.JTextComponent;
@@ -55,6 +56,22 @@ import javafx.embed.swing.JFXPanel;
 import net.filebot.Settings;
 
 public final class SwingUI {
+
+	public static void setNimbusLookAndFeel() {
+		try {
+			UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+		} catch (Exception e) {
+			debug.log(Level.SEVERE, "Failed to set Nimbus LaF", e);
+		}
+	}
+
+	public static void setSystemLookAndFeel() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			debug.log(Level.SEVERE, "Failed to set System LaF", e);
+		}
+	}
 
 	public static void openURI(String uri) {
 		try {
