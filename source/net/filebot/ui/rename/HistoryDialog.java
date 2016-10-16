@@ -115,9 +115,9 @@ class HistoryDialog extends JDialog {
 		header.setBorder(new SeparatorBorder(1, new Color(0xB4B4B4), new Color(0xACACAC), GradientStyle.LEFT_TO_RIGHT, Position.BOTTOM));
 
 		header.add(title, "wrap");
-		header.add(infoLabel, "gap indent*2, wrap paragraph:push");
+		header.add(infoLabel, "gap indent*2, wrap");
 
-		JPanel content = new JPanel(new MigLayout("fill, insets dialog, nogrid", "", "[pref!][150px:pref:200px][200px:pref:max, grow][pref!]"));
+		JPanel content = new JPanel(new MigLayout("fill, insets dialog, nogrid, novisualpadding", "", "[pref!][150px:pref:200px][200px:pref:max, grow][pref!]"));
 
 		content.add(new JLabel("Filter:"), "gap indent:push");
 		content.add(filterEditor, "wmin 120px, gap rel");
@@ -136,7 +136,7 @@ class HistoryDialog extends JDialog {
 		JComponent pane = (JComponent) getContentPane();
 		pane.setLayout(new MigLayout("fill, insets 0, nogrid"));
 
-		pane.add(header, "hmin 60px, growx, dock north");
+		pane.add(header, "h min!, growx, dock north");
 		pane.add(content, "grow");
 
 		// initialize selection modes

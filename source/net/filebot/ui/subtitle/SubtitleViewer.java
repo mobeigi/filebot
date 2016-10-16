@@ -69,15 +69,15 @@ public class SubtitleViewer extends JFrame {
 		titleLabel.setText(title);
 		titleLabel.setFont(titleLabel.getFont().deriveFont(BOLD));
 
-		JPanel header = new JPanel(new MigLayout("insets dialog, nogrid, fillx"));
+		JPanel header = new JPanel(new MigLayout("insets dialog, nogrid, novisualpadding, fillx"));
 
 		header.setBackground(Color.white);
 		header.setBorder(new SeparatorBorder(1, new Color(0xB4B4B4), new Color(0xACACAC), GradientStyle.LEFT_TO_RIGHT, Position.BOTTOM));
 
-		header.add(titleLabel, "wrap");
-		header.add(infoLabel, "gap indent*2, wrap paragraph:push");
+		header.add(titleLabel, "wrap, h pref!");
+		header.add(infoLabel, "gap indent*2, h pref!, wrap");
 
-		JPanel content = new JPanel(new MigLayout("fill, insets dialog, nogrid", "[fill]", "[pref!][fill]"));
+		JPanel content = new JPanel(new MigLayout("fill, insets dialog, nogrid, novisualpadding", "[fill]", "[pref!][fill]"));
 
 		content.add(new JLabel("Filter:"), "gap indent:push");
 		content.add(filterEditor, "wmin 120px, gap rel");
@@ -85,9 +85,9 @@ public class SubtitleViewer extends JFrame {
 		content.add(new JScrollPane(subtitleTable), "grow");
 
 		JComponent pane = (JComponent) getContentPane();
-		pane.setLayout(new MigLayout("fill, insets 0 0 rel 0"));
+		pane.setLayout(new MigLayout("fill, novisualpadding, insets 0 0 rel 0"));
 
-		pane.add(header, "hmin 20px, growx, dock north");
+		pane.add(header, "h min!, growx, dock north");
 		pane.add(content, "grow");
 
 		// initialize window properties

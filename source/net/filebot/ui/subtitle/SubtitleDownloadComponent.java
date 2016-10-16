@@ -120,7 +120,7 @@ class SubtitleDownloadComponent extends JComponent {
 		JButton clearButton = createImageButton(clearFilterAction);
 		clearButton.setOpaque(false);
 
-		setLayout(new MigLayout("nogrid, fill", "[fill]", "[pref!][fill]"));
+		setLayout(new MigLayout("nogrid, fill, novisualpadding", "[fill]", "[pref!][fill]"));
 
 		add(new JLabel("Filter:"), "gap indent:push");
 		add(filterEditor, "wmin 120px, gap rel");
