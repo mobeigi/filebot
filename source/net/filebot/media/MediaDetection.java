@@ -966,10 +966,12 @@ public class MediaDetection {
 	}
 
 	private static void addUniqueQuerySet(Collection<String> terms, Function<String, String> keyFunction, Function<String, String> valueFunction, Map<String, String> uniqueMap) {
-		for (String it : terms) {
-			String key = keyFunction.apply(it);
-			if (key.length() > 0 && !uniqueMap.containsKey(key)) {
-				uniqueMap.put(key, valueFunction.apply(it));
+		for (String term : terms) {
+			if (term != null && term.length() > 0) {
+				String key = keyFunction.apply(term);
+				if (key != null && key.length() > 0 && !uniqueMap.containsKey(key)) {
+					uniqueMap.put(key, valueFunction.apply(term));
+				}
 			}
 		}
 	}
