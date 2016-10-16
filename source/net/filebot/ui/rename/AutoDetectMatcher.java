@@ -1,6 +1,7 @@
 
 package net.filebot.ui.rename;
 
+import static net.filebot.util.ExceptionUtilities.*;
 import static java.util.Collections.*;
 import static java.util.Comparator.*;
 import static java.util.stream.Collectors.*;
@@ -16,6 +17,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -51,7 +53,9 @@ class AutoDetectMatcher implements AutoCompleteMatcher {
 				try {
 					return it.getValue().get().stream();
 				} catch (Exception e) {
-					log.log(Level.WARNING, "Failed group: " + it.getKey(), e);
+					if (findCause(e, CancellationException.class) == null) {
+						log.log(Level.WARNING, "Failed group: " + it.getKey(), e);
+					}
 					return Stream.empty();
 				}
 			}).sorted(comparing(Match::getValue, OriginalOrder.of(files))).collect(toList());
