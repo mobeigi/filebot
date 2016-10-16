@@ -58,7 +58,7 @@ public class SubtitleUploadDialog extends JDialog {
 		subtitleMappingTable = createTable();
 
 		JComponent content = (JComponent) getContentPane();
-		content.setLayout(new MigLayout("fill, insets dialog, nogrid", "", "[fill][pref!]"));
+		content.setLayout(new MigLayout("fill, insets dialog, nogrid, novisualpadding", "", "[fill][pref!]"));
 
 		content.add(new JScrollPane(subtitleMappingTable), "grow, wrap");
 

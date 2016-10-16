@@ -96,7 +96,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		preferredSubtitleNaming.setSelectedItem(SubtitleNaming.MATCH_VIDEO_ADD_LANGUAGE_TAG);
 
 		JComponent content = (JComponent) getContentPane();
-		content.setLayout(new MigLayout("fill, insets 12 15 7 15, nogrid", "", "[fill][pref!]"));
+		content.setLayout(new MigLayout("fill, insets 12 15 7 15, nogrid, novisualpadding", "", "[fill][pref!]"));
 
 		content.add(new JScrollPane(subtitleMappingTable), "grow, wrap");
 		content.add(hashMatcherServicePanel, "gap after rel");
@@ -111,7 +111,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 	}
 
 	protected JPanel createServicePanel(Color color) {
-		JPanel panel = new JPanel(new MigLayout("hidemode 3"));
+		JPanel panel = new JPanel(new MigLayout("hidemode 3, novisualpadding"));
 		panel.setBorder(new RoundBorder());
 		panel.setOpaque(false);
 		panel.setBackground(color);
