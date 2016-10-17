@@ -438,16 +438,13 @@ class SubtitleAutoMatchDialog extends JDialog {
 			if (value == null) {
 				setText("Cancel selection");
 				setIcon(ResourceManager.getIcon("dialog.cancel"));
-				setToolTipText(null);
 			} else {
 				if (subtitleBean.getError() == null) {
 					setText(subtitleBean.getText());
 					setIcon(subtitleBean.getIcon());
-					setToolTipText(null);
 				} else {
-					setText(String.format("%s (%s)", subtitleBean.getError().getMessage(), subtitleBean.getText()));
+					setText(String.format("%s (%s)", subtitleBean.getError(), subtitleBean.getText()));
 					setIcon(ResourceManager.getIcon("status.warning"));
-					setToolTipText(subtitleBean.getError().toString());
 				}
 
 				if (!isSelected) {
