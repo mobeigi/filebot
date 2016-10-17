@@ -4,8 +4,8 @@ import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
-import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.logging.Level;
 
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
@@ -33,6 +34,7 @@ import groovy.lang.Range;
 import net.filebot.MediaTypes;
 import net.filebot.MetaAttributeView;
 import net.filebot.media.MediaDetection;
+import net.filebot.media.XattrMetaInfo;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.similarity.Normalization;
 import net.filebot.similarity.SimilarityMetric;
@@ -402,16 +404,18 @@ public class ScriptShellMethods {
 		try {
 			return new MetaAttributeView(self);
 		} catch (Exception e) {
-			return null;
+			debug.log(Level.WARNING, e::toString);
 		}
+		return null;
 	}
 
 	public static Object getMetadata(File self) {
 		try {
-			return xattr.getMetaInfo(self);
+			return new XattrMetaInfo(true, false).getMetaInfo(self);
 		} catch (Exception e) {
-			return null;
+			debug.log(Level.WARNING, e::toString);
 		}
+		return null;
 	}
 
 	public static boolean isEpisode(File self) {
