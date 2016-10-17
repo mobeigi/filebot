@@ -450,7 +450,7 @@ public class ReleaseInfo {
 	private final Resource<Movie[]> movieIndex = tsv("url.movie-list", Cache.ONE_MONTH, this::parseMovie, Movie[]::new);
 	private final Resource<SubtitleSearchResult[]> osdbIndex = tsv("url.osdb-index", Cache.ONE_MONTH, this::parseSubtitle, SubtitleSearchResult[]::new);
 
-	private final SystemProperty<Duration> refreshDuration = SystemProperty.of("url.refresh", Duration::parse, null);
+	private final SystemProperty<Duration> refreshDuration = SystemProperty.of("url.refresh", Duration::parse);
 
 	private SearchResult parseSeries(String[] v) {
 		int id = parseInt(v[0]);
@@ -489,7 +489,7 @@ public class ReleaseInfo {
 	protected <A> Resource<A[]> resource(String name, Duration expirationTime, Function<String, A> parse, IntFunction<A[]> generator) {
 		return () -> {
 			Cache cache = Cache.getCache("data", CacheType.Persistent);
-			byte[] bytes = cache.bytes(name, n -> new URL(getProperty(n))).expire(refreshDuration.orElse(expirationTime)).get();
+			byte[] bytes = cache.bytes(name, n -> new URL(getProperty(n))).expire(refreshDuration.optional().orElse(expirationTime)).get();
 
 			// all data file are xz compressed
 			try (BufferedReader text = new BufferedReader(new InputStreamReader(new XZInputStream(new ByteArrayInputStream(bytes)), UTF_8))) {
