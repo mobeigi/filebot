@@ -22,7 +22,7 @@ public final class Logging {
 
 	private static final SystemProperty<Level> debugLevel = SystemProperty.of("net.filebot.logging.debug", Level::parse, Level.WARNING);
 	private static final SystemProperty<Pattern> anonymizePattern = SystemProperty.of("net.filebot.logging.anonymize", Pattern::compile);
-	private static final SystemProperty<Boolean> color = SystemProperty.of("net.filebot.logging.color", Boolean::parseBoolean, Color::isSupported);
+	private static final SystemProperty<Boolean> color = SystemProperty.of("net.filebot.logging.color", Boolean::parseBoolean, Color.isSupported());
 
 	public static final Logger log = createConsoleLogger("net.filebot.console", Level.ALL);
 	public static final Logger debug = createConsoleLogger("net.filebot.debug", debugLevel.get());
