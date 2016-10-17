@@ -16,7 +16,6 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -834,7 +833,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 				return destination;
 			} catch (Exception e) {
 				// display error message in GUI
-				descriptor.error = new IOException("Failed to write file: " + e.getMessage());
+				descriptor.error = e;
 
 				// print to error log
 				debug.log(Level.WARNING, e.getMessage(), e);
