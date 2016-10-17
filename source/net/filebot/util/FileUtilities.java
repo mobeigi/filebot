@@ -473,12 +473,12 @@ public final class FileUtilities {
 		return listFiles(folders, FILE_WALK_MAX_DEPTH, FOLDERS, order);
 	}
 
-	public static List<File> listFiles(Iterable<File> folders, int maxDepth, FileFilter filter, Comparator<File> order) {
+	public static List<File> listFiles(Iterable<File> folders, int depth, FileFilter filter, Comparator<File> order) {
 		List<File> sink = new ArrayList<File>();
 
 		for (File it : folders) {
 			if (it.isDirectory()) {
-				listFiles(it, sink, 0, maxDepth, filter, order);
+				listFiles(it, sink, depth, filter, order);
 			}
 
 			if (filter.accept(it)) {
@@ -489,19 +489,17 @@ public final class FileUtilities {
 		return sink;
 	}
 
-	private static void listFiles(File folder, List<File> sink, int depth, int maxDepth, FileFilter filter, Comparator<File> order) {
-		if (depth > maxDepth) {
+	private static void listFiles(File folder, List<File> sink, int depth, FileFilter filter, Comparator<File> order) {
+		if (depth < 0) {
 			return;
 		}
 
-		for (File it : getChildren(folder, NOT_HIDDEN, order)) {
+		for (File it : getChildren(folder, f -> !f.isHidden() && (f.isDirectory() || filter.accept(f)), order)) {
 			if (it.isDirectory()) {
-				listFiles(it, sink, depth + 1, maxDepth, filter, order);
+				listFiles(it, sink, depth - 1, filter, order);
 			}
 
-			if (filter.accept(it)) {
-				sink.add(it);
-			}
+			sink.add(it);
 		}
 	}
 
