@@ -137,18 +137,16 @@ public final class Logging {
 		}
 
 		public Color getColor(int level) {
-			if (level >= Level.SEVERE.intValue())
-				return Color.CHERRY_RED;
-			if (level >= Level.WARNING.intValue())
-				return Color.ORANGE_RED;
-			if (level >= Level.INFO.intValue())
-				return null;
-			if (level >= Level.FINE.intValue())
-				return Color.ROYAL_BLUE;
-			if (level >= Level.FINEST.intValue())
+			if (level < Level.FINE.intValue())
 				return Color.LIME_GREEN;
+			if (level < Level.INFO.intValue())
+				return Color.ROYAL_BLUE;
+			if (level < Level.WARNING.intValue())
+				return null;
+			if (level < Level.SEVERE.intValue())
+				return Color.ORANGE_RED;
 
-			return null;
+			return Color.CHERRY_RED; // SEVERE
 		}
 
 	}
