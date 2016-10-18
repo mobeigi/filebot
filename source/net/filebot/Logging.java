@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.function.Supplier;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
@@ -12,6 +14,7 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.codehaus.groovy.runtime.StackTraceUtils;
@@ -42,9 +45,9 @@ public final class Logging {
 	}
 
 	public static ConsoleHandler createConsoleHandler(Level level) {
-		ConsoleHandler handler = color.get() ? new AnsiColorConsoleHandler() : new ConsoleHandler();
+		ConsoleHandler handler = new ConsoleHandler();
 		handler.setLevel(level);
-		handler.setFormatter(new ConsoleFormatter(anonymizePattern.get()));
+		handler.setFormatter(new ConsoleFormatter(anonymizePattern.get(), color.get()));
 		return handler;
 	}
 
@@ -69,20 +72,67 @@ public final class Logging {
 	public static class ConsoleFormatter extends Formatter {
 
 		private final Pattern anonymize;
+		private final boolean colorize;
 
-		public ConsoleFormatter(Pattern anonymize) {
+		public ConsoleFormatter(Pattern anonymize, boolean colorize) {
 			this.anonymize = anonymize;
+			this.colorize = colorize;
 		}
 
 		@Override
 		public String format(LogRecord record) {
-			String message = record.getMessage();
-			if (anonymize != null && message != null) {
-				message = anonymize.matcher(message).replaceAll("");
+			StringWriter buffer = new StringWriter();
+
+			// BEGIN COLOR
+			Color color = getColor(record.getLevel().intValue());
+			if (color != null) {
+				buffer.append(color.head);
 			}
 
-			return message + System.lineSeparator();
+			// MESSAGE
+			String message = record.getMessage();
+			if (message != null && anonymize != null) {
+				Matcher m = anonymize.matcher(message);
+				while (m.find()) {
+					m.appendReplacement(buffer.getBuffer(), "");
+				}
+				m.appendTail(buffer.getBuffer());
+			} else {
+				buffer.append(message);
+			}
+
+			// STACKTRACE
+			Throwable thrown = record.getThrown();
+			if (thrown != null) {
+				buffer.append(System.lineSeparator());
+				StackTraceUtils.deepSanitize(thrown).printStackTrace(new PrintWriter(buffer));
+			}
+
+			// END COLOR
+			if (color != null) {
+				buffer.append(color.tail);
+			}
+
+			return buffer.append(System.lineSeparator()).toString();
 		}
+
+		public Color getColor(int level) {
+			if (colorize) {
+				if (level < Level.FINE.intValue())
+					return Color.LIME_GREEN;
+				if (level < Level.INFO.intValue())
+					return Color.ROYAL_BLUE;
+				if (level < Level.WARNING.intValue())
+					return null;
+				if (level < Level.SEVERE.intValue())
+					return Color.ORANGE_RED;
+
+				return Color.CHERRY_RED; // SEVERE
+			}
+
+			return null; // NO COLOR
+		}
+
 	}
 
 	public static class ConsoleHandler extends Handler {
@@ -93,19 +143,10 @@ public final class Logging {
 			PrintStream out = record.getLevel().intValue() < Level.WARNING.intValue() ? System.out : System.err;
 
 			// print messages to selected output stream
-			print(record, out);
+			out.print(getFormatter().format(record));
 
 			// flush every message immediately
 			out.flush();
-		}
-
-		public void print(LogRecord record, PrintStream out) {
-			out.print(getFormatter().format(record));
-
-			Throwable thrown = record.getThrown();
-			if (thrown != null) {
-				StackTraceUtils.deepSanitize(thrown).printStackTrace(out);
-			}
 		}
 
 		@Override
@@ -121,36 +162,6 @@ public final class Logging {
 
 	}
 
-	public static class AnsiColorConsoleHandler extends ConsoleHandler {
-
-		@Override
-		public void print(LogRecord record, PrintStream out) {
-			Color c = getColor(record.getLevel().intValue());
-
-			if (c == null) {
-				super.print(record, out);
-			} else {
-				out.print(c.head);
-				super.print(record, out);
-				out.print(c.tail);
-			}
-		}
-
-		public Color getColor(int level) {
-			if (level < Level.FINE.intValue())
-				return Color.LIME_GREEN;
-			if (level < Level.INFO.intValue())
-				return Color.ROYAL_BLUE;
-			if (level < Level.WARNING.intValue())
-				return null;
-			if (level < Level.SEVERE.intValue())
-				return Color.ORANGE_RED;
-
-			return Color.CHERRY_RED; // SEVERE
-		}
-
-	}
-
 	public static class Color {
 
 		public static final Color CHERRY_RED = new Color(0xC4);
@@ -161,11 +172,11 @@ public final class Logging {
 		public final String head;
 		public final String tail;
 
-		Color(int color) {
+		public Color(int color) {
 			this("38;5;" + color); // see https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
 		}
 
-		Color(String code) {
+		public Color(String code) {
 			this.head = "\u001b[" + code + "m";
 			this.tail = "\u001b[0m";
 		}
