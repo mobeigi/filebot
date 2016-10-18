@@ -28,7 +28,7 @@ public class ArgumentProcessor {
 				runScript(args);
 
 				// script finished successfully
-				log.finest("Done ヾ(＠⌒ー⌒＠)ノ" + System.lineSeparator());
+				log.finest("Done ヾ(＠⌒ー⌒＠)ノ");
 				return 0;
 			}
 		} catch (Throwable e) {
@@ -42,7 +42,7 @@ public class ArgumentProcessor {
 		}
 
 		// script failed with exception -> exit with non-zero exit code (and use positive code to avoid issues with launch4j launcher)
-		log.finest("Failure (°_°)" + System.lineSeparator());
+		log.finest("Failure (°_°)");
 		return 1;
 	}
 
