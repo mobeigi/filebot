@@ -86,8 +86,8 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	public Object runScript(String input, String... argv) throws Throwable {
 		try {
-			ArgumentBean args = argv == null || argv.length == 0 ? getArgumentBean() : ArgumentBean.parse(argv);
-			return executeScript(input, asList(getArgumentBean().getArray()), args.defines, args.getFiles(false));
+			ArgumentBean args = argv == null || argv.length == 0 ? getArgumentBean() : new ArgumentBean(argv);
+			return executeScript(input, asList(getArgumentBean().getArgumentArray()), args.defines, args.getFiles(false));
 		} catch (Exception e) {
 			printException(e, true);
 		}
@@ -95,7 +95,7 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public Object executeScript(String input, Map<String, ?> bindings, Object... args) throws Throwable {
-		return executeScript(input, asList(getArgumentBean().getArray()), bindings, asFileList(args));
+		return executeScript(input, asList(getArgumentBean().getArgumentArray()), bindings, asFileList(args));
 	}
 
 	public Object executeScript(String input, List<String> argv, Map<String, ?> bindings, List<File> args) throws Throwable {
@@ -483,9 +483,9 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	private ArgumentBean getArgumentBean() {
 		try {
-			return ArgumentBean.parse((String[]) getBinding().getVariable(ScriptShell.SHELL_ARGV_BINDING_NAME));
+			return new ArgumentBean((String[]) getBinding().getVariable(ScriptShell.SHELL_ARGV_BINDING_NAME));
 		} catch (Exception e) {
-			throw new IllegalStateException(e.getMessage());
+			throw new IllegalStateException(e.getMessage(), e);
 		}
 	}
 

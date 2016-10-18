@@ -769,7 +769,6 @@ public class RenamePanel extends JComponent {
 				} catch (Exception e) {
 					log.log(Level.INFO, e, e::getMessage);
 				} finally {
-					System.out.println("RenamePanel.ApplyPresetAction.actionPerformed()");
 					window.setCursor(Cursor.getDefaultCursor());
 				}
 			});

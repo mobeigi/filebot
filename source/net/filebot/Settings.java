@@ -179,18 +179,14 @@ public final class Settings {
 		return String.format("%s %s %s", System.getProperty("java.runtime.name"), System.getProperty("java.version"), GraphicsEnvironment.isHeadless() ? "(headless)" : "").trim();
 	}
 
-	private static String[] applicationArgumentArray;
+	private static ArgumentBean applicationArguments;
 
-	protected static void setApplicationArgumentArray(String[] args) {
-		applicationArgumentArray = args;
+	public static void setApplicationArguments(ArgumentBean args) {
+		applicationArguments = args;
 	}
 
 	public static ArgumentBean getApplicationArguments() {
-		try {
-			return ArgumentBean.parse(applicationArgumentArray);
-		} catch (Exception e) {
-			throw new IllegalStateException(e);
-		}
+		return applicationArguments;
 	}
 
 	public static File getApplicationFolder() {

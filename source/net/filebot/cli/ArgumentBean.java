@@ -5,7 +5,7 @@ import static net.filebot.Logging.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
-import java.io.OutputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -188,25 +188,24 @@ public class ArgumentBean {
 		return Level.parse(log.toUpperCase());
 	}
 
-	private final String[] array;
+	private final String[] args;
 
-	private ArgumentBean(String... array) {
-		this.array = array;
-	}
+	public ArgumentBean(String... args) throws CmdLineException {
+		this.args = args;
 
-	public String[] getArray() {
-		return array.clone();
-	}
-
-	public static ArgumentBean parse(String[] args) throws CmdLineException {
-		ArgumentBean bean = new ArgumentBean(args);
-		CmdLineParser parser = new CmdLineParser(bean);
+		CmdLineParser parser = new CmdLineParser(this);
 		parser.parseArgument(args);
-		return bean;
 	}
 
-	public static void printHelp(ArgumentBean argumentBean, OutputStream out) {
-		new CmdLineParser(argumentBean, ParserProperties.defaults().withShowDefaults(false).withOptionSorter(null)).printUsage(out);
+	public String[] getArgumentArray() {
+		return args.clone();
+	}
+
+	public String usage() {
+		StringWriter buffer = new StringWriter();
+		CmdLineParser parser = new CmdLineParser(this, ParserProperties.defaults().withShowDefaults(false).withOptionSorter(null));
+		parser.printUsage(buffer, null);
+		return buffer.toString();
 	}
 
 }

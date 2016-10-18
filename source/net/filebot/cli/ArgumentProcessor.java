@@ -105,7 +105,7 @@ public class ArgumentProcessor {
 
 	public void runScript(ArgumentBean args) throws Throwable {
 		Bindings bindings = new SimpleBindings();
-		bindings.put(ScriptShell.SHELL_ARGV_BINDING_NAME, args.getArray());
+		bindings.put(ScriptShell.SHELL_ARGV_BINDING_NAME, args.getArgumentArray());
 		bindings.put(ScriptShell.ARGV_BINDING_NAME, args.getFiles(false));
 
 		ScriptSource source = ScriptSource.findScriptProvider(args.script);

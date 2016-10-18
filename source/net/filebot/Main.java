@@ -5,6 +5,7 @@ import static java.util.Arrays.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
+import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.XPathUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
@@ -59,16 +60,16 @@ import net.miginfocom.swing.MigLayout;
 
 public class Main {
 
-	public static void main(String[] argumentArray) {
+	public static void main(String[] argv) {
 		try {
 			// parse arguments
-			ArgumentBean args = ArgumentBean.parse(argumentArray);
+			ArgumentBean args = new ArgumentBean(argv);
 
 			if (args.printHelp() || args.printVersion() || (!(args.runCLI() || args.clearCache() || args.clearUserData()) && isHeadless())) {
-				System.out.format("%s / %s%n%n", getApplicationIdentifier(), getJavaRuntimeIdentifier());
+				log.info(format("%s / %s%n", getApplicationIdentifier(), getJavaRuntimeIdentifier()));
 
 				if (args.printHelp() || (!args.printVersion() && isHeadless())) {
-					ArgumentBean.printHelp(args, System.out);
+					log.info(args.usage());
 				}
 
 				// just print help message or version string and then exit
@@ -78,21 +79,21 @@ public class Main {
 			if (args.clearCache() || args.clearUserData()) {
 				// clear cache must be called manually
 				if (System.console() == null) {
-					System.err.println("`filebot -clear-cache` has been disabled due to abuse.");
+					log.severe("`filebot -clear-cache` has been disabled due to abuse.");
 					System.exit(1);
 				}
 
 				// clear persistent user preferences
 				if (args.clearUserData()) {
-					System.out.println("Reset preferences");
+					log.info("Reset preferences");
 					Settings.forPackage(Main.class).clear();
 				}
 
 				// clear caches
 				if (args.clearCache()) {
-					System.out.println("Clear cache");
+					log.info("Clear cache");
 					for (File folder : getChildren(ApplicationFolder.Cache.getCanonicalFile(), FOLDERS)) {
-						System.out.println("* Delete " + folder);
+						log.fine("* Delete " + folder);
 						delete(folder);
 					}
 				}
@@ -102,7 +103,7 @@ public class Main {
 			}
 
 			// make sure we can access application arguments at any time
-			setApplicationArgumentArray(argumentArray);
+			setApplicationArguments(args);
 
 			// update system properties
 			initializeSystemProperties(args);
@@ -125,35 +126,30 @@ public class Main {
 			}
 
 			// GUI mode => start user interface
-			SwingUtilities.invokeAndWait(() -> {
+			SwingUtilities.invokeLater(() -> {
 				startUserInterface(args);
+
+				// run background tasks
+				newSwingWorker(() -> onStart(args));
 			});
-
-			// publish file arguments
-			List<File> files = args.getFiles(false);
-			if (files.size() > 0) {
-				SwingEventBus.getInstance().post(new FileTransferable(files));
-			}
-
-			// run background tasks
-			new Thread(Main::onStart).start();
 		} catch (CmdLineException e) {
 			// illegal arguments => print CLI error message
-			System.err.println(e.getMessage());
+			log.severe(e::getMessage);
 			System.exit(1);
 		} catch (Throwable e) {
-			// find root cause
-			while (e.getCause() != null) {
-				e = e.getCause();
-			}
-
 			// unexpected error => dump stack
-			debug.log(Level.SEVERE, String.format("Error during startup: %s", e.getMessage()), e);
+			debug.log(Level.SEVERE, "Error during startup: " + getRootCause(e), e);
 			System.exit(1);
 		}
 	}
 
-	private static void onStart() {
+	private static void onStart(ArgumentBean args) {
+		// publish file arguments
+		List<File> files = args.getFiles(false);
+		if (files.size() > 0) {
+			SwingEventBus.getInstance().post(new FileTransferable(files));
+		}
+
 		// preload media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
 		MediaTypes.getDefault();
 

@@ -217,7 +217,7 @@ public class GroovyPad extends JFrame {
 				public void run() {
 					try {
 						Bindings bindings = new SimpleBindings();
-						bindings.put(ScriptShell.SHELL_ARGV_BINDING_NAME, Settings.getApplicationArguments().getArray());
+						bindings.put(ScriptShell.SHELL_ARGV_BINDING_NAME, Settings.getApplicationArguments().getArgumentArray());
 						bindings.put(ScriptShell.ARGV_BINDING_NAME, Settings.getApplicationArguments().getFiles(false));
 
 						result = shell.evaluate(script, bindings);
@@ -273,7 +273,7 @@ public class GroovyPad extends JFrame {
 				System.setOut(new TeePrintStream(new ConsoleOutputStream(), true, "UTF-8", system_out));
 				System.setErr(new TeePrintStream(new ConsoleOutputStream(), true, "UTF-8", system_err));
 			} catch (UnsupportedEncodingException e) {
-				// can't happen
+				debug.log(Level.WARNING, e, e::getMessage);
 			}
 		}
 
