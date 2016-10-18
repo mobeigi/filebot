@@ -65,14 +65,14 @@ public class Main {
 			// parse arguments
 			ArgumentBean args = new ArgumentBean(argv);
 
-			if (args.printHelp() || args.printVersion() || (!(args.runCLI() || args.clearCache() || args.clearUserData()) && isHeadless())) {
-				log.info(format("%s / %s%n", getApplicationIdentifier(), getJavaRuntimeIdentifier()));
+			// just print help message or version string and then exit
+			if (args.printHelp()) {
+				log.info(String.format("%s%n%n%s", getApplicationIdentifier(), args.usage()));
+				System.exit(0);
+			}
 
-				if (args.printHelp() || (!args.printVersion() && isHeadless())) {
-					log.info(args.usage());
-				}
-
-				// just print help message or version string and then exit
+			if (args.printVersion()) {
+				log.info(String.join(" / ", getApplicationIdentifier(), getJavaRuntimeIdentifier(), getSystemIdentifier()));
 				System.exit(0);
 			}
 
@@ -123,6 +123,11 @@ public class Main {
 			if (args.runCLI()) {
 				int status = new ArgumentProcessor().run(args);
 				System.exit(status);
+			}
+
+			if (isHeadless()) {
+				log.info(String.format("%s / %s (headless)%n%n%s", getApplicationIdentifier(), getJavaRuntimeIdentifier(), args.usage()));
+				System.exit(1);
 			}
 
 			// GUI mode => start user interface

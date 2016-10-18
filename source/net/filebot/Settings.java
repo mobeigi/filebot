@@ -2,7 +2,6 @@ package net.filebot;
 
 import static net.filebot.Logging.*;
 
-import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -176,7 +175,11 @@ public final class Settings {
 	}
 
 	public static String getJavaRuntimeIdentifier() {
-		return String.format("%s %s %s", System.getProperty("java.runtime.name"), System.getProperty("java.version"), GraphicsEnvironment.isHeadless() ? "(headless)" : "").trim();
+		return String.format("%s %s", System.getProperty("java.runtime.name"), System.getProperty("java.version"));
+	}
+
+	public static String getSystemIdentifier() {
+		return String.format("%s %s (%s)", System.getProperty("os.name"), System.getProperty("os.version"), System.getProperty("os.arch"));
 	}
 
 	private static ArgumentBean applicationArguments;
