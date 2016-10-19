@@ -313,6 +313,12 @@ public final class SwingUI {
 
 	public static void withWaitCursor(Object source, BackgroundRunnable runnable) throws Exception {
 		Window window = getWindow(source);
+
+		if (window == null) {
+			runnable.run();
+			return;
+		}
+
 		try {
 			window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			runnable.run();

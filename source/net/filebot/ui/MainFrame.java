@@ -11,7 +11,6 @@ import static net.filebot.Settings.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.FlowLayout;
 import java.awt.dnd.DropTarget;
@@ -21,7 +20,6 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 import java.util.logging.Level;
 
 import javax.swing.JComponent;
@@ -99,39 +97,38 @@ public class MainFrame extends JFrame {
 		setSize(1050, 650);
 
 		// KEYBOARD SHORTCUTS
-		installAction(this.getRootPane(), getKeyStroke(VK_DELETE, CTRL_MASK | SHIFT_MASK), newAction("Clear Cache", evt -> {
+		installAction(getRootPane(), getKeyStroke(VK_DELETE, CTRL_MASK | SHIFT_MASK), newAction("Clear Cache", evt -> {
 			CacheManager.getInstance().clearAll();
 			log.info("Cache has been cleared");
 		}));
 
-		installAction(this.getRootPane(), getKeyStroke(VK_F5, 0), newAction("Run", evt -> {
+		installAction(getRootPane(), getKeyStroke(VK_F5, 0), newAction("Run", evt -> {
 			try {
-				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // loading Groovy might take a while
-				GroovyPad pad = new GroovyPad();
+				withWaitCursor(getRootPane(), () -> {
+					GroovyPad pad = new GroovyPad();
 
-				pad.addWindowListener(new WindowAdapter() {
-					@Override
-					public void windowOpened(WindowEvent e) {
-						setVisible(false);
+					pad.addWindowListener(new WindowAdapter() {
+						@Override
+						public void windowOpened(WindowEvent e) {
+							setVisible(false);
 
-						// run default script on startup
-						pad.runScript(GroovyPad.DEFAULT_SCRIPT);
-					};
+							// run default script on startup
+							pad.runScript(GroovyPad.DEFAULT_SCRIPT);
+						};
 
-					@Override
-					public void windowClosing(WindowEvent e) {
-						setVisible(true);
-					};
+						@Override
+						public void windowClosing(WindowEvent e) {
+							setVisible(true);
+						};
+					});
+
+					pad.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+					pad.setModalExclusionType(ModalExclusionType.TOOLKIT_EXCLUDE);
+					pad.setLocationByPlatform(true);
+					pad.setVisible(true);
 				});
-
-				pad.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-				pad.setModalExclusionType(ModalExclusionType.TOOLKIT_EXCLUDE);
-				pad.setLocationByPlatform(true);
-				pad.setVisible(true);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				debug.log(Level.WARNING, e.getMessage(), e);
-			} finally {
-				setCursor(Cursor.getDefaultCursor());
 			}
 		}));
 
