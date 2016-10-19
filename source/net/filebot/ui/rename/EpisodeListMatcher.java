@@ -297,7 +297,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 
 	protected String getQueryInputMessage(String header, String message, Collection<File> files) throws Exception {
-		List<File> selection = files.stream().sorted(comparing(File::length).reversed()).limit(5).sorted(HUMAN_NAME_ORDER).collect(toList());
+		List<File> selection = files.stream().sorted(comparing(File::length).reversed()).limit(4).sorted(HUMAN_NAME_ORDER).collect(toList());
 		if (selection.isEmpty()) {
 			return "";
 		}
