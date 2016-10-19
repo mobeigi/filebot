@@ -784,6 +784,13 @@
 
 
 	<target name="deploy-website" description="Upload website resources">
+		<!-- copy image resources -->
+		<copy todir="${dir.dist}/website/resources" preservelastmodified="yes" verbose="yes" flatten="true">
+			<fileset dir="${dir.source}">
+				<include name="**/resources/*.png" />
+			</fileset>
+		</copy>
+
 		<!-- copy static website resources -->
 		<copy todir="${dir.dist}/website" preservelastmodified="yes" verbose="yes">
 			<fileset dir="${dir.website}">
