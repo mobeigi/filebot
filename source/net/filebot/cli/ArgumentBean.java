@@ -84,7 +84,7 @@ public class ArgumentBean {
 	@Option(name = "-script", usage = "Run Groovy script", metaVar = "[fn:name] or [dev:name] or [/path/to/script.groovy]")
 	public String script = null;
 
-	@Option(name = "--log", usage = "Log level", metaVar = "[all, fine, info, warning, off]")
+	@Option(name = "--log", usage = "Log level", metaVar = "[all, fine, info, warning]")
 	public String log = "all";
 
 	@Option(name = "--log-file", usage = "Log file", metaVar = "/path/to/log.txt")
