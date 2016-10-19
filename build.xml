@@ -786,8 +786,8 @@
 	<target name="deploy-website" description="Upload website resources">
 		<!-- copy image resources -->
 		<copy todir="${dir.dist}/website/resources" preservelastmodified="yes" verbose="yes" flatten="true">
-			<fileset dir="${dir.source}">
-				<include name="**/resources/*.png" />
+			<fileset dir="${dir.source}/net/filebot/resources">
+				<include name="*.png" />
 			</fileset>
 		</copy>
 
