@@ -44,6 +44,8 @@ import net.filebot.util.TeePrintStream;
 
 public class GroovyPad extends JFrame {
 
+	public static final String DEFAULT_SCRIPT = "runScript 'sysinfo'";
+
 	public GroovyPad() throws IOException {
 		super("Groovy Pad");
 
@@ -146,7 +148,7 @@ public class GroovyPad extends JFrame {
 		File pad = ApplicationFolder.AppData.resolve(name);
 		if (!pad.exists()) {
 			// use this default value so people can easily submit bug reports with fn:sysinfo logs
-			ScriptShellMethods.saveAs("runScript 'sysinfo'", pad);
+			ScriptShellMethods.saveAs(DEFAULT_SCRIPT, pad);
 		}
 		return FileLocation.create(pad);
 	}
@@ -166,17 +168,21 @@ public class GroovyPad extends JFrame {
 
 	private Runner currentRunner = null;
 
-	protected void runScript(ActionEvent evt) {
+	public void runScript(ActionEvent evt) {
 		// persist script file and clear output
 		try {
 			editor.save();
 		} catch (IOException e) {
-			// won't happen
+			debug.log(Level.WARNING, e, e::getMessage);
 		}
-		output.setText("");
 
+		output.setText("");
+		runScript(editor.getText());
+	}
+
+	public void runScript(String script) {
 		if (currentRunner == null || currentRunner.isDone()) {
-			currentRunner = new Runner(editor.getText()) {
+			currentRunner = new Runner(script) {
 
 				@Override
 				protected void done() {

@@ -112,12 +112,15 @@ public class MainFrame extends JFrame {
 				pad.addWindowListener(new WindowAdapter() {
 					@Override
 					public void windowOpened(WindowEvent e) {
-						MainFrame.this.setVisible(false);
+						setVisible(false);
+
+						// run default script on startup
+						pad.runScript(GroovyPad.DEFAULT_SCRIPT);
 					};
 
 					@Override
 					public void windowClosing(WindowEvent e) {
-						MainFrame.this.setVisible(true);
+						setVisible(true);
 					};
 				});
 
