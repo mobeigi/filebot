@@ -98,20 +98,20 @@ public class MediaDetection {
 	}
 
 	public static boolean isVideoDiskFile(File file) throws Exception {
-		FileFilter diskFolderEntryFilter = releaseInfo.getDiskFolderEntryFilter();
-		Archive iso = Archive.open(file);
-		try {
-			for (FileInfo it : iso.listFiles()) {
-				for (File entry : listPath(it.toFile())) {
-					if (diskFolderEntryFilter.accept(entry)) {
-						return true;
+		if (file.isFile() && file.length() > ONE_MEGABYTE) {
+			try (Archive iso = Archive.open(file)) {
+				FileFilter diskFolderEntryFilter = releaseInfo.getDiskFolderEntryFilter();
+
+				for (FileInfo it : iso.listFiles()) {
+					for (File entry : listPath(it.toFile())) {
+						if (diskFolderEntryFilter.accept(entry)) {
+							return true;
+						}
 					}
 				}
 			}
-			return false;
-		} finally {
-			iso.close();
 		}
+		return false;
 	}
 
 	public static Locale guessLanguageFromSuffix(File file) {
