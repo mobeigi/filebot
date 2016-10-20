@@ -237,13 +237,8 @@ public class SeriesNameMatcher {
 	}
 
 	protected String normalize(String name) {
-		// remove group names and checksums, any [...] or (...)
-		name = normalizeBrackets(name);
-
-		// remove/normalize special characters
-		name = normalizePunctuation(name);
-
-		return name;
+		// remove group names and checksums, any [...] or (...) and remove/normalize special characters
+		return normalizePunctuation(normalizeBrackets(name));
 	}
 
 	protected <T> T[] firstCommonSequence(T[] seq1, T[] seq2, int maxStartIndex, Comparator<T> equalsComparator) {

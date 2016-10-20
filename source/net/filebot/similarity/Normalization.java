@@ -30,7 +30,7 @@ public class Normalization {
 		return name;
 	}
 
-	public static String trimTrailingPunctuation(String name) {
+	public static String trimTrailingPunctuation(CharSequence name) {
 		return TRAILING_PUNCTUATION.matcher(name).replaceAll("").trim();
 	}
 
@@ -46,22 +46,22 @@ public class Normalization {
 		for (Pattern it : brackets) {
 			name = it.matcher(name).replaceAll(" ");
 		}
-		return name;
+		return name.trim();
 	}
 
-	public static String normalizeSpace(String name, String replacement) {
+	public static String normalizeSpace(CharSequence name, String replacement) {
 		return replaceSpace(WORD_SEPARATOR_PUNCTUATION.matcher(name).replaceAll(" ").trim(), replacement);
 	}
 
-	public static String replaceSpace(String name, String replacement) {
+	public static String replaceSpace(CharSequence name, String replacement) {
 		return SPACE.matcher(name).replaceAll(replacement);
 	}
 
-	public static String replaceColon(String name, String ratio, String colon) {
+	public static String replaceColon(CharSequence name, String ratio, String colon) {
 		return COLON.matcher(RATIO.matcher(name).replaceAll(ratio)).replaceAll(colon);
 	}
 
-	public static String getEmbeddedChecksum(String name) {
+	public static String getEmbeddedChecksum(CharSequence name) {
 		Matcher m = EMBEDDED_CHECKSUM.matcher(name);
 		if (m.find()) {
 			return m.group(1);
@@ -69,12 +69,12 @@ public class Normalization {
 		return null;
 	}
 
-	public static String removeEmbeddedChecksum(String name) {
+	public static String removeEmbeddedChecksum(CharSequence name) {
 		// match embedded checksum and surrounding brackets
 		return EMBEDDED_CHECKSUM.matcher(name).replaceAll("");
 	}
 
-	public static String removeTrailingBrackets(String name) {
+	public static String removeTrailingBrackets(CharSequence name) {
 		// remove trailing braces, e.g. Doctor Who (2005) -> Doctor Who
 		return TRAILING_PARENTHESIS.matcher(name).replaceAll("").trim();
 	}

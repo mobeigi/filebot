@@ -183,7 +183,7 @@ public class ExpressionFormat extends Format {
 	}
 
 	protected String normalizeResult(CharSequence value) {
-		return replaceSpace(NEWLINE.matcher(value).replaceAll(""), " ").trim();
+		return replaceSpace(value, " ").trim();
 	}
 
 	protected void handleException(ScriptException exception) {
