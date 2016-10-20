@@ -3,7 +3,6 @@ package net.filebot.format;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
-import static net.filebot.util.RegularExpressions.*;
 
 import java.security.AccessController;
 import java.text.FieldPosition;
@@ -39,7 +38,7 @@ public class ExpressionFormat extends Format {
 
 	private final Object[] compilation;
 
-	private ScriptException lastException;
+	private SuppressedThrowables suppressed;
 
 	public ExpressionFormat(String expression) throws ScriptException {
 		this.expression = expression;
@@ -147,7 +146,7 @@ public class ExpressionFormat extends Format {
 		context.setBindings(priviledgedBindings, ScriptContext.GLOBAL_SCOPE);
 
 		// reset exception state
-		lastException = null;
+		List<Throwable> suppressed = new ArrayList<Throwable>();
 
 		StringBuilder sb = new StringBuilder();
 		for (Object snippet : compilation) {
@@ -158,14 +157,28 @@ public class ExpressionFormat extends Format {
 						sb.append(value);
 					}
 				} catch (ScriptException e) {
-					handleException(e);
+					suppressed.add(normalizeExpressionException(e));
 				}
 			} else {
 				sb.append(snippet);
 			}
 		}
 
-		return normalizeResult(sb);
+		// require non-empty String value
+		String value = normalizeResult(sb);
+
+		if (value.isEmpty()) {
+			throw new SuppressedThrowables("Expression yields empty value", suppressed);
+		}
+
+		// store for later (not thread-safe)
+		this.suppressed = suppressed.isEmpty() ? null : new SuppressedThrowables("Suppressed", suppressed);
+
+		return value;
+	}
+
+	public SuppressedThrowables suppressed() {
+		return suppressed;
 	}
 
 	protected Object normalizeBindingValue(Object value) {
@@ -183,21 +196,25 @@ public class ExpressionFormat extends Format {
 	}
 
 	protected String normalizeResult(CharSequence value) {
+		// normalize unicode space characters and remove newline characters
 		return replaceSpace(value, " ").trim();
 	}
 
-	protected void handleException(ScriptException exception) {
+	protected Throwable normalizeExpressionException(ScriptException exception) {
 		if (findCause(exception, MissingPropertyException.class) != null) {
-			lastException = new ExpressionException(new BindingException(findCause(exception, MissingPropertyException.class).getProperty(), "undefined", exception));
-		} else if (findCause(exception, GroovyRuntimeException.class) != null) {
-			lastException = new ExpressionException(findCause(exception, GroovyRuntimeException.class).getMessage(), exception);
-		} else {
-			lastException = exception;
+			return new BindingException(findCause(exception, MissingPropertyException.class).getProperty(), "undefined", exception);
 		}
-	}
 
-	public ScriptException caughtScriptException() {
-		return lastException;
+		if (findCause(exception, GroovyRuntimeException.class) != null) {
+			return new ExpressionException(findCause(exception, GroovyRuntimeException.class).getMessage(), exception);
+		}
+
+		// unwrap ScriptException if possible
+		if (exception.getCause() instanceof Exception) {
+			return exception.getCause();
+		}
+
+		return exception;
 	}
 
 	@Override

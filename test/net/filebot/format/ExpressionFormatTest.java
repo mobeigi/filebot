@@ -88,22 +88,28 @@ public class ExpressionFormatTest {
 		}
 	}
 
+	@Test(expected = SuppressedThrowables.class)
+	public void emptyExpression() throws Exception {
+		TestScriptFormat format = new TestScriptFormat("{xyz}");
+		format.format(new SimpleBindings());
+	}
+
 	@Test
 	public void illegalBinding() throws Exception {
-		TestScriptFormat format = new TestScriptFormat("{xyz}");
+		TestScriptFormat format = new TestScriptFormat("Hello {xyz}");
 		format.format(new SimpleBindings());
 
 		// check message
-		assertEquals("Binding \"xyz\": undefined", format.caughtScriptException().getMessage());
+		assertEquals("Binding \"xyz\": undefined", format.suppressed().getMessage());
 	}
 
 	@Test
 	public void illegalProperty() throws Exception {
-		TestScriptFormat format = new TestScriptFormat("{value.xyz}");
+		TestScriptFormat format = new TestScriptFormat("Hello {value.xyz}");
 		format.format("test");
 
 		// check message
-		assertEquals("Binding \"xyz\": undefined", format.caughtScriptException().getMessage());
+		assertEquals("Binding \"xyz\": undefined", format.suppressed().getMessage());
 	}
 
 	protected static class TestScriptFormat extends ExpressionFormat {

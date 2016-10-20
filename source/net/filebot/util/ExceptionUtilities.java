@@ -3,8 +3,10 @@ package net.filebot.util;
 public final class ExceptionUtilities {
 
 	public static Throwable getRootCause(Throwable t) {
-		while (t.getCause() != null) {
-			t = t.getCause();
+		if (t != null) {
+			while (t.getCause() != null) {
+				t = t.getCause();
+			}
 		}
 		return t;
 	}
@@ -24,11 +26,14 @@ public final class ExceptionUtilities {
 	}
 
 	public static String getMessage(Throwable t) {
-		String m = t.getMessage();
-		if (m == null || m.isEmpty()) {
-			m = t.toString();
+		if (t != null) {
+			String m = t.getMessage();
+			if (m == null || m.isEmpty()) {
+				return t.toString();
+			}
+			return m;
 		}
-		return m;
+		return null;
 	}
 
 	private ExceptionUtilities() {

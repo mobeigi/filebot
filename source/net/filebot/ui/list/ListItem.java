@@ -7,7 +7,7 @@ public class ListItem {
 	private IndexedBindingBean bindings;
 	private ExpressionFormat format;
 
-	private String value;
+	private Object value;
 
 	public ListItem(IndexedBindingBean bindings, ExpressionFormat format) {
 		this.bindings = bindings;
@@ -23,16 +23,12 @@ public class ListItem {
 		return bindings.getInfoObject();
 	}
 
-	public ExpressionFormat getFormat() {
-		return format;
-	}
-
-	public String getFormattedValue() {
+	public Object getFormattedValue() {
 		if (value == null) {
-			value = format.format(bindings);
-
-			if (value == null && format.caughtScriptException() != null) {
-				value = format.caughtScriptException().getMessage();
+			try {
+				value = format.format(bindings);
+			} catch (Exception e) {
+				value = e;
 			}
 		}
 		return value;

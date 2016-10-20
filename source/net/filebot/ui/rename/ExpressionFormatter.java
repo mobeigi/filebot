@@ -53,12 +53,7 @@ class ExpressionFormatter implements MatchFormatter {
 
 		// evaluate the expression using the given bindings
 		Object bindingBean = new MediaBindingBean(match.getValue(), (File) match.getCandidate(), (Map) context);
-		String destination = format.format(bindingBean).trim();
-
-		// if result is empty, check for script exceptions
-		if (destination.isEmpty() && format.caughtScriptException() != null) {
-			throw format.caughtScriptException();
-		}
+		String destination = format.format(bindingBean);
 
 		return getPath((File) match.getCandidate(), destination);
 	}

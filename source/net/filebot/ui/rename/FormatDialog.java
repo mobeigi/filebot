@@ -63,6 +63,7 @@ import net.filebot.Settings;
 import net.filebot.UserFiles;
 import net.filebot.format.BindingException;
 import net.filebot.format.ExpressionFormat;
+import net.filebot.format.SuppressedThrowables;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.media.MetaAttributes;
@@ -449,41 +450,47 @@ public class FormatDialog extends JDialog {
 				@Override
 				protected void done() {
 					try {
-						preview.setText(get().trim());
+						preview.setText(get());
 
 						// check internal script exception
-						if (format.caughtScriptException() != null) {
-							throw format.caughtScriptException();
-						}
-
-						// check empty output
-						if (preview.getText().isEmpty()) {
-							throw new Exception("Formatted value is empty");
+						if (format.suppressed() != null) {
+							throw format.suppressed();
 						}
 
 						// no warning or error
+						status.setText(null);
 						status.setVisible(false);
 					} catch (CancellationException e) {
 						// ignore, cancelled tasks are obsolete anyway
-					} catch (Exception e) {
-						BindingException issue = findCause(e, BindingException.class);
-						if (issue != null && getMessage(issue).contains(MediaBindingBean.EXCEPTION_SAMPLE_FILE_NOT_SET)) {
-							// exception caused by file bindings because sample file has not been set
-							status.setText(getMessage(issue));
-							status.setIcon(ResourceManager.getIcon("action.variables"));
-						} else if (issue != null) {
-							// default binding exception handler
-							status.setText(getMessage(issue));
-							status.setIcon(ResourceManager.getIcon("status.info"));
-						} else if (e.getCause() != null && e.getCause().getClass().equals(Exception.class)) {
-							// ScriptShellMethods throws Exception type exceptions which are not unexpected
-							status.setText(e.getCause().getMessage());
-							status.setIcon(ResourceManager.getIcon("status.info"));
+					} catch (Exception execution) {
+						SuppressedThrowables suppressed = findCause(execution, SuppressedThrowables.class);
+
+						if (suppressed != null) {
+							BindingException bindingIssue = findCause(suppressed, BindingException.class);
+
+							if (bindingIssue != null && getMessage(bindingIssue).contains(MediaBindingBean.EXCEPTION_SAMPLE_FILE_NOT_SET)) {
+								// exception caused by file bindings because sample file has not been set
+								status.setText(getMessage(bindingIssue));
+								status.setIcon(ResourceManager.getIcon("action.variables"));
+							} else if (bindingIssue != null) {
+								// default binding exception handler
+								status.setText(getMessage(bindingIssue));
+								status.setIcon(ResourceManager.getIcon("status.info"));
+							} else if (suppressed.getCause() != null && suppressed.getCause().getClass() == Exception.class) {
+								// ScriptShellMethods throws Exception type exceptions which are not unexpected
+								status.setText(execution.getCause().getMessage());
+								status.setIcon(ResourceManager.getIcon("status.info"));
+							} else {
+								// default exception handler
+								status.setText(suppressed.getMessage());
+								status.setIcon(ResourceManager.getIcon("status.warning"));
+							}
 						} else {
-							// default exception handler
-							status.setText(String.format("%s: %s", e.getClass().getSimpleName(), e.getMessage()));
+							// unexpected Exception
+							status.setText(execution.toString());
 							status.setIcon(ResourceManager.getIcon("status.warning"));
 						}
+
 						status.setVisible(true);
 					} finally {
 						preview.setVisible(preview.getText().trim().length() > 0);

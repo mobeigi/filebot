@@ -103,17 +103,14 @@ public class ListPanel extends JComponent {
 				super.configureListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
 				ListItem item = (ListItem) value;
-				String text = item.getFormattedValue(); // format just-in-time
+				Object object = item.getFormattedValue(); // format just-in-time
 
-				if (text.isEmpty()) {
-					if (item.getFormat() != null && item.getFormat().caughtScriptException() != null) {
-						setText(item.getFormat().caughtScriptException().getMessage());
-					} else {
-						setText("Expression yields no results for value " + item.getObject());
-					}
+				if (object instanceof Exception) {
+					Exception error = (Exception) object;
+					setText(error.getMessage());
 					setIcon(ResourceManager.getIcon("status.warning"));
 				} else {
-					setText(text);
+					setText(object.toString());
 					setIcon(null);
 				}
 			}

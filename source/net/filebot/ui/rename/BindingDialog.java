@@ -364,14 +364,7 @@ class BindingDialog extends JDialog {
 			};
 
 			// evaluate expression with given bindings
-			String value = format.format(bindingBean);
-
-			// check for script exceptions
-			if (format.caughtScriptException() != null) {
-				throw format.caughtScriptException();
-			}
-
-			return value;
+			return format.format(bindingBean);
 		}
 
 		@Override
