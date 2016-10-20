@@ -12,10 +12,10 @@ import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import net.filebot.util.FileUtilities.ExtensionFileFilter;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import net.filebot.util.FileUtilities.ExtensionFileFilter;
 
 public class MediaTypes {
 

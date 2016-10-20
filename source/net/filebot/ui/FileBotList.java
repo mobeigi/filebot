@@ -13,14 +13,14 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.swing.DefaultEventListModel;
 import net.filebot.ui.transfer.DefaultTransferHandler;
 import net.filebot.ui.transfer.TextFileExportHandler;
 import net.filebot.ui.transfer.TransferablePolicy;
 import net.filebot.util.ui.DefaultFancyListCellRenderer;
 import net.filebot.util.ui.SwingUI;
-import ca.odell.glazedlists.BasicEventList;
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.swing.DefaultEventListModel;
 
 public class FileBotList<E> extends JComponent {
 

@@ -1,13 +1,13 @@
 
 package net.filebot.ui.rename;
 
-import static net.filebot.util.ExceptionUtilities.*;
 import static java.util.Collections.*;
 import static java.util.Comparator.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.WebServices.*;
+import static net.filebot.util.ExceptionUtilities.*;
 
 import java.awt.Component;
 import java.io.File;

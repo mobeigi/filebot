@@ -8,9 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.filebot.vfs.FileInfo;
-import net.filebot.vfs.SimpleFileInfo;
-
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
@@ -18,6 +15,9 @@ import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.VFS;
+
+import net.filebot.vfs.FileInfo;
+import net.filebot.vfs.SimpleFileInfo;
 
 public class ApacheVFS implements ArchiveExtractor, Closeable {
 

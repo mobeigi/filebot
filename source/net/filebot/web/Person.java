@@ -1,6 +1,7 @@
 package net.filebot.web;
 
 import static java.util.Comparator.*;
+
 import java.io.Serializable;
 import java.net.URL;
 import java.util.Comparator;

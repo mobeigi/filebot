@@ -30,6 +30,9 @@ import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.matchers.TextMatcherEditor;
+import ca.odell.glazedlists.swing.AutoCompleteSupport;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.util.ExceptionUtilities;
@@ -37,9 +40,6 @@ import net.filebot.util.ui.LabelProvider;
 import net.filebot.util.ui.SelectButton;
 import net.filebot.web.SearchResult;
 import net.miginfocom.swing.MigLayout;
-import ca.odell.glazedlists.BasicEventList;
-import ca.odell.glazedlists.matchers.TextMatcherEditor;
-import ca.odell.glazedlists.swing.AutoCompleteSupport;
 
 public abstract class AbstractSearchPanel<S, E> extends JComponent {
 
