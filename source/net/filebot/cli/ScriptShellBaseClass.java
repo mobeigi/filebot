@@ -66,8 +66,8 @@ public abstract class ScriptShellBaseClass extends Script {
 		try {
 			return super.getProperty(property);
 		} catch (MissingPropertyException e) {
-			// try user-defined default values
-			if (defaultValues != null && defaultValues.containsKey(property)) {
+			// try user-defined default values (support null values)
+			if (defaultValues.containsKey(property)) {
 				return defaultValues.get(property);
 			}
 
@@ -239,14 +239,17 @@ public abstract class ScriptShellBaseClass extends Script {
 				return match;
 			}
 		} catch (Exception e) {
-			// ignore and move on
+			debug.log(Level.WARNING, e::toString); // ignore and move on
 		}
 
 		// 3. run full-fledged movie detection
 		try {
-			return MediaDetection.detectMovie(file, WebServices.TheMovieDB, Locale.ENGLISH, strict).get(0);
+			List<Movie> options = MediaDetection.detectMovie(file, WebServices.TheMovieDB, Locale.ENGLISH, strict);
+			if (options.size() > 0) {
+				return options.get(0);
+			}
 		} catch (Exception e) {
-			// ignore and fail
+			debug.log(Level.WARNING, e::toString); // ignore and fail
 		}
 
 		return null;
@@ -320,18 +323,17 @@ public abstract class ScriptShellBaseClass extends Script {
 		RenameAction action = getRenameFunction(option.get(Option.action));
 		boolean strict = DefaultTypeTransformation.castToBoolean(option.get(Option.strict));
 
-		synchronized (cli) {
-			try {
-				if (input.isEmpty() && !getInputFileMap(parameters).isEmpty()) {
-					return cli.rename(getInputFileMap(parameters), action, asString(option.get(Option.conflict)));
-				}
-
+		try {
+			if (input.isEmpty() && !getInputFileMap(parameters).isEmpty()) {
+				return cli.rename(getInputFileMap(parameters), action, asString(option.get(Option.conflict)));
+			} else {
 				return cli.rename(input, action, asString(option.get(Option.conflict)), asString(option.get(Option.output)), asString(option.get(Option.format)), asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.order)), asString(option.get(Option.filter)), asString(option.get(Option.lang)), strict);
-			} catch (Exception e) {
-				printException(e, false);
-				return null;
 			}
+		} catch (Exception e) {
+			printException(e);
 		}
+
+		return null;
 	}
 
 	public List<File> getSubtitles(Map<String, ?> parameters) throws Exception {
@@ -339,14 +341,13 @@ public abstract class ScriptShellBaseClass extends Script {
 		Map<Option, Object> option = getDefaultOptions(parameters);
 		boolean strict = DefaultTypeTransformation.castToBoolean(option.get(Option.strict));
 
-		synchronized (cli) {
-			try {
-				return cli.getSubtitles(input, asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.lang)), asString(option.get(Option.output)), asString(option.get(Option.encoding)), asString(option.get(Option.format)), strict);
-			} catch (Exception e) {
-				printException(e, false);
-				return null;
-			}
+		try {
+			return cli.getSubtitles(input, asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.lang)), asString(option.get(Option.output)), asString(option.get(Option.encoding)), asString(option.get(Option.format)), strict);
+		} catch (Exception e) {
+			printException(e);
 		}
+
+		return null;
 	}
 
 	public List<File> getMissingSubtitles(Map<String, ?> parameters) throws Exception {
@@ -354,41 +355,38 @@ public abstract class ScriptShellBaseClass extends Script {
 		Map<Option, Object> option = getDefaultOptions(parameters);
 		boolean strict = DefaultTypeTransformation.castToBoolean(option.get(Option.strict));
 
-		synchronized (cli) {
-			try {
-				return cli.getMissingSubtitles(input, asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.lang)), asString(option.get(Option.output)), asString(option.get(Option.encoding)), asString(option.get(Option.format)), strict);
-			} catch (Exception e) {
-				printException(e, false);
-				return null;
-			}
+		try {
+			return cli.getMissingSubtitles(input, asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.lang)), asString(option.get(Option.output)), asString(option.get(Option.encoding)), asString(option.get(Option.format)), strict);
+		} catch (Exception e) {
+			printException(e);
 		}
+
+		return null;
 	}
 
 	public boolean check(Map<String, ?> parameters) throws Exception {
 		List<File> input = getInputFileList(parameters);
 
-		synchronized (cli) {
-			try {
-				return cli.check(input);
-			} catch (Exception e) {
-				printException(e, false);
-				return false;
-			}
+		try {
+			return cli.check(input);
+		} catch (Exception e) {
+			printException(e);
 		}
+
+		return false;
 	}
 
 	public File compute(Map<String, ?> parameters) throws Exception {
 		List<File> input = getInputFileList(parameters);
 		Map<Option, Object> option = getDefaultOptions(parameters);
 
-		synchronized (cli) {
-			try {
-				return cli.compute(input, asString(option.get(Option.output)), asString(option.get(Option.encoding)));
-			} catch (Exception e) {
-				printException(e, false);
-				return null;
-			}
+		try {
+			return cli.compute(input, asString(option.get(Option.output)), asString(option.get(Option.encoding)));
+		} catch (Exception e) {
+			printException(e);
 		}
+
+		return null;
 	}
 
 	public List<File> extract(Map<String, ?> parameters) throws Exception {
@@ -397,35 +395,25 @@ public abstract class ScriptShellBaseClass extends Script {
 		FileFilter filter = (FileFilter) DefaultTypeTransformation.castToType(option.get(Option.filter), FileFilter.class);
 		boolean forceExtractAll = DefaultTypeTransformation.castToBoolean(option.get(Option.forceExtractAll));
 
-		synchronized (cli) {
-			try {
-				return cli.extract(input, asString(option.get(Option.output)), asString(option.get(Option.conflict)), filter, forceExtractAll);
-			} catch (Exception e) {
-				printException(e, false);
-				return null;
-			}
+		try {
+			return cli.extract(input, asString(option.get(Option.output)), asString(option.get(Option.conflict)), filter, forceExtractAll);
+		} catch (Exception e) {
+			printException(e);
 		}
+
+		return null;
 	}
 
 	public List<String> fetchEpisodeList(Map<String, ?> parameters) throws Exception {
 		Map<Option, Object> option = getDefaultOptions(parameters);
 
-		synchronized (cli) {
-			try {
-				return cli.fetchEpisodeList(asString(option.get(Option.query)), asString(option.get(Option.format)), asString(option.get(Option.db)), asString(option.get(Option.order)), asString(option.get(Option.filter)), asString(option.get(Option.lang)));
-			} catch (Exception e) {
-				printException(e, false);
-				return null;
-			}
+		try {
+			return cli.fetchEpisodeList(asString(option.get(Option.query)), asString(option.get(Option.format)), asString(option.get(Option.db)), asString(option.get(Option.order)), asString(option.get(Option.filter)), asString(option.get(Option.lang)));
+		} catch (Exception e) {
+			printException(e);
 		}
-	}
 
-	public String getMediaInfo(File file, String format) throws Exception {
-		return cli.getMediaInfo(singleton(file), format, null).get(0); // explicitly ignore the --filter option
-	}
-
-	public List<String> getMediaInfo(Collection<?> files, String format) throws Exception {
-		return cli.getMediaInfo(asFileList(files), format, null); // explicitly ignore the --filter option
+		return null;
 	}
 
 	public Object getMediaInfo(Map<String, ?> parameters) throws Exception {
@@ -435,19 +423,21 @@ public abstract class ScriptShellBaseClass extends Script {
 		}
 
 		Map<Option, Object> option = getDefaultOptions(parameters);
-		synchronized (cli) {
-			try {
-				List<String> lines = cli.getMediaInfo(input, asString(option.get(Option.format)), asString(option.get(Option.filter)));
-				if (parameters.containsKey("file") && !(parameters.get("file") instanceof Collection)) {
-					return lines.get(0); // HACK for script backwards compatibility
-				} else {
-					return lines;
-				}
-			} catch (Exception e) {
-				printException(e, false);
-				return null;
-			}
+		try {
+			return cli.getMediaInfo(input, asString(option.get(Option.format)), asString(option.get(Option.filter)));
+		} catch (Exception e) {
+			printException(e);
 		}
+
+		return null;
+	}
+
+	public String getMediaInfo(File file, String format) throws Exception {
+		return cli.getMediaInfo(singleton(file), format, null).get(0); // explicitly ignore the --filter option
+	}
+
+	public List<String> getMediaInfo(Collection<?> files, String format) throws Exception {
+		return cli.getMediaInfo(asFileList(files), format, null); // explicitly ignore the --filter option
 	}
 
 	private List<File> getInputFileList(Map<String, ?> parameters) {
