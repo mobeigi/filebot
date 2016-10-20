@@ -143,6 +143,9 @@ public class MainFrame extends JFrame {
 	}
 
 	private void showPanel(PanelBuilder selectedBuilder) {
+		if (selectedBuilder == null)
+			return;
+
 		JComponent contentPane = (JComponent) getContentPane();
 		JComponent selectedPanel = null;
 
