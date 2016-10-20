@@ -104,14 +104,20 @@ public class ScriptShellMethods {
 		return ARCHIVE_FILES.accept(self);
 	}
 
-	public static boolean isDisk(File self) throws Exception {
+	public static boolean isDisk(File self) {
 		// check disk folder
-		if (self.isDirectory() && MediaDetection.isDiskFolder(self))
+		if (self.isDirectory() && MediaDetection.isDiskFolder(self)) {
 			return true;
+		}
 
 		// check disk image
-		if (self.isFile() && MediaTypes.getDefaultFilter("video/iso").accept(self) && MediaDetection.isVideoDiskFile(self))
-			return true;
+		if (self.isFile() && MediaTypes.getDefaultFilter("video/iso").accept(self)) {
+			try {
+				return MediaDetection.isVideoDiskFile(self);
+			} catch (Exception e) {
+				debug.log(Level.WARNING, format("Failed to read disk image: %s: %s", self, e));
+			}
+		}
 
 		return false;
 	}
