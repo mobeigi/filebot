@@ -15,7 +15,7 @@ public class SuppressedThrowables extends RuntimeException {
 	}
 
 	public SuppressedThrowables(String message, Throwable... causes) {
-		super(message(message, causes), causes.length > 0 ? causes[causes.length - 1] : null); // last exception as default cause
+		super(getMessage(message, causes), causes.length > 0 ? causes[causes.length - 1] : null); // last exception as default cause
 		this.causes = causes;
 	}
 
@@ -23,20 +23,20 @@ public class SuppressedThrowables extends RuntimeException {
 		return causes.clone();
 	}
 
-	private static String message(String message, Throwable... causes) {
+	private static String getMessage(String message, Throwable... causes) {
 		if (causes.length == 0) {
 			return message;
 		}
 
 		if (message == null || message.isEmpty()) {
-			return message(causes);
+			return getMessage(causes);
 		}
 
-		return message + ": " + message(causes);
+		return message + ": " + getMessage(causes);
 	}
 
-	private static String message(Throwable... causes) {
-		return stream(causes).map(Throwable::getMessage).map(Objects::toString).collect(joining("; "));
+	private static String getMessage(Throwable... causes) {
+		return stream(causes).map(Throwable::getMessage).map(Objects::toString).distinct().collect(joining("; "));
 	}
 
 }
