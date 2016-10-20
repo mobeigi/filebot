@@ -4,6 +4,7 @@ import static java.awt.event.InputEvent.*;
 import static java.awt.event.KeyEvent.*;
 import static java.util.Arrays.*;
 import static java.util.Comparator.*;
+import static javax.swing.BorderFactory.*;
 import static javax.swing.KeyStroke.*;
 import static javax.swing.ScrollPaneConstants.*;
 import static net.filebot.Logging.*;
@@ -30,9 +31,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -59,23 +57,11 @@ public class MainFrame extends JFrame {
 		selectionList = new PanelSelectionList(panels);
 		headerPanel = new HeaderPanel();
 
-		// restore selected panel
-		try {
-			selectionList.setSelectedIndex(Integer.parseInt(persistentSelectedPanel.getValue()));
-		} catch (Exception e) {
-			debug.warning(e::getMessage);
-		}
-
 		JScrollPane selectionListScrollPane = new JScrollPane(selectionList, VERTICAL_SCROLLBAR_NEVER, HORIZONTAL_SCROLLBAR_NEVER);
 		selectionListScrollPane.setOpaque(false);
+		selectionListScrollPane.setBorder(createCompoundBorder(new ShadowBorder(), isMacApp() ? createLineBorder(new Color(0x809DB8), 1, false) : selectionListScrollPane.getBorder()));
 
-		if (isMacApp()) {
-			selectionListScrollPane.setBorder(new CompoundBorder(new ShadowBorder(), new LineBorder(new Color(0x809DB8), 1, false)));
-		} else {
-			selectionListScrollPane.setBorder(new CompoundBorder(new ShadowBorder(), selectionListScrollPane.getBorder()));
-		}
-
-		headerPanel.getTitleLabel().setBorder(new EmptyBorder(8, 90, 10, 0));
+		headerPanel.getTitleLabel().setBorder(createEmptyBorder(8, 90, 10, 0));
 
 		JComponent c = (JComponent) getContentPane();
 		c.setLayout(new MigLayout("insets 0, fill, hidemode 3", String.format("%dpx[fill]", isUbuntuApp() ? 110 : 95), "fill"));
@@ -83,8 +69,19 @@ public class MainFrame extends JFrame {
 		c.add(selectionListScrollPane, "pos 6px 10px n 100%-12px");
 		c.add(headerPanel, "growx, dock north");
 
+		// restore selected panel
+		try {
+			selectionList.setSelectedIndex(Integer.parseInt(persistentSelectedPanel.getValue()));
+		} catch (Exception e) {
+			debug.log(Level.WARNING, e, e::getMessage);
+		}
+
 		// show initial panel
-		showPanel((PanelBuilder) selectionList.getSelectedValue());
+		try {
+			showPanel((PanelBuilder) selectionList.getSelectedValue());
+		} catch (Exception e) {
+			debug.log(Level.WARNING, e, e::getMessage);
+		}
 
 		selectionList.addListSelectionListener(evt -> {
 			showPanel((PanelBuilder) selectionList.getSelectedValue());
@@ -188,7 +185,7 @@ public class MainFrame extends JFrame {
 			setPrototypeCellValue(stream(builders).max(comparingInt(p -> p.getName().length())).get());
 
 			setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			setBorder(new EmptyBorder(4, 5, 4, 5));
+			setBorder(createEmptyBorder(4, 5, 4, 5));
 
 			// initialize "drag over" panel selection
 			new DropTarget(this, new DragDropListener());
