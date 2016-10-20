@@ -7,6 +7,7 @@ redirect 302 /manual.html https://www.filebot.net/forums/viewtopic.php?f=3&t=7
 redirect 302 /donate.html https://app.filebot.net/donate.php
 redirect 302 /report.html https://www.filebot.net/forums/viewforum.php?f=6
 redirect 302 /support.html https://www.filebot.net/forums/viewforum.php?f=8
+redirect 302 /help.html https://www.filebot.net/forums/viewtopic.php?f=5&t=1868
 redirect 302 /mac/support.html https://www.filebot.net/forums/viewforum.php?f=12
 redirect 302 /mac/subtitles.html https://www.filebot.net/forums/viewtopic.php?f=12&t=3350
 redirect 302 /mac/brew.html https://www.filebot.net/forums/viewtopic.php?f=4&t=2049
