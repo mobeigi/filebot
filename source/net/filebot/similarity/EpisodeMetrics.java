@@ -217,7 +217,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				Episode e = (Episode) object;
 
 				Stream<String> primaryNames = Stream.of(e.getSeriesName(), e.getTitle());
-				Stream<String> aliasNames = e.getSeriesInfo().getAliasNames().stream().limit(MAX_FIELDS);
+				Stream<String> aliasNames = e.getSeriesInfo() == null ? Stream.empty() : e.getSeriesInfo().getAliasNames().stream().limit(MAX_FIELDS);
 
 				Stream<String> names = Stream.concat(primaryNames, aliasNames).filter(s -> s != null && s.length() > 0).map(Normalization::removeTrailingBrackets).distinct();
 				return copyOf(names.limit(MAX_FIELDS).toArray(), MAX_FIELDS);

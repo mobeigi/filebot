@@ -128,9 +128,9 @@ public class TMDbClientTest {
 	public void discoverPeriod() throws Exception {
 		Movie m = db.discover(LocalDate.parse("2014-09-15"), LocalDate.parse("2014-10-22"), Locale.ENGLISH).get(0);
 
-		assertEquals("Big Hero 6", m.getName());
+		assertEquals("John Wick", m.getName());
 		assertEquals(2014, m.getYear());
-		assertEquals(177572, m.getTmdbId());
+		assertEquals(245891, m.getTmdbId());
 	}
 
 	@Test

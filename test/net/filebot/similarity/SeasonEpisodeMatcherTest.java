@@ -33,6 +33,7 @@ public class SeasonEpisodeMatcherTest {
 		assertEquals("[1x01, 1x02]", matcher.match("1x01-02").toString());
 		assertEquals("[3x11, 3x12, 3x13, 3x14]", matcher.match("03x11-03x12-03x13-03x14").toString());
 		assertEquals("[9x09, 9x10]", matcher.match("09x09-09x10").toString());
+		assertEquals("[2x17, 2x18]", matcher.match("[Season 2 Episode 17-18]").toString());
 	}
 
 	@Test
@@ -85,9 +86,6 @@ public class SeasonEpisodeMatcherTest {
 
 		// test 4-digit
 		assertEquals(asList(new SxE(23, 21)), matcher.match("the.simpsons.2321.hdtv-lol"));
-
-		// test Num101_SUBSTRING
-		assertEquals(asList(new SxE(4, 07)), matcher.match("TWalkingDead4071080p"));
 	}
 
 	@Test

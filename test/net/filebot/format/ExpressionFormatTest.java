@@ -100,7 +100,7 @@ public class ExpressionFormatTest {
 		format.format(new SimpleBindings());
 
 		// check message
-		assertEquals("Binding \"xyz\": undefined", format.suppressed().getMessage());
+		assertEquals("Suppressed: Binding \"xyz\": undefined", format.suppressed().getMessage());
 	}
 
 	@Test
@@ -109,7 +109,7 @@ public class ExpressionFormatTest {
 		format.format("test");
 
 		// check message
-		assertEquals("Binding \"xyz\": undefined", format.suppressed().getMessage());
+		assertEquals("Suppressed: Binding \"xyz\": undefined", format.suppressed().getMessage());
 	}
 
 	protected static class TestScriptFormat extends ExpressionFormat {
