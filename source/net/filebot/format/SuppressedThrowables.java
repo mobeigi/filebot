@@ -36,7 +36,7 @@ public class SuppressedThrowables extends RuntimeException {
 	}
 
 	private static String getMessage(Throwable... causes) {
-		return stream(causes).map(Throwable::getMessage).map(Objects::toString).distinct().collect(joining("; "));
+		return stream(causes).map(Throwable::getMessage).map(Objects::toString).distinct().collect(joining(" | "));
 	}
 
 }
