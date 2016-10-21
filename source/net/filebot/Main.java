@@ -246,7 +246,7 @@ public class Main {
 			frame.setIconImages(ResourceManager.getApplicationIcons());
 		} else if (isWindowsApp()) {
 			// Windows specific configuration
-			WinAppUtilities.setAppUserModelID("net.filebot.FileBot"); // support Windows 7 taskbar behaviours
+			WinAppUtilities.setAppUserModelID(Settings.getApplicationUserModelID()); // support Windows 7 taskbar behaviours
 			frame.setIconImages(ResourceManager.getApplicationIcons());
 		} else {
 			// generic Linux/FreeBSD/Solaris configuration

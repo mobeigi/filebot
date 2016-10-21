@@ -118,6 +118,10 @@ public final class Settings {
 		return false;
 	}
 
+	public static String getApplicationUserModelID() {
+		return System.getProperty("net.filebot.AppUserModelID", getApplicationName());
+	}
+
 	public static FileChooser getPreferredFileChooser() {
 		return FileChooser.valueOf(System.getProperty("net.filebot.UserFiles.fileChooser", "Swing"));
 	}

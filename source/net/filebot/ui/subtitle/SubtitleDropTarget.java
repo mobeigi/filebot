@@ -33,7 +33,6 @@ import javax.swing.JDialog;
 import javax.swing.SwingUtilities;
 
 import net.filebot.ResourceManager;
-import net.filebot.Settings;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.ui.subtitle.upload.SubtitleUploadDialog;
 import net.filebot.util.FileUtilities;
@@ -170,7 +169,7 @@ abstract class SubtitleDropTarget extends JButton {
 				return false;
 			}
 
-			if (getSubtitleService().isAnonymous() && !Settings.isAppStore()) {
+			if (getSubtitleService().isAnonymous() && !isAppStore()) {
 				log.info(String.format("%s: Please enter your login details.", getSubtitleService().getName()));
 				return false;
 			}
