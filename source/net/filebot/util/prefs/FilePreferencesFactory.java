@@ -1,65 +1,51 @@
-// https://github.com/sonatype/nexus/blob/2f0e154ec565969b4fd8698883ab76a461210f4f/nexus/nexus-test-harness/nexus-it-helper-plugin/src/main/java/org/sonatype/nexus/rt/prefs/FilePreferencesFactory.java
-
 package net.filebot.util.prefs;
 
-
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.prefs.PreferencesFactory;
 
-
-/**
- * PreferencesFactory implementation that stores the preferences in a user-defined file. To use it, set the system
- * property <tt>java.util.prefs.PreferencesFactory</tt> to <tt>net.filebot.util.pref.FilePreferencesFactory</tt>
- * <p/>
- * The file defaults to [user.home]/.fileprefs, but may be overridden with the system property
- * <tt>net.filebot.util.pref.FilePreferencesFactory.file</tt>. Modified by cstamas, switched to SLF4J logging, and
- * exposed preferences file property.
- *
- * @author David Croft (<a href="http://www.davidc.net">www.davidc.net</a>)
- * @version $Id: FilePreferencesFactory.java 282 2009-06-18 17:05:18Z david $
- */
 public class FilePreferencesFactory implements PreferencesFactory {
 
-	Preferences rootPreferences;
-
-	public static final String SYSTEM_PROPERTY_FILE = "net.filebot.util.prefs.file";
-
+	private final static FilePreferences userRoot = createRootNode(getBackingStoreFile());
 
 	@Override
 	public Preferences systemRoot() {
-		return userRoot();
+		return userRoot;
 	}
-
 
 	@Override
 	public Preferences userRoot() {
-		if (rootPreferences == null) {
-			rootPreferences = new FilePreferences(null, "");
-		}
-
-		return rootPreferences;
+		return userRoot;
 	}
 
-	private static File preferencesFile;
+	public static FilePreferences createRootNode(Path backingStoreFile) {
+		FilePreferences node = new FilePreferences(new PropertyFileBackingStore(backingStoreFile));
 
+		// restore preferences
+		try {
+			node.sync();
+		} catch (Exception e) {
+			Logger.getLogger(FilePreferences.class.getName()).log(Level.WARNING, e, e::toString);
+		}
 
-	public static File getPreferencesFile() {
-		if (preferencesFile == null) {
-			String prefsFile = System.getProperty(SYSTEM_PROPERTY_FILE);
-
-			if (prefsFile == null || prefsFile.length() == 0) {
-				prefsFile = System.getProperty("user.home") + File.separator + ".fileprefs";
+		// store preferences on exit
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			try {
+				userRoot.flush();
+			} catch (BackingStoreException e) {
+				Logger.getLogger(FilePreferences.class.getName()).log(Level.WARNING, e, e::toString);
 			}
+		}));
 
-			preferencesFile = new File(prefsFile).getAbsoluteFile();
-		}
-
-		return preferencesFile;
+		return node;
 	}
 
-
-	public static void setPreferencesFile(File file) {
-		preferencesFile = file;
+	public static Path getBackingStoreFile() {
+		return Paths.get(System.getProperty("net.filebot.util.prefs.file", "prefs.properties"));
 	}
+
 }
