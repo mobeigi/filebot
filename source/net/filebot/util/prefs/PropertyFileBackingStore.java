@@ -19,6 +19,7 @@ import java.util.Properties;
 public class PropertyFileBackingStore {
 
 	private Path store;
+	private int modCount = 0;
 
 	private Map<String, Map<String, String>> nodes = new HashMap<String, Map<String, String>>();
 
@@ -31,6 +32,7 @@ public class PropertyFileBackingStore {
 	}
 
 	public synchronized String setValue(String node, String key, String value) {
+		modCount++;
 		return nodes.computeIfAbsent(node, this::newKeyValueMap).put(key, value);
 	}
 
@@ -45,11 +47,13 @@ public class PropertyFileBackingStore {
 	public synchronized void removeValue(String node, String key) {
 		Map<String, String> values = nodes.get(node);
 		if (values != null) {
+			modCount++;
 			values.remove(key);
 		}
 	}
 
 	public synchronized void removeNode(String node) {
+		modCount++;
 		nodes.remove(node);
 	}
 
@@ -115,6 +119,10 @@ public class PropertyFileBackingStore {
 	}
 
 	public void flush() throws IOException {
+		if (modCount == 0) {
+			return;
+		}
+
 		StringWriter buffer = new StringWriter();
 		toProperties().store(buffer, null);
 
@@ -126,6 +134,8 @@ public class PropertyFileBackingStore {
 				out.truncate(out.position());
 			}
 		}
+
+		modCount = 0; // reset
 	}
 
 	@Override
