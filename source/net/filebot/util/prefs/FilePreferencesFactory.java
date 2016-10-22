@@ -29,7 +29,7 @@ public class FilePreferencesFactory implements PreferencesFactory {
 		try {
 			node.sync();
 		} catch (Exception e) {
-			Logger.getLogger(FilePreferences.class.getName()).log(Level.WARNING, e, e::toString);
+			Logger.getLogger(FilePreferences.class.getName()).log(Level.WARNING, "Failed to load preferences: " + backingStoreFile, e);
 		}
 
 		// store preferences on exit
@@ -37,7 +37,7 @@ public class FilePreferencesFactory implements PreferencesFactory {
 			try {
 				userRoot.flush();
 			} catch (BackingStoreException e) {
-				Logger.getLogger(FilePreferences.class.getName()).log(Level.WARNING, e, e::toString);
+				Logger.getLogger(FilePreferences.class.getName()).log(Level.WARNING, "Failed to save preferences: " + backingStoreFile, e);
 			}
 		}));
 

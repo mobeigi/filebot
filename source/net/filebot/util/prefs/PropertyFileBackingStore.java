@@ -115,8 +115,8 @@ public class PropertyFileBackingStore {
 	}
 
 	public void flush() throws IOException {
-		StringWriter buffer = new StringWriter(1024);
-		this.toProperties().store(buffer, null);
+		StringWriter buffer = new StringWriter();
+		toProperties().store(buffer, null);
 
 		ByteBuffer data = UTF_8.encode(CharBuffer.wrap(buffer.getBuffer()));
 
