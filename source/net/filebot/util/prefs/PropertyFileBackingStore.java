@@ -13,10 +13,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 public class PropertyFileBackingStore {
+
+	private static final char nodeSeparatorChar = '/';
+	private static final Pattern nodeSeparatorPattern = Pattern.compile(String.valueOf(nodeSeparatorChar), Pattern.LITERAL);
 
 	private Path store;
 	private int modCount = 0;
@@ -66,7 +72,21 @@ public class PropertyFileBackingStore {
 	}
 
 	public synchronized String[] getChildren(String node) {
-		return nodes.keySet().stream().filter(k -> k.length() > node.length() && k.indexOf('/', node.length()) < 0 && k.startsWith(node)).map(k -> k.substring(node.length())).toArray(String[]::new);
+		HashSet<String> keys = new HashSet<String>();
+		String[] path = node.isEmpty() ? new String[0] : nodeSeparatorPattern.split(node);
+
+		for (String n : nodes.keySet()) {
+			String[] p = nodeSeparatorPattern.split(n);
+
+			if (p.length > path.length) {
+				if (path.length == 0 || IntStream.range(0, path.length).allMatch(i -> p[i].equals(path[i]))) {
+					keys.add(p[path.length]);
+				}
+			}
+		}
+
+		return keys.toArray(new String[0]);
+
 	}
 
 	public synchronized Properties toProperties() {
@@ -74,7 +94,7 @@ public class PropertyFileBackingStore {
 
 		nodes.forEach((node, values) -> {
 			values.forEach((key, value) -> {
-				props.put(node + '/' + key, value);
+				props.put(node + nodeSeparatorChar + key, value);
 			});
 		});
 
@@ -107,7 +127,7 @@ public class PropertyFileBackingStore {
 
 		props.forEach((k, v) -> {
 			String propertyKey = k.toString();
-			int s = propertyKey.lastIndexOf('/');
+			int s = propertyKey.lastIndexOf(nodeSeparatorChar);
 
 			String node = propertyKey.substring(0, s);
 			String key = propertyKey.substring(s + 1);
