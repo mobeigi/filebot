@@ -102,7 +102,7 @@ public final class WebServices {
 		return getService(name, getMusicIdentificationServices());
 	}
 
-	private static <T extends Datasource> T getService(String name, T[] services) {
+	public static <T extends Datasource> T getService(String name, T[] services) {
 		return StreamEx.of(services).findFirst(it -> it.getIdentifier().equalsIgnoreCase(name) || it.getName().equalsIgnoreCase(name)).orElse(null);
 	}
 

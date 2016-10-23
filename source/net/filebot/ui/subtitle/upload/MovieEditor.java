@@ -99,10 +99,10 @@ class MovieEditor implements TableCellEditor {
 
 		newSwingWorker(() -> {
 			return runSearch(mapping, table);
-		}, (options) -> {
+		}, options -> {
 			runSelect(options, mapping, table);
 			reset(null, table);
-		}, (error) -> {
+		}, error -> {
 			reset(error, table);
 		}).execute();
 

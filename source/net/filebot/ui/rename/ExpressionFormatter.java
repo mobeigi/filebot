@@ -25,12 +25,24 @@ class ExpressionFormatter implements MatchFormatter {
 	private Class<?> target;
 
 	public ExpressionFormatter(String expression, Format preview, Class<?> target) {
-		if (expression == null || expression.isEmpty())
+		if (expression == null || expression.isEmpty()) {
 			throw new IllegalArgumentException("Expression must not be null or empty");
+		}
 
 		this.expression = expression;
 		this.preview = preview;
 		this.target = target;
+	}
+
+	public ExpressionFormatter(ExpressionFormat format, Format preview, Class<?> target) {
+		this(format.getExpression(), preview, target);
+
+		// use compiled format expression right away
+		this.format = format;
+	}
+
+	public Class<?> getTargetClass() {
+		return target;
 	}
 
 	@Override

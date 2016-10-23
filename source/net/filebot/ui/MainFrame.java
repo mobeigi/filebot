@@ -100,33 +100,29 @@ public class MainFrame extends JFrame {
 		}));
 
 		installAction(getRootPane(), getKeyStroke(VK_F5, 0), newAction("Run", evt -> {
-			try {
-				withWaitCursor(getRootPane(), () -> {
-					GroovyPad pad = new GroovyPad();
+			withWaitCursor(getRootPane(), () -> {
+				GroovyPad pad = new GroovyPad();
 
-					pad.addWindowListener(new WindowAdapter() {
-						@Override
-						public void windowOpened(WindowEvent e) {
-							setVisible(false);
+				pad.addWindowListener(new WindowAdapter() {
+					@Override
+					public void windowOpened(WindowEvent e) {
+						setVisible(false);
 
-							// run default script on startup
-							pad.runScript(GroovyPad.DEFAULT_SCRIPT);
-						};
+						// run default script on startup
+						pad.runScript(GroovyPad.DEFAULT_SCRIPT);
+					};
 
-						@Override
-						public void windowClosing(WindowEvent e) {
-							setVisible(true);
-						};
-					});
-
-					pad.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-					pad.setModalExclusionType(ModalExclusionType.TOOLKIT_EXCLUDE);
-					pad.setLocationByPlatform(true);
-					pad.setVisible(true);
+					@Override
+					public void windowClosing(WindowEvent e) {
+						setVisible(true);
+					};
 				});
-			} catch (Exception e) {
-				debug.log(Level.WARNING, e.getMessage(), e);
-			}
+
+				pad.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+				pad.setModalExclusionType(ModalExclusionType.TOOLKIT_EXCLUDE);
+				pad.setLocationByPlatform(true);
+				pad.setVisible(true);
+			});
 		}));
 
 		installAction(this.getRootPane(), getKeyStroke(VK_F1, 0), newAction("Help", evt -> GettingStartedStage.start()));

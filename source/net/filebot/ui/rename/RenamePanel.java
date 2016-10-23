@@ -1,6 +1,7 @@
 package net.filebot.ui.rename;
 
 import static java.awt.event.KeyEvent.*;
+import static java.util.Collections.*;
 import static javax.swing.JOptionPane.*;
 import static javax.swing.KeyStroke.*;
 import static javax.swing.SwingUtilities.*;
@@ -15,7 +16,6 @@ import static net.filebot.util.ui.SwingUI.*;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Insets;
-import java.awt.Window;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -63,6 +63,7 @@ import net.filebot.Settings;
 import net.filebot.StandardRenameAction;
 import net.filebot.UserFiles;
 import net.filebot.WebServices;
+import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.media.MetaAttributes;
@@ -314,15 +315,13 @@ public class RenamePanel extends JComponent {
 	private void installKeyStrokeActions() {
 		// manual force name via F2
 		installAction(this, WHEN_IN_FOCUSED_WINDOW, getKeyStroke(VK_F2, 0), newAction("Force Name", evt -> {
-			try {
+			withWaitCursor(evt.getSource(), () -> {
 				if (namesList.getModel().isEmpty()) {
-					withWaitCursor(evt.getSource(), () -> {
-						// match to xattr metadata object or the file itself
-						Map<File, Object> xattr = WebServices.XattrMetaData.match(renameModel.files(), false);
+					// match to xattr metadata object or the file itself
+					Map<File, Object> xattr = WebServices.XattrMetaData.match(renameModel.files(), false);
 
-						renameModel.clear();
-						renameModel.addAll(xattr.values(), xattr.keySet());
-					});
+					renameModel.clear();
+					renameModel.addAll(xattr.values(), xattr.keySet());
 				} else {
 					int index = namesList.getListComponent().getSelectedIndex();
 					if (index >= 0) {
@@ -335,9 +334,7 @@ public class RenamePanel extends JComponent {
 						}
 					}
 				}
-			} catch (Exception e) {
-				debug.log(Level.WARNING, e::toString);
-			}
+			});
 		}));
 
 		// map 1..9 number keys to presets
@@ -359,19 +356,15 @@ public class RenamePanel extends JComponent {
 
 		// copy debug information (paths and objects)
 		installAction(this, WHEN_IN_FOCUSED_WINDOW, getKeyStroke(VK_F7, 0), newAction("Copy Debug Information", evt -> {
-			try {
-				withWaitCursor(evt.getSource(), () -> {
-					String text = getDebugInfo();
-					if (text.length() > 0) {
-						copyToClipboard(text);
-						log.info("Match model has been copied to clipboard");
-					} else {
-						log.warning("Match model is empty");
-					}
-				});
-			} catch (Exception e) {
-				debug.log(Level.WARNING, e, e::getMessage);
-			}
+			withWaitCursor(evt.getSource(), () -> {
+				String text = getDebugInfo();
+				if (text.length() > 0) {
+					copyToClipboard(text);
+					log.info("Match model has been copied to clipboard");
+				} else {
+					log.warning("Match model is empty");
+				}
+			});
 		}));
 	}
 
@@ -581,40 +574,36 @@ public class RenamePanel extends JComponent {
 	}
 
 	private void showFormatEditor(MediaBindingBean binding) {
-		try {
-			withWaitCursor(this, () -> {
-				FormatDialog dialog = new FormatDialog(getWindowAncestor(RenamePanel.this), getFormatEditorMode(binding), binding);
-				dialog.setLocation(getOffsetLocation(dialog.getOwner()));
-				dialog.setVisible(true);
+		withWaitCursor(this, () -> {
+			FormatDialog dialog = new FormatDialog(getWindowAncestor(RenamePanel.this), getFormatEditorMode(binding), binding);
+			dialog.setLocation(getOffsetLocation(dialog.getOwner()));
+			dialog.setVisible(true);
 
-				if (dialog.submit()) {
-					switch (dialog.getMode()) {
-					case Episode:
-						renameModel.useFormatter(Episode.class, new ExpressionFormatter(dialog.getFormat().getExpression(), EpisodeFormat.SeasonEpisode, Episode.class));
-						persistentEpisodeFormat.setValue(dialog.getFormat().getExpression());
-						break;
-					case Movie:
-						renameModel.useFormatter(Movie.class, new ExpressionFormatter(dialog.getFormat().getExpression(), MovieFormat.NameYear, Movie.class));
-						persistentMovieFormat.setValue(dialog.getFormat().getExpression());
-						break;
-					case Music:
-						renameModel.useFormatter(AudioTrack.class, new ExpressionFormatter(dialog.getFormat().getExpression(), new AudioTrackFormat(), AudioTrack.class));
-						persistentMusicFormat.setValue(dialog.getFormat().getExpression());
-						break;
-					case File:
-						renameModel.useFormatter(File.class, new ExpressionFormatter(dialog.getFormat().getExpression(), new FileNameFormat(), File.class));
-						persistentFileFormat.setValue(dialog.getFormat().getExpression());
-						break;
-					}
-
-					if (binding == null) {
-						persistentLastFormatState.setValue(dialog.getMode().name());
-					}
+			if (dialog.submit()) {
+				switch (dialog.getMode()) {
+				case Episode:
+					renameModel.useFormatter(Episode.class, new ExpressionFormatter(dialog.getFormat().getExpression(), EpisodeFormat.SeasonEpisode, Episode.class));
+					persistentEpisodeFormat.setValue(dialog.getFormat().getExpression());
+					break;
+				case Movie:
+					renameModel.useFormatter(Movie.class, new ExpressionFormatter(dialog.getFormat().getExpression(), MovieFormat.NameYear, Movie.class));
+					persistentMovieFormat.setValue(dialog.getFormat().getExpression());
+					break;
+				case Music:
+					renameModel.useFormatter(AudioTrack.class, new ExpressionFormatter(dialog.getFormat().getExpression(), new AudioTrackFormat(), AudioTrack.class));
+					persistentMusicFormat.setValue(dialog.getFormat().getExpression());
+					break;
+				case File:
+					renameModel.useFormatter(File.class, new ExpressionFormatter(dialog.getFormat().getExpression(), new FileNameFormat(), File.class));
+					persistentFileFormat.setValue(dialog.getFormat().getExpression());
+					break;
 				}
-			});
-		} catch (Exception e) {
-			debug.log(Level.WARNING, e::getMessage);
-		}
+
+				if (binding == null) {
+					persistentLastFormatState.setValue(dialog.getMode().name());
+				}
+			}
+		});
 	}
 
 	private String getDebugInfo() throws Exception {
@@ -705,20 +694,33 @@ public class RenamePanel extends JComponent {
 
 		@Override
 		public List<File> getFiles(ActionEvent evt) {
-			List<File> selection = preset.selectInputFiles(evt);
+			File inputFolder = preset.getInputFolder();
 
-			if (selection != null) {
-				renameModel.clear();
-				renameModel.files().addAll(selection);
-			} else {
-				selection = new ArrayList<File>(super.getFiles(evt));
+			if (inputFolder == null) {
+				return super.getFiles(evt); // default behaviour
 			}
 
-			if (selection.isEmpty()) {
-				throw new IllegalStateException("No files selected.");
+			if (isMacSandbox()) {
+				if (!MacAppUtilities.askUnlockFolders(getWindow(RenamePanel.this), singleton(inputFolder))) {
+					return emptyList();
+				}
 			}
 
-			return selection;
+			try {
+				List<File> selection = onSecondaryLoop(preset::selectFiles); // run potentially long-running operations on secondary EDT
+
+				if (selection.size() > 0) {
+					renameModel.clear();
+					renameModel.files().addAll(selection);
+					return selection;
+				}
+
+				log.info("No files have been selected.");
+			} catch (Exception e) {
+				log.log(Level.WARNING, e, e::toString);
+			}
+
+			return emptyList();
 		}
 
 		@Override
@@ -738,40 +740,38 @@ public class RenamePanel extends JComponent {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
-			Window window = getWindow(RenamePanel.this);
-			window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			SwingWorker<ExpressionFormatter, Void> worker = newSwingWorker(() -> {
+				ExpressionFormat format = preset.getFormat();
 
-			// Swing Bug Workaround: heavy-weight popup window blocks parent window from being updated (i.e. set wait cursor) unless we wait a little bit until the popup window is destroyed
-			invokeLater(200, () -> {
-				try {
-					if (preset.getFormat() != null) {
-						switch (FormatDialog.Mode.getMode(preset.getDatasource())) {
-						case Episode:
-							renameModel.useFormatter(Episode.class, new ExpressionFormatter(preset.getFormat().getExpression(), EpisodeFormat.SeasonEpisode, Episode.class));
-							break;
-						case Movie:
-							renameModel.useFormatter(Movie.class, new ExpressionFormatter(preset.getFormat().getExpression(), MovieFormat.NameYear, Movie.class));
-							break;
-						case Music:
-							renameModel.useFormatter(AudioTrack.class, new ExpressionFormatter(preset.getFormat().getExpression(), new AudioTrackFormat(), AudioTrack.class));
-							break;
-						case File:
-							renameModel.useFormatter(File.class, new ExpressionFormatter(preset.getFormat().getExpression(), new FileNameFormat(), File.class));
-							break;
-						}
+				if (format != null && preset.getDatasource() != null) {
+					switch (Mode.getMode(preset.getDatasource())) {
+					case Episode:
+						return new ExpressionFormatter(format, EpisodeFormat.SeasonEpisode, Episode.class);
+					case Movie:
+						return new ExpressionFormatter(format, MovieFormat.NameYear, Movie.class);
+					case Music:
+						return new ExpressionFormatter(format, new AudioTrackFormat(), AudioTrack.class);
+					case File:
+						return new ExpressionFormatter(format, new FileNameFormat(), File.class);
 					}
-
-					if (preset.getRenameAction() != null) {
-						new SetRenameAction(preset.getRenameAction()).actionPerformed(evt);
-					}
-
-					super.actionPerformed(evt);
-				} catch (Exception e) {
-					log.log(Level.INFO, e, e::getMessage);
-				} finally {
-					window.setCursor(Cursor.getDefaultCursor());
 				}
-			});
+
+				return null;
+			}, formatter -> {
+				if (formatter != null) {
+					renameModel.useFormatter(formatter.getTargetClass(), formatter);
+				}
+
+				if (preset.getRenameAction() != null) {
+					new SetRenameAction(preset.getRenameAction()).actionPerformed(evt);
+				}
+
+				super.actionPerformed(evt);
+			}, () -> namesList.firePropertyChange(LOADING_PROPERTY, true, false));
+
+			// auto-match in progress
+			namesList.firePropertyChange(LOADING_PROPERTY, false, true);
+			worker.execute();
 		}
 	}
 
@@ -859,11 +859,15 @@ public class RenamePanel extends JComponent {
 			// clear names list
 			renameModel.values().clear();
 
-			final List<File> remainingFiles = new LinkedList<File>(getFiles(evt));
-			final boolean strict = isStrict(evt);
-			final SortOrder order = getSortOrder(evt);
-			final Locale locale = getLocale(evt);
-			final boolean autodetection = isAutoDetectionEnabled(evt);
+			List<File> remainingFiles = new LinkedList<File>(getFiles(evt));
+			if (remainingFiles.isEmpty()) {
+				return;
+			}
+
+			boolean strict = isStrict(evt);
+			SortOrder order = getSortOrder(evt);
+			Locale locale = getLocale(evt);
+			boolean autodetection = isAutoDetectionEnabled(evt);
 
 			if (isMacSandbox()) {
 				if (!MacAppUtilities.askUnlockFolders(getWindow(RenamePanel.this), remainingFiles)) {

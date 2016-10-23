@@ -13,6 +13,7 @@ import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.SecondaryLoop;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.datatransfer.StringSelection;
@@ -27,6 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -311,19 +313,17 @@ public final class SwingUI {
 		return timer;
 	}
 
-	public static void withWaitCursor(Object source, BackgroundRunnable runnable) throws Exception {
-		Window window = getWindow(source);
-
-		if (window == null) {
-			runnable.run();
-			return;
-		}
+	public static void withWaitCursor(Object source, BackgroundRunnable runnable) {
+		// window ancestor may be null
+		Optional<Window> window = Optional.ofNullable(getWindow(source));
 
 		try {
-			window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			window.ifPresent(w -> w.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));
 			runnable.run();
+		} catch (Exception e) {
+			debug.log(Level.SEVERE, e, e::toString);
 		} finally {
-			window.setCursor(Cursor.getDefaultCursor());
+			window.ifPresent(w -> w.setCursor(Cursor.getDefaultCursor()));
 		}
 	}
 
@@ -368,12 +368,37 @@ public final class SwingUI {
 		}
 	}
 
+	public static <T> T onSecondaryLoop(BackgroundSupplier<T> supplier) throws ExecutionException, InterruptedException {
+		// run spawn new EDT and block current EDT
+		SecondaryLoop secondaryLoop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
+
+		SwingWorker<T, Void> worker = newSwingWorker(supplier, null, null, () -> secondaryLoop.exit());
+		worker.execute();
+
+		// wait for worker to finish without blocking the EDT
+		secondaryLoop.enter();
+
+		return worker.get();
+	}
+
 	public static SwingWorker<Void, Void> newSwingWorker(BackgroundRunnable doInBackground) {
 		return new SwingRunnable(doInBackground);
 	}
 
+	public static <T> SwingWorker<T, Void> newSwingWorker(BackgroundSupplier<T> doInBackground, Consumer<T> done) {
+		return new SwingLambda<T, Void>(doInBackground, done, null, null);
+	}
+
 	public static <T> SwingWorker<T, Void> newSwingWorker(BackgroundSupplier<T> doInBackground, Consumer<T> done, Consumer<Exception> error) {
-		return new SwingLambda<T, Void>(doInBackground, done, error);
+		return new SwingLambda<T, Void>(doInBackground, done, error, null);
+	}
+
+	public static <T> SwingWorker<T, Void> newSwingWorker(BackgroundSupplier<T> doInBackground, Consumer<T> done, Runnable close) {
+		return new SwingLambda<T, Void>(doInBackground, done, null, close);
+	}
+
+	public static <T> SwingWorker<T, Void> newSwingWorker(BackgroundSupplier<T> doInBackground, Consumer<T> done, Consumer<Exception> error, Runnable close) {
+		return new SwingLambda<T, Void>(doInBackground, done, error, close);
 	}
 
 	private static class SwingRunnable extends SwingWorker<Void, Void> {
@@ -404,13 +429,17 @@ public final class SwingUI {
 	private static class SwingLambda<T, V> extends SwingWorker<T, V> {
 
 		private BackgroundSupplier<T> doInBackground;
-		private Consumer<T> done;
-		private Consumer<Exception> error;
+		private Optional<Consumer<T>> done;
+		private Optional<Consumer<Exception>> error;
 
-		public SwingLambda(BackgroundSupplier<T> doInBackground, Consumer<T> done, Consumer<Exception> error) {
+		private Optional<Runnable> close;
+
+		public SwingLambda(BackgroundSupplier<T> doInBackground, Consumer<T> done, Consumer<Exception> error, Runnable close) {
 			this.doInBackground = doInBackground;
-			this.done = done;
-			this.error = error;
+
+			this.done = Optional.ofNullable(done);
+			this.error = Optional.ofNullable(error);
+			this.close = Optional.ofNullable(close);
 		}
 
 		@Override
@@ -421,10 +450,17 @@ public final class SwingUI {
 		@Override
 		protected void done() {
 			try {
-				done.accept(get());
-			} catch (InterruptedException | ExecutionException e) {
-				error.accept(e);
+				T value = get();
+				done.ifPresent(c -> c.accept(value));
+			} catch (Exception e) {
+				error.orElse(this::printException).accept(e); // print stacktrace by default
+			} finally {
+				close.ifPresent(Runnable::run);
 			}
+		}
+
+		private void printException(Exception e) {
+			debug.log(Level.SEVERE, e, e::toString);
 		}
 	}
 

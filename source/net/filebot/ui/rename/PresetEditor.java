@@ -1,30 +1,25 @@
 package net.filebot.ui.rename;
 
 import static java.awt.Font.*;
+import static java.util.Collections.*;
 import static javax.swing.BorderFactory.*;
 import static net.filebot.Logging.*;
+import static net.filebot.Settings.*;
 import static net.filebot.util.ui.SwingUI.*;
 
-import java.awt.Component;
 import java.awt.Font;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
 import java.io.File;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
@@ -45,6 +40,7 @@ import net.filebot.WebServices;
 import net.filebot.format.ExpressionFilter;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
+import net.filebot.mac.MacAppUtilities;
 import net.filebot.ui.HeaderPanel;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
 import net.filebot.web.Datasource;
@@ -91,7 +87,7 @@ public class PresetEditor extends JDialog {
 		actionCombo = createRenameActionCombo();
 		providerCombo = createDataProviderCombo();
 		sortOrderCombo = new JComboBox<SortOrder>(SortOrder.values());
-		matchModeCombo = createMatchModeCombo();
+		matchModeCombo = new JComboBox<String>(Preset.getSupportedMatchModes());
 		languageCombo = createLanguageCombo();
 
 		inputPanel = new JPanel(new MigLayout("insets 0, fill"));
@@ -141,7 +137,7 @@ public class PresetEditor extends JDialog {
 		providerCombo.addItemListener((evt) -> updateComponentStates());
 		updateComponentStates();
 
-		setSize(650, 570);
+		setSize(730, 570);
 
 		// add helpful tooltips
 		filterEditor.setToolTipText(FILE_FILTER_TOOLTIP);
@@ -237,98 +233,57 @@ public class PresetEditor extends JDialog {
 	}
 
 	private JComboBox<Datasource> createDataProviderCombo() {
-		DefaultComboBoxModel<Datasource> providers = new DefaultComboBoxModel<>();
-		for (Datasource[] seq : new Datasource[][] { WebServices.getEpisodeListProviders(), WebServices.getMovieIdentificationServices(), WebServices.getMusicIdentificationServices() }) {
-			for (Datasource it : seq) {
-				providers.addElement(it);
+		JComboBox<Datasource> combo = new JComboBox<Datasource>(Preset.getSupportedServices());
+
+		ListCellRenderer<? super Datasource> renderer = combo.getRenderer();
+		combo.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
+			JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+			if (value instanceof Datasource) {
+				Datasource provider = (Datasource) value;
+				label.setText(provider.getName());
+				label.setIcon(provider.getIcon());
 			}
-		}
-		providers.addElement(PlainFileMatcher.getInstance());
 
-		JComboBox<Datasource> combo = new JComboBox<Datasource>(providers);
-		combo.setRenderer(new ListCellRenderer<Object>() {
-
-			private final ListCellRenderer<Object> parent = (ListCellRenderer) combo.getRenderer();
-
-			@Override
-			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-				JLabel label = (JLabel) parent.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-
-				if (value instanceof Datasource) {
-					Datasource provider = (Datasource) value;
-					label.setText(provider.getName());
-					label.setIcon(provider.getIcon());
-				}
-
-				return label;
-			}
+			return label;
 		});
 
 		return combo;
 	}
 
-	private JComboBox<String> createMatchModeCombo() {
-		String[] modes = new String[] { RenamePanel.MATCH_MODE_OPPORTUNISTIC, RenamePanel.MATCH_MODE_STRICT };
-		JComboBox<String> combo = new JComboBox<>(modes);
-		return combo;
-	}
-
 	private JComboBox<Language> createLanguageCombo() {
-		DefaultComboBoxModel<Language> languages = new DefaultComboBoxModel<>();
-		for (Language it : Language.preferredLanguages()) {
-			languages.addElement(it);
-		}
-		for (Language it : Language.availableLanguages()) {
-			languages.addElement(it);
-		}
+		JComboBox<Language> combo = new JComboBox<Language>(Preset.getSupportedLanguages());
 
-		JComboBox<Language> combo = new JComboBox<Language>(languages);
-		combo.setRenderer(new ListCellRenderer<Language>() {
+		ListCellRenderer<? super Language> renderer = combo.getRenderer();
+		combo.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
+			JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
-			private final ListCellRenderer<Language> parent = (ListCellRenderer) combo.getRenderer();
-
-			@Override
-			public Component getListCellRendererComponent(JList<? extends Language> list, Language value, int index, boolean isSelected, boolean cellHasFocus) {
-				JLabel label = (JLabel) parent.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-
-				if (value instanceof Language) {
-					Language it = value;
-					label.setText(it.getName());
-					label.setIcon(ResourceManager.getFlagIcon(it.getCode()));
-				}
-
-				return label;
+			if (value instanceof Language) {
+				Language it = value;
+				label.setText(it.getName());
+				label.setIcon(ResourceManager.getFlagIcon(it.getCode()));
 			}
 
+			return label;
 		});
 
 		return combo;
 	}
 
 	private JComboBox<RenameAction> createRenameActionCombo() {
-		DefaultComboBoxModel<RenameAction> actions = new DefaultComboBoxModel<>();
-		for (StandardRenameAction it : EnumSet.of(StandardRenameAction.MOVE, StandardRenameAction.COPY, StandardRenameAction.KEEPLINK, StandardRenameAction.SYMLINK, StandardRenameAction.HARDLINK)) {
-			actions.addElement(it);
-		}
+		JComboBox<RenameAction> combo = new JComboBox<RenameAction>(Preset.getSupportedActions());
 
-		JComboBox<RenameAction> combo = new JComboBox<RenameAction>(actions);
-		combo.setRenderer(new ListCellRenderer<RenameAction>() {
+		ListCellRenderer<? super RenameAction> renderer = combo.getRenderer();
+		combo.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
+			JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
-			private final ListCellRenderer<RenameAction> parent = (ListCellRenderer) combo.getRenderer();
-
-			@Override
-			public Component getListCellRendererComponent(JList<? extends RenameAction> list, RenameAction value, int index, boolean isSelected, boolean cellHasFocus) {
-				JLabel label = (JLabel) parent.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-
-				if (value instanceof StandardRenameAction) {
-					StandardRenameAction it = (StandardRenameAction) value;
-					label.setText(it.getDisplayName());
-					label.setIcon(ResourceManager.getIcon("rename.action." + it.toString().toLowerCase()));
-				}
-
-				return label;
+			if (value instanceof StandardRenameAction) {
+				StandardRenameAction it = (StandardRenameAction) value;
+				label.setText(it.getDisplayName());
+				label.setIcon(ResourceManager.getIcon("rename.action." + it.toString().toLowerCase()));
 			}
 
+			return label;
 		});
 
 		return combo;
@@ -338,104 +293,90 @@ public class PresetEditor extends JDialog {
 		return result;
 	}
 
-	private final Action selectInputFolder = new AbstractAction("Select Input Folder", ResourceManager.getIcon("action.load")) {
-
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			File f = UserFiles.showOpenDialogSelectFolder(null, "Select Input Folder", evt);
-			if (f != null) {
-				pathInput.setText(f.getAbsolutePath());
-			}
+	private final Action selectInputFolder = newAction("Select Input Folder", ResourceManager.getIcon("action.load"), evt -> {
+		File f = UserFiles.showOpenDialogSelectFolder(null, "Select Input Folder", evt);
+		if (f != null) {
+			pathInput.setText(f.getAbsolutePath());
 		}
-	};
+	});
 
-	private final Action editFormatExpression = new AbstractAction("Open Format Editor", ResourceManager.getIcon("action.format")) {
-
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			FormatDialog.Mode mode = FormatDialog.Mode.getMode((Datasource) providerCombo.getSelectedItem());
-			MediaBindingBean lockOnBinding = null;
-			if (mode == FormatDialog.Mode.File) {
-				List<File> files = UserFiles.showLoadDialogSelectFiles(false, false, null, new ExtensionFileFilter(ExtensionFileFilter.WILDCARD), "Select Sample File", evt);
-				if (files.isEmpty()) {
-					return;
-				}
-				lockOnBinding = new MediaBindingBean(files.get(0), files.get(0));
+	private final Action editFormatExpression = newAction("Open Format Editor", ResourceManager.getIcon("action.format"), evt -> {
+		FormatDialog.Mode mode = FormatDialog.Mode.getMode((Datasource) providerCombo.getSelectedItem());
+		MediaBindingBean lockOnBinding = null;
+		if (mode == FormatDialog.Mode.File) {
+			List<File> files = UserFiles.showLoadDialogSelectFiles(false, false, null, new ExtensionFileFilter(ExtensionFileFilter.WILDCARD), "Select Sample File", evt);
+			if (files.isEmpty()) {
+				return;
 			}
-
-			FormatDialog dialog = new FormatDialog(getWindow(evt.getSource()), mode, lockOnBinding);
-			dialog.setFormatCode(formatEditor.getText());
-			dialog.setLocation(getOffsetLocation(dialog.getOwner()));
-			dialog.setVisible(true);
-
-			if (dialog.submit()) {
-				formatEditor.setText(dialog.getFormat().getExpression());
-			}
-		}
-	};
-
-	private final Action listFiles = new AbstractAction("List Files", ResourceManager.getIcon("action.search")) {
-
-		private JMenuItem createListItem(ActionEvent evt, File f) {
-			JMenuItem m = new JMenuItem(f.getPath());
-			m.addActionListener((e) -> {
-				BindingDialog dialog = new BindingDialog(getWindow(evt.getSource()), "File Bindings", FormatDialog.Mode.File.getFormat(), false);
-				dialog.setLocation(getOffsetLocation(getWindow(evt.getSource())));
-				dialog.setInfoObject(f);
-				dialog.setMediaFile(f);
-				dialog.setVisible(true);
-			});
-			return m;
+			lockOnBinding = new MediaBindingBean(files.get(0), files.get(0));
 		}
 
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			try {
-				withWaitCursor(evt.getSource(), () -> {
-					List<File> selectInputFiles = getPreset().selectInputFiles(evt);
+		FormatDialog dialog = new FormatDialog(getWindow(evt.getSource()), mode, lockOnBinding);
+		dialog.setFormatCode(formatEditor.getText());
+		dialog.setLocation(getOffsetLocation(dialog.getOwner()));
+		dialog.setVisible(true);
 
-					JPopupMenu popup = new JPopupMenu();
-					if (selectInputFiles == null || selectInputFiles.isEmpty()) {
-						popup.add("No files selected").setEnabled(false);
-					} else {
-						for (File file : selectInputFiles) {
-							popup.add(createListItem(evt, file));
-						}
-					}
-
-					JComponent source = (JComponent) evt.getSource();
-					popup.show(source, -3, source.getHeight() + 4);
-				});
-			} catch (Exception e) {
-				log.log(Level.WARNING, "Invalid preset settings: " + e.getMessage(), e);
-			}
+		if (dialog.submit()) {
+			formatEditor.setText(dialog.getFormat().getExpression());
 		}
-	};
+	});
 
-	private final Action ok = new AbstractAction("Save Preset", ResourceManager.getIcon("dialog.continue")) {
-
-		@Override
-		public void actionPerformed(ActionEvent evt) {
+	private final Action listFiles = newAction("List Files", ResourceManager.getIcon("action.search"), evt -> {
+		withWaitCursor(evt.getSource(), () -> {
 			try {
 				Preset preset = getPreset();
-				if (preset != null) {
-					result = Result.SET;
-					setVisible(false);
+				if (preset.getInputFolder() == null) {
+					return;
 				}
+
+				if (isMacSandbox()) {
+					if (!MacAppUtilities.askUnlockFolders(getWindow(evt.getSource()), singleton(preset.getInputFolder()))) {
+						return;
+					}
+				}
+
+				List<File> files = preset.selectFiles();
+
+				// display selected files as popup with easy access to more binding info
+				JPopupMenu popup = new JPopupMenu();
+				if (files.size() > 0) {
+					for (File f : files) {
+						popup.add(newAction(f.getPath(), e -> {
+							BindingDialog dialog = new BindingDialog(getWindow(evt.getSource()), "File Bindings", FormatDialog.Mode.File.getFormat(), false);
+							dialog.setLocation(getOffsetLocation(getWindow(evt.getSource())));
+							dialog.setInfoObject(f);
+							dialog.setMediaFile(f);
+							dialog.setVisible(true);
+						}));
+					}
+				} else {
+					popup.add("No files selected").setEnabled(false);
+				}
+
+				JComponent source = (JComponent) evt.getSource();
+				popup.show(source, -3, source.getHeight() + 4);
 			} catch (Exception e) {
 				log.log(Level.WARNING, "Invalid preset settings: " + e.getMessage(), e);
 			}
-		}
-	};
+		});
+	});
 
-	private final Action delete = new AbstractAction("Delete Preset", ResourceManager.getIcon("dialog.cancel")) {
-
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			result = Result.DELETE;
-			setVisible(false);
+	private final Action ok = newAction("Save Preset", ResourceManager.getIcon("dialog.continue"), evt -> {
+		try {
+			Preset preset = getPreset();
+			if (preset != null) {
+				result = Result.SET;
+				setVisible(false);
+			}
+		} catch (Exception e) {
+			log.log(Level.WARNING, "Invalid preset settings: " + e.getMessage(), e);
 		}
-	};
+	});
+
+	private final Action delete = newAction("Delete Preset", ResourceManager.getIcon("dialog.cancel"), evt -> {
+		result = Result.DELETE;
+		setVisible(false);
+	});
 
 	private static final String FILE_FILTER_TOOLTIP = "<html>File Selector Expression<br><hr noshade>e.g.<br>• fn =~ /alias/<br>• ext =~ /mp4/<br>• minutes &gt; 100<br>• age &lt; 7<br>• file.isEpisode()<br>• …<br></html>";
 

@@ -162,12 +162,13 @@ public class FormatDialog extends JDialog {
 		}
 
 		public static Mode getMode(Datasource datasource) {
-			if (datasource instanceof EpisodeListProvider)
-				return Mode.Episode;
 			if (datasource instanceof MovieIdentificationService)
 				return Mode.Movie;
+			if (datasource instanceof EpisodeListProvider)
+				return Mode.Episode;
 			if (datasource instanceof MusicIdentificationService)
 				return Mode.Music;
+
 			return Mode.File;
 		}
 	}
@@ -376,8 +377,6 @@ public class FormatDialog extends JDialog {
 					return new ExpressionFormat(format).format(sample);
 				}, s -> {
 					formatExample.setText(s);
-				}, e -> {
-					debug.log(Level.SEVERE, e.getMessage(), e);
 				}).execute();
 			});
 

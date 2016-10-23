@@ -65,63 +65,59 @@ class RenameAction extends AbstractAction {
 			return;
 		}
 
-		try {
-			Window window = getWindow(evt.getSource());
-			withWaitCursor(window, () -> {
-				Map<File, File> renameMap = validate(model.getRenameMap(), window);
+		Window window = getWindow(evt.getSource());
+		withWaitCursor(window, () -> {
+			Map<File, File> renameMap = validate(model.getRenameMap(), window);
 
-				if (renameMap.isEmpty()) {
-					return;
+			if (renameMap.isEmpty()) {
+				return;
+			}
+
+			List<Match<Object, File>> matches = new ArrayList<Match<Object, File>>(model.matches());
+			StandardRenameAction action = (StandardRenameAction) getValue(RENAME_ACTION);
+
+			// start processing
+			Map<File, File> renameLog = new LinkedHashMap<File, File>();
+
+			try {
+				if (useNativeShell() && NativeRenameAction.isSupported(action)) {
+					// call on EDT
+					NativeRenameWorker worker = new NativeRenameWorker(renameMap, renameLog, NativeRenameAction.valueOf(action.name()));
+					worker.call(null, null, null);
+				} else {
+					// call and wait
+					StandardRenameWorker worker = new StandardRenameWorker(renameMap, renameLog, action);
+					String message = String.format("%sing %d %s. This may take a while.", action.getDisplayName(), renameMap.size(), renameMap.size() == 1 ? "file" : "files");
+					ProgressMonitor.runTask(action.getDisplayName(), message, worker).get();
 				}
+			} catch (CancellationException e) {
+				debug.finest(e::toString);
+			} catch (Exception e) {
+				log.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
+			}
 
-				List<Match<Object, File>> matches = new ArrayList<Match<Object, File>>(model.matches());
-				StandardRenameAction action = (StandardRenameAction) getValue(RENAME_ACTION);
+			// abort if nothing happened
+			if (renameLog.isEmpty()) {
+				return;
+			}
 
-				// start processing
-				Map<File, File> renameLog = new LinkedHashMap<File, File>();
+			log.info(String.format("%d files renamed.", renameLog.size()));
 
-				try {
-					if (useNativeShell() && NativeRenameAction.isSupported(action)) {
-						// call on EDT
-						NativeRenameWorker worker = new NativeRenameWorker(renameMap, renameLog, NativeRenameAction.valueOf(action.name()));
-						worker.call(null, null, null);
-					} else {
-						// call and wait
-						StandardRenameWorker worker = new StandardRenameWorker(renameMap, renameLog, action);
-						String message = String.format("%sing %d %s. This may take a while.", action.getDisplayName(), renameMap.size(), renameMap.size() == 1 ? "file" : "files");
-						ProgressMonitor.runTask(action.getDisplayName(), message, worker).get();
-					}
-				} catch (CancellationException e) {
-					debug.finest(e::toString);
-				} catch (Exception e) {
-					log.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
-				}
-
-				// abort if nothing happened
-				if (renameLog.isEmpty()) {
-					return;
-				}
-
-				log.info(String.format("%d files renamed.", renameLog.size()));
-
-				// remove renamed matches
-				renameLog.forEach((from, to) -> {
-					model.matches().remove(model.files().indexOf(from));
-				});
-
-				HistorySpooler.getInstance().append(renameLog.entrySet());
-
-				// store xattr
-				storeMetaInfo(renameMap, matches);
-
-				// delete empty folders
-				if (action == StandardRenameAction.MOVE) {
-					deleteEmptyFolders(renameLog);
-				}
+			// remove renamed matches
+			renameLog.forEach((from, to) -> {
+				model.matches().remove(model.files().indexOf(from));
 			});
-		} catch (Throwable e) {
-			log.log(Level.WARNING, e.getMessage(), e);
-		}
+
+			HistorySpooler.getInstance().append(renameLog.entrySet());
+
+			// store xattr
+			storeMetaInfo(renameMap, matches);
+
+			// delete empty folders
+			if (action == StandardRenameAction.MOVE) {
+				deleteEmptyFolders(renameLog);
+			}
+		});
 	}
 
 	private void storeMetaInfo(Map<File, File> renameMap, List<Match<Object, File>> matches) {

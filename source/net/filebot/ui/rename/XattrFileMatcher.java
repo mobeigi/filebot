@@ -1,42 +1,38 @@
 package net.filebot.ui.rename;
 
-import static java.util.stream.Collectors.*;
-
 import java.awt.Component;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
-import javax.swing.Icon;
-
-import net.filebot.ResourceManager;
+import net.filebot.media.XattrMetaInfoProvider;
 import net.filebot.similarity.Match;
-import net.filebot.web.Datasource;
 import net.filebot.web.SortOrder;
 
-public class PlainFileMatcher implements Datasource, AutoCompleteMatcher {
+public class XattrFileMatcher extends XattrMetaInfoProvider implements AutoCompleteMatcher {
 
 	@Override
 	public String getIdentifier() {
-		return "file";
+		return "xattr";
 	}
 
 	@Override
 	public String getName() {
-		return "Plain File";
-	}
-
-	@Override
-	public Icon getIcon() {
-		return ResourceManager.getIcon("search.generic");
+		return "Extended Attributes";
 	}
 
 	@Override
 	public List<Match<File, ?>> match(Collection<File> files, boolean strict, SortOrder order, Locale locale, boolean autodetection, Component parent) throws Exception {
-		return files.stream().map(f -> {
-			return new Match<File, File>(f, f);
-		}).collect(toList());
+		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
+
+		// use strict mode to exclude files that are not xattr tagged
+		match(files, true).forEach((k, v) -> {
+			matches.add(new Match<File, Object>(k, v));
+		});
+
+		return matches;
 	}
 
 }

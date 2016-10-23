@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.swing.Icon;
 
+import net.filebot.ResourceManager;
 import net.filebot.web.Datasource;
 
 public class XattrMetaInfoProvider implements Datasource {
@@ -18,7 +19,7 @@ public class XattrMetaInfoProvider implements Datasource {
 
 	@Override
 	public Icon getIcon() {
-		return null;
+		return ResourceManager.getIcon("search.xattr");
 	}
 
 	public Map<File, Object> match(Collection<File> files, boolean strict) {
