@@ -653,7 +653,7 @@
 
 
 	<target name="spk" description="Build Synology NAS package" depends="revision">
-		<spk destdir="${dir.dist}" name="filebot" version="${version}" arch="noarch">
+		<spk destdir="${dir.dist}" name="filebot" version="${version}" arch="noarch" compression="xz">
 			<info name="displayname" value="FileBot" />
 			<info name="description" value="FileBot is the ultimate tool for organizing and renaming your movies, TV shows or anime, as well as downloading subtitles and artwork. It's smart and just works." />
 			<info name="maintainer" value="FileBot" />
