@@ -372,7 +372,7 @@ public final class SwingUI {
 		// run spawn new EDT and block current EDT
 		SecondaryLoop secondaryLoop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
 
-		SwingWorker<T, Void> worker = newSwingWorker(supplier, null, null, () -> secondaryLoop.exit());
+		SwingWorker<T, Void> worker = newSwingWorker(supplier, null, null, secondaryLoop::exit);
 		worker.execute();
 
 		// wait for worker to finish without blocking the EDT
