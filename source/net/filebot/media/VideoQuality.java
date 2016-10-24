@@ -3,65 +3,53 @@ package net.filebot.media;
 import static java.util.Comparator.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
+import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.util.Comparator;
-import java.util.Optional;
-import java.util.function.ToDoubleFunction;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import net.filebot.format.MediaBindingBean;
 
 public class VideoQuality implements Comparator<File> {
 
+	public static final Comparator<File> DESCENDING_ORDER = new VideoQuality().reversed();
+
 	public static boolean isBetter(File f1, File f2) {
-		return new VideoQuality().compare(f1, f2) > 0;
+		return DESCENDING_ORDER.compare(f1, f2) < 0;
 	}
+
+	private final Comparator<File> chain = comparing(f -> new MediaBindingBean(f, f), comparingInt(this::getRepack).thenComparingInt(this::getResolution).thenComparingLong(this::getSize));
 
 	@Override
 	public int compare(File f1, File f2) {
-		ToDoubleFunction<File> repack = this::isRepack;
-		ToDoubleFunction<File> resolution = this::getResolution;
-		ToDoubleFunction<File> size = this::getSize;
+		return chain.compare(f1, f2);
+	}
 
-		return Stream.of(repack, resolution, size).mapToInt(c -> {
+	private final Pattern repack = releaseInfo.getRepackPattern();
+
+	private int getRepack(MediaBindingBean m) {
+		return find(m.getFileName(), repack) || find(m.getOriginalFileName(), repack) ? 1 : 0;
+	}
+
+	private int getResolution(MediaBindingBean m) {
+		// use video file for video/subtitle pairs when comparing the subtitle file
+		File mediaFile = m.getInferredMediaFile();
+
+		if (VIDEO_FILES.accept(mediaFile)) {
 			try {
-				return comparingDouble(c).compare(f1, f2);
-			} catch (Throwable e) {
-				debug.warning(format("Failed to read media info: %s", e));
-				return 0;
+				return m.getDimension().stream().mapToInt(Number::intValue).reduce((a, b) -> a * b).orElse(0);
+			} catch (Exception e) {
+				debug.warning("Failed to read media info: " + e);
 			}
-		}).filter(i -> i != 0).findFirst().orElse(0);
-	}
-
-	private Optional<MediaBindingBean> media(File f) {
-		if (VIDEO_FILES.accept(f) || SUBTITLE_FILES.accept(f)) {
-			return Optional.of(new MediaBindingBean(f, f));
 		}
-		return Optional.empty();
+
+		return 0;
 	}
 
-	private static final Pattern REPACK = Pattern.compile("(?<!\\p{Alnum})(PROPER|REPACK)(?!\\p{Alnum})", Pattern.CASE_INSENSITIVE);
-	private static final double ZERO = 0;
-
-	public double isRepack(File f) {
-		return media(f).map(it -> {
-			return find(it.getFileName(), REPACK) || find(it.getOriginalFileName(), REPACK) ? 1 : ZERO;
-		}).orElse(ZERO);
-	}
-
-	public double getResolution(File f) {
-		return media(f).map(it -> {
-			return it.getDimension().stream().mapToDouble(Number::doubleValue).reduce((a, b) -> a * b).orElse(ZERO);
-		}).orElse(ZERO);
-	}
-
-	public double getSize(File f) {
-		return media(f).map(it -> {
-			return it.getInferredMediaFile().length();
-		}).orElseGet(f::length);
+	private long getSize(MediaBindingBean m) {
+		return m.getInferredMediaFile().length();
 	}
 
 }

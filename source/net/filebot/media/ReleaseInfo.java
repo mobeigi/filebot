@@ -302,25 +302,23 @@ public class ReleaseInfo {
 	public Pattern getVideoFormatPattern(boolean strict) {
 		// pattern matching any video source name
 		String pattern = getProperty("pattern.video.format");
-		return strict ? compile("(?<!\\p{Alnum})(" + pattern + ")(?!\\p{Alnum})", CASE_INSENSITIVE) : compile(pattern, CASE_INSENSITIVE);
+		return strict ? compileWordPattern(pattern) : compile(pattern, CASE_INSENSITIVE);
 	}
 
 	public Pattern getVideoSourcePattern() {
-		// pattern matching any video source name, like BluRay
-		String pattern = getProperty("pattern.video.source");
-		return compile("(?<!\\p{Alnum})(" + pattern + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
+		return compileWordPattern(getProperty("pattern.video.source")); // pattern matching any video source name, like BluRay
 	}
 
 	public Pattern getVideoTagPattern() {
-		// pattern matching any video tag, like Directors Cut
-		String pattern = getProperty("pattern.video.tags");
-		return compile("(?<!\\p{Alnum})(" + pattern + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
+		return compileWordPattern(getProperty("pattern.video.tags")); // pattern matching any video tag, like Directors Cut
 	}
 
 	public Pattern getStereoscopic3DPattern() {
-		// pattern matching any 3D flags like 3D.HSBS
-		String pattern = getProperty("pattern.video.s3d");
-		return compile("(?<!\\p{Alnum})(" + pattern + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
+		return compileWordPattern(getProperty("pattern.video.s3d")); // pattern matching any 3D flags like 3D.HSBS
+	}
+
+	public Pattern getRepackPattern() {
+		return compileWordPattern(getProperty("pattern.video.repack"));
 	}
 
 	public Pattern getClutterBracketPattern(boolean strict) {
@@ -352,17 +350,23 @@ public class ReleaseInfo {
 	}
 
 	public Pattern getBlacklistPattern() throws Exception {
-		// pattern matching any release group name enclosed in separators
-		return compile("(?<!\\p{Alnum})" + or(queryBlacklist.get()) + "(?!\\p{Alnum})", CASE_INSENSITIVE);
+		return compileWordPattern(queryBlacklist.get()); // pattern matching any release group name enclosed in separators
 	}
 
 	public Pattern getExcludePattern() throws Exception {
-		// pattern matching any release group name enclosed in separators
-		return compile(or(excludeBlacklist.get()), CASE_INSENSITIVE);
+		return compileWordPattern(excludeBlacklist.get()); // pattern matching any release group name enclosed in separators
 	}
 
 	public Pattern getCustomRemovePattern(Collection<String> terms) throws IOException {
-		return compile("(?<!\\p{Alnum})" + or(quoteAll(terms)) + "(?!\\p{Alnum})", CASE_INSENSITIVE);
+		return compileWordPattern(quoteAll(terms));
+	}
+
+	private Pattern compileWordPattern(String[] patterns) {
+		return compile("(?<!\\p{Alnum})" + or(patterns) + "(?!\\p{Alnum})", CASE_INSENSITIVE); // use | to join patterns
+	}
+
+	private Pattern compileWordPattern(String pattern) {
+		return compile("(?<!\\p{Alnum})(" + pattern + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
 	}
 
 	public Map<Pattern, String> getSeriesMappings() throws Exception {
