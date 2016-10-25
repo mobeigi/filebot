@@ -662,7 +662,7 @@
 			<info name="distributor_url" value="http://www.filebot.net/" />
 			<info name="support_url" value="http://www.filebot.net/syno/support.html" />
 			<info name="helpurl" value="http://www.filebot.net/cli.html" />
-			<info name="firmware" value="5.0" />
+			<info name="firmware" value="6.0" />
 			<info name="startable" value="no" />
 			<info name="silent_install" value="yes" />
 			<info name="silent_uninstall" value="yes" />
