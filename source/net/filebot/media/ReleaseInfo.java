@@ -13,12 +13,9 @@ import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.RegularExpressions.*;
 import static net.filebot.util.StringUtilities.*;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.Collator;
 import java.text.Normalizer;
@@ -493,12 +490,11 @@ public class ReleaseInfo {
 	protected <A> Resource<A[]> resource(String name, Duration expirationTime, Function<String, A> parse, IntFunction<A[]> generator) {
 		return () -> {
 			Cache cache = Cache.getCache("data", CacheType.Persistent);
-			byte[] bytes = cache.bytes(name, n -> new URL(getProperty(n))).expire(refreshDuration.optional().orElse(expirationTime)).get();
+			byte[] bytes = cache.bytes(name, n -> new URL(getProperty(n)), XZInputStream::new).expire(refreshDuration.optional().orElse(expirationTime)).get();
 
-			// all data file are xz compressed
-			try (BufferedReader text = new BufferedReader(new InputStreamReader(new XZInputStream(new ByteArrayInputStream(bytes)), UTF_8))) {
-				return text.lines().filter(s -> s.length() > 0).map(parse).filter(Objects::nonNull).toArray(generator);
-			}
+			// all data files are UTF-8 encoded XZ compressed text files
+			String text = new String(bytes, UTF_8);
+			return NEWLINE.splitAsStream(text).filter(s -> s.length() > 0).map(parse).filter(Objects::nonNull).toArray(generator);
 		};
 	}
 
