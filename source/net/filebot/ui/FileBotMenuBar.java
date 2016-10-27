@@ -15,6 +15,7 @@ public class FileBotMenuBar {
 		help.add(createLink("Getting Started", getApplicationProperty("link.intro")));
 		help.add(createLink("FAQ", getApplicationProperty("link.faq")));
 		help.add(createLink("Forums", getApplicationProperty("link.forums")));
+		help.add(createLink("Discord Channel", getApplicationProperty("link.channel")));
 
 		help.addSeparator();
 
