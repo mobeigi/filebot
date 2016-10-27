@@ -10,6 +10,8 @@ import java.io.File;
 import java.net.URI;
 import java.time.Duration;
 
+import org.tukaani.xz.XZInputStream;
+
 import net.filebot.Cache;
 import net.filebot.CacheType;
 import net.filebot.Resource;
@@ -26,7 +28,7 @@ public enum ScriptSource {
 		@Override
 		public ScriptProvider getScriptProvider(String input) throws Exception {
 			URI resource = new URI(getApplicationProperty("github.stable"));
-			Resource<byte[]> bundle = getCache().bytes(resource, URI::toURL).expire(Cache.ONE_WEEK);
+			Resource<byte[]> bundle = getCache().bytes(resource, URI::toURL, XZInputStream::new).expire(Cache.ONE_WEEK);
 
 			return new ScriptBundle(bundle, getClass().getResourceAsStream("repository.cer"));
 		}

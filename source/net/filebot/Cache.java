@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.*;
 import static net.filebot.CachedResource.*;
 import static net.filebot.Logging.*;
 
+import java.io.InputStream;
 import java.net.URL;
 import java.time.Duration;
 import java.util.List;
@@ -30,6 +31,10 @@ public class Cache {
 
 	public <T> CachedResource<T, byte[]> bytes(T key, Transform<T, URL> resource) {
 		return new CachedResource<T, byte[]>(key, resource, fetchIfModified(), getBytes(), byte[].class::cast, ONE_DAY, this);
+	}
+
+	public <T> CachedResource<T, byte[]> bytes(T key, Transform<T, URL> resource, Transform<InputStream, InputStream> decompressor) {
+		return new CachedResource<T, byte[]>(key, resource, fetchIfModified(), getBytes(decompressor), byte[].class::cast, ONE_DAY, this);
 	}
 
 	public <T> CachedResource<T, String> text(T key, Transform<T, URL> resource) {

@@ -4,6 +4,7 @@ import static net.filebot.Logging.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -20,6 +21,8 @@ import java.util.function.Supplier;
 
 import org.w3c.dom.Document;
 
+import net.filebot.util.ByteBufferInputStream;
+import net.filebot.util.ByteBufferOutputStream;
 import net.filebot.util.JsonUtilities;
 import net.filebot.web.WebRequest;
 
@@ -135,6 +138,18 @@ public class CachedResource<K, R> implements Resource<R> {
 			byte[] bytes = new byte[data.remaining()];
 			data.get(bytes, 0, bytes.length);
 			return bytes;
+		};
+	}
+
+	public static Transform<ByteBuffer, byte[]> getBytes(Transform<InputStream, InputStream> decompressor) {
+		return (data) -> {
+			ByteBufferOutputStream buffer = new ByteBufferOutputStream(data.remaining());
+			try (InputStream in = decompressor.transform(new ByteBufferInputStream(data))) {
+				buffer.transferFully(in);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			return buffer.getByteArray();
 		};
 	}
 
