@@ -46,6 +46,7 @@ import net.filebot.WebServices;
 import net.filebot.format.AssociativeScriptObject;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
+import net.filebot.format.SuppressedThrowables;
 import net.filebot.media.MediaDetection;
 import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.filebot.web.Movie;
@@ -441,8 +442,8 @@ public abstract class ScriptShellBaseClass extends Script {
 
 		try {
 			return formatter.format(new MediaBindingBean(o, f));
-		} catch (Exception e) {
-			debug.warning("Failed to read media info: " + e);
+		} catch (SuppressedThrowables e) {
+			debug.warning(format("Failed to read media info: %s: %s: %s", e.getMessage(), format, f));
 		}
 
 		return null;
