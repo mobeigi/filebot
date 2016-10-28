@@ -16,7 +16,6 @@ import java.io.PrintStream;
 import java.io.StringWriter;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -45,6 +44,8 @@ import net.filebot.RenameAction;
 import net.filebot.StandardRenameAction;
 import net.filebot.WebServices;
 import net.filebot.format.AssociativeScriptObject;
+import net.filebot.format.ExpressionFormat;
+import net.filebot.format.MediaBindingBean;
 import net.filebot.media.MediaDetection;
 import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.filebot.web.Movie;
@@ -433,11 +434,16 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public String getMediaInfo(File file, String format) throws Exception {
-		return cli.getMediaInfo(singleton(file), format, null).get(0); // explicitly ignore the --filter option
-	}
+		try {
+			Object o = xattr.getMetaInfo(file);
+			File f = file.getCanonicalFile();
 
-	public List<String> getMediaInfo(Collection<?> files, String format) throws Exception {
-		return cli.getMediaInfo(asFileList(files), format, null); // explicitly ignore the --filter option
+			ExpressionFormat formatter = new ExpressionFormat(format);
+			return formatter.format(new MediaBindingBean(o, f));
+		} catch (Exception e) {
+			debug.warning("Failed to read media info: " + e);
+		}
+		return null;
 	}
 
 	private List<File> getInputFileList(Map<String, ?> parameters) {
