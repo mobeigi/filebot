@@ -35,6 +35,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import net.filebot.ApplicationFolder;
 import net.filebot.Cache;
@@ -776,6 +778,11 @@ public class MediaBindingBean {
 		return getMediaInfo(StreamKind.General, 0, "Title", "Movie");
 	}
 
+	@Define("textLanguages")
+	public List<String> getTextLanguageList() {
+		return getMediaInfo(StreamKind.Text, "Language/String").filter(Objects::nonNull).distinct().collect(toList());
+	}
+
 	@Define("bitrate")
 	public Long getOverallBitRate() {
 		return new Double(getMediaInfo(StreamKind.General, 0, "OverallBitRate")).longValue();
@@ -1082,6 +1089,14 @@ public class MediaBindingBean {
 			}
 		}
 		return undefined(String.format("%s[%d][%s]", streamKind, streamNumber, join(keys, ", ")));
+	}
+
+	private Stream<String> getMediaInfo(StreamKind streamKind, String... keys) {
+		return IntStream.range(0, getMediaInfo().streamCount(streamKind)).mapToObj(streamNumber -> {
+			return stream(keys).map(key -> {
+				return getMediaInfo().get(streamKind, streamNumber, key);
+			}).filter(s -> s.length() > 0).findFirst().orElse(null);
+		});
 	}
 
 	private AssociativeScriptObject createBindingObject(File file, Object info, Map<File, ?> context) {
