@@ -434,15 +434,17 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public String getMediaInfo(File file, String format) throws Exception {
-		try {
-			Object o = xattr.getMetaInfo(file);
-			File f = file.getCanonicalFile();
+		ExpressionFormat formatter = new ExpressionFormat(format);
 
-			ExpressionFormat formatter = new ExpressionFormat(format);
+		Object o = xattr.getMetaInfo(file);
+		File f = file.getCanonicalFile();
+
+		try {
 			return formatter.format(new MediaBindingBean(o, f));
 		} catch (Exception e) {
 			debug.warning("Failed to read media info: " + e);
 		}
+
 		return null;
 	}
 
