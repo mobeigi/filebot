@@ -590,14 +590,14 @@ public class MediaBindingBean {
 	}
 
 	@Define("languages")
-	public List<String> getSpokenLanguages() {
+	public List<Language> getSpokenLanguages() {
 		if (infoObject instanceof Movie) {
 			List<Locale> languages = (List<Locale>) getMetaInfo().getProperty("spokenLanguages");
-			return languages.stream().map(it -> it.getDisplayLanguage(Locale.ENGLISH)).collect(toList());
+			return languages.stream().map(Language::getLanguage).filter(Objects::nonNull).collect(toList());
 		}
 		if (infoObject instanceof Episode) {
 			String language = getSeriesInfo().getLanguage();
-			return singletonList(new Locale(language).getDisplayLanguage(Locale.ENGLISH));
+			return Stream.of(language).map(Language::findLanguage).filter(Objects::nonNull).collect(toList());
 		}
 		return null;
 	}
@@ -779,8 +779,8 @@ public class MediaBindingBean {
 	}
 
 	@Define("textLanguages")
-	public List<String> getTextLanguageList() {
-		return getMediaInfo(StreamKind.Text, "Language/String").filter(Objects::nonNull).distinct().collect(toList());
+	public List<Language> getTextLanguageList() {
+		return getMediaInfo(StreamKind.Text, "Language").filter(Objects::nonNull).distinct().map(Language::findLanguage).filter(Objects::nonNull).collect(toList());
 	}
 
 	@Define("bitrate")
