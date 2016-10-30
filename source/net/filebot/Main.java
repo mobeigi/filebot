@@ -135,7 +135,7 @@ public class Main {
 				startUserInterface(args);
 
 				// run background tasks
-				newSwingWorker(() -> onStart(args));
+				newSwingWorker(() -> onStart(args)).execute();
 			});
 		} catch (CmdLineException e) {
 			// illegal arguments => print CLI error message
