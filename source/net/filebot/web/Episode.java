@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class Episode implements Serializable {
 
+	// base episode record
 	protected String seriesName;
 	protected Integer season;
 	protected Integer episode;
@@ -23,6 +25,9 @@ public class Episode implements Serializable {
 	// episode airdate
 	protected SimpleDate airdate;
 
+	// unique identifier
+	protected Integer id;
+
 	// extended series metadata
 	protected SeriesInfo seriesInfo;
 
@@ -31,14 +36,14 @@ public class Episode implements Serializable {
 	}
 
 	public Episode(Episode obj) {
-		this(obj.seriesName, obj.season, obj.episode, obj.title, obj.absolute, obj.special, obj.airdate, obj.seriesInfo);
+		this(obj.seriesName, obj.season, obj.episode, obj.title, obj.absolute, obj.special, obj.airdate, obj.id, obj.seriesInfo);
 	}
 
 	public Episode(String seriesName, Integer season, Integer episode, String title) {
-		this(seriesName, season, episode, title, null, null, null, null);
+		this(seriesName, season, episode, title, null, null, null, null, null);
 	}
 
-	public Episode(String seriesName, Integer season, Integer episode, String title, Integer absolute, Integer special, SimpleDate airdate, SeriesInfo seriesInfo) {
+	public Episode(String seriesName, Integer season, Integer episode, String title, Integer absolute, Integer special, SimpleDate airdate, Integer id, SeriesInfo seriesInfo) {
 		this.seriesName = seriesName;
 		this.season = season;
 		this.episode = episode;
@@ -46,6 +51,7 @@ public class Episode implements Serializable {
 		this.absolute = absolute;
 		this.special = special;
 		this.airdate = airdate == null ? null : airdate.clone();
+		this.id = id;
 		this.seriesInfo = seriesInfo == null ? null : seriesInfo.clone();
 	}
 
@@ -75,6 +81,10 @@ public class Episode implements Serializable {
 
 	public SimpleDate getAirdate() {
 		return airdate;
+	}
+
+	public Integer getId() {
+		return id;
 	}
 
 	public SeriesInfo getSeriesInfo() {
@@ -107,22 +117,22 @@ public class Episode implements Serializable {
 	public boolean equals(Object obj) {
 		if (obj instanceof Episode) {
 			Episode other = (Episode) obj;
-			return equals(season, other.season) && equals(episode, other.episode) && equals(absolute, other.absolute) && equals(special, other.special) && equals(seriesName, other.seriesName) && equals(title, other.title);
+
+			// check if database id matches
+			if (id != null && other.id != null) {
+				return id.equals(other.id) && Objects.equals(seriesInfo, other.seriesInfo);
+			}
+
+			// check if episode record matches
+			return Objects.equals(season, other.season) && Objects.equals(episode, other.episode) && Objects.equals(absolute, other.absolute) && Objects.equals(special, other.special) && Objects.equals(seriesName, other.seriesName) && Objects.equals(title, other.title);
 		}
 
 		return false;
 	}
 
-	private boolean equals(Object o1, Object o2) {
-		if (o1 == null || o2 == null)
-			return o1 == o2;
-
-		return o1.equals(o2);
-	}
-
 	@Override
 	public int hashCode() {
-		return Arrays.hashCode(new Object[] { season, episode, absolute, special, seriesName, title });
+		return id != null ? id : Objects.hash(season, episode, absolute, special, seriesName, title);
 	}
 
 	@Override

@@ -89,12 +89,13 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 		Object response = request("shows/" + seriesInfo.getId() + "/episodes");
 
 		List<Episode> episodes = streamJsonObjects(response).map(episode -> {
-			String episodeTitle = getString(episode, "name");
+			Integer id = getInteger(episode, "id");
 			Integer seasonNumber = getInteger(episode, "season");
 			Integer episodeNumber = getInteger(episode, "number");
+			String episodeTitle = getString(episode, "name");
 			SimpleDate airdate = getStringValue(episode, "airdate", SimpleDate::parse);
 
-			return new Episode(seriesInfo.getName(), seasonNumber, episodeNumber, episodeTitle, null, null, airdate, seriesInfo);
+			return new Episode(seriesInfo.getName(), seasonNumber, episodeNumber, episodeTitle, null, null, airdate, id, seriesInfo);
 		}).collect(toList());
 
 		return new SeriesData(seriesInfo, episodes);

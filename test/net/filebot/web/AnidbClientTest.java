@@ -73,6 +73,7 @@ public class AnidbClientTest {
 		assertEquals("1", first.getAbsolute().toString());
 		assertEquals(null, first.getSeason());
 		assertEquals("2004-04-07", first.getAirdate().toString());
+		assertEquals("17843", first.getId().toString());
 	}
 
 	@Test

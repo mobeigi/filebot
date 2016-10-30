@@ -42,6 +42,7 @@ public class TVMazeClientTest {
 		assertEquals("7", chosen.getSeason().toString());
 		assertEquals(null, chosen.getAbsolute());
 		assertEquals("2003-05-20", chosen.getAirdate().toString());
+		assertEquals("40175", chosen.getId().toString());
 	}
 
 	@Test
@@ -58,6 +59,7 @@ public class TVMazeClientTest {
 		assertEquals("1", first.getSeason().toString());
 		assertEquals(null, first.getAbsolute());
 		assertEquals("1997-03-10", first.getAirdate().toString());
+		assertEquals("40033", first.getId().toString());
 	}
 
 	@Test

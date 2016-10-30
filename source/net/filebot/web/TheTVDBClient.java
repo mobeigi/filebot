@@ -181,6 +181,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 				String episodeName = getString(it, "episodeName");
 				Integer absoluteNumber = getInteger(it, "absoluteNumber");
 				SimpleDate airdate = getStringValue(it, "firstAired", SimpleDate::parse);
+				Integer id = getInteger(it, "id");
 
 				// default numbering
 				Integer episodeNumber = getInteger(it, "airedEpisodeNumber");
@@ -203,10 +204,10 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 
 				if (seasonNumber == null || seasonNumber > 0) {
 					// handle as normal episode
-					episodes.add(new Episode(info.getName(), seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate, new SeriesInfo(info)));
+					episodes.add(new Episode(info.getName(), seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate, id, new SeriesInfo(info)));
 				} else {
 					// handle as special episode
-					specials.add(new Episode(info.getName(), null, null, episodeName, null, episodeNumber, airdate, new SeriesInfo(info)));
+					specials.add(new Episode(info.getName(), null, null, episodeName, null, episodeNumber, airdate, id, new SeriesInfo(info)));
 				}
 			});
 		}

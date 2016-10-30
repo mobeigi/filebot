@@ -148,6 +148,7 @@ public class TheTVDBClientV1 extends AbstractEpisodeListProvider implements Artw
 			String episodeName = getTextContent("EpisodeName", node);
 			Integer absoluteNumber = matchInteger(getTextContent("absolute_number", node));
 			SimpleDate airdate = SimpleDate.parse(getTextContent("FirstAired", node));
+			Integer id = matchInteger(getTextContent("id", node));
 
 			// default numbering
 			Integer episodeNumber = matchInteger(getTextContent("EpisodeNumber", node));
@@ -178,7 +179,7 @@ public class TheTVDBClientV1 extends AbstractEpisodeListProvider implements Artw
 
 				// use given episode number as special number or count specials by ourselves
 				Integer specialNumber = (episodeNumber != null) ? episodeNumber : filterBySeason(specials, seasonNumber).size() + 1;
-				specials.add(new Episode(seriesInfo.getName(), seasonNumber, null, episodeName, null, specialNumber, airdate, new SeriesInfo(seriesInfo)));
+				specials.add(new Episode(seriesInfo.getName(), seasonNumber, null, episodeName, null, specialNumber, airdate, id, new SeriesInfo(seriesInfo)));
 			} else {
 				// adjust for absolute numbering if possible
 				if (sortOrder == SortOrder.Absolute) {
@@ -189,7 +190,7 @@ public class TheTVDBClientV1 extends AbstractEpisodeListProvider implements Artw
 				}
 
 				// handle as normal episode
-				episodes.add(new Episode(seriesInfo.getName(), seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate, new SeriesInfo(seriesInfo)));
+				episodes.add(new Episode(seriesInfo.getName(), seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate, id, new SeriesInfo(seriesInfo)));
 			}
 		}
 

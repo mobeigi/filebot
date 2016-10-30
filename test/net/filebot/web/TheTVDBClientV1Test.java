@@ -79,6 +79,7 @@ public class TheTVDBClientV1Test {
 		assertEquals("1", first.getSeason().toString());
 		assertEquals(null, first.getAbsolute()); // should be "1" but data has not yet been entered
 		assertEquals("2004-03-12", first.getAirdate().toString());
+		assertEquals("296337", first.getId().toString());
 	}
 
 	@Test
@@ -93,6 +94,7 @@ public class TheTVDBClientV1Test {
 		assertEquals("1", first.getSeason().toString());
 		assertEquals("1", first.getAbsolute().toString());
 		assertEquals("2002-12-20", first.getAirdate().toString());
+		assertEquals("297999", first.getId().toString());
 	}
 
 	public void getEpisodeListLink() {

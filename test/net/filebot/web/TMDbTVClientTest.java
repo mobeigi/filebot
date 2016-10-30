@@ -65,6 +65,7 @@ public class TMDbTVClientTest {
 		assertEquals("1", first.getSeason().toString());
 		assertEquals("1", first.getAbsolute().toString());
 		assertEquals("2004-03-12", first.getAirdate().toString());
+		assertEquals("134989", first.getId().toString());
 	}
 
 }

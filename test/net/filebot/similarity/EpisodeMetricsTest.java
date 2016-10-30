@@ -57,8 +57,8 @@ public class EpisodeMetricsTest {
 	@Test
 	public void numericNumbers() {
 		String fn = "SEED - 01 - [X 2.0]";
-		Episode e1 = new Episode("SEED", null, 1, "Enraged Eyes", 1, null, new SimpleDate(2004, 10, 9), null);
-		Episode s1 = new Episode("SEED", null, null, "EDITED", null, 1, new SimpleDate(2005, 1, 29), null);
+		Episode e1 = new Episode("SEED", null, 1, "Enraged Eyes", 1, null, new SimpleDate(2004, 10, 9), null, null);
+		Episode s1 = new Episode("SEED", null, null, "EDITED", null, 1, new SimpleDate(2005, 1, 29), null, null);
 
 		assertEquals(0.5, Numeric.getSimilarity(fn, e1), 0.01);
 		assertEquals(0.5, Numeric.getSimilarity(fn, s1), 0.01);

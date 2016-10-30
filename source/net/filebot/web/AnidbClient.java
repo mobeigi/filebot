@@ -144,6 +144,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 			int type = Integer.parseInt(getAttribute("type", epno));
 
 			if (type == 1 || type == 2) {
+				Integer id = Integer.parseInt(getAttribute("id", node));
 				SimpleDate airdate = SimpleDate.parse(getTextContent("airdate", node));
 				String title = selectString(".//title[@lang='" + locale.getLanguage() + "']", node);
 				if (title.isEmpty()) { // English language fall-back
@@ -151,9 +152,9 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 				}
 
 				if (type == 1) {
-					episodes.add(new Episode(animeTitle, null, number, title, number, null, airdate, new SeriesInfo(seriesInfo))); // normal episode, no seasons for anime
+					episodes.add(new Episode(animeTitle, null, number, title, number, null, airdate, id, new SeriesInfo(seriesInfo))); // normal episode, no seasons for anime
 				} else {
-					episodes.add(new Episode(animeTitle, null, null, title, null, number, airdate, new SeriesInfo(seriesInfo))); // special episode
+					episodes.add(new Episode(animeTitle, null, null, title, null, number, airdate, id, new SeriesInfo(seriesInfo))); // special episode
 				}
 			}
 		}

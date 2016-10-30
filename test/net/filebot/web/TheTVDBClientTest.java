@@ -77,6 +77,7 @@ public class TheTVDBClientTest {
 		assertEquals("1", first.getSeason().toString());
 		assertEquals(null, first.getAbsolute()); // should be "1" but data has not yet been entered
 		assertEquals("2004-03-12", first.getAirdate().toString());
+		assertEquals("296337", first.getId().toString());
 	}
 
 	@Test
@@ -139,10 +140,10 @@ public class TheTVDBClientTest {
 	public void getArtwork() throws Exception {
 		Artwork i = db.getArtwork(buffy.getId(), "fanart", Locale.ENGLISH).get(0);
 
-		assertEquals("[fanart, 1920x1080]", i.getTags().toString());
-		assertEquals("http://thetvdb.com/banners/fanart/original/70327-7.jpg", i.getUrl().toString());
-		assertTrue(i.matches("fanart", "1920x1080"));
-		assertFalse(i.matches("fanart", "1920x1080", "1"));
+		assertEquals("[fanart, 1280x720]", i.getTags().toString());
+		assertEquals("http://thetvdb.com/banners/fanart/original/70327-23.jpg", i.getUrl().toString());
+		assertTrue(i.matches("fanart", "1280x720"));
+		assertFalse(i.matches("fanart", "1280x720", "1"));
 		assertEquals(8.0, i.getRating(), 1.0);
 	}
 
@@ -157,7 +158,7 @@ public class TheTVDBClientTest {
 		Person p = db.getActors(firefly.getId(), Locale.ENGLISH).get(0);
 		assertEquals("Alan Tudyk", p.getName());
 		assertEquals("Hoban 'Wash' Washburne", p.getCharacter());
-		assertEquals(null, p.getJob());
+		assertEquals("Actor", p.getJob());
 		assertEquals(null, p.getDepartment());
 		assertEquals("0", p.getOrder().toString());
 		assertEquals("http://thetvdb.com/banners/actors/68409.jpg", p.getImage().toString());

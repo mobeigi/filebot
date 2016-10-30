@@ -120,6 +120,7 @@ public class TMDbTVClient extends AbstractEpisodeListProvider {
 			Object season = tmdb.request("tv/" + series.getId() + "/season/" + s, emptyMap(), locale, REQUEST_LIMIT);
 
 			streamJsonObjects(season, "episodes").forEach(episode -> {
+				Integer id = getInteger(episode, "id");
 				Integer episodeNumber = getInteger(episode, "episode_number");
 				Integer seasonNumber = getInteger(episode, "season_number");
 				String episodeTitle = getString(episode, "name");
@@ -128,9 +129,9 @@ public class TMDbTVClient extends AbstractEpisodeListProvider {
 				Integer absoluteNumber = episodes.size() + 1;
 
 				if (s > 0) {
-					episodes.add(new Episode(series.getName(), seasonNumber, episodeNumber, episodeTitle, absoluteNumber, null, airdate, info));
+					episodes.add(new Episode(series.getName(), seasonNumber, episodeNumber, episodeTitle, absoluteNumber, null, airdate, id, info));
 				} else {
-					specials.add(new Episode(series.getName(), null, null, episodeTitle, null, episodeNumber, airdate, info));
+					specials.add(new Episode(series.getName(), null, null, episodeTitle, null, episodeNumber, airdate, id, info));
 				}
 			});
 		}
