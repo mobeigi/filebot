@@ -76,7 +76,7 @@ class BindingDialog extends JDialog {
 		this.infoObjectFormat = infoObjectFormat;
 
 		JComponent root = (JComponent) getContentPane();
-		root.setLayout(new MigLayout("nogrid, novisualpadding, fill, insets dialog"));
+		root.setLayout(new MigLayout("nogrid, novisualpadding, fill, insets dialog", "", "[pref!]paragraph[pref!]2px[grow,fill]paragraph[pref!]"));
 
 		// decorative tabbed pane
 		JTabbedPane inputContainer = new JTabbedPane();
@@ -93,10 +93,10 @@ class BindingDialog extends JDialog {
 		inputPanel.add(createImageButton(mediaInfoAction), "gap rel, w 28px!, h 28px!");
 		inputPanel.add(createImageButton(selectFileAction), "gap rel, w 28px!, h 28px!, wrap paragraph");
 		inputContainer.add("Bindings", inputPanel);
-		root.add(inputContainer, "growx, wrap paragraph");
 
-		root.add(new JLabel("Preview:"), "gap 5px, wrap 2px");
-		root.add(new JScrollPane(createBindingTable(bindingModel)), "growx, wrap paragraph:push");
+		root.add(inputContainer, "growx, wrap");
+		root.add(new JLabel("Preview:"), "gap 5px, wrap");
+		root.add(new JScrollPane(createBindingTable(bindingModel)), "grow, growprio 200, wrap");
 
 		if (editable) {
 			root.add(newButton("Use Bindings", ResourceManager.getIcon("dialog.continue"), evt -> finish(true)), "tag apply");
