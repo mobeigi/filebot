@@ -36,6 +36,7 @@ import net.filebot.web.SubtitleSearchResult;
 import net.filebot.web.TMDbClient;
 import net.filebot.web.TMDbTVClient;
 import net.filebot.web.TVMazeClient;
+import net.filebot.web.TheTVDBClient;
 import net.filebot.web.TheTVDBClientV1;
 import net.filebot.web.VideoHashSubtitleService;
 import one.util.streamex.StreamEx;
@@ -56,6 +57,9 @@ public final class WebServices {
 	// extended TheTVDB module with local search
 	public static final TheTVDBClientWithLocalSearch TheTVDB = new TheTVDBClientWithLocalSearch(getApiKey("thetvdb"));
 	public static final TMDbTVClient TheMovieDB_TV = new TMDbTVClient(TheMovieDB);
+
+	// TheTVDB v2 implementation used for internal purposes and testing
+	public static final TheTVDBClient TheTVDBv2 = new TheTVDBClient(getApiKey("thetvdb"));
 
 	// subtitle sources
 	public static final OpenSubtitlesClient OpenSubtitles = new OpenSubtitlesClientWithLocalSearch(getApiKey("opensubtitles"), getApplicationVersion());

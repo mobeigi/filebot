@@ -40,7 +40,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 
 	@Override
 	public String getName() {
-		return "TheTVDB";
+		return "TheTVDBv2";
 	}
 
 	@Override
@@ -285,7 +285,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 			Integer order = getInteger(it, "sortOrder");
 			URL image = getStringValue(it, "image", this::resolveImage);
 
-			return new Person(name, character, null, null, order, image);
+			return new Person(name, character, Person.ACTOR, null, order, image);
 		}).sorted(Person.CREDIT_ORDER).collect(toList());
 	}
 
