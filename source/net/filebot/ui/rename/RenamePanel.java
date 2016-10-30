@@ -720,7 +720,7 @@ public class RenamePanel extends JComponent {
 				log.log(Level.WARNING, e, e::toString);
 			}
 
-			return emptyList();
+			return null; // cancel operation
 		}
 
 		@Override
@@ -859,11 +859,13 @@ public class RenamePanel extends JComponent {
 			// clear names list
 			renameModel.values().clear();
 
-			List<File> remainingFiles = new LinkedList<File>(getFiles(evt));
-			if (remainingFiles.isEmpty()) {
+			// select files
+			List<File> files = getFiles(evt);
+			if (files == null) {
 				return;
 			}
 
+			List<File> remainingFiles = new LinkedList<File>(files);
 			boolean strict = isStrict(evt);
 			SortOrder order = getSortOrder(evt);
 			Locale locale = getLocale(evt);
