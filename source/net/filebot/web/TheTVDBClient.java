@@ -276,8 +276,8 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 		return streamJsonObjects(response, "data").map(it -> getString(it, "abbreviation")).collect(toList());
 	}
 
-	public List<Person> getActors(int id, Locale locale) throws Exception {
-		Object response = requestJson("series/" + id + "/actors", locale, Cache.ONE_MONTH);
+	public List<Person> getActors(int seriesId, Locale locale) throws Exception {
+		Object response = requestJson("series/" + seriesId + "/actors", locale, Cache.ONE_MONTH);
 
 		// e.g. [id:68414, seriesId:78874, name:Summer Glau, role:River Tam, sortOrder:2, image:actors/68414.jpg, imageAuthor:513, imageAdded:0000-00-00 00:00:00, lastUpdated:2011-08-18 11:53:14]
 		return streamJsonObjects(response, "data").map(it -> {
@@ -288,6 +288,31 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 
 			return new Person(name, character, Person.ACTOR, null, order, image);
 		}).sorted(Person.CREDIT_ORDER).collect(toList());
+	}
+
+	public EpisodeInfo getEpisodeInfo(int id, Locale locale) throws Exception {
+		Object response = requestJson("episodes/" + id, locale, Cache.ONE_MONTH);
+		Object data = getMap(response, "data");
+
+		Integer seriesId = getInteger(data, "seriesId");
+		String overview = getString(data, "overview");
+
+		Double rating = getDecimal(data, "siteRating");
+		Integer votes = getInteger(data, "siteRatingCount");
+
+		List<Person> people = new ArrayList<Person>();
+
+		for (Object it : getArray(data, "directors")) {
+			people.add(new Person(it.toString(), Person.DIRECTOR));
+		}
+		for (Object it : getArray(data, "writers")) {
+			people.add(new Person(it.toString(), Person.WRITER));
+		}
+		for (Object it : getArray(data, "guestStars")) {
+			people.add(new Person(it.toString(), Person.ACTOR));
+		}
+
+		return new EpisodeInfo(this, locale, seriesId, id, people, overview, rating, votes);
 	}
 
 }

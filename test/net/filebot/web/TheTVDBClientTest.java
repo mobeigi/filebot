@@ -164,4 +164,18 @@ public class TheTVDBClientTest {
 		assertEquals("http://thetvdb.com/banners/actors/68409.jpg", p.getImage().toString());
 	}
 
+	@Test
+	public void getEpisodeInfo() throws Exception {
+		EpisodeInfo i = db.getEpisodeInfo(296337, Locale.ENGLISH);
+
+		assertEquals("78845", i.getSeriesId().toString());
+		assertEquals("296337", i.getId().toString());
+		assertEquals(8.2, i.getRating(), 0.1);
+		assertEquals(6, i.getVotes(), 5);
+		assertEquals("When Jaye Tyler is convinced by a waxed lion to chase after a shinny quarter, she finds herself returning a lost purse to a lady (who instead of thanking her, is punched in the face), meeting an attractive and sweet bartender names Eric, introducing her sister, Sharon to the EPS newly divorced bachelor, Thomas, she knows, and later discovering her sister, Sharon's sexuality.", i.getOverview().toString());
+		assertEquals("[Todd Holland, Bryan Fuller, Todd Holland]", i.getDirectors().toString());
+		assertEquals("[Todd Holland, Bryan Fuller]", i.getWriters().toString());
+		assertEquals("[Scotch Ellis Loring, Gerry Fiorini, Kim Roberts, Corry Karpf, Curt Wu, Bailey Stocker, Lisa Marcos, Jorge Molina, Morgan Drmaj, Chantal Purdy, Kari Matchett, Neil Grayston, Anna Starnino, Melissa Grelo, Brandon Oakes, Scotch Ellis Loring, Ted Dykstra, Kathryn Greenwood, G]", i.getGuestStars().toString());
+	}
+
 }

@@ -3,6 +3,7 @@ package net.filebot.format;
 import static java.util.Arrays.*;
 import static java.util.regex.Pattern.*;
 import static net.filebot.MediaTypes.*;
+import static net.filebot.WebServices.*;
 import static net.filebot.format.ExpressionFormatFunctions.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.RegularExpressions.*;
@@ -33,6 +34,8 @@ import groovy.lang.Closure;
 import net.filebot.Language;
 import net.filebot.similarity.Normalization;
 import net.filebot.util.FileUtilities;
+import net.filebot.web.Episode;
+import net.filebot.web.EpisodeInfo;
 import net.filebot.web.SimpleDate;
 
 public class ExpressionFormatMethods {
@@ -496,6 +499,16 @@ public class ExpressionFormatMethods {
 
 	public static String plus(SimpleDate self, Object other) {
 		return concat(self, other);
+	}
+
+	/**
+	 * Episode utilities (EXPERIMENTAL)
+	 */
+	public static EpisodeInfo getInfo(Episode self) throws Exception {
+		if (TheTVDB.getIdentifier().equals(self.getSeriesInfo().getDatabase()))
+			return TheTVDBv2.getEpisodeInfo(self.getId(), Locale.ENGLISH);
+
+		return null;
 	}
 
 }

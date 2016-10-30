@@ -601,9 +601,11 @@ public class MediaBindingBean {
 	}
 
 	@Define("director")
-	public Object getDirector() throws Exception {
+	public String getDirector() throws Exception {
 		if (infoObject instanceof Movie)
 			return getMovieInfo().getDirector();
+		if (infoObject instanceof Episode)
+			return getInfo(getEpisode()).getDirectors().iterator().next();
 
 		return null;
 	}

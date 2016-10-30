@@ -70,7 +70,7 @@ public class Person implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("%s (%s)", name, isActor() ? character : job);
+		return String.format("%s (%s)", name, character != null ? character : job);
 	}
 
 	public static final String WRITER = "Writer";
