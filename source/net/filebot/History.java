@@ -7,12 +7,12 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 
 import javax.xml.bind.JAXBContext;
@@ -71,7 +71,7 @@ public class History {
 
 		@Override
 		public int hashCode() {
-			return Arrays.hashCode(new Object[] { elements, date });
+			return Objects.hash(elements, date);
 		}
 	}
 
@@ -120,7 +120,7 @@ public class History {
 
 		@Override
 		public int hashCode() {
-			return Arrays.hashCode(new Object[] { to, from, dir });
+			return Objects.hash(to, from, dir);
 		}
 	}
 

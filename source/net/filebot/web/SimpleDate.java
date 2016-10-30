@@ -7,8 +7,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
-import java.util.Arrays;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,7 +80,7 @@ public class SimpleDate implements Serializable, Comparable<Object> {
 
 	@Override
 	public int hashCode() {
-		return Arrays.hashCode(new Object[] { year, month, day });
+		return Objects.hash(year, month, day);
 	}
 
 	@Override

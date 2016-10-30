@@ -10,10 +10,10 @@ import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.IntSummaryStatistics;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.MatchResult;
@@ -256,7 +256,7 @@ public class SeasonEpisodeMatcher {
 
 		@Override
 		public int hashCode() {
-			return Arrays.hashCode(new Object[] { season, episode });
+			return Objects.hash(season, episode);
 		}
 
 		@Override

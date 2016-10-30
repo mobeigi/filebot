@@ -1,31 +1,25 @@
 
 package net.filebot.similarity;
 
-
-import java.util.Arrays;
-
+import java.util.Objects;
 
 public class Match<Value, Candidate> {
 
 	private final Value value;
 	private final Candidate candidate;
 
-
 	public Match(Value value, Candidate candidate) {
 		this.value = value;
 		this.candidate = candidate;
 	}
 
-
 	public Value getValue() {
 		return value;
 	}
 
-
 	public Candidate getCandidate() {
 		return candidate;
 	}
-
 
 	@Override
 	public boolean equals(Object obj) {
@@ -37,12 +31,10 @@ public class Match<Value, Candidate> {
 		return false;
 	}
 
-
 	@Override
 	public int hashCode() {
-		return Arrays.hashCode(new Object[] { value, candidate });
+		return Objects.hash(value, candidate);
 	}
-
 
 	@Override
 	public String toString() {
