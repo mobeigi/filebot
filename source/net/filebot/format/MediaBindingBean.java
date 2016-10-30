@@ -44,6 +44,7 @@ import net.filebot.CacheType;
 import net.filebot.Language;
 import net.filebot.MediaTypes;
 import net.filebot.MetaAttributeView;
+import net.filebot.Resource;
 import net.filebot.Settings;
 import net.filebot.hash.HashType;
 import net.filebot.media.MetaAttributes;
@@ -980,32 +981,6 @@ public class MediaBindingBean {
 		return MetaAttributes.toJson(infoObject);
 	}
 
-	public MovieInfo getPrimaryMovieInfo() throws Exception {
-		return TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false);
-	}
-
-	public SeriesInfo getPrimarySeriesInfo() throws Exception {
-		if (TheTVDB.getIdentifier().equals(getSeriesInfo().getDatabase()))
-			return TheTVDB.getSeriesInfo(getSeriesInfo().getId(), Locale.ENGLISH);
-
-		return getSeriesInfo();
-	}
-
-	public MovieInfo getMovieInfo() throws Exception {
-		return getMovieInfo(getMovie().getLanguage(), true);
-	}
-
-	public synchronized MovieInfo getMovieInfo(Locale locale, boolean extendedInfo) throws Exception {
-		Movie m = getMovie();
-
-		if (m.getTmdbId() > 0)
-			return TheMovieDB.getMovieInfo(m, locale == null ? Locale.ENGLISH : locale, extendedInfo);
-		if (m.getImdbId() > 0)
-			return OMDb.getMovieInfo(m);
-
-		return null;
-	}
-
 	public File getInferredMediaFile() {
 		if (getMediaFile().isDirectory()) {
 			// just select the first video file in the folder as media sample
@@ -1042,6 +1017,35 @@ public class MediaBindingBean {
 		}
 
 		return getMediaFile();
+	}
+
+	public SeriesInfo getPrimarySeriesInfo() throws Exception {
+		if (TheTVDB.getIdentifier().equals(getSeriesInfo().getDatabase()))
+			return TheTVDB.getSeriesInfo(getSeriesInfo().getId(), Locale.ENGLISH);
+
+		return getSeriesInfo();
+	}
+
+	private final Resource<MovieInfo> primaryMovieInfo = Resource.lazy(() -> TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false));
+	private final Resource<MovieInfo> extendedMovieInfo = Resource.lazy(() -> getMovieInfo(getMovie().getLanguage(), true));
+
+	public MovieInfo getPrimaryMovieInfo() throws Exception {
+		return primaryMovieInfo.get();
+	}
+
+	public MovieInfo getMovieInfo() throws Exception {
+		return extendedMovieInfo.get();
+	}
+
+	public synchronized MovieInfo getMovieInfo(Locale locale, boolean extendedInfo) throws Exception {
+		Movie m = getMovie();
+
+		if (m.getTmdbId() > 0)
+			return TheMovieDB.getMovieInfo(m, locale == null ? Locale.ENGLISH : locale, extendedInfo);
+		if (m.getImdbId() > 0)
+			return OMDb.getMovieInfo(m);
+
+		return null;
 	}
 
 	private static final Map<File, MediaInfo> sharedMediaInfoObjects = synchronizedMap(new WeakValueHashMap<File, MediaInfo>(64));
