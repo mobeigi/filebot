@@ -62,7 +62,6 @@ import net.filebot.web.EpisodeFormat;
 import net.filebot.web.Movie;
 import net.filebot.web.MoviePart;
 import net.filebot.web.MultiEpisode;
-import net.filebot.web.Person;
 import net.filebot.web.SeriesInfo;
 import net.filebot.web.SimpleDate;
 import net.filebot.web.SortOrder;
@@ -580,7 +579,7 @@ public class MediaBindingBean {
 		if (infoObject instanceof Movie)
 			return getMovieInfo().getActors();
 		if (infoObject instanceof Episode)
-			return TheTVDBv2.getActors(getSeriesInfo().getId(), Locale.ENGLISH).stream().map(Person::getName).collect(toList()); // use TheTVDB API v2 to retrieve actors info
+			return ExpressionFormatMethods.getActors(getSeriesInfo()); // use TheTVDB API v2 to retrieve actors info
 
 		return null;
 	}
@@ -605,7 +604,7 @@ public class MediaBindingBean {
 		if (infoObject instanceof Movie)
 			return getMovieInfo().getDirector();
 		if (infoObject instanceof Episode)
-			return getInfo(getEpisode()).getDirectors().iterator().next();
+			return ExpressionFormatMethods.getInfo(getEpisode()).getDirectors().iterator().next(); // use TheTVDB API v2 to retrieve extended episode info
 
 		return null;
 	}

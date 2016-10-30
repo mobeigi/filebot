@@ -2,6 +2,7 @@ package net.filebot.format;
 
 import static java.util.Arrays.*;
 import static java.util.regex.Pattern.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.WebServices.*;
 import static net.filebot.format.ExpressionFormatFunctions.*;
@@ -36,6 +37,8 @@ import net.filebot.similarity.Normalization;
 import net.filebot.util.FileUtilities;
 import net.filebot.web.Episode;
 import net.filebot.web.EpisodeInfo;
+import net.filebot.web.Person;
+import net.filebot.web.SeriesInfo;
 import net.filebot.web.SimpleDate;
 
 public class ExpressionFormatMethods {
@@ -507,6 +510,13 @@ public class ExpressionFormatMethods {
 	public static EpisodeInfo getInfo(Episode self) throws Exception {
 		if (TheTVDB.getIdentifier().equals(self.getSeriesInfo().getDatabase()))
 			return TheTVDBv2.getEpisodeInfo(self.getId(), Locale.ENGLISH);
+
+		return null;
+	}
+
+	public static List<String> getActors(SeriesInfo self) throws Exception {
+		if (TheTVDB.getIdentifier().equals(self.getDatabase()))
+			return TheTVDBv2.getActors(self.getId(), Locale.ENGLISH).stream().map(Person::getName).collect(toList());
 
 		return null;
 	}
