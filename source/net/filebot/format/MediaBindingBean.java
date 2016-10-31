@@ -629,6 +629,16 @@ public class MediaBindingBean {
 		return null;
 	}
 
+	@Define("votes")
+	public Integer getVotes() throws Exception {
+		if (infoObject instanceof Movie)
+			return getMovieInfo().getVotes();
+		if (infoObject instanceof Episode)
+			return getSeriesInfo().getRatingCount();
+
+		return null;
+	}
+
 	@Define("collection")
 	public String getCollection() throws Exception {
 		if (infoObject instanceof Movie)
