@@ -115,7 +115,7 @@ public class ScriptShellMethods {
 			try {
 				return MediaDetection.isVideoDiskFile(self);
 			} catch (Exception e) {
-				debug.log(Level.WARNING, format("Failed to read disk image: %s: %s", self, e));
+				debug.log(Level.WARNING, "Failed to read disk image: " + e);
 			}
 		}
 

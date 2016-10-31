@@ -12,7 +12,6 @@ import java.util.Map;
 
 import net.filebot.vfs.FileInfo;
 import net.filebot.vfs.SimpleFileInfo;
-import net.sf.sevenzipjbinding.ArchiveFormat;
 import net.sf.sevenzipjbinding.IInArchive;
 import net.sf.sevenzipjbinding.PropID;
 import net.sf.sevenzipjbinding.SevenZipException;
@@ -117,17 +116,6 @@ public class SevenZipNativeBindings implements ArchiveExtractor, Closeable {
 		} finally {
 			openVolume.close();
 		}
-	}
-
-	public static List<String> getArchiveTypes() {
-		List<String> extensions = new ArrayList<String>();
-
-		// formats provided by the library
-		for (ArchiveFormat it : ArchiveFormat.values()) {
-			extensions.add(it.getMethodName());
-		}
-
-		return extensions;
 	}
 
 }

@@ -1,5 +1,7 @@
 package net.filebot.archive;
 
+import static java.util.Arrays.*;
+import static net.filebot.MediaTypes.*;
 import static net.filebot.util.StringUtilities.*;
 
 import java.io.Closeable;
@@ -7,19 +9,26 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
-import net.filebot.MediaTypes;
-import net.filebot.Settings;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.VFS;
+
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
+import net.filebot.util.SystemProperty;
 import net.filebot.vfs.FileInfo;
+import net.sf.sevenzipjbinding.ArchiveFormat;
 
 public class Archive implements Closeable {
 
+	public static Extractor getExtractor() {
+		return SystemProperty.of("net.filebot.Archive.extractor", Extractor::valueOf, Extractor.SevenZipNativeBindings).get();
+	}
+
 	public static enum Extractor {
+
 		SevenZipNativeBindings, SevenZipExecutable, ApacheVFS;
 
 		public ArchiveExtractor newInstance(File archive) throws Exception {
@@ -28,15 +37,28 @@ public class Archive implements Closeable {
 				return new SevenZipNativeBindings(archive);
 			case SevenZipExecutable:
 				return new SevenZipExecutable(archive);
-			case ApacheVFS:
+			default:
 				return new ApacheVFS(archive);
 			}
-			return null;
+		}
+
+		public String[] getSupportedTypes() {
+			switch (this) {
+			case SevenZipNativeBindings:
+			case SevenZipExecutable:
+				return stream(ArchiveFormat.values()).map(ArchiveFormat::getMethodName).toArray(String[]::new);
+			default:
+				try {
+					return VFS.getManager().getSchemes();
+				} catch (FileSystemException e) {
+					throw new IllegalStateException(e);
+				}
+			}
 		}
 	}
 
 	public static Archive open(File archive) throws Exception {
-		return new Archive(Settings.getPreferredArchiveExtractor().newInstance(archive));
+		return new Archive(getExtractor().newInstance(archive));
 	}
 
 	private final ArchiveExtractor extractor;
@@ -64,16 +86,8 @@ public class Archive implements Closeable {
 		}
 	}
 
-	public static Set<String> getArchiveTypes() {
-		Set<String> extensions = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-
-		// application data
-		extensions.addAll(MediaTypes.getDefault().getExtensionList("archive"));
-
-		// formats provided by the library
-		extensions.addAll(SevenZipNativeBindings.getArchiveTypes());
-
-		return extensions;
+	public static String[] getArchiveTypes() {
+		return Stream.of(ARCHIVE_FILES.extensions(), Extractor.SevenZipNativeBindings.getSupportedTypes()).flatMap(Stream::of).distinct().toArray(String[]::new);
 	}
 
 	private static final Pattern multiPartIndex = Pattern.compile("[.][0-9]{3}$");
