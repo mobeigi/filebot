@@ -309,7 +309,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 			people.add(new Person(it.toString(), Person.WRITER));
 		}
 		for (Object it : getArray(data, "guestStars")) {
-			people.add(new Person(it.toString(), Person.ACTOR));
+			people.add(new Person(it.toString(), Person.GUEST_STAR));
 		}
 
 		return new EpisodeInfo(this, locale, seriesId, id, people, overview, rating, votes);

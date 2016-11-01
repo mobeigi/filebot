@@ -2,14 +2,13 @@ package net.filebot.web;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
-import static java.util.stream.Collectors.*;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-public class EpisodeInfo implements Serializable {
+public class EpisodeInfo implements Crew, Serializable {
 
 	protected String database;
 	protected Integer seriesId;
@@ -64,20 +63,8 @@ public class EpisodeInfo implements Serializable {
 		return language;
 	}
 
-	public List<Person> getPeople() {
+	public List<Person> getCrew() {
 		return unmodifiableList(asList(people));
-	}
-
-	public List<String> getDirectors() {
-		return stream(people).filter(Person::isDirector).map(Person::getName).collect(toList());
-	}
-
-	public List<String> getWriters() {
-		return stream(people).filter(Person::isWriter).map(Person::getName).collect(toList());
-	}
-
-	public List<String> getGuestStars() {
-		return stream(people).filter(Person::isActor).map(Person::getName).collect(toList());
 	}
 
 	public String getOverview() {

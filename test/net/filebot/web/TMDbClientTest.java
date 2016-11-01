@@ -115,7 +115,7 @@ public class TMDbClientTest {
 
 	@Test
 	public void getPeople() throws Exception {
-		Person p = db.getMovieInfo("16320", Locale.ENGLISH, true).getPeople().get(0);
+		Person p = db.getMovieInfo("16320", Locale.ENGLISH, true).getCrew().get(0);
 		assertEquals("Nathan Fillion", p.getName());
 		assertEquals("Mal", p.getCharacter());
 		assertEquals(null, p.getJob());

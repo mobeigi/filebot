@@ -13,7 +13,7 @@ public class SearchResult implements Serializable {
 	protected String name;
 	protected String[] aliasNames;
 
-	protected SearchResult() {
+	public SearchResult() {
 		// used by serializer
 	}
 

@@ -408,7 +408,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		adult, backdrop_path, budget, homepage, id, imdb_id, original_title, overview, popularity, poster_path, release_date, revenue, runtime, tagline, title, vote_average, vote_count, certification, collection
 	}
 
-	public static class MovieInfo implements Serializable {
+	public static class MovieInfo implements Crew, Serializable {
 
 		protected Map<MovieProperty, String> fields;
 
@@ -422,7 +422,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		protected Person[] people;
 		protected Trailer[] trailers;
 
-		protected MovieInfo() {
+		public MovieInfo() {
 			// used by serializer
 		}
 
@@ -534,24 +534,8 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 			return stream(spokenLanguages).map(Locale::new).collect(toList());
 		}
 
-		public List<Person> getPeople() {
+		public List<Person> getCrew() {
 			return unmodifiableList(asList(people));
-		}
-
-		public String getDirector() {
-			return stream(people).filter(Person::isDirector).map(Person::getName).findFirst().orElse(null);
-		}
-
-		public String getWriter() {
-			return stream(people).filter(Person::isWriter).map(Person::getName).findFirst().orElse(null);
-		}
-
-		public List<Person> getCast() {
-			return stream(people).filter(Person::isActor).collect(toList());
-		}
-
-		public List<String> getActors() {
-			return stream(people).filter(Person::isActor).map(Person::getName).collect(toList());
 		}
 
 		public Map<String, String> getCertifications() {
@@ -578,6 +562,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		public String toString() {
 			return fields.toString();
 		}
+
 	}
 
 	public static class Trailer implements Serializable {
@@ -585,6 +570,10 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		protected String type;
 		protected String name;
 		protected Map<String, String> sources;
+
+		public Trailer() {
+			// used by serializer
+		}
 
 		public Trailer(String type, String name, Map<String, String> sources) {
 			this.type = type;

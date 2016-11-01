@@ -15,7 +15,7 @@ public class Person implements Serializable {
 	protected Integer order;
 	protected URL image;
 
-	protected Person() {
+	public Person() {
 		// used by serializer
 	}
 
@@ -57,15 +57,15 @@ public class Person implements Serializable {
 	}
 
 	public boolean isActor() {
-		return character != null || ACTOR.equals(getJob());
+		return character != null || ACTOR.equals(job) || GUEST_STAR.equals(job);
 	}
 
 	public boolean isDirector() {
-		return DIRECTOR.equals(getJob());
+		return DIRECTOR.equals(job);
 	}
 
 	public boolean isWriter() {
-		return WRITER.equals(getJob());
+		return WRITER.equals(job);
 	}
 
 	@Override
@@ -76,6 +76,7 @@ public class Person implements Serializable {
 	public static final String WRITER = "Writer";
 	public static final String DIRECTOR = "Director";
 	public static final String ACTOR = "Actor";
+	public static final String GUEST_STAR = "Guest Star";
 
 	public static final Comparator<Person> CREDIT_ORDER = comparing(Person::getOrder, nullsLast(naturalOrder()));
 
