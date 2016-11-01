@@ -187,9 +187,9 @@ public class OMDbClient implements MovieIdentificationService {
 		List<String> languages = split(delim, data.get("language"), String::toString);
 
 		List<Person> actors = new ArrayList<Person>();
-		actors.addAll(split(delim, data.get("actors"), (s) -> new Person(s, Person.ACTOR)));
-		actors.addAll(split(delim, data.get("director"), (s) -> new Person(s, Person.DIRECTOR)));
-		actors.addAll(split(delim, data.get("writer"), (s) -> new Person(s, Person.WRITER)));
+		actors.addAll(split(delim, data.get("actors"), s -> new Person(s, Person.ACTOR)));
+		actors.addAll(split(delim, data.get("director"), s -> new Person(s, Person.DIRECTOR)));
+		actors.addAll(split(delim, data.get("writer"), s -> new Person(s, Person.WRITER)));
 
 		return new MovieInfo(fields, emptyList(), genres, emptyMap(), languages, emptyList(), emptyList(), actors, emptyList());
 	}
@@ -228,7 +228,7 @@ public class OMDbClient implements MovieIdentificationService {
 		if (value == null || value.isEmpty())
 			return emptyList();
 
-		return regex.splitAsStream(value).map(String::trim).filter(s -> !s.equals("N/A")).map(toObject).collect(toList());
+		return regex.splitAsStream(value).map(String::trim).filter(s -> !s.isEmpty() && !s.equals("N/A")).map(toObject).collect(toList());
 	}
 
 }
