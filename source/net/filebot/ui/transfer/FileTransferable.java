@@ -1,9 +1,7 @@
 package net.filebot.ui.transfer;
 
-import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
-import static net.filebot.util.FileUtilities.*;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -87,7 +85,6 @@ public class FileTransferable implements Transferable {
 		return isFileListFlavor(flavor);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static List<File> getFilesFromTransferable(Transferable tr) throws IOException, UnsupportedFlavorException {
 		// On Linux, if a file is dragged from a smb share to into a java application (e.g. Ubuntu Files to FileBot)
 		// the application/x-java-file-list transfer data will be an empty list
@@ -124,7 +121,7 @@ public class FileTransferable implements Transferable {
 						}
 					}
 
-					return sortUnique(files);
+					return files;
 				}
 			}
 		}
@@ -134,9 +131,8 @@ public class FileTransferable implements Transferable {
 			// file list flavor
 			Object transferable = tr.getTransferData(DataFlavor.javaFileListFlavor);
 
-			if (transferable instanceof List) {
-				List<File> files = (List<File>) transferable;
-				return sortUnique(files);
+			if (transferable instanceof List<?>) {
+				return (List<File>) transferable;
 			}
 
 			// on some platforms transferable data will not be available until the drop has been accepted
@@ -145,10 +141,6 @@ public class FileTransferable implements Transferable {
 
 		// cannot get files from transferable
 		throw new UnsupportedFlavorException(DataFlavor.javaFileListFlavor);
-	}
-
-	private static List<File> sortUnique(List<File> files) {
-		return files.stream().distinct().sorted(HUMAN_NAME_ORDER).collect(toList());
 	}
 
 }
