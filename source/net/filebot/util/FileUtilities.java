@@ -47,6 +47,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 
@@ -476,13 +477,13 @@ public final class FileUtilities {
 	public static List<File> listFiles(Iterable<File> folders, int depth, FileFilter filter, Comparator<File> order) {
 		List<File> sink = new ArrayList<File>();
 
-		for (File it : folders) {
-			if (it.isDirectory()) {
-				listFiles(it, sink, depth, filter, order);
+		for (File f : folders) {
+			if (f.isDirectory()) {
+				listFiles(f, sink, depth, filter, order);
 			}
 
-			if (filter.accept(it)) {
-				sink.add(it);
+			if (filter.accept(f)) {
+				sink.add(f);
 			}
 		}
 
@@ -494,14 +495,25 @@ public final class FileUtilities {
 			return;
 		}
 
-		for (File it : getChildren(folder, NOT_HIDDEN, order)) {
-			if (it.isDirectory()) {
-				listFiles(it, sink, depth - 1, filter, order);
-			}
+		// children array may be null if folder permissions do not allow listing of files
+		File[] files = folder.listFiles(NOT_HIDDEN);
 
-			if (filter.accept(it)) {
-				sink.add(it);
-			}
+		// traverse file tree recursively
+		streamFiles(files, FOLDERS, order).forEach(f -> listFiles(f, sink, depth - 1, filter, order));
+
+		// add selected files in preferred order
+		streamFiles(files, filter, order).forEach(sink::add);
+	}
+
+	private static Stream<File> streamFiles(File[] files, FileFilter filter, Comparator<File> order) {
+		if (files == null || files.length == 0) {
+			return Stream.empty();
+		}
+
+		if (order == null) {
+			return stream(files).filter(filter::accept);
+		} else {
+			return stream(files).filter(filter::accept).sorted(order);
 		}
 	}
 
