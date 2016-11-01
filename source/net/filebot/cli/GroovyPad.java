@@ -206,7 +206,7 @@ public class GroovyPad extends JFrame {
 			try {
 				currentRunner.get(2, TimeUnit.SECONDS);
 			} catch (Exception e) {
-				log.log(Level.WARNING, e, e::getMessage);
+				debug.log(Level.WARNING, e, e::getMessage);
 			}
 		}
 	}

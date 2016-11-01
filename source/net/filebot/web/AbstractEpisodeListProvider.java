@@ -78,6 +78,10 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 		public SeriesInfo seriesInfo;
 		public Episode[] episodeList;
 
+		public SeriesData() {
+			// used by serializer
+		}
+
 		public SeriesData(SeriesInfo seriesInfo, List<Episode> episodeList) {
 			this.seriesInfo = seriesInfo;
 			this.episodeList = episodeList.toArray(new Episode[episodeList.size()]);
