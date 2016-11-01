@@ -494,12 +494,14 @@ public final class FileUtilities {
 			return;
 		}
 
-		for (File it : getChildren(folder, f -> !f.isHidden() && (f.isDirectory() || filter.accept(f)), order)) {
+		for (File it : getChildren(folder, NOT_HIDDEN, order)) {
 			if (it.isDirectory()) {
 				listFiles(it, sink, depth - 1, filter, order);
 			}
 
-			sink.add(it);
+			if (filter.accept(it)) {
+				sink.add(it);
+			}
 		}
 	}
 
@@ -652,19 +654,25 @@ public final class FileUtilities {
 
 	public static final int BUFFER_SIZE = 64 * 1024;
 
-	public static final long ONE_KILOBYTE = 1024;
-	public static final long ONE_MEGABYTE = 1024 * ONE_KILOBYTE;
-	public static final long ONE_GIGABYTE = 1024 * ONE_MEGABYTE;
+	public static final long ONE_KILOBYTE = 1000;
+	public static final long ONE_MEGABYTE = 1000 * ONE_KILOBYTE;
+	public static final long ONE_GIGABYTE = 1000 * ONE_MEGABYTE;
 
 	public static String formatSize(long size) {
-		if (size >= ONE_GIGABYTE)
+		if (size >= 100 * ONE_GIGABYTE)
 			return String.format("%,d GB", size / ONE_GIGABYTE);
-		else if (size >= ONE_MEGABYTE)
+		if (size >= 10 * ONE_GIGABYTE)
+			return String.format("%.1f GB", (double) size / ONE_GIGABYTE);
+		if (size >= ONE_GIGABYTE)
+			return String.format("%.2f GB", (double) size / ONE_GIGABYTE);
+		if (size >= 10 * ONE_MEGABYTE)
 			return String.format("%,d MB", size / ONE_MEGABYTE);
-		else if (size >= ONE_KILOBYTE)
+		if (size >= ONE_MEGABYTE)
+			return String.format("%.1f MB", (double) size / ONE_MEGABYTE);
+		if (size >= ONE_KILOBYTE)
 			return String.format("%,d KB", size / ONE_KILOBYTE);
-		else
-			return String.format("%,d bytes", size);
+
+		return String.format("%,d bytes", size);
 	}
 
 	public static final FileFilter FOLDERS = File::isDirectory;
