@@ -63,8 +63,10 @@ class FileTreePanel extends JComponent {
 		fireFileTreeChange();
 	});
 
+	public static final String FILE_TREE_PROPERTY = "FILE_TREE";
+
 	private void fireFileTreeChange() {
-		firePropertyChange("filetree", null, fileTree);
+		firePropertyChange(FILE_TREE_PROPERTY, null, fileTree);
 	}
 
 }

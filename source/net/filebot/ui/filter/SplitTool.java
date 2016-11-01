@@ -7,13 +7,12 @@ import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
@@ -51,14 +50,11 @@ class SplitTool extends Tool<TreeModel> {
 		tree.setTransferHandler(new DefaultTransferHandler(null, new FileTreeExportHandler()));
 		tree.setDragEnabled(true);
 
-		spinnerModel.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent evt) {
-				// update model in foreground, will be much faster than the initial load because length() is cached now
-				if (getRoot() != null) {
-					updateRoot(getRoot());
-				}
+		// update model in foreground, will be much faster than the initial load because length() is cached now
+		spinnerModel.addChangeListener(evt -> {
+			List<File> root = getRoot();
+			if (root.size() > 0) {
+				setRoot(root);
 			}
 		});
 	}
@@ -68,8 +64,8 @@ class SplitTool extends Tool<TreeModel> {
 	}
 
 	@Override
-	protected TreeModel createModelInBackground(File root) throws InterruptedException {
-		if (root == null) {
+	protected TreeModel createModelInBackground(List<File> root) {
+		if (root.isEmpty()) {
 			return new DefaultTreeModel(new FolderNode("Volumes", emptyList()));
 		}
 
@@ -93,7 +89,7 @@ class SplitTool extends Tool<TreeModel> {
 
 			if (totalSize + fileSize > splitSize) {
 				// part is full, add node and start with next one
-				rootGroup.add(createStatisticsNode(String.format("Disk %d", nextPart++), currentPart));
+				rootGroup.add(createStatisticsNode(nextPart++, currentPart));
 
 				// reset total size and file list
 				totalSize = 0;
@@ -102,11 +98,15 @@ class SplitTool extends Tool<TreeModel> {
 
 			totalSize += fileSize;
 			currentPart.add(f);
+
+			if (Thread.interrupted()) {
+				throw new CancellationException();
+			}
 		}
 
 		if (!currentPart.isEmpty()) {
 			// add last part
-			rootGroup.add(createStatisticsNode(String.format("Disk %d", nextPart++), currentPart));
+			rootGroup.add(createStatisticsNode(nextPart++, currentPart));
 		}
 
 		if (!remainder.isEmpty()) {
@@ -119,6 +119,11 @@ class SplitTool extends Tool<TreeModel> {
 	@Override
 	protected void setModel(TreeModel model) {
 		tree.setModel(model);
+	}
+
+	protected FolderNode createStatisticsNode(int disk, List<File> files) {
+		System.out.println(files);
+		return createStatisticsNode(String.format("Disk %,d", disk), files);
 	}
 
 }

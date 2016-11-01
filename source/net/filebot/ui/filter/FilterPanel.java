@@ -21,11 +21,11 @@ public class FilterPanel extends JComponent {
 		add(fileTreePanel, "grow 1, w 300:pref:500");
 		add(toolsPanel, "grow 2");
 
-		fileTreePanel.addPropertyChangeListener("filetree", evt -> {
+		fileTreePanel.addPropertyChangeListener(FileTreePanel.FILE_TREE_PROPERTY, evt -> {
 			// stopped loading, refresh tools
 			for (int i = 0; i < toolsPanel.getTabCount(); i++) {
 				Tool<?> tool = (Tool<?>) toolsPanel.getComponentAt(i);
-				tool.updateRoot(fileTreePanel.getFileTree().getRoot().getFile());
+				tool.setRoot(fileTreePanel.getFileTree().getRoot());
 			}
 		});
 	}

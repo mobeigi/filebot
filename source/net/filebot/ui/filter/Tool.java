@@ -1,60 +1,66 @@
 package net.filebot.ui.filter;
 
+import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
+import static net.filebot.util.ExceptionUtilities.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 
 import javax.swing.JComponent;
 import javax.swing.SwingWorker;
 import javax.swing.tree.TreeNode;
 
-import org.apache.commons.io.FileUtils;
-
 import net.filebot.ui.filter.FileTree.FileNode;
 import net.filebot.ui.filter.FileTree.FolderNode;
-import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.LoadingOverlayPane;
 
 abstract class Tool<M> extends JComponent {
 
-	private UpdateModelTask updateTask = null;
-	private File root = null;
+	private List<File> root = emptyList();
+
+	private UpdateModelTask updateTask;
 
 	public Tool(String name) {
 		setName(name);
 	}
 
-	public File getRoot() {
+	public List<File> getRoot() {
 		return root;
 	}
 
-	public void updateRoot(File root) {
+	public void setRoot(List<File> root) {
 		this.root = root;
 
 		if (updateTask != null) {
 			updateTask.cancel(true);
 		}
 
-		Tool.this.firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, false, true);
+		setLoading(true);
+
 		updateTask = new UpdateModelTask(root);
 		updateTask.execute();
 	}
 
-	protected abstract M createModelInBackground(File root) throws InterruptedException;
+	protected void setLoading(boolean loading) {
+		firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, !loading, loading);
+	}
+
+	protected abstract M createModelInBackground(List<File> root) throws Exception;
 
 	protected abstract void setModel(M model);
 
 	private class UpdateModelTask extends SwingWorker<M, Void> {
 
-		private final File root;
+		private final List<File> root;
 
-		public UpdateModelTask(File root) {
+		public UpdateModelTask(List<File> root) {
 			this.root = root;
 		}
 
@@ -66,7 +72,7 @@ abstract class Tool<M> extends JComponent {
 		@Override
 		protected void done() {
 			if (this == updateTask) {
-				Tool.this.firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, true, false);
+				setLoading(false);
 			}
 
 			// update task will only be cancelled if a newer update task has been started
@@ -74,14 +80,12 @@ abstract class Tool<M> extends JComponent {
 				try {
 					setModel(get());
 				} catch (Exception e) {
-					Throwable cause = ExceptionUtilities.getRootCause(e);
+					Throwable cause = getRootCause(e);
 
-					if (cause instanceof ConcurrentModificationException || cause instanceof InterruptedException) {
-						// if it happens, it is supposed to
-						debug.log(Level.FINEST, e.getMessage(), e);
+					if (cause instanceof InterruptedException || cause instanceof CancellationException) {
+						debug.log(Level.FINEST, e, e::toString); // if it happens, it is supposed to
 					} else {
-						// should not happen
-						debug.log(Level.WARNING, e.getMessage(), e);
+						debug.log(Level.WARNING, e, e::toString); // should not happen
 					}
 				}
 			}
@@ -89,26 +93,17 @@ abstract class Tool<M> extends JComponent {
 	}
 
 	protected List<TreeNode> createFileNodes(Collection<File> files) {
-		List<TreeNode> nodes = new ArrayList<TreeNode>(files.size());
-		for (File f : files) {
-			nodes.add(new FileNode(f));
-		}
-		return nodes;
+		return files.stream().map(FileNode::new).collect(toList());
 	}
 
 	protected FolderNode createStatisticsNode(String name, List<File> files) {
-		long totalCount = 0;
-		long totalSize = 0;
-
-		for (File f : files) {
-			totalCount += FileUtilities.listFiles(f, FileUtilities.FILES).size();
-			totalSize += FileUtils.sizeOf(f);
-		}
+		List<File> selection = listFiles(files, FILES, null);
+		long size = selection.stream().mapToLong(File::length).sum();
 
 		// set node text (e.g. txt (1 file, 42 Byte))
-		String title = String.format("%s (%,d %s, %s)", name, totalCount, totalCount == 1 ? "file" : "files", FileUtilities.formatSize(totalSize));
+		String title = String.format("%s (%,d %s, %s)", name, selection.size(), selection.size() == 1 ? "file" : "files", FileUtilities.formatSize(size));
 
-		return new FolderNode(null, title, createFileNodes(files));
+		return new FolderNode(title, createFileNodes(files));
 	}
 
 }

@@ -2,14 +2,15 @@ package net.filebot.ui.filter;
 
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
+import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 
 import javax.swing.tree.TreeNode;
@@ -18,7 +19,6 @@ import net.filebot.mac.MacAppUtilities;
 import net.filebot.ui.filter.FileTree.FileNode;
 import net.filebot.ui.filter.FileTree.FolderNode;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
-import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.FastFile;
 
 class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<TreeNode> {
@@ -42,46 +42,36 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<TreeNo
 
 	@Override
 	protected void process(List<TreeNode> root) {
-		tree.getModel().setRoot(root.get(0));
+		tree.getModel().setRoot(new FolderNode(root));
 		tree.getModel().reload();
 	}
 
 	@Override
 	protected void process(Exception e) {
-		log.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
-	}
-
-	@Override
-	protected void handleInBackground(List<File> files, TransferAction action) {
-		super.handleInBackground(files, action);
+		log.log(Level.WARNING, getRootCauseMessage(e), e);
 	}
 
 	@Override
 	protected void load(List<File> files, TransferAction action) {
+		// make sure we have access to the parent folder structure, not just the dropped file
+		if (isMacSandbox()) {
+			MacAppUtilities.askUnlockFolders(getWindow(tree), files);
+		}
+
 		try {
-			if (files.size() > 1 || containsOnly(files, FILES)) {
-				files = Arrays.asList(files.get(0).getParentFile());
-			}
-
-			// make sure we have access to the parent folder structure, not just the dropped file
-			if (isMacSandbox()) {
-				MacAppUtilities.askUnlockFolders(getWindow(tree), files);
-			}
-
 			// use fast file to minimize system calls like length(), isDirectory(), isFile(), ...
-			FastFile root = new FastFile(filter(files, FOLDERS).get(0));
+			TreeNode[] node = files.stream().map(FastFile::new).map(this::getTreeNode).toArray(TreeNode[]::new);
 
 			// publish on EDT
-			TreeNode[] node = { getTreeNode(root) };
 			publish(node);
-		} catch (InterruptedException e) {
+		} catch (CancellationException e) {
 			// supposed to happen if background execution was aborted
 		}
 	}
 
-	private TreeNode getTreeNode(File file) throws InterruptedException {
+	private TreeNode getTreeNode(File file) {
 		if (Thread.interrupted()) {
-			throw new InterruptedException();
+			throw new CancellationException();
 		}
 
 		if (file.isDirectory()) {

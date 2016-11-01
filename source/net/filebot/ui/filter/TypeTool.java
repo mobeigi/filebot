@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CancellationException;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -44,12 +45,13 @@ class TypeTool extends Tool<TreeModel> {
 	}
 
 	@Override
-	protected TreeModel createModelInBackground(File root) throws InterruptedException {
-		if (root == null) {
+	protected TreeModel createModelInBackground(List<File> root) {
+		if (root.isEmpty()) {
 			return new DefaultTreeModel(new FolderNode("Types", emptyList()));
 		}
 
 		List<File> filesAndFolders = listFiles(root, NOT_HIDDEN, HUMAN_NAME_ORDER);
+
 		List<TreeNode> groups = new ArrayList<TreeNode>();
 
 		for (Entry<String, FileFilter> it : getMetaTypes().entrySet()) {
@@ -57,15 +59,24 @@ class TypeTool extends Tool<TreeModel> {
 			if (selection.size() > 0) {
 				groups.add(createStatisticsNode(it.getKey(), selection));
 			}
+
+			if (Thread.interrupted()) {
+				throw new CancellationException();
+			}
 		}
 
 		SortedMap<String, TreeNode> extensionGroups = new TreeMap<String, TreeNode>(String.CASE_INSENSITIVE_ORDER);
-		for (Entry<String, List<File>> it : mapByExtension(filter(filesAndFolders, FILES)).entrySet()) {
-			if (it.getKey() == null)
-				continue;
 
-			extensionGroups.put(it.getKey(), createStatisticsNode(it.getKey(), it.getValue()));
+		for (Entry<String, List<File>> it : mapByExtension(filter(filesAndFolders, FILES)).entrySet()) {
+			if (it.getKey() != null) {
+				extensionGroups.put(it.getKey(), createStatisticsNode(it.getKey(), it.getValue()));
+			}
+
+			if (Thread.interrupted()) {
+				throw new CancellationException();
+			}
 		}
+
 		groups.addAll(extensionGroups.values());
 
 		// create tree model

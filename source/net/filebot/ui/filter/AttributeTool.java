@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
@@ -48,10 +49,10 @@ class AttributeTool extends Tool<TableModel> {
 	}
 
 	@Override
-	protected TableModel createModelInBackground(File root) {
+	protected TableModel createModelInBackground(List<File> root) {
 		FileAttributesTableModel model = new FileAttributesTableModel();
 
-		if (root == null) {
+		if (root.isEmpty()) {
 			return model;
 		}
 
@@ -73,6 +74,10 @@ class AttributeTool extends Tool<TableModel> {
 				} else if (movie.getImdbId() > 0) {
 					model.addRow(String.format("%s::%d", "OMDb", movie.getImdbId()), metaObject, originalName, file);
 				}
+			}
+
+			if (Thread.interrupted()) {
+				throw new CancellationException();
 			}
 		}
 

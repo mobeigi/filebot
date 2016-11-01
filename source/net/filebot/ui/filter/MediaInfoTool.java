@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.concurrent.CancellationException;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
@@ -53,8 +54,8 @@ class MediaInfoTool extends Tool<TableModel> {
 	}
 
 	@Override
-	protected TableModel createModelInBackground(File root) {
-		if (root == null) {
+	protected TableModel createModelInBackground(List<File> root) {
+		if (root.isEmpty()) {
 			return new MediaInfoTableModel();
 		}
 
@@ -74,9 +75,13 @@ class MediaInfoTool extends Tool<TableModel> {
 						});
 					});
 				} catch (IllegalArgumentException e) {
-					debug.finest(e.getMessage());
+					debug.finest(e::toString);
 				} catch (Exception e) {
-					debug.warning(e.getMessage());
+					debug.warning(e::toString);
+				}
+
+				if (Thread.interrupted()) {
+					throw new CancellationException();
 				}
 			});
 		}

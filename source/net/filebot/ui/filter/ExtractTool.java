@@ -2,11 +2,10 @@ package net.filebot.ui.filter;
 
 import static net.filebot.Logging.*;
 import static net.filebot.UserFiles.*;
-import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
@@ -21,7 +20,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
@@ -76,8 +74,8 @@ class ExtractTool extends Tool<TableModel> {
 	}
 
 	@Override
-	protected TableModel createModelInBackground(File root) throws InterruptedException {
-		if (root == null) {
+	protected TableModel createModelInBackground(List<File> root) throws Exception {
+		if (root.isEmpty()) {
 			return new ArchiveEntryModel();
 		}
 
@@ -85,46 +83,34 @@ class ExtractTool extends Tool<TableModel> {
 		List<File> files = listFiles(root, Archive.VOLUME_ONE_FILTER, HUMAN_NAME_ORDER);
 		List<ArchiveEntry> entries = new ArrayList<ArchiveEntry>();
 
-		try {
-			for (File file : files) {
-				try (Archive archive = Archive.open(file)) {
-					for (FileInfo it : archive.listFiles()) {
-						entries.add(new ArchiveEntry(file, it));
-					}
+		for (File file : files) {
+			try (Archive archive = Archive.open(file)) {
+				for (FileInfo it : archive.listFiles()) {
+					entries.add(new ArchiveEntry(file, it));
 				}
+			}
 
-				// unwind thread, if we have been cancelled
-				if (Thread.interrupted()) {
-					throw new InterruptedException();
-				}
-			}
-		} catch (Exception e) {
 			// unwind thread, if we have been cancelled
-			if (findCause(e, InterruptedException.class) != null) {
-				throw findCause(e, InterruptedException.class);
+			if (Thread.interrupted()) {
+				throw new CancellationException();
 			}
-			log.log(Level.WARNING, e.getMessage(), e);
 		}
 
 		return new ArchiveEntryModel(entries);
 	}
 
-	private Action extractAction = new AbstractAction("Extract All", ResourceManager.getIcon("package.extract")) {
+	private Action extractAction = newAction("Extract All", ResourceManager.getIcon("package.extract"), evt -> {
+		List<File> archives = ((ArchiveEntryModel) table.getModel()).getArchiveList();
+		if (archives.isEmpty())
+			return;
 
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			final List<File> archives = ((ArchiveEntryModel) table.getModel()).getArchiveList();
-			if (archives.isEmpty())
-				return;
+		File selectedFile = showOpenDialogSelectFolder(archives.get(0).getParentFile(), "Extract to ...", evt);
+		if (selectedFile == null)
+			return;
 
-			File selectedFile = showOpenDialogSelectFolder(archives.get(0).getParentFile(), "Extract to ...", evt);
-			if (selectedFile == null)
-				return;
-
-			ExtractWorker worker = new ExtractWorker(archives, selectedFile, null, true, ConflictAction.AUTO);
-			ProgressMonitor.runTask("Extract", "Extracting files...", worker);
-		}
-	};
+		ExtractWorker worker = new ExtractWorker(archives, selectedFile, null, true, ConflictAction.AUTO);
+		ProgressMonitor.runTask("Extract", "Extracting files...", worker);
+	});
 
 	private static class ArchiveEntry {
 
@@ -199,7 +185,7 @@ class ExtractTool extends Tool<TableModel> {
 
 	}
 
-	protected static class ExtractWorker implements ProgressWorker<Void> {
+	private static class ExtractWorker implements ProgressWorker<Void> {
 
 		private final File[] archives;
 		private final File outputFolder;

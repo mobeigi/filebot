@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -54,8 +53,20 @@ public class FileTree extends JTree {
 		return (DefaultTreeModel) super.getModel();
 	}
 
-	public FolderNode getRoot() {
-		return (FolderNode) getModel().getRoot();
+	public List<File> getRoot() {
+		FolderNode model = (FolderNode) getModel().getRoot();
+
+		return model.getChildren().stream().map(node -> {
+			if (node instanceof FolderNode) {
+				FolderNode folder = (FolderNode) node;
+				return folder.getFile();
+			}
+			if (node instanceof FileNode) {
+				FileNode file = (FileNode) node;
+				return file.getFile();
+			}
+			return null;
+		}).collect(toList());
 	}
 
 	public void clear() {
@@ -258,15 +269,16 @@ public class FileTree extends JTree {
 		private final String title;
 		private final List<TreeNode> children;
 
-		/**
-		 * Creates a root node (no parent, no title, empty list of children)
-		 */
 		public FolderNode() {
-			this(null, "", new ArrayList<TreeNode>(0));
+			this(emptyList()); // empty root node
+		}
+
+		public FolderNode(List<TreeNode> children) {
+			this(null, "/", children); // root node
 		}
 
 		public FolderNode(String title, List<TreeNode> children) {
-			this(null, title, children);
+			this(null, title, children); // virtual node
 		}
 
 		public FolderNode(File file, String title, List<TreeNode> children) {
@@ -318,8 +330,9 @@ public class FileTree extends JTree {
 
 				@Override
 				protected Iterator<TreeNode> children(TreeNode node) {
-					if (node instanceof FolderNode)
+					if (node instanceof FolderNode) {
 						return ((FolderNode) node).getChildren().iterator();
+					}
 
 					// can't step into non-folder nodes
 					return null;
@@ -333,8 +346,9 @@ public class FileTree extends JTree {
 
 				@Override
 				protected File filter(TreeNode node) {
-					if (node instanceof FileNode)
+					if (node instanceof FileNode) {
 						return ((FileNode) node).getFile();
+					}
 
 					// filter out non-file nodes
 					return null;
