@@ -116,14 +116,13 @@ class SplitTool extends Tool<TreeModel> {
 		return new DefaultTreeModel(new FolderNode("Volumes", rootGroup));
 	}
 
+	protected FolderNode createStatisticsNode(int disk, List<File> files) {
+		return createStatisticsNode(String.format("Disk %,d", disk), files);
+	}
+
 	@Override
 	protected void setModel(TreeModel model) {
 		tree.setModel(model);
-	}
-
-	protected FolderNode createStatisticsNode(int disk, List<File> files) {
-		System.out.println(files);
-		return createStatisticsNode(String.format("Disk %,d", disk), files);
 	}
 
 }
