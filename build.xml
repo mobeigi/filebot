@@ -918,6 +918,7 @@
 		<antcall target="deploy-release">
 			<param name="dir.release" location="${dir.dist}/release/${title}_${version}_${mark}" />
 			<param name="dir.cache" location="${dir.dist}/cache/${title}_${version}_${mark}" />
+			<param name="deploy.release" value="${deploy.release}/HEAD" />
 		</antcall>
 	</target>
 
