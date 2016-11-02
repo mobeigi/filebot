@@ -742,7 +742,7 @@
 	</target>
 
 
-	<target name="stage-release" depends="fatjar, portable, spk, ipkg, deb, msi, appbundle">
+	<target name="stage-release" depends="fatjar, portable, ipkg, deb, spk, appbundle, msi">
 		<!-- ensure clean release dir -->
 		<delete dir="${dir.release}" />
 		<mkdir dir="${dir.release}" />
