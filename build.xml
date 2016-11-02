@@ -580,9 +580,9 @@
 			<fileset dir="${dir.lib}/native/win32-x64" />
 		</copy>
 
+		<!-- fetch latest JRE -->
 		<exec executable="powershell" dir="${basedir.cache}" failonerror="yes">
-			<arg value="–NoProfile –ExecutionPolicy Bypass  -Command" />
-			<arg value="Invoke-WebRequest https://raw.githubusercontent.com/rednoah/java-installer/master/release/install-jre.ps1 | Invoke-Expression" />
+			<arg line="–NoProfile –ExecutionPolicy Bypass -Command 'Invoke-WebRequest https://raw.githubusercontent.com/rednoah/java-installer/master/release/install-jre.ps1 | Invoke-Expression'" />
 		</exec>
 		<copy todir="${dir.dist}/appx/jre">
 			<tarfileset>
