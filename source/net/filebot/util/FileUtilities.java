@@ -459,33 +459,25 @@ public final class FileUtilities {
 	public static final int FILE_WALK_MAX_DEPTH = 32;
 
 	public static List<File> listFiles(File folder, FileFilter filter) {
-		return listFiles(singleton(folder), FILE_WALK_MAX_DEPTH, filter, null);
+		return listFiles(new File[] { folder }, FILE_WALK_MAX_DEPTH, filter, null);
 	}
 
 	public static List<File> listFiles(File folder, FileFilter filter, Comparator<File> order) {
-		return listFiles(singleton(folder), FILE_WALK_MAX_DEPTH, filter, order);
+		return listFiles(new File[] { folder }, FILE_WALK_MAX_DEPTH, filter, order);
 	}
 
-	public static List<File> listFiles(Iterable<File> folders, FileFilter filter, Comparator<File> order) {
-		return listFiles(folders, FILE_WALK_MAX_DEPTH, filter, order);
+	public static List<File> listFiles(Collection<File> folders, FileFilter filter, Comparator<File> order) {
+		return listFiles(folders.toArray(new File[0]), FILE_WALK_MAX_DEPTH, filter, order);
 	}
 
-	public static List<File> listFolders(Iterable<File> folders, Comparator<File> order) {
-		return listFiles(folders, FILE_WALK_MAX_DEPTH, FOLDERS, order);
-	}
-
-	public static List<File> listFiles(Iterable<File> folders, int depth, FileFilter filter, Comparator<File> order) {
+	public static List<File> listFiles(File[] files, int depth, FileFilter filter, Comparator<File> order) {
 		List<File> sink = new ArrayList<File>();
 
-		for (File f : folders) {
-			if (f.isDirectory()) {
-				listFiles(f, sink, depth, filter, order);
-			}
+		// traverse file tree recursively
+		streamFiles(files, FOLDERS, order).forEach(f -> listFiles(f, sink, depth, filter, order));
 
-			if (filter.accept(f)) {
-				sink.add(f);
-			}
-		}
+		// add selected files in preferred order
+		streamFiles(files, filter, order).forEach(sink::add);
 
 		return sink;
 	}
