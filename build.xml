@@ -24,10 +24,8 @@
 	<!-- define output paths -->
 	<property name="path.fatjar" location="${dir.dist}/${title}_${version}.jar" />
 
-	<property name="basedir.cache" location="${basedir}/cache" />
-	<property name="dir.cache" location="${basedir.cache}/${title}_${version}" />
-	<property name="basedir.release" location="${basedir}/release" />
-	<property name="dir.release" location="${basedir.release}/${title}_${version}" />
+	<property name="dir.cache" location="${basedir}/cache/${title}_${version}" />
+	<property name="dir.release" location="${basedir}/release/${title}_${version}" />
 
 	<!-- target JRE -->
 	<property name="jre.major" value="8" />
@@ -581,13 +579,13 @@
 		</copy>
 
 		<!-- fetch latest JRE -->
-		<exec executable="powershell" dir="${basedir.cache}" failonerror="yes">
+		<exec executable="powershell" dir="${dir.cache}" failonerror="yes">
 			<arg line="–NoProfile –ExecutionPolicy Bypass -Command 'Invoke-WebRequest https://raw.githubusercontent.com/rednoah/java-installer/master/release/install-jre.ps1 | Invoke-Expression'" />
 		</exec>
 		<copy todir="${dir.dist}/appx/jre">
 			<tarfileset>
 				<gzipresource>
-					<file file="${basedir.cache}/jre-${jre.major}u${jre.build}-windows-x64.tar.gz" />
+					<file file="${dir.cache}/jre-${jre.major}u${jre.build}-windows-x64.tar.gz" />
 				</gzipresource>
 			</tarfileset>
 			<cutdirsmapper dirs="1" />
@@ -773,15 +771,16 @@
 
 
 	<target name="deploy-release" depends="stage-release" description="Upload release files to SourceForge.net FRS">
+		<!-- make sure to upload README.md first -->
 		<scp todir="${deploy.release}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
-			<!-- make sure to upload README.md first -->
-			<fileset dir="${basedir.release}" includes="**/README.md">
+			<fileset dir="${dir.release}/.." includes="**/README.md">
 				<date datetime="${tstamp.date}" pattern="yyyy-MM-dd" when="after" />
 			</fileset>
 		</scp>
+
+		<!-- upload starting with parent folders so scp will create the release folder for us -->
 		<scp todir="${deploy.release}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
-			<!-- upload starting with parent folders so scp will create the release folder for us -->
-			<fileset dir="${basedir.release}" excludes="**/README.md">
+			<fileset dir="${dir.release}/.." excludes="**/README.md">
 				<date datetime="${tstamp.date}" pattern="yyyy-MM-dd" when="after" />
 			</fileset>
 		</scp>
@@ -833,7 +832,7 @@
 		<scp todir="${deploy.website}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
 			<fileset dir="${dir.dist}/website">
 				<modified>
-					<param name="cache.cachefile" value="${basedir.cache}/scp.cache" />
+					<param name="cache.cachefile" value="${dir.cache}/scp.cache" />
 				</modified>
 			</fileset>
 		</scp>
@@ -900,7 +899,7 @@
 				<include name="data/*.txt" />
 				<include name="data/*.xz" />
 				<modified>
-					<param name="cache.cachefile" value="${basedir.cache}/scp.cache" />
+					<param name="cache.cachefile" value="${dir.cache}/scp.cache" />
 				</modified>
 			</fileset>
 		</scp>
@@ -917,8 +916,8 @@
 	<target name="deploy-beta-release" description="Build and deploy the latest release files">
 		<input addproperty="mark" message="Mark:" />
 		<antcall target="deploy-release">
-			<param name="dir.release" location="${basedir.release}/HEAD/${title}_${version}_${mark}" />
-			<param name="dir.cache" location="${basedir.cache}/HEAD/${title}_${version}_${mark}" />
+			<param name="dir.release" location="${dir.dist}/release/${title}_${version}_${mark}" />
+			<param name="dir.cache" location="${dir.dist}/cache/${title}_${version}_${mark}" />
 		</antcall>
 	</target>
 
