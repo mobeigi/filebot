@@ -14,16 +14,6 @@ import net.filebot.web.SortOrder;
 public class XattrFileMatcher extends XattrMetaInfoProvider implements AutoCompleteMatcher {
 
 	@Override
-	public String getIdentifier() {
-		return "xattr";
-	}
-
-	@Override
-	public String getName() {
-		return "Extended Attributes";
-	}
-
-	@Override
 	public List<Match<File, ?>> match(Collection<File> files, boolean strict, SortOrder order, Locale locale, boolean autodetection, Component parent) throws Exception {
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 

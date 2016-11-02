@@ -13,8 +13,13 @@ import net.filebot.web.Datasource;
 public class XattrMetaInfoProvider implements Datasource {
 
 	@Override
-	public String getName() {
+	public String getIdentifier() {
 		return "xattr";
+	}
+
+	@Override
+	public String getName() {
+		return "Extended Attributes";
 	}
 
 	@Override
