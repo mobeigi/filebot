@@ -31,7 +31,7 @@
 
 	<!-- target JRE -->
 	<property name="jre.major" value="8" />
-	<property name="jre.build" value="102" />
+	<property name="jre.build" value="112" />
 
 
 	<target name="resolve" description="Retrieve dependencies with Apache Ivy">
