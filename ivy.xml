@@ -38,5 +38,6 @@
 		<dependency rev="latest.release" org="org.apache.ant" name="ant-junit" />
 		<dependency rev="latest.release" org="org.apache.commons" name="commons-compress" />
 		<dependency rev="latest.release" org="net.filebot" name="ant-spk" />
+		<dependency rev="latest.release" org="org.vafer" name="jdeb" />
 	</dependencies>
 </ivy-module>

@@ -525,49 +525,55 @@
 
 
 	<target name="deb" description="Build Debian Linux packages" depends="revision">
+		<!-- arch i686 not allowed by deb specification, must be i386 for 32-bit x86 systems -->
 		<antcall target="deb-arch">
 			<param name="arch" value="i686" />
-			<!-- arch i686 not allowed by deb specification, must be i386 for 32-bit x86 systems -->
 			<param name="deb.arch" value="i386" />
+			<param name="deb.pkg" value="deb" />
+			<param name="deb.prefix" value="/usr" />
 		</antcall>
 		<antcall target="deb-arch">
 			<param name="arch" value="amd64" />
 			<param name="deb.arch" value="amd64" />
+			<param name="deb.pkg" value="deb" />
+			<param name="deb.prefix" value="/usr" />
+		</antcall>
+	</target>
+
+
+	<target name="ipkg" description="Build embedded Linux packages" depends="revision">
+		<antcall target="deb-arch">
+			<param name="arch" value="noarch" />
+			<param name="deb.arch" value="noarch" />
+			<param name="deb.pkg" value="ipk" />
+			<param name="deb.prefix" value="/opt" />
 		</antcall>
 	</target>
 
 
 	<target name="deb-arch">
-		<!-- stage created .deb files in a temporary folder -->
-		<property name="deb.staging" location="${dir.dist}/deb" />
-		<mkdir dir="${deb.staging}" />
-		<deb debfilenameproperty="staging.file.deb" todir="${deb.staging}" package="filebot" version="${version}" architecture="${deb.arch}" section="misc" homepage="http://www.filebot.net/" priority="optional" postinst="${dir.installer}/deb/postinst.sh" prerm="${dir.installer}/deb/prerm.sh">
-			<maintainer name="Reinhard Pointner" email="maintainer@filebot.net" />
-			<description synopsis="The ultimate TV and Movie Renamer">FileBot is the ultimate tool for renaming your movies, tv shows or anime and even downloading subtitles. It's smart, streamlined for simplicity and just works. Putting the super-efficient UI aside, it's also got a full-featured command-line interface and scripting engine for all sorts of automation. Anything is possible.</description>
-			<tarfileset fullpath="usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
-			<tarfileset prefix="usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="*.so" />
-			<tarfileset prefix="usr/share/filebot" file="${dir.lib}/native/linux-${arch}/fpcalc" filemode="755" />
-			<tarfileset prefix="usr/share/filebot" file="${dir.installer}/icons/icon.svg" />
-			<tarfileset prefix="usr/share/filebot/bin" file="${dir.installer}/deb/filebot.sh" filemode="755" />
-			<tarfileset prefix="usr/share/applications" file="${dir.installer}/deb/FileBot.desktop" />
-		</deb>
-		<move tofile="${dir.dist}/filebot_${version}_${deb.arch}.deb" file="${staging.file.deb}" overwrite="no" failonerror="yes" />
-		<delete dir="${deb.staging}" />
-	</target>
+		<property name="dir.staging" location="${dir.dist}/${deb.pkg}/${arch}" />
 
+		<copy todir="${dir.staging}" overwrite="yes" encoding="UTF-8" verbose="true">
+			<fileset dir="${dir.installer}/deb/${deb.pkg}" />
+			<fileset dir="${dir.installer}/deb" includes="control/**" />
+			<filterset begintoken="@{" endtoken="}">
+				<propertyset>
+					<propertyref builtin="all" />
+				</propertyset>
+			</filterset>
+		</copy>
+		<copy todir="${dir.staging}" verbose="true" failonerror="false">
+			<fileset dir="${dir.lib}/native/linux-${arch}" />
+			<fileset file="${dir.installer}/icons/icon.svg" />
+		</copy>
+		<copy file="${path.fatjar}" tofile="${dir.staging}/FileBot.jar" verbose="true" />
 
-	<target name="ipkg" description="Build embedded Linux packages" depends="revision">
-		<!-- stage created .deb files in a temporary folder -->
-		<property name="ipkg.staging" location="${dir.dist}/deb-ipkg" />
-		<mkdir dir="${ipkg.staging}" />
-		<deb debfilenameproperty="staging.file.deb" todir="${ipkg.staging}" package="filebot" version="${version}" architecture="noarch" section="misc" homepage="http://www.filebot.net/" priority="optional" postinst="${dir.installer}/ipkg/postinst.sh" prerm="${dir.installer}/ipkg/prerm.sh">
-			<maintainer name="Reinhard Pointner" email="maintainer@filebot.net" />
-			<description synopsis="The ultimate TV and Movie Renamer">FileBot is the ultimate tool for renaming your movies, tv shows or anime and even downloading subtitles. It's smart, streamlined for simplicity and just works. Putting the super-efficient UI aside, it's also got a full-featured command-line interface and scripting engine for all sorts of automation. Anything is possible.</description>
-			<tarfileset fullpath="opt/share/filebot/FileBot.jar" file="${path.fatjar}" />
-			<tarfileset prefix="opt/share/filebot/bin" file="${dir.installer}/ipkg/filebot.sh" filemode="755" />
-		</deb>
-		<move tofile="${dir.dist}/filebot_${version}_noarch.ipk" file="${staging.file.deb}" overwrite="no" failonerror="yes" />
-		<delete dir="${ipkg.staging}" />
+		<jdeb destfile="${dir.dist}/filebot_${version}_${deb.arch}.${deb.pkg}" control="${dir.staging}/control" compression="gz" changesIn="${dir.staging}/changes.txt" changesOut="${dir.dist}/filebot_${version}_${deb.arch}.${deb.pkg}.changes" verbose="true">
+			<tarfileset prefix="${deb.prefix}/share/filebot" dir="${dir.staging}" includes="*.sh, fpcalc" filemode="755" />
+			<tarfileset prefix="${deb.prefix}/share/filebot" dir="${dir.staging}" includes="*.jar, *.so, *.svg" />
+			<tarfileset prefix="${deb.prefix}/share/applications" dir="${dir.staging}" includes="*.desktop" />
+		</jdeb>
 	</target>
 
 
@@ -737,7 +743,7 @@
 		</path>
 		<taskdef uri="antlib:org.apache.ant.compress" resource="org/apache/ant/compress/antlib.xml" classpathref="lib.classpath" />
 		<taskdef resource="net/filebot/ant/spk/antlib.xml" classpathref="lib.classpath" />
-		<taskdef resource="com/googlecode/ant_deb_task/antlib.xml" classpathref="lib.classpath" />
+		<taskdef resource="org/vafer/jdeb/ant/antlib.xml" classpathref="lib.classpath" />
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="lib.classpath" />
 	</target>
 
@@ -916,8 +922,8 @@
 	<target name="deploy-beta-release" description="Build and deploy the latest release files">
 		<input addproperty="mark" message="Mark:" />
 		<antcall target="deploy-release">
-			<param name="dir.release" location="${dir.dist}/release/${title}_${version}_${mark}" />
-			<param name="dir.cache" location="${dir.dist}/cache/${title}_${version}_${mark}" />
+			<param name="dir.release" location="${dir.dist}/beta/release/${title}_${version}_${mark}" />
+			<param name="dir.cache" location="${dir.dist}/beta/cache/${title}_${version}_${mark}" />
 			<param name="deploy.release" value="${deploy.release}/HEAD" />
 		</antcall>
 	</target>

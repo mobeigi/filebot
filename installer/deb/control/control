@@ -1,0 +1,8 @@
+Package: filebot
+Version: @{version}
+Architecture: @{deb.arch}
+Maintainer: Reinhard Pointner <maintainer@filebot.net>
+Description: The ultimate TV and Movie Renamer
+Homepage: http://www.filebot.net/
+Section: utils
+Priority: extra

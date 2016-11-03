@@ -1,5 +1,5 @@
 #!/bin/sh
-APP_ROOT="/usr/share/filebot"
+APP_ROOT=@{deb.prefix}/share/filebot
 
 if [ -z "$HOME" ]; then
 	echo '$HOME must be set'

@@ -1,5 +1,5 @@
 #!/bin/sh
-APP_ROOT="/opt/share/filebot"
+APP_ROOT=@{deb.prefix}/share/filebot
 
 # make sure required environment variables are set
 if [ -z "$USER" ]; then

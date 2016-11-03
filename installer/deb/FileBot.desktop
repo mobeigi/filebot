@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=FileBot
-Comment=Rename Movies or TV Shows and download Subtitles
-Type=Application
-Exec=/usr/share/filebot/bin/filebot.sh
-Icon=/usr/share/filebot/icon.svg
-Terminal=false
-StartupNotify=true
-Categories=AudioVideo;Video;FileTools;Java
