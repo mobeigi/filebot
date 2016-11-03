@@ -89,7 +89,7 @@
 		<!-- The media table defines the location that the MSI will look to find source files during         -->
 		<!-- installation or repair scenarios. In this case, the source files are in a cab file that will be -->
 		<!-- embedded directly into the MSI at build time.                                                   -->
-		<Media Id='1' Cabinet='FileBot.cab' EmbedCab='yes' />
+		<Media Id='1' Cabinet='FileBot.cab' EmbedCab='yes' CompressionLevel="high" />
 
 		<!-- These properties define links that will appear in the Add/Remove Programs control panel when    -->
 		<!-- this product is installed on the system.                                                        -->
