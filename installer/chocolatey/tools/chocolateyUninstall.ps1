@@ -1,5 +1,4 @@
-﻿$app = Get-WmiObject -Query "SELECT * FROM Win32_Product WHERE Name = 'FileBot'"
-echo $app
+﻿$app = Get-WmiObject -Query "SELECT * FROM Win32_Product WHERE Name = '@{application.name}'"
 
 if ($app -eq $null) {
 	echo 'FileBot is not installed.'
