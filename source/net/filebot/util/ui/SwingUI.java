@@ -321,7 +321,7 @@ public final class SwingUI {
 			window.ifPresent(w -> w.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)));
 			runnable.run();
 		} catch (Exception e) {
-			debug.log(Level.SEVERE, e, e::toString);
+			debug.log(Level.SEVERE, e, e::getMessage);
 		} finally {
 			window.ifPresent(w -> w.setCursor(Cursor.getDefaultCursor()));
 		}

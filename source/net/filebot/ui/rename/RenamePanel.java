@@ -154,10 +154,10 @@ public class RenamePanel extends JComponent {
 			renameModel.useFormatter(File.class, new ExpressionFormatter(persistentFileFormat.getValue(), new FileNameFormat(), File.class));
 		} catch (Exception e) {
 			// make sure to put File formatter at position 3
-			renameModel.useFormatter(File.class, new FileNameFormatter(renameModel.preserveExtension()));
+			renameModel.useFormatter(File.class, new FileNameFormatter());
 		} finally {
 			// use default filename formatter
-			renameModel.useFormatter(FileInfo.class, new FileNameFormatter(renameModel.preserveExtension()));
+			renameModel.useFormatter(FileInfo.class, new FileNameFormatter());
 		}
 
 		RenameListCellRenderer cellrenderer = new RenameListCellRenderer(renameModel, ApplicationFolder.UserHome.getCanonicalFile());
@@ -560,14 +560,14 @@ public class RenamePanel extends JComponent {
 			} else if (binding.getInfoObject() instanceof File) {
 				return Mode.File;
 			} else {
-				throw new IllegalArgumentException("Cannot format class: " + binding.getClass()); // ignore objects that cannot be formatted
+				throw new IllegalArgumentException("Cannot format class: " + binding.getInfoObjectType()); // ignore objects that cannot be formatted
 			}
 		}
 
 		try {
 			return Mode.valueOf(persistentLastFormatState.getValue()); // restore previous mode
 		} catch (Exception e) {
-			debug.log(Level.WARNING, e.getMessage(), e);
+			debug.log(Level.WARNING, e, e::getMessage);
 		}
 
 		return Mode.Episode; // default to Episode mode
@@ -787,9 +787,6 @@ public class RenamePanel extends JComponent {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			renameModel.setPreserveExtension(!activate);
-
-			// use different file name formatter
-			renameModel.useFormatter(FileInfo.class, new FileNameFormatter(renameModel.preserveExtension()));
 
 			// display changed state
 			filesList.repaint();

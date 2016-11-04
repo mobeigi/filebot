@@ -57,7 +57,7 @@ class ExpressionFormatter implements MatchFormatter {
 	}
 
 	@Override
-	public synchronized String format(Match<?, ?> match, Map<?, ?> context) throws ScriptException {
+	public synchronized String format(Match<?, ?> match, boolean extension, Map<?, ?> context) throws ScriptException {
 		// lazy initialize script engine
 		if (format == null) {
 			format = new ExpressionFormat(expression);

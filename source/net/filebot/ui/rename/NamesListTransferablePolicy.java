@@ -2,10 +2,12 @@ package net.filebot.ui.rename;
 
 import static java.awt.datatransfer.DataFlavor.*;
 import static java.util.Arrays.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.hash.VerificationUtilities.*;
 import static net.filebot.ui.transfer.FileTransferable.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.RegularExpressions.*;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -64,21 +66,12 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 			load(getFilesFromTransferable(tr), action);
 		} else if (tr.isDataFlavorSupported(stringFlavor)) {
 			// string transferable
-			load((String) tr.getTransferData(stringFlavor));
+			load(tr.getTransferData(stringFlavor).toString());
 		}
 	}
 
 	protected void load(String string) {
-		List<String> values = new ArrayList<String>();
-		Scanner scanner = new Scanner(string);
-
-		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine().trim();
-			if (line.length() > 0) {
-				values.add(normalizePathSeparators(line));
-			}
-		}
-
+		List<String> values = NEWLINE.splitAsStream(string).map(String::trim).filter(s -> s.length() > 0).map(s -> normalizePathSeparators(s)).collect(toList());
 		model.addAll(values);
 	}
 
