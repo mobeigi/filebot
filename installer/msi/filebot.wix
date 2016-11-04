@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- These variables define the Windows Installer  product code and upgrade code.   -->
-<?define ProductName = "FileBot" ?>
-<?define Manufacturer = "Reinhard Pointner" ?>
+
+<!-- Pass in Processor Architecture via Ant Build Properties -->
+<?define Platform = "@{arch}" ?>
+
+<!-- Windows Installer product code and upgrade code -->
 <?define UpgradeCode = "86809B6B-E2E3-43EC-9351-D4D66CAF7864" ?>
 
 <!-- Set a specific product code based on the processor architecture build variable -->
-<?if $(var.arch)=x64 ?>
-	<?define Platform = "x64" ?>
+<?if $(var.Platform)=x64 ?>
 	<?define ProgramFiles = "ProgramFiles64Folder" ?>
 	<?define Win64 = "yes" ?>
 <?else ?>
-	<?define Platform = "x86" ?>
 	<?define ProgramFiles = "ProgramFilesFolder" ?>
 	<?define Win64 = "no" ?>
 <?endif ?>
 
 
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
-	<Product Id='*' Name='$(var.ProductName)' Manufacturer='$(var.Manufacturer)' Version='$(var.releaseversion)' UpgradeCode='$(var.UpgradeCode)' Language='1033' Codepage='1252'>
+	<Product Id='*' Name='@{application.name}' Manufacturer='@{package.developer}' Version='@{application.version}' UpgradeCode='$(var.UpgradeCode)' Language='1033' Codepage='1252'>
 
-		<Package Description="FileBot Installer" Manufacturer='$(var.Manufacturer)' InstallerVersion='300' Compressed='yes' Platform="$(var.Platform)" />
+		<Package Description="FileBot Installer" Manufacturer='@{package.developer}' InstallerVersion='300' Compressed='yes' Platform="$(var.Platform)" />
 
 		<MajorUpgrade AllowDowngrades="yes" IgnoreRemoveFailure="yes" />
 
 		<Directory Id='TARGETDIR' Name='SourceDir'>
 			<Directory Id='$(var.ProgramFiles)' Name='Program Files'>
-				<Directory Id='INSTALLDIR' Name='FileBot'>
+				<Directory Id='INSTALLDIR' Name='@{application.name}'>
 
 					<Component Id='ApplicationStub' Guid='A7B21026-DA54-4AF8-9227-188565AB9C4E' Win64="$(var.Win64)">
 						<File Id='filebot.launcher.exe' Name='filebot.launcher.exe' Source='filebot.launcher.exe' KeyPath='yes'>
-							<Shortcut Id="shortcut.menu.filebot" Directory="ProgramMenuDir" Name="FileBot" Description="The ultimate TV Renamer and Subtitle Downloader" WorkingDirectory='INSTALLDIR' Icon="icon.ico" Advertise="no">
-								<ShortcutProperty Key="System.AppUserModel.ID" Value="net.filebot.FileBot" />
+							<Shortcut Id="shortcut.menu.filebot" Directory="ProgramMenuDir" Name="@{application.name}" Description="@{package.synopsis}" WorkingDirectory='INSTALLDIR' Icon="icon.ico" Advertise="no">
+								<ShortcutProperty Key="System.AppUserModel.ID" Value="@{application.name}" />
 							</Shortcut>
-							<Shortcut Id="shortcut.desktop" Directory="DesktopFolder" Name="FileBot" Description="The ultimate TV Renamer and Subtitle Downloader" WorkingDirectory='INSTALLDIR' Icon="icon.ico" Advertise="no">
-								<ShortcutProperty Key="System.AppUserModel.ID" Value="net.filebot.FileBot" />
+							<Shortcut Id="shortcut.desktop" Directory="DesktopFolder" Name="@{application.name}" Description="@{package.synopsis}" WorkingDirectory='INSTALLDIR' Icon="icon.ico" Advertise="no">
+								<ShortcutProperty Key="System.AppUserModel.ID" Value="@{application.name}" />
 							</Shortcut>
-							<Shortcut Id="shortcut.sendto" Directory="SendToFolder" Name="FileBot" Description="The ultimate TV Renamer and Subtitle Downloader" WorkingDirectory='INSTALLDIR' Icon="icon.ico" Advertise="no">
-								<ShortcutProperty Key="System.AppUserModel.ID" Value="net.filebot.FileBot" />
+							<Shortcut Id="shortcut.sendto" Directory="SendToFolder" Name="@{application.name}" Description="@{package.synopsis}" WorkingDirectory='INSTALLDIR' Icon="icon.ico" Advertise="no">
+								<ShortcutProperty Key="System.AppUserModel.ID" Value="@{application.name}" />
 							</Shortcut>
 						</File>
 						<File Id='filebot.platform.launcher.exe' Name='filebot.platform.launcher.exe' Source='filebot.platform.launcher.exe'>
@@ -57,17 +57,17 @@
 					</Component>
 
 					<Component Id='ApplicationBase' Guid='9E365344-A00C-45DE-A2A4-266412C3D06E' Win64="$(var.Win64)">
-						<File Id='FileBot.jar' Name='FileBot.jar' Source='$(var.fatjar)' KeyPath='yes' />
-						<File Id='jnidispatch.dll' Name='jnidispatch.dll' Source='$(var.jnidispatch)' />
-						<File Id='MediaInfo.dll' Name='MediaInfo.dll' Source='$(var.mediainfo)' />
-						<File Id='lib7_Zip_JBinding.dll' Name='7-Zip-JBinding.dll' Source='$(var.lib7z_binding)' />
-						<File Id='fpcalc.exe' Name='fpcalc.exe' Source='$(var.fpcalc_path)' />
+						<File Id='FileBot.jar' Name='FileBot.jar' Source='@{path.fatjar}' KeyPath='yes' />
+						<File Id='jnidispatch.dll' Name='jnidispatch.dll' Source='jnidispatch.dll' />
+						<File Id='MediaInfo.dll' Name='MediaInfo.dll' Source='MediaInfo.dll' />
+						<File Id='lib7_Zip_JBinding.dll' Name='7-Zip-JBinding.dll' Source='7-Zip-JBinding.dll' />
+						<File Id='fpcalc.exe' Name='fpcalc.exe' Source='fpcalc.exe' />
 					</Component>
 				</Directory>
 			</Directory>
 
 			<Directory Id="ProgramMenuFolder" Name="Programs">
-				<Directory Id="ProgramMenuDir" Name="FileBot">
+				<Directory Id="ProgramMenuDir" Name="@{application.name}">
 					<Component Id="ProgramMenuDir" Guid="F3F0F1CB-E282-473A-BE8E-B7D325B3B4B0">
 						<RemoveFolder Id='ProgramMenuDir' On='uninstall' />
 					</Component>
@@ -86,32 +86,32 @@
 			<ComponentRef Id='ProgramMenuDir' />
 		</Feature>
 
-		<!-- The media table defines the location that the MSI will look to find source files during         -->
+		<!-- The media table defines the location that the MSI will look to find source files during -->
 		<!-- installation or repair scenarios. In this case, the source files are in a cab file that will be -->
-		<!-- embedded directly into the MSI at build time.                                                   -->
+		<!-- embedded directly into the MSI at build time. -->
 		<Media Id='1' Cabinet='FileBot.cab' EmbedCab='yes' CompressionLevel="high" />
 
-		<!-- These properties define links that will appear in the Add/Remove Programs control panel when    -->
-		<!-- this product is installed on the system.                                                        -->
-		<Property Id="ARPURLINFOABOUT" Value="http://www.filebot.net/" />
+		<!-- These properties define links that will appear in the Add/Remove Programs control panel when -->
+		<!-- this product is installed on the system. -->
+		<Property Id="ARPURLINFOABOUT" Value="@{package.homepage}" />
 
-		<!-- This property is used as the default installation directory, and the user can change this path  -->
-		<!-- during setup. The Id must be set to WIXUI_INSTALLDIR and the value must match the directory Id  -->
-		<!-- defined above that represents the root installation directory.                                  -->
-		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR"/>
+		<!-- This property is used as the default installation directory, and the user can change this path -->
+		<!-- during setup. The Id must be set to WIXUI_INSTALLDIR and the value must match the directory Id -->
+		<!-- defined above that represents the root installation directory. -->
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
 
-		<!-- This UIRef element specifies what WiXUI dialog set to use for the setup UI. This package uses   -->
-		<!-- the WixUI_InstallDir dialog set, which provides a welcome page, a license agreement page, a     -->
-		<!-- page to allow changing the installation path, an installation confirmation page, a progress     -->
-		<!-- page and a completion page. Other dialog sets are available in the WiX toolset and are          -->
-		<!-- described in more detail in the WiX documentation.                                              -->
-		<UIRef Id="WixUI_InstallDir"/>
+		<!-- This UIRef element specifies what WiXUI dialog set to use for the setup UI. This package uses -->
+		<!-- the WixUI_InstallDir dialog set, which provides a welcome page, a license agreement page, a -->
+		<!-- page to allow changing the installation path, an installation confirmation page, a progress -->
+		<!-- page and a completion page. Other dialog sets are available in the WiX toolset and are -->
+		<!-- described in more detail in the WiX documentation. -->
+		<UIRef Id="WixUI_InstallDir" />
 
 		<WixVariable Id="WixUIBannerBmp" Value="banner.bmp" />
 		<WixVariable Id="WixUIDialogBmp" Value="dialog.bmp" />
 		<WixVariable Id="WixUILicenseRtf" Value="license.rtf" />
 
-		<Icon Id="icon.ico" SourceFile="../icons/shortcut.ico" />
+		<Icon Id="icon.ico" SourceFile="shortcut.ico" />
 		<Property Id="ARPPRODUCTICON" Value="icon.ico" />
 		<Property Id="REBOOT" Value="ReallySuppress" />
 		<Property Id="LicenseAccepted" Value="1" />

@@ -1,9 +1,9 @@
 [Desktop Entry]
-Name=FileBot
-Comment=The ultimate TV and Movie Renamer
+Name=@{application.name}
+Comment=@{package.synopsis}
 Type=Application
 Exec=@{deb.prefix}/share/filebot/filebot.sh
 Icon=@{deb.prefix}/share/filebot/icon.svg
 Terminal=false
 StartupNotify=true
-Categories=AudioVideo;Video;FileTools
+Categories=@{gnome.application.categories}

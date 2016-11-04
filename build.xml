@@ -1,17 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <project name="filebot" default="fatjar" xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:cmp="antlib:org.apache.ant.compress">
-	<property file="profile.properties" />
-	<property file="source/net/filebot/Settings.properties" />
-
-	<property name="title" value="${application.name}" />
-	<property name="version" value="${application.version}" />
-
-	<tstamp>
-		<format property="tstamp.date" pattern="yyyy-MM-dd" />
-	</tstamp>
-	<tstamp>
-		<format property="tstamp.year" pattern="yyyy" />
-	</tstamp>
 
 	<!-- define source dirs -->
 	<property name="dir.source" location="${basedir}/source" />
@@ -21,23 +9,33 @@
 	<property name="dir.website" location="${basedir}/website" />
 	<property name="dir.installer" location="${basedir}/installer" />
 
+	<!-- import property files -->
+	<property file="${basedir}/profile.properties" />
+	<property file="${dir.installer}/ant/ant.properties" />
+	<property file="${dir.source}/net/filebot/Settings.properties" />
+
+	<property name="release" value="${application.name}_${application.version}" />
+	<property name="version" value="${application.version}" />
+
 	<!-- define output paths -->
-	<property name="path.fatjar" location="${dir.dist}/${title}_${version}.jar" />
-
-	<property name="dir.cache" location="${basedir}/cache/${title}_${version}" />
-	<property name="dir.release" location="${basedir}/release/${title}_${version}" />
-
-	<!-- target JRE -->
-	<property name="jre.major" value="8" />
-	<property name="jre.build" value="111" />
+	<property name="dir.cache" location="${basedir}/cache/${release}" />
+	<property name="dir.release" location="${basedir}/release/${release}" />
+	<property name="path.fatjar" location="${dir.dist}/${release}.jar" />
 
 
-	<!-- copy and replace ant variables -->
+	<!-- timestamp variables -->
+	<tstamp prefix="tstamp">
+		<format property="date" pattern="yyyy-MM-dd" />
+		<format property="year" pattern="yyyy" />
+	</tstamp>
+
+
+	<!-- copy and replace ant variables macro -->
 	<macrodef name="copy-replace">
 		<attribute name="todir" />
 		<element name="filesets" implicit="yes" />
 		<sequential>
-			<copy todir="@{todir}" encoding="UTF-8" overwrite="yes" verbose="yes">
+			<copy todir="@{todir}" encoding="utf-8" overwrite="yes" verbose="yes">
 				<filesets />
 				<filterset begintoken="@{" endtoken="}">
 					<propertyset>
@@ -125,16 +123,9 @@
 			<manifest>
 				<attribute name="Build-Date" value="${tstamp.date}" />
 				<attribute name="Build-Revision" value="${revision}" />
-				<attribute name="Application-Name" value="${title}" />
-				<attribute name="Application-Version" value="${version}" />
-				<attribute name="Main-Class" value="net.filebot.Main" />
+				<attribute name="Main-Class" value="${main.class}" />
 			</manifest>
 		</jar>
-
-		<!-- source as zip -->
-		<zip destfile="${dir.dist}/${title}-${version}-src.zip">
-			<fileset dir="source" />
-		</zip>
 	</target>
 
 
@@ -312,7 +303,7 @@
 
 
 	<target name="appbundle" description="Build Mac application bundle" depends="revision">
-		<bundleapp minimumsystemversion="10.8" jvmrequired="1.8" outputdirectory="${dir.dist}" executablename="purchase.sh" hidedockicon="true" name="${application.name}" displayname="${title} ${version}" version="${revision}" shortversion="${version}" identifier="net.filebot.app" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} Reinhard Pointner" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
+		<bundleapp outputdirectory="${dir.dist}" executablename="purchase.sh" hidedockicon="true" minimumsystemversion="${mac.version}" jvmrequired="${jvm.version}" name="${application.name}" displayname="${application.name} ${version}" version="${revision}" shortversion="${version}" identifier="net.filebot.Main" mainclassname="${main.class}" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} ${package.developer}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<librarypath dir="${dir.installer}/appbundle/MacOS" />
@@ -327,8 +318,6 @@
 			<option value="-DuseCreationDate=false" />
 
 			<option value="-Djava.net.useSystemProxies=true" />
-			<option value="-Dsun.net.client.defaultConnectTimeout=10000" />
-			<option value="-Dsun.net.client.defaultReadTimeout=60000" />
 			<option value="-Dfile.encoding=UTF-8" />
 
 			<option value="-Djna.nosys=true" />
@@ -336,7 +325,7 @@
 			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
 
-			<option value="-Xdock:name=${title}" />
+			<option value="-Xdock:name=${application.name}" />
 			<option value="-Xdock:icon=Contents/Resources/filebot.icns" />
 			<option value="-Dapple.laf.useScreenMenuBar=true" />
 
@@ -346,7 +335,7 @@
 		</bundleapp>
 
 		<!-- application bundle folder as .tar -->
-		<cmp:xz destfile="${dir.dist}/${title}_${version}-darwin.tar.xz">
+		<cmp:xz destfile="${dir.dist}/${release}-darwin.tar.xz">
 			<cmp:tar format="gnu" encoding="utf-8">
 				<cmp:tarfileset dir="${dir.dist}" includes="${application.name}.app/**" excludes="**/MacOS/**" />
 				<cmp:tarfileset dir="${dir.dist}" includes="${application.name}.app/**/**.dylib" />
@@ -361,11 +350,11 @@
 	<target name="appbundle-maspkg-core">
 		<antcall target="appbundle-maspkg">
 			<param name="application.name" value="FileBot" />
-			<param name="application.executable" value="FileBot" />
+			<param name="application.executable" value="filebot.launcher" />
 			<param name="application.identifier" value="net.filebot.FileBot" />
 			<param name="application.icon" value="${dir.installer}/appbundle/filebot.icns" />
-			<param name="application.cert.appbundle" value="3rd Party Mac Developer Application: Point Planck Limited" />
-			<param name="application.cert.installer" value="3rd Party Mac Developer Installer: Point Planck Limited" />
+			<param name="application.cert.appbundle" value="3rd Party Mac Developer Application: ${package.company}" />
+			<param name="application.cert.installer" value="3rd Party Mac Developer Installer: ${package.company}" />
 
 			<!-- MAS does not allow subtitle apps -->
 			<param name="application.mode" value="Rename|Episodes|SFV|Filter|List" />
@@ -379,11 +368,11 @@
 	<target name="appbundle-maspkg-subtitles">
 		<antcall target="appbundle-maspkg">
 			<param name="application.name" value="FileBot Subtitles" />
-			<param name="application.executable" value="FileBotSubtitles" />
-			<param name="application.identifier" value="net.filebot.subtitles" />
+			<param name="application.executable" value="filebot.subtitles.launcher" />
+			<param name="application.identifier" value="net.filebot.FileBot.Subtitles" />
 			<param name="application.icon" value="${dir.installer}/appbundle/subtitles.icns" />
-			<param name="application.cert.appbundle" value="Developer ID Application: Point Planck Limited" />
-			<param name="application.cert.installer" value="Developer ID Installer: Point Planck Limited" />
+			<param name="application.cert.appbundle" value="Developer ID Application: ${package.company}" />
+			<param name="application.cert.installer" value="Developer ID Installer: ${package.company}" />
 			<param name="application.mode" value="Subtitles" />
 			<param name="application.help" value="skip" />
 		</antcall>
@@ -392,12 +381,12 @@
 
 	<target name="appbundle-maspkg" depends="revision">
 		<property name="path.app" value="${application.name}.app" />
-		<property name="path.pkg" value="${application.executable}_${version}_r${revision}.pkg" />
+		<property name="path.pkg" value="${application.identifier}_${version}_r${revision}.pkg" />
 
 		<property name="jre.version" value="jdk1.${jre.major}.0_${jre.build}.jdk" />
 		<property name="jre.path" value="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Home" />
 
-		<bundleapp minimumsystemversion="10.8" jvmrequired="1.8" outputdirectory="${dir.dist}" executablename="${application.executable}AppLauncher" name="${application.name}" displayname="${application.name}" version="${revision}" shortversion="${version}" identifier="${application.identifier}" mainclassname="net.filebot.Main" icon="${application.icon}" copyright="${tstamp.year} Point Planck Limited" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
+		<bundleapp jvmrequired="${jvm.version}" minimumsystemversion="${mac.version}" outputdirectory="${dir.dist}" executablename="${application.executable}" name="${application.name}" displayname="${application.name}" version="${revision}" shortversion="${version}" identifier="${application.identifier}" mainclassname="${main.class}" icon="${application.icon}" copyright="${tstamp.year} ${package.company}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<librarypath dir="${dir.installer}/appbundle/MacOS" excludes="purchase.sh" />
@@ -423,8 +412,6 @@
 			<option value="-DuseCreationDate=false" />
 
 			<option value="-Djava.net.useSystemProxies=true" />
-			<option value="-Dsun.net.client.defaultConnectTimeout=10000" />
-			<option value="-Dsun.net.client.defaultReadTimeout=60000" />
 			<option value="-Dfile.encoding=UTF-8" />
 
 			<option value="-Djna.nosys=true" />
@@ -510,7 +497,7 @@
 			<arg line="--verify '${path.app}'" />
 		</exec>
 		<exec dir="${dir.dist}" executable="productbuild" failonerror="on">
-			<arg line="--component '${path.app}' /Applications --sign '${application.cert.installer}' ${path.pkg}" />
+			<arg line="--component '${path.app}' /Applications --sign '${application.cert.installer}' '${path.pkg}'" />
 		</exec>
 
 		<!-- store as release build-->
@@ -610,7 +597,7 @@
 		</copy-replace>
 
 		<exec executable="makeappx" dir="${dir.dist}" failonerror="yes">
-			<arg line="pack /d appx /p ${title}_${version}_r${revision}.appx" />
+			<arg line="pack /d appx /p ${release}_r${revision}.appx" />
 		</exec>
 	</target>
 
@@ -632,17 +619,26 @@
 
 
 	<target name="msi-arch">
-		<property name="jnidispatch" location="${dir.lib}/native/win32-${arch}/jnidispatch.dll" />
-		<property name="mediainfo" location="${dir.lib}/native/win32-${arch}/MediaInfo.dll" />
-		<property name="lib7z_binding" location="${dir.lib}/native/win32-${arch}/7-Zip-JBinding.dll" />
-		<property name="fpcalc_path" location="${dir.lib}/native/win32-${arch}/fpcalc.exe" />
-		<property name="installer" location="${dir.dist}/${title}_${version}_${arch}.msi" />
+		<property name="dir.staging" location="${dir.dist}/msi/${arch}" />
 
-		<exec executable="candle" dir="${dir.installer}/msi" failonerror="true">
-			<arg line="filebot-wix.xml -out ${dir.dist}/msi.wixobj -darch=${arch} -dreleaseversion=${version} -dfatjar=${path.fatjar} -djnidispatch=${jnidispatch} -dmediainfo=${mediainfo} -dlib7z_binding=${lib7z_binding} -dfpcalc_path=${fpcalc_path}" />
+		<copy todir="${dir.staging}">
+			<fileset dir="${dir.installer}/msi" includes="*.exe, *.rtf, *.bmp" />
+		</copy>
+		<copy todir="${dir.staging}">
+			<fileset dir="${dir.lib}/native/win32-${arch}" />
+		</copy>
+		<copy todir="${dir.staging}">
+			<fileset dir="${dir.installer}/icons" includes="*.ico" />
+		</copy>
+		<copy-replace todir="${dir.staging}">
+			<fileset dir="${dir.installer}/msi" includes="*.wix, *.ini" />
+		</copy-replace>
+
+		<exec executable="candle" dir="${dir.staging}" failonerror="true">
+			<arg line="filebot.wix -out msi.wixobj" />
 		</exec>
-		<exec executable="light" dir="${dir.installer}/msi" failonerror="true">
-			<arg line="${dir.dist}/msi.wixobj -sval -ext WixUIExtension -out ${installer}" />
+		<exec executable="light" dir="${dir.staging}" failonerror="true">
+			<arg line="msi.wixobj -sval -ext WixUIExtension -out ${dir.dist}/${release}_${arch}.msi" />
 		</exec>
 	</target>
 
@@ -654,7 +650,7 @@
 			<fileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd, *.sh" />
 		</copy>
 
-		<cmp:xz destfile="${dir.dist}/${title}_${version}-portable.tar.xz">
+		<cmp:xz destfile="${dir.dist}/${release}-portable.tar.xz">
 			<cmp:tar format="gnu" encoding="utf-8">
 				<cmp:tarfileset dir="${dir.dist}/portable" includes="*.jar, *.exe, *.ini, *.cmd" />
 				<cmp:tarfileset dir="${dir.dist}/portable" includes="*.sh" filemode="755" />
@@ -664,15 +660,15 @@
 
 
 	<target name="spk" description="Build Synology NAS package" depends="revision">
-		<spk destdir="${dir.dist}" name="filebot" version="${version}" arch="noarch" compression="xz">
-			<info name="displayname" value="FileBot" />
-			<info name="description" value="FileBot is the ultimate tool for organizing and renaming your movies, TV shows or anime, as well as downloading subtitles and artwork. It's smart and just works." />
-			<info name="maintainer" value="FileBot" />
-			<info name="maintainer_url" value="http://www.filebot.net/" />
-			<info name="distributor" value="FileBot" />
-			<info name="distributor_url" value="http://www.filebot.net/" />
-			<info name="support_url" value="http://www.filebot.net/syno/support.html" />
-			<info name="helpurl" value="http://www.filebot.net/cli.html" />
+		<spk destdir="${dir.dist}" name="${package.name}" version="${version}" arch="noarch" compression="xz">
+			<info name="displayname" value="${application.name}" />
+			<info name="description" value="${package.description}" />
+			<info name="maintainer" value="${package.project}" />
+			<info name="maintainer_url" value="${package.homepage}" />
+			<info name="distributor" value="${package.project}" />
+			<info name="distributor_url" value="${package.homepage}" />
+			<info name="support_url" value="${link.help.synology}" />
+			<info name="helpurl" value="${link.help.manpage}" />
 			<info name="firmware" value="6.0" />
 			<info name="startable" value="no" />
 			<info name="silent_install" value="yes" />
@@ -698,7 +694,7 @@
 
 	<target name="build" depends="revision">
 		<!-- compile -->
-		<javac srcdir="${dir.source}" destdir="${dir.build}" target="1.8" source="1.8" encoding="UTF-8" debug="true" debuglevel="lines,vars,source" includeAntRuntime="false">
+		<javac srcdir="${dir.source}" destdir="${dir.build}" target="${jvm.version}" source="${jvm.version}" encoding="utf-8" debug="true" debuglevel="lines,vars,source" includeAntRuntime="false">
 			<classpath>
 				<fileset dir="${dir.lib}" includes="**/*.jar" />
 			</classpath>
@@ -769,7 +765,7 @@
 		<checksum algorithm="SHA-256" pattern="{0}	{1}" todir="${dir.cache}" fileext=".sha256">
 			<fileset dir="${dir.release}" />
 		</checksum>
-		<concat destfile="${dir.release}/README.md" overwrite="true" eol="unix" outputencoding="UTF-8">
+		<concat destfile="${dir.release}/README.md" overwrite="true" eol="unix" outputencoding="utf-8">
 			<fileset file="${dir.installer}/ant/digest.header.md" />
 			<fileset dir="${dir.cache}" includes="*.sha256" />
 			<fileset file="${dir.installer}/ant/digest.footer.md" />
@@ -847,8 +843,8 @@
 		<!-- merge all filebot related packages into a single package source file -->
 		<package-source file="${dir.dist}/website/syno/index.json">
 			<keyring file="${dir.installer}/gpg/FileBot.pub" />
-			<spk file="${dir.release}/filebot-${version}-noarch.spk">
-				<info name="link" value="http://downloads.sourceforge.net/project/filebot/filebot/FileBot_${version}/filebot-${version}-noarch.spk" />
+			<spk file="${dir.release}/${package.name}-${version}-noarch.spk">
+				<info name="link" value="http://downloads.sourceforge.net/project/filebot/filebot/${release}/${package.name}-${version}-noarch.spk" />
 				<thumbnail url="http://app.filebot.net/syno/filebot-thumbnail.png" />
 				<snapshot url="http://app.filebot.net/syno/filebot-snapshot.png" />
 			</spk>
@@ -868,8 +864,8 @@
 
 	<target name="deploy-chocolatey" description="Update Chocolatey Package Source">
 		<!-- prepare sha1 checksums -->
-		<checksum property="x86.msi.sha256" file="${dir.release}/${title}_${version}_x86.msi" algorithm="SHA-256" />
-		<checksum property="x64.msi.sha256" file="${dir.release}/${title}_${version}_x64.msi" algorithm="SHA-256" />
+		<checksum property="x86.msi.sha256" file="${dir.release}/${release}_x86.msi" algorithm="SHA-256" />
+		<checksum property="x64.msi.sha256" file="${dir.release}/${release}_x64.msi" algorithm="SHA-256" />
 
 		<!-- replace variables for new release -->
 		<copy-replace todir="${dir.dist}/chocolatey">
@@ -880,12 +876,12 @@
 		</copy-replace>
 
 		<!-- chocolatey pack and push -->
-		<exec executable="chocolatey" dir="${dir.dist}\chocolatey" failonerror="true">
+		<exec executable="chocolatey" dir="${dir.dist}/chocolatey" failonerror="true">
 			<arg value="pack" />
 		</exec>
-		<exec executable="chocolatey" dir="${dir.dist}\chocolatey" failonerror="true">
+		<exec executable="chocolatey" dir="${dir.dist}/chocolatey" failonerror="true">
 			<arg value="push" />
-			<arg value="${dir.dist}\chocolatey\filebot.${version}.nupkg" />
+			<arg value="${dir.dist}/chocolatey/${package.name}.${version}.nupkg" />
 		</exec>
 	</target>
 
@@ -913,8 +909,8 @@
 	<target name="deploy-beta-release" description="Build and deploy the latest release files">
 		<input addproperty="mark" message="Mark:" />
 		<antcall target="deploy-release">
-			<param name="dir.release" location="${dir.dist}/beta/release/${title}_${version}_${mark}" />
-			<param name="dir.cache" location="${dir.dist}/beta/cache/${title}_${version}_${mark}" />
+			<param name="dir.release" location="${dir.dist}/beta/release/${release}_${mark}" />
+			<param name="dir.cache" location="${dir.dist}/beta/cache/${release}_${mark}" />
 			<param name="deploy.release" value="${deploy.release}/HEAD" />
 		</antcall>
 	</target>

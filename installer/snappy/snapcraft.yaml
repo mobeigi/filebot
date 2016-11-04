@@ -1,7 +1,7 @@
-name: filebot
-version: @{version}
-summary: The ultimate TV and Movie Renamer / Subtitle Downloader
-description: FileBot is the ultimate tool for organizing and renaming your movies, tv shows or anime, and music well as downloading subtitles and artwork. It's smart and just works.
+name: @{package.name}
+version: @{application.version}
+summary: @{package.synopsis}
+description: @{package.description}
 
 confinement: strict
 

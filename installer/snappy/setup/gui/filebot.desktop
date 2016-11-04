@@ -1,10 +1,10 @@
 [Desktop Entry]
-Name=FileBot
-Comment=The ultimate TV and Movie Renamer / Subtitle Downloader
+Name=@{application.name}
+Comment=@{package.synopsis}
 Type=Application
 Exec=filebot
 Icon=${SNAP}/meta/gui/icon.svg
 Terminal=false
 StartupNotify=true
-Categories=AudioVideo;Video;Utility;FileTools;Java
-X-Ubuntu-Gettext-Domain=filebot
+Categories=@{gnome.application.categories}
+X-Ubuntu-Gettext-Domain=@{package.name}

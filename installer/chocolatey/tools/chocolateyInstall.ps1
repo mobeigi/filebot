@@ -1,9 +1,9 @@
-﻿$name = 'filebot'
+﻿$name = '@{package.name}'
 $type = 'msi'
 $silent = '/quiet'
 
-$url32 = 'http://downloads.sourceforge.net/project/filebot/filebot/FileBot_@{version}/FileBot_@{version}_x86.msi'
-$url64 = 'http://downloads.sourceforge.net/project/filebot/filebot/FileBot_@{version}/FileBot_@{version}_x64.msi'
+$url32 = 'http://downloads.sourceforge.net/project/filebot/filebot/@{release}/@{release}_x86.msi'
+$url64 = 'http://downloads.sourceforge.net/project/filebot/filebot/@{release}/@{release}_x64.msi'
 $checksum32 = '@{x86.msi.sha256}'
 $checksum64 = '@{x64.msi.sha256}'
 $algorithm = 'sha256'
