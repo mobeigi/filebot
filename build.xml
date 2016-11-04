@@ -32,6 +32,23 @@
 	<property name="jre.build" value="111" />
 
 
+	<!-- copy and replace ant variables -->
+	<macrodef name="copy-replace">
+		<attribute name="todir" />
+		<element name="filesets" implicit="yes" />
+		<sequential>
+			<copy todir="@{todir}" encoding="UTF-8" overwrite="yes" verbose="yes">
+				<filesets />
+				<filterset begintoken="@{" endtoken="}">
+					<propertyset>
+						<propertyref builtin="all" />
+					</propertyset>
+				</filterset>
+			</copy>
+		</sequential>
+	</macrodef>
+
+
 	<target name="resolve" description="Retrieve dependencies with Apache Ivy">
 		<delete dir="${dir.lib}/ivy" />
 		<ivy:retrieve pattern="${dir.lib}/ivy/[type]/[artifact].[ext]" />
@@ -508,14 +525,9 @@
 		</copy>
 
 		<!-- copy files and resolve ant variables -->
-		<copy todir="${dir.dist}/snappy" overwrite="yes" encoding="UTF-8" verbose="true">
+		<copy-replace todir="${dir.dist}/snappy">
 			<fileset dir="${dir.installer}/snappy" />
-			<filterset begintoken="@{" endtoken="}">
-				<propertyset>
-					<propertyref builtin="all" />
-				</propertyset>
-			</filterset>
-		</copy>
+		</copy-replace>
 		<chmod perm="+x" file="${dir.dist}/snappy/filebot/filebot.sh" verbose="yes" />
 
 		<exec executable="snapcraft" dir="${dir.dist}/snappy" failonerror="yes">
@@ -554,15 +566,10 @@
 	<target name="deb-arch">
 		<property name="dir.staging" location="${dir.dist}/${deb.pkg}/${arch}" />
 
-		<copy todir="${dir.staging}" overwrite="yes" encoding="UTF-8" verbose="true">
+		<copy-replace todir="${dir.staging}">
 			<fileset dir="${dir.installer}/deb/${deb.pkg}" />
 			<fileset dir="${dir.installer}/deb" includes="control/**" />
-			<filterset begintoken="@{" endtoken="}">
-				<propertyset>
-					<propertyref builtin="all" />
-				</propertyset>
-			</filterset>
-		</copy>
+		</copy-replace>
 		<copy todir="${dir.staging}" verbose="true" failonerror="false">
 			<fileset dir="${dir.lib}/native/linux-${arch}" />
 			<fileset file="${dir.installer}/icons/icon.svg" />
@@ -598,14 +605,9 @@
 		</copy>
 
 		<!-- copy files and resolve ant variables -->
-		<copy todir="${dir.dist}/appx" overwrite="yes" encoding="UTF-8" verbose="true">
+		<copy-replace todir="${dir.dist}/appx">
 			<fileset dir="${dir.installer}/appx" includes="AppxManifest.xml" />
-			<filterset begintoken="@{" endtoken="}">
-				<propertyset>
-					<propertyref builtin="all" />
-				</propertyset>
-			</filterset>
-		</copy>
+		</copy-replace>
 
 		<exec executable="makeappx" dir="${dir.dist}" failonerror="yes">
 			<arg line="pack /d appx /p ${title}_${version}_r${revision}.appx" />
@@ -696,7 +698,7 @@
 
 	<target name="build" depends="revision">
 		<!-- compile -->
-		<javac srcdir="${dir.source}" destdir="${dir.build}" target="1.8" source="1.8" encoding="utf-8" debug="true" debuglevel="lines,vars,source" includeAntRuntime="false">
+		<javac srcdir="${dir.source}" destdir="${dir.build}" target="1.8" source="1.8" encoding="UTF-8" debug="true" debuglevel="lines,vars,source" includeAntRuntime="false">
 			<classpath>
 				<fileset dir="${dir.lib}" includes="**/*.jar" />
 			</classpath>
@@ -706,15 +708,14 @@
 		<copy todir="${dir.build}">
 			<fileset dir="${dir.source}">
 				<exclude name="**/*.java" />
+				<exclude name="**/*.properties" />
 			</fileset>
 		</copy>
 
 		<!-- update application properties -->
-		<replace dir="${dir.build}" encoding="UTF-8" summary="yes">
-			<include name="**/*.properties" />
-			<replacefilter token="@{revision}" value="${revision}" />
-			<replacefilter token="@{version}" value="${version}" />
-		</replace>
+		<copy-replace todir="${dir.build}">
+			<fileset dir="${dir.source}" includes="**/*.properties" />
+		</copy-replace>
 	</target>
 
 
@@ -822,17 +823,12 @@
 		</copy>
 
 		<!-- copy files and resolve ant variables -->
-		<copy todir="${dir.dist}/website" overwrite="yes" encoding="UTF-8" verbose="true">
+		<copy-replace todir="${dir.dist}/website">
 			<fileset dir="${dir.website}">
 				<include name="*.html" />
 				<include name="*.php" />
 			</fileset>
-			<filterset begintoken="@{" endtoken="}">
-				<propertyset>
-					<propertyref builtin="all" />
-				</propertyset>
-			</filterset>
-		</copy>
+		</copy-replace>
 
 		<!-- upload -->
 		<scp todir="${deploy.website}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
@@ -876,17 +872,12 @@
 		<checksum property="x64.msi.sha256" file="${dir.release}/${title}_${version}_x64.msi" algorithm="SHA-256" />
 
 		<!-- replace variables for new release -->
-		<copy todir="${dir.dist}/chocolatey" overwrite="yes" encoding="UTF-8" verbose="true">
+		<copy-replace todir="${dir.dist}/chocolatey">
 			<fileset dir="${dir.installer}/chocolatey">
 				<include name="**/*.ps1" />
 				<include name="**/*.nuspec" />
 			</fileset>
-			<filterset begintoken="@{" endtoken="}">
-				<propertyset>
-					<propertyref builtin="all" />
-				</propertyset>
-			</filterset>
-		</copy>
+		</copy-replace>
 
 		<!-- chocolatey pack and push -->
 		<exec executable="chocolatey" dir="${dir.dist}\chocolatey" failonerror="true">
