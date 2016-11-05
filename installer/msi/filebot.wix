@@ -58,7 +58,7 @@
 
 					<Component Id='ApplicationBase' Guid='9E365344-A00C-45DE-A2A4-266412C3D06E' Win64="$(var.Win64)">
 						<File Id='FileBot.jar' Name='FileBot.jar' Source='@{path.fatjar}' KeyPath='yes' />
-						<File Id='logging.properties' Name='logging.properties' Source='logging.properties' KeyPath='yes' />
+						<File Id='logging.properties' Name='logging.properties' Source='logging.properties' />
 						<File Id='jnidispatch.dll' Name='jnidispatch.dll' Source='jnidispatch.dll' />
 						<File Id='MediaInfo.dll' Name='MediaInfo.dll' Source='MediaInfo.dll' />
 						<File Id='lib7_Zip_JBinding.dll' Name='7-Zip-JBinding.dll' Source='7-Zip-JBinding.dll' />
