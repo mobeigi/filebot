@@ -56,15 +56,11 @@ public class GettingStartedStage {
 		Stage stage = new Stage();
 		stage.setResizable(false);
 
-		if (isMacApp()) {
-			// Mac OS X specific configuration
-			stage.initStyle(StageStyle.DECORATED);
-			stage.initModality(Modality.NONE);
-		} else {
-			// Windows / Linux specific configuration
-			stage.initStyle(StageStyle.UTILITY);
-			stage.initModality(Modality.NONE);
-			stage.getIcons().addAll(ResourceManager.getApplicationIconsFX());
+		stage.initStyle(StageStyle.DECORATED);
+		stage.initModality(Modality.NONE);
+
+		if (!isMacApp()) {
+			stage.getIcons().addAll(ResourceManager.getApplicationIconsFX()); // Windows / Linux specific configuration
 		}
 
 		return new GettingStartedStage(stage);
