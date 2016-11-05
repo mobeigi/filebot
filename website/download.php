@@ -1,5 +1,5 @@
 <?php
-$version = isset($_GET['version']) ? $_GET['version'] : '@{version}';	// default version is hard-coded via deployment script
+$version = isset($_GET['version']) ? $_GET['version'] : '@{application.version}';	// default version is hard-coded via deployment script
 $arch = $_GET['arch'];
 $type = $_GET['type'];
 
@@ -21,7 +21,7 @@ if ($type == 'nsis') {
 } else if ($type == 'deb') {
 	$file =  'filebot_'.$version.'_'.$arch.'.deb';
 } else if ($type == 'portable') {
-	$file = 'FileBot_'.$version.'-portable.zip';
+	$file = 'FileBot_'.$version.'-portable.tar.xz';
 } else if ($type == 'ipkg') {
 	$file = 'filebot_'.$version.'_noarch.ipk';
 } else {
