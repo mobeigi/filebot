@@ -323,13 +323,13 @@ public final class FileUtilities {
 	}
 
 	public static boolean isDerived(File derivate, File prime) {
-		return isDerived(getName(derivate), prime);
-	}
+		String n = getName(prime).toLowerCase();
+		String s = getName(derivate).toLowerCase();
 
-	public static boolean isDerived(String derivate, File prime) {
-		String base = getName(prime).trim().toLowerCase();
-		derivate = derivate.trim().toLowerCase();
-		return derivate.startsWith(base);
+		if (s.startsWith(n)) {
+			return s.length() == n.length() || !Character.isLetterOrDigit(s.charAt(n.length())); // e.g. x.z is not considered derived from xy.z
+		}
+		return false;
 	}
 
 	public static boolean isDerivedByExtension(File derivate, File prime) {
