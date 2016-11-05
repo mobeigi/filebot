@@ -469,16 +469,25 @@ div.screencast:hover .play {
 	border-radius: 4px;
 }
 
-#download li.macosx {
+#download li.macosx, #download li.windows {
 	list-style: none;
-	background: url('images/apple.logo.svg') no-repeat 0.3em 0.3em;
-    background-size: 24px 24px;
 	margin: 0.5em 1em 1em 1em;
-	padding: 0.5em 0.6em 0.5em 2.0em;
+	padding: 0.5em 1em 0.5em 2.4em;
 	border-radius: 4px 4px 4px 4px;
+	background-color: #fcfbfa;
 	display: inline-block;
-	background-color: ghostwhite;
+}
+
+#download li.macosx {
+	background: url('images/apple.logo.svg') no-repeat 0.5em 0.27em;
+	background-size: 24px 24px;
 	box-shadow: 0px 0px 5px royalblue;
+}
+
+#download li.windows {
+	background: url('images/microsoft.logo.svg') no-repeat 0.5em 0.3em;
+    background-size: 24px 24px;
+	box-shadow: 0px 0px 5px orangered;
 }
 
 #download li.ubuntu {

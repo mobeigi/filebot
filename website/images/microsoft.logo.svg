@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="220"
+   height="220"
+   id="svg5358">
+  <defs
+     id="defs5360" />
+ 
+  <path
+     d="M 104.8675,104.8675 0,104.8675 0,0 l 104.8675,0 0,104.8675 z"
+     id="path5058"
+     style="fill:#F35325;fill-opacity:1;fill-rule:nonzero;stroke:none" />
+  <path
+     d="m 220.65375,104.8675 -104.86625,0 0,-104.8675 104.86625,0 0,104.8675 z"
+     id="path5060"
+     style="fill:#81BC06;fill-opacity:1;fill-rule:nonzero;stroke:none" />
+  <path
+     d="m 104.865,220.695 -104.865,0 0,-104.8675 104.865,0 0,104.8675 z"
+     id="path5062"
+     style="fill:#05A6F0;fill-opacity:1;fill-rule:nonzero;stroke:none" />
+  <path
+     d="m 220.65375,220.695 -104.86625,0 0,-104.8675 104.86625,0 0,104.8675 z"
+     id="path5064"
+     style="fill:#FFBA08;fill-opacity:1;fill-rule:nonzero;stroke:none" />
+</svg>
