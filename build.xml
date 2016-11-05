@@ -593,7 +593,7 @@
 
 		<!-- copy files and resolve ant variables -->
 		<copy-replace todir="${dir.dist}/appx">
-			<fileset dir="${dir.installer}/appx" includes="AppxManifest.xml" />
+			<fileset dir="${dir.installer}/appx" includes="*.xml, *.ini" excludes="*.l4j.xml" />
 		</copy-replace>
 
 		<exec executable="makeappx" dir="${dir.dist}" failonerror="yes">
