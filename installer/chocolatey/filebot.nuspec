@@ -5,19 +5,21 @@
 		<title>@{application.name}</title>
 		<version>@{application.version}</version>
 		<authors>@{package.developer}</authors>
-		<owners>rednoah</owners>
+		<owners>@{package.maintainer}</owners>
 		<summary>@{package.synopsis}</summary>
 		<description>@{package.description}</description>
 		<projectUrl>@{package.homepage}</projectUrl>
-		<tags>rename media tv movie anime video file folder batch renamer checksum hash sort subtitles plex kodi</tags>
+		<iconUrl>@{link.image.logo}</iconUrl>
+		<tags>@{package.tags}</tags>
 		<copyright>@{tstamp.year} @{package.developer}</copyright>
-		<licenseUrl>https://www.gnu.org/licenses/gpl-3.0.en.html</licenseUrl>
+		<licenseUrl>http://www.gnu.org/licenses/gpl-3.0.en.html</licenseUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
-		<iconUrl>http://app.filebot.net/icon.png</iconUrl>
-		<dependencies>
-			<dependency id="jre8" />
-		</dependencies>
 		<releaseNotes></releaseNotes>
+
+		<!-- Allow users to decide which JRE or JDK they want to use and don't force them to use the chocolatey package -->
+		<dependencies>
+			<!-- <dependency id="jre8" /> -->
+		</dependencies>
 	</metadata>
 	<files>
 		<file src="tools\**" target="tools" />

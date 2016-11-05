@@ -1,7 +1,7 @@
 Package: @{package.name}
 Version: @{application.version}
 Architecture: @{deb.arch}
-Maintainer: @{package.maintainer}
+Maintainer: @{package.developer} <@{package.maintainer}>
 Description: @{package.synopsis}
  @{package.description}
 Homepage: @{package.homepage}
