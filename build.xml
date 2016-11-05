@@ -574,7 +574,7 @@
 	<target name="appx" description="Build Windows 10 package" depends="revision">
 		<copy tofile="${dir.dist}/appx/FileBot.jar" file="${path.fatjar}" />
 		<copy todir="${dir.dist}/appx">
-			<fileset dir="${dir.installer}/appx" includes="*.exe, *.ini, *.png" />
+			<fileset dir="${dir.installer}/appx" includes="*.exe, *.ini, *.properties, *.png" />
 			<fileset dir="${dir.lib}/native/win32-x64" />
 		</copy>
 
@@ -631,7 +631,7 @@
 			<fileset dir="${dir.installer}/icons" includes="*.ico" />
 		</copy>
 		<copy-replace todir="${dir.staging}">
-			<fileset dir="${dir.installer}/msi" includes="*.wix, *.ini" />
+			<fileset dir="${dir.installer}/msi" includes="*.wix, *.ini, *.properties" />
 		</copy-replace>
 
 		<exec executable="candle" dir="${dir.staging}" failonerror="true">
