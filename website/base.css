@@ -476,18 +476,17 @@ div.screencast:hover .play {
 	border-radius: 4px 4px 4px 4px;
 	background-color: #fcfbfa;
 	display: inline-block;
+	box-shadow: 0px 0px 5px #2574ce;
 }
 
 #download li.macosx {
 	background: url('images/apple.logo.svg') no-repeat 0.5em 0.27em;
 	background-size: 24px 24px;
-	box-shadow: 0px 0px 5px #2574ce;
 }
 
 #download li.windows {
 	background: url('images/microsoft.logo.svg') no-repeat 0.5em 0.3em;
-    background-size: 24px 24px;
-	box-shadow: 0px 0px 5px #2574ce;
+	background-size: 24px 24px;
 }
 
 /**
