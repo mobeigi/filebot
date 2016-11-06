@@ -275,14 +275,21 @@ public class ExpressionFormatMethods {
 	/**
 	 * Find a matcher that matches the given pattern (case-insensitive)
 	 */
-	public static Matcher findMatch(String self, String pattern) {
-		if (pattern != null) {
-			Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS).matcher(self);
-			if (matcher.find()) {
-				return matcher.reset();
-			}
-		}
-		return null;
+	public static boolean findMatch(String self, String pattern) {
+		if (pattern == null || pattern.isEmpty())
+			return false;
+
+		return compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS).matcher(self).find();
+	}
+
+	/**
+	 * Find a matcher that matches the given pattern (case-insensitive) but matches only if the pattern is enclosed in word-boundaries
+	 */
+	public static boolean findWordMatch(String self, String pattern) {
+		if (pattern == null || pattern.isEmpty())
+			return false;
+
+		return findMatch(self, "\\b(" + pattern + ")\\b");
 	}
 
 	/**
