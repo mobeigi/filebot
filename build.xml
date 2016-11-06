@@ -877,11 +877,10 @@
 
 		<!-- chocolatey pack and push -->
 		<exec executable="chocolatey" dir="${dir.dist}/chocolatey" failonerror="true">
-			<arg value="pack" />
+			<arg line="pack" />
 		</exec>
 		<exec executable="chocolatey" dir="${dir.dist}/chocolatey" failonerror="true">
-			<arg value="push" />
-			<arg value="${dir.dist}/chocolatey/${package.name}.${version}.nupkg" />
+			<arg line="push ${package.name}.${version}.nupkg" />
 		</exec>
 	</target>
 
