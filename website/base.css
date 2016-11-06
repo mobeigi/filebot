@@ -481,14 +481,16 @@ div.screencast:hover .play {
 #download li.macosx {
 	background: url('images/apple.logo.svg') no-repeat 0.5em 0.27em;
 	background-size: 24px 24px;
-	box-shadow: 0px 0px 5px royalblue;
+	box-shadow: 0px 0px 5px #2574ce;
 }
 
 #download li.windows {
 	background: url('images/microsoft.logo.svg') no-repeat 0.5em 0.3em;
     background-size: 24px 24px;
-	box-shadow: 0px 0px 5px orangered;
+	box-shadow: 0px 0px 5px #2574ce;
 }
+
+/**
 
 #download li.ubuntu {
 	list-style: none; 
@@ -505,3 +507,5 @@ div.screencast:hover .play {
 #download li.ubuntu a {
 	color: rgb(221, 72, 20);
 }
+
+**/
