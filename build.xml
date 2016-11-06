@@ -766,9 +766,9 @@
 			<fileset dir="${dir.release}" />
 		</checksum>
 		<concat destfile="${dir.release}/README.md" overwrite="true" eol="unix" outputencoding="utf-8">
-			<fileset file="${dir.installer}/ant/digest.header.md" />
+			<fileset file="${dir.installer}/ant/digest.head.md" />
 			<fileset dir="${dir.cache}" includes="*.sha256" />
-			<fileset file="${dir.installer}/ant/digest.footer.md" />
+			<fileset file="${dir.installer}/ant/digest.tail.md" />
 		</concat>
 	</target>
 
