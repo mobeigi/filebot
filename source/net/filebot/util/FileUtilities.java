@@ -47,6 +47,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
@@ -186,22 +187,26 @@ public final class FileUtilities {
 	private static final String WIN_THUMBNAIL_STORE = "Thumbs.db";
 	private static final String MAC_THUMBNAIL_STORE = ".DS_Store";
 
-	public static boolean isThumbnailStore(File f) {
-		return MAC_THUMBNAIL_STORE.equals(f.getName()) || WIN_THUMBNAIL_STORE.equalsIgnoreCase(f.getName());
+	public static boolean isThumbnailStore(File file) {
+		return MAC_THUMBNAIL_STORE.equals(file.getName()) || WIN_THUMBNAIL_STORE.equalsIgnoreCase(file.getName());
 	}
 
-	public static byte[] readFile(File source) throws IOException {
-		return Files.readAllBytes(source.toPath());
+	public static byte[] readFile(File file) throws IOException {
+		return Files.readAllBytes(file.toPath());
 	}
 
-	public static List<String> readLines(File file) throws IOException {
-		try (BufferedReader reader = new BufferedReader(new UnicodeReader(new BufferedInputStream(new FileInputStream(file), BUFFER_SIZE), false, UTF_8), BUFFER_SIZE)) {
-			return reader.lines().collect(toList());
+	public static <R, A> R readLines(File file, Collector<? super String, A, R> collector) throws IOException {
+		try (BufferedReader reader = new BufferedReader(new UnicodeReader(new ByteArrayInputStream(readFile(file)), false, UTF_8))) {
+			return reader.lines().collect(collector);
 		}
 	}
 
+	public static List<String> readLines(File file) throws IOException {
+		return readLines(file, toList());
+	}
+
 	public static String readTextFile(File file) throws IOException {
-		return String.join(System.lineSeparator(), readLines(file));
+		return readLines(file, joining(System.lineSeparator()));
 	}
 
 	public static File writeFile(ByteBuffer data, File destination) throws IOException {

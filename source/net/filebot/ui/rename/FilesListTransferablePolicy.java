@@ -1,11 +1,9 @@
 package net.filebot.ui.rename;
 
-import static java.util.Arrays.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.util.FileUtilities.*;
-import static net.filebot.util.RegularExpressions.*;
 
 import java.awt.datatransfer.Transferable;
 import java.io.File;
@@ -66,8 +64,7 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 			// load file paths from text files
 			if (recursive && LIST_FILES.accept(f)) {
 				try {
-					String[] lines = NEWLINE.split(readTextFile(f));
-					List<File> paths = stream(lines).filter(s -> s.length() > 0).map(path -> {
+					List<File> paths = readLines(f).stream().filter(s -> s.length() > 0).map(path -> {
 						try {
 							File file = new File(path);
 							return file.isAbsolute() && file.exists() ? file : null;

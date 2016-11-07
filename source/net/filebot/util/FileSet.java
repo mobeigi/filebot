@@ -49,11 +49,11 @@ public class FileSet extends AbstractSet<Path> {
 	}
 
 	public boolean add(File e) {
-		return add(getPath(e));
+		return add(e.toPath());
 	}
 
 	public boolean add(String e) {
-		return add(getPath(e));
+		return add(Paths.get(e));
 	}
 
 	private boolean contains(Path e, int depth) {
@@ -160,7 +160,7 @@ public class FileSet extends AbstractSet<Path> {
 	public void load(File f) throws IOException {
 		for (String path : readLines(f)) {
 			try {
-				add(Paths.get(path));
+				add(path);
 			} catch (InvalidPathException e) {
 				debug.warning(e::toString);
 			}

@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.text.Collator;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
@@ -36,6 +37,7 @@ import java.util.function.IntFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.tukaani.xz.XZInputStream;
 
@@ -493,8 +495,9 @@ public class ReleaseInfo {
 			byte[] bytes = cache.bytes(name, n -> new URL(getProperty(n)), XZInputStream::new).expire(refreshDuration.optional().orElse(expirationTime)).get();
 
 			// all data files are UTF-8 encoded XZ compressed text files
-			String text = new String(bytes, UTF_8);
-			return NEWLINE.splitAsStream(text).filter(s -> s.length() > 0).map(parse).filter(Objects::nonNull).toArray(generator);
+			Stream<String> lines = NEWLINE.splitAsStream(UTF_8.decode(ByteBuffer.wrap(bytes)));
+
+			return lines.filter(s -> s.length() > 0).map(parse).filter(Objects::nonNull).toArray(generator);
 		};
 	}
 
