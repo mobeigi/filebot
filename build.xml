@@ -524,16 +524,17 @@
 
 
 	<target name="deb" description="Build Debian Linux packages" depends="revision">
+		<antcall target="deb-arch">
+			<param name="arch" value="amd64" />
+			<param name="deb.arch" value="amd64" />
+			<param name="deb.pkg" value="deb" />
+			<param name="deb.prefix" value="/usr" />
+		</antcall>
+
 		<!-- arch i686 not allowed by deb specification, must be i386 for 32-bit x86 systems -->
 		<antcall target="deb-arch">
 			<param name="arch" value="i686" />
 			<param name="deb.arch" value="i386" />
-			<param name="deb.pkg" value="deb" />
-			<param name="deb.prefix" value="/usr" />
-		</antcall>
-		<antcall target="deb-arch">
-			<param name="arch" value="amd64" />
-			<param name="deb.arch" value="amd64" />
 			<param name="deb.pkg" value="deb" />
 			<param name="deb.prefix" value="/usr" />
 		</antcall>
@@ -604,10 +605,10 @@
 
 	<target name="msi" description="Build Windows Installer packages" depends="revision">
 		<antcall target="msi-arch">
-			<param name="arch" value="x86" />
+			<param name="arch" value="x64" />
 		</antcall>
 		<antcall target="msi-arch">
-			<param name="arch" value="x64" />
+			<param name="arch" value="x86" />
 		</antcall>
 
 		<apply executable="signtool" dir="${dir.installer}/msi" parallel="true" failonerror="true">
