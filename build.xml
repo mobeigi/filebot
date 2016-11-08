@@ -564,7 +564,7 @@
 		</copy>
 		<copy file="${path.fatjar}" tofile="${dir.staging}/FileBot.jar" verbose="true" />
 
-		<jdeb destfile="${dir.dist}/filebot_${version}_${deb.arch}.${deb.pkg}" control="${dir.staging}/control" compression="xz" changesIn="${dir.staging}/changes.txt" changesOut="${dir.dist}/filebot_${version}_${deb.arch}.${deb.pkg}.changes" verbose="true">
+		<jdeb destfile="${dir.dist}/${package.name}_${version}_${deb.arch}.${deb.pkg}" control="${dir.staging}/control" compression="xz" changesIn="${dir.staging}/changes.txt" changesOut="${dir.dist}/${package.name}_${version}_${deb.arch}.${deb.pkg}.changes" verbose="true">
 			<tarfileset prefix="${deb.prefix}/share/filebot" dir="${dir.staging}" includes="*.sh, fpcalc" filemode="755" />
 			<tarfileset prefix="${deb.prefix}/share/filebot" dir="${dir.staging}" includes="*.jar, *.so, *.svg" />
 			<tarfileset prefix="${deb.prefix}/share/applications" dir="${dir.staging}" includes="*.desktop" />
