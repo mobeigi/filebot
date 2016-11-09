@@ -16,13 +16,13 @@ public class Normalization {
 	public static final Pattern TRAILING_PUNCTUATION = compile("[!?.]+$");
 	public static final Pattern EMBEDDED_CHECKSUM = compile("[\\(\\[](\\p{XDigit}{8})[\\]\\)]");
 
-	private static final Pattern[] brackets = new Pattern[] { compile("\\([^\\(]*\\)"), compile("\\[[^\\[]*\\]"), compile("\\{[^\\{]*\\}") };
+	private static final Pattern[] BRACKETS = new Pattern[] { compile("\\([^\\(]*\\)"), compile("\\[[^\\[]*\\]"), compile("\\{[^\\{]*\\}") };
 
-	private static final char[] doubleQuotes = new char[] { '\'', '\u0060', '\u00b4', '\u2018', '\u2019', '\u02bb' };
-	private static final char[] singleQuotes = new char[] { '\"', '\u201c', '\u201d' };
+	// ' and " all characters that are more or less equivalent
+	private static final char[][] QUOTES = { { '\'', '\u0060', '\u00b4', '\u2018', '\u2019', '\u02bb' }, { '\"', '\u201c', '\u201d' } };
 
 	public static String normalizeQuotationMarks(String name) {
-		for (char[] cs : new char[][] { doubleQuotes, singleQuotes }) {
+		for (char[] cs : QUOTES) {
 			for (char c : cs) {
 				name = name.replace(c, cs[0]);
 			}
@@ -31,34 +31,43 @@ public class Normalization {
 	}
 
 	public static String trimTrailingPunctuation(CharSequence name) {
-		return TRAILING_PUNCTUATION.matcher(name).replaceAll("").trim();
+		return normalize(name, TRAILING_PUNCTUATION, "");
 	}
 
 	public static String normalizePunctuation(String name) {
 		// remove/normalize special characters
-		name = APOSTROPHE.matcher(name).replaceAll("");
-		name = PUNCTUATION_OR_SPACE.matcher(name).replaceAll(" ");
-		return name.trim();
+		return normalizePunctuation(name, "", " ").trim();
+	}
+
+	public static String normalizePunctuation(String name, String apostrophe, String space) {
+		// remove/normalize special characters
+		Pattern[] pattern = { APOSTROPHE, PUNCTUATION_OR_SPACE };
+		String[] replacement = { apostrophe, space };
+
+		return normalize(name, pattern, replacement);
 	}
 
 	public static String normalizeBrackets(String name) {
 		// remove group names and checksums, any [...] or (...)
-		for (Pattern it : brackets) {
-			name = it.matcher(name).replaceAll(" ");
-		}
-		return name.trim();
+		return normalize(name, BRACKETS, " ");
 	}
 
-	public static String normalizeSpace(CharSequence name, String replacement) {
-		return replaceSpace(WORD_SEPARATOR_PUNCTUATION.matcher(name).replaceAll(" ").trim(), replacement);
+	public static String normalizeSpace(String name, String space) {
+		Pattern[] patterns = { WORD_SEPARATOR_PUNCTUATION, SPACE };
+		String[] replacements = { " ", space };
+
+		return normalize(name, patterns, replacements);
 	}
 
 	public static String replaceSpace(CharSequence name, String replacement) {
-		return SPACE.matcher(name).replaceAll(replacement);
+		return normalize(name, SPACE, replacement);
 	}
 
-	public static String replaceColon(CharSequence name, String ratio, String colon) {
-		return COLON.matcher(RATIO.matcher(name).replaceAll(ratio)).replaceAll(colon);
+	public static String replaceColon(String name, String ratio, String colon) {
+		Pattern[] pattern = { RATIO, COLON };
+		String[] replacement = { ratio, colon };
+
+		return normalize(name, pattern, replacement);
 	}
 
 	public static String getEmbeddedChecksum(CharSequence name) {
@@ -71,12 +80,30 @@ public class Normalization {
 
 	public static String removeEmbeddedChecksum(CharSequence name) {
 		// match embedded checksum and surrounding brackets
-		return EMBEDDED_CHECKSUM.matcher(name).replaceAll("");
+		return normalize(name, EMBEDDED_CHECKSUM, "");
 	}
 
 	public static String removeTrailingBrackets(CharSequence name) {
 		// remove trailing braces, e.g. Doctor Who (2005) -> Doctor Who
-		return TRAILING_PARENTHESIS.matcher(name).replaceAll("").trim();
+		return normalize(name, TRAILING_PARENTHESIS, "");
+	}
+
+	private static String normalize(CharSequence name, Pattern pattern, String replacement) {
+		return pattern.matcher(name).replaceAll(replacement).trim();
+	}
+
+	private static String normalize(String name, Pattern[] pattern, String replacement) {
+		for (int i = 0; i < pattern.length; i++) {
+			name = normalize(name, pattern[i], replacement);
+		}
+		return name;
+	}
+
+	private static String normalize(String name, Pattern[] pattern, String[] replacement) {
+		for (int i = 0; i < pattern.length; i++) {
+			name = normalize(name, pattern[i], replacement[i]);
+		}
+		return name;
 	}
 
 	public static String truncateText(String title, int limit) {
