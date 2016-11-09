@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -308,7 +307,7 @@ public class MediaBindingBean {
 		String codec = getMediaInfo(StreamKind.Video, 0, "Encoded_Library_Name", "Encoded_Library/Name", "CodecID/Hint", "Format");
 
 		// get first token (e.g. DivX 5 => DivX)
-		return SPACE.splitAsStream(codec).findFirst().get();
+		return tokenize(codec).findFirst().get();
 	}
 
 	@Define("ac")
@@ -317,7 +316,7 @@ public class MediaBindingBean {
 		String codec = getMediaInfo(StreamKind.Audio, 0, "CodecID/Hint", "Format");
 
 		// remove punctuation (e.g. AC-3 => AC3)
-		return PUNCTUATION_OR_SPACE.matcher(codec).replaceAll("");
+		return normalizePunctuation(codec, "", "");
 	}
 
 	@Define("cf")
@@ -326,7 +325,7 @@ public class MediaBindingBean {
 		String extensions = getMediaInfo(StreamKind.General, 0, "Codec/Extensions", "Format");
 
 		// get first extension
-		return SPACE.splitAsStream(extensions).findFirst().get().toLowerCase();
+		return tokenize(extensions).map(String::toLowerCase).findFirst().get();
 	}
 
 	@Define("vf")
@@ -334,19 +333,23 @@ public class MediaBindingBean {
 		int width = Integer.parseInt(getMediaInfo(StreamKind.Video, 0, "Width"));
 		int height = Integer.parseInt(getMediaInfo(StreamKind.Video, 0, "Height"));
 
-		int ns = 0;
 		int[] ws = new int[] { 15360, 7680, 3840, 1920, 1280, 1024, 854, 852, 720, 688, 512, 320 };
 		int[] hs = new int[] { 8640, 4320, 2160, 1080, 720, 576, 576, 480, 480, 360, 240, 240 };
+
+		int ns = 0;
+
 		for (int i = 0; i < ws.length - 1; i++) {
 			if ((width >= ws[i] || height >= hs[i]) || (width > ws[i + 1] && height > hs[i + 1])) {
 				ns = hs[i];
 				break;
 			}
 		}
+
 		if (ns > 0) {
 			// e.g. 720p, nobody actually wants files to be tagged as interlaced, e.g. 720i
 			return String.format("%dp", ns);
 		}
+
 		return null; // video too small
 	}
 
@@ -364,7 +367,7 @@ public class MediaBindingBean {
 		String channels = getMediaInfo(StreamKind.Audio, 0, "Channel(s)_Original", "Channel(s)");
 
 		// get first number, e.g. 6ch
-		return SPACE.splitAsStream(channels).filter(DIGIT.asPredicate()).findFirst().get() + "ch";
+		return String.format("%dch", matchInteger(channels));
 	}
 
 	@Define("channels")
@@ -372,9 +375,9 @@ public class MediaBindingBean {
 		String channels = getMediaInfo(StreamKind.Audio, 0, "ChannelPositions/String2", "Channel(s)_Original", "Channel(s)");
 
 		// e.g. ChannelPositions/String2: 3/2/2.1 / 3/2/0.1 (one audio stream may contain multiple multi-channel streams)
-		double d = SPACE.splitAsStream(channels).mapToDouble(s -> {
+		double d = tokenize(channels).mapToDouble(s -> {
 			try {
-				return SLASH.splitAsStream(s).mapToDouble(Double::parseDouble).reduce(0, (a, b) -> a + b);
+				return tokenize(s, SLASH).mapToDouble(Double::parseDouble).reduce(0, (a, b) -> a + b);
 			} catch (NumberFormatException e) {
 				return 0;
 			}
@@ -492,7 +495,7 @@ public class MediaBindingBean {
 
 		// heavy normalization for whatever text was captured with the tags pattern
 		return matches.stream().map(s -> {
-			return lowerTrail(upperInitial(normalizePunctuation(normalizeSpace(s, " "))));
+			return lowerTrail(upperInitial(normalizePunctuation(s)));
 		}).sorted().distinct().collect(toList());
 	}
 
@@ -1178,7 +1181,7 @@ public class MediaBindingBean {
 
 		// word list for exclude pattern
 		String pattern = keys.stream().filter(Objects::nonNull).map(Objects::toString).map(s -> {
-			return PUNCTUATION_OR_SPACE.matcher(s).replaceAll(Matcher.quoteReplacement("\\P{Alnum}+"));
+			return normalizePunctuation(s, " ", "\\P{Alnum}+");
 		}).filter(s -> s.length() > 0).collect(joining("|", "\\b(", ")\\b"));
 
 		return Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);

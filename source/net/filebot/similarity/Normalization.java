@@ -88,7 +88,7 @@ public class Normalization {
 	}
 
 	private static String normalize(CharSequence name, Pattern pattern, String replacement) {
-		return pattern.matcher(name).replaceAll(replacement).trim();
+		return pattern.matcher(name).replaceAll(Matcher.quoteReplacement(replacement)).trim();
 	}
 
 	private static String normalize(String name, Pattern[] pattern, String replacement) {

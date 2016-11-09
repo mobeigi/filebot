@@ -55,6 +55,14 @@ public final class StringUtilities {
 		return null;
 	}
 
+	public static Stream<String> tokenize(CharSequence s) {
+		return tokenize(s, SPACE);
+	}
+
+	public static Stream<String> tokenize(CharSequence s, Pattern pattern) {
+		return pattern.splitAsStream(s).filter(w -> w.length() > 0);
+	}
+
 	public static Stream<String> streamMatches(CharSequence s, Pattern pattern) {
 		return streamMatches(s, pattern, MatchResult::group);
 	}
