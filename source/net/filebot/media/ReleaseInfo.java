@@ -15,7 +15,6 @@ import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.text.Collator;
@@ -354,10 +353,6 @@ public class ReleaseInfo {
 
 	public Pattern getExcludePattern() throws Exception {
 		return compileWordPattern(excludeBlacklist.get()); // pattern matching any release group name enclosed in separators
-	}
-
-	public Pattern getCustomRemovePattern(Collection<String> terms) throws IOException {
-		return compileWordPattern(quoteAll(terms));
 	}
 
 	private Pattern compileWordPattern(String[] patterns) {

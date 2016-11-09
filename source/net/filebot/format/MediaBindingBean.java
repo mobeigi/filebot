@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -503,10 +504,10 @@ public class MediaBindingBean {
 	@Define("group")
 	public String getReleaseGroup() throws Exception {
 		// reduce false positives by removing the know titles from the name
-		Pattern[] nonGroupPattern = { releaseInfo.getCustomRemovePattern(getKeywords()), releaseInfo.getVideoSourcePattern(), releaseInfo.getVideoFormatPattern(true), releaseInfo.getResolutionPattern(), releaseInfo.getStructureRootPattern() };
+		Pattern[] nonGroupPattern = { getKeywordExcludePattern(), releaseInfo.getVideoSourcePattern(), releaseInfo.getVideoFormatPattern(true), releaseInfo.getResolutionPattern(), releaseInfo.getStructureRootPattern() };
 
 		// consider foldername, filename and original filename of inferred media file
-		String[] filenames = stream(getFileNames(getInferredMediaFile())).map(s -> releaseInfo.clean(s, nonGroupPattern)).toArray(String[]::new);
+		String[] filenames = stream(getFileNames(getInferredMediaFile())).map(s -> releaseInfo.clean(s, nonGroupPattern)).filter(s -> s.length() > 0).toArray(String[]::new);
 
 		// look for release group names in media file and it's parent folder
 		return releaseInfo.getReleaseGroup(filenames);
@@ -1158,24 +1159,29 @@ public class MediaBindingBean {
 		return names.toArray(new String[0]);
 	}
 
-	private List<String> getKeywords() {
+	private Pattern getKeywordExcludePattern() {
 		// collect key information
 		List<Object> keys = new ArrayList<Object>();
 		keys.add(getName());
-		keys.add(getYear());
-		keys.addAll(getAliasNames());
 
-		if (infoObject instanceof Episode) {
-			for (Episode it : getEpisodes()) {
-				keys.addAll(it.getSeriesNames());
-				keys.add(it.getTitle());
+		if (infoObject instanceof Episode || infoObject instanceof Movie) {
+			keys.addAll(getAliasNames());
+
+			if (infoObject instanceof Episode) {
+				for (Episode e : getEpisodes()) {
+					keys.add(e.getTitle());
+				}
+			} else if (infoObject instanceof Movie) {
+				keys.add(getYear());
 			}
 		}
 
 		// word list for exclude pattern
-		return keys.stream().filter(Objects::nonNull).map(it -> {
-			return normalizePunctuation(normalizeSpace(it.toString(), " "));
-		}).filter(s -> s.length() > 0).distinct().collect(toList());
+		String pattern = keys.stream().filter(Objects::nonNull).map(Objects::toString).map(s -> {
+			return PUNCTUATION_OR_SPACE.matcher(s).replaceAll(Matcher.quoteReplacement("\\P{Alnum}+"));
+		}).filter(s -> s.length() > 0).collect(joining("|", "\\b(", ")\\b"));
+
+		return Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
 	}
 
 	@Override
