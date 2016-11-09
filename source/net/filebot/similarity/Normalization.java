@@ -35,8 +35,7 @@ public class Normalization {
 	}
 
 	public static String normalizePunctuation(String name) {
-		// remove/normalize special characters
-		return normalizePunctuation(name, "", " ").trim();
+		return normalizePunctuation(name, "", " ");
 	}
 
 	public static String normalizePunctuation(String name, String apostrophe, String space) {
