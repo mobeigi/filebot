@@ -229,7 +229,7 @@ public class RenamePanel extends JComponent {
 		namesList.getListComponent().setComponentPopupMenu(fetchPopup);
 		fetchButton.setComponentPopupMenu(fetchPopup);
 		matchButton.setComponentPopupMenu(fetchPopup);
-		namesList.getButtonPanel().add(fetchButton, "gap 0");
+		namesList.getButtonPanel().add(fetchButton, "gap 0, sgy button");
 
 		namesList.getListComponent().setComponentPopupMenu(fetchPopup);
 		fetchButton.setComponentPopupMenu(fetchPopup);
@@ -240,16 +240,16 @@ public class RenamePanel extends JComponent {
 		JButton settingsButton = createImageButton(settingsPopupAction);
 		settingsButton.setComponentPopupMenu(settingsPopup);
 		renameButton.setComponentPopupMenu(settingsPopup);
-		namesList.getButtonPanel().add(settingsButton, "gap indent");
+		namesList.getButtonPanel().add(settingsButton, "gap indent, sgy button");
 
 		// open rename log button
-		filesList.getButtonPanel().add(createImageButton(removeAction), "gap 0", 2);
-		filesList.getButtonPanel().add(createImageButton(clearFilesAction), "gap 0");
-		filesList.getButtonPanel().add(createImageButton(openHistoryAction), "gap indent");
+		filesList.getButtonPanel().add(createImageButton(removeAction), "gap 0, sgy button", 2);
+		filesList.getButtonPanel().add(createImageButton(clearFilesAction), "gap 0, sgy button");
+		filesList.getButtonPanel().add(createImageButton(openHistoryAction), "gap indent, sgy button");
 
 		// create macros popup
 		JButton presetsButton = createImageButton(new ShowPresetsPopupAction());
-		filesList.getButtonPanel().add(presetsButton, "gap 0");
+		filesList.getButtonPanel().add(presetsButton, "gap 0, sgy button");
 
 		// show popup on actionPerformed only when names list is empty
 		matchButton.addActionListener(evt -> {
