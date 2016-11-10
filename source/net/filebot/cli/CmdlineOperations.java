@@ -1027,32 +1027,30 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	@Override
 	public List<String> fetchEpisodeList(String query, String expression, String db, String sortOrderName, String filterExpression, String languageName) throws Exception {
-		if (query == null || query.isEmpty())
+		if (query == null || query.isEmpty()) {
 			throw new IllegalArgumentException("query is not defined");
+		}
 
 		// find series on the web and fetch episode list
-		ExpressionFormat format = (expression != null) ? new ExpressionFormat(expression) : null;
-		ExpressionFilter filter = (filterExpression != null) ? new ExpressionFilter(filterExpression) : null;
-		EpisodeListProvider service = (db == null) ? TheTVDB : getEpisodeListProvider(db);
+		ExpressionFormat format = expression == null ? null : new ExpressionFormat(expression);
+		ExpressionFilter filter = filterExpression == null ? null : new ExpressionFilter(filterExpression);
+		EpisodeListProvider service = db == null ? TheTVDB : getEpisodeListProvider(db);
 		SortOrder sortOrder = SortOrder.forName(sortOrderName);
 		Locale locale = getLanguage(languageName).getLocale();
 
-		// fetch episode data
+		// search and select search result
 		List<SearchResult> options = selectSearchResult(query, service.search(query, locale), false, false);
-		if (options.isEmpty())
+		if (options.isEmpty()) {
 			throw new CmdlineException(service.getName() + ": no results");
-
-		List<Episode> episodes = service.getEpisodeList(options.get(0), sortOrder, locale);
-
-		// apply filter
-		episodes = applyExpressionFilter(episodes, filter);
-
-		List<String> names = new ArrayList<String>();
-		for (Episode it : episodes) {
-			String name = (format != null) ? format.format(new MediaBindingBean(it, null, null)) : EpisodeFormat.SeasonEpisode.format(it);
-			names.add(name);
 		}
-		return names;
+
+		// fetch episodes and apply filter
+		List<Episode> episodes = applyExpressionFilter(service.getEpisodeList(options.get(0), sortOrder, locale), filter);
+		Map<File, Episode> context = new EntryList<File, Episode>(null, episodes);
+
+		return episodes.stream().map(episode -> {
+			return format != null ? format.format(new MediaBindingBean(episode, null, context)) : EpisodeFormat.SeasonEpisode.format(episode);
+		}).collect(toList());
 	}
 
 	@Override
