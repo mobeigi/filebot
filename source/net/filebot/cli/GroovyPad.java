@@ -144,13 +144,19 @@ public class GroovyPad extends JFrame {
 		return new RTextScrollPane(output, true);
 	}
 
-	protected FileLocation getFileLocation(String name) throws IOException {
-		File pad = ApplicationFolder.AppData.resolve(name);
-		if (!pad.exists()) {
+	protected FileLocation getFileLocation(String name) {
+		try {
 			// use this default value so people can easily submit bug reports with fn:sysinfo logs
-			ScriptShellMethods.saveAs(DEFAULT_SCRIPT, pad);
+			File pad = ApplicationFolder.AppData.resolve(name);
+
+			if (!pad.exists()) {
+				ScriptShellMethods.saveAs(DEFAULT_SCRIPT, pad);
+				return FileLocation.create(pad);
+			}
+		} catch (Exception e) {
+			debug.log(Level.WARNING, e, e::toString);
 		}
-		return FileLocation.create(pad);
+		return null;
 	}
 
 	protected final ScriptShell shell;
