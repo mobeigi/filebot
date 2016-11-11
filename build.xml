@@ -480,9 +480,10 @@
 		<exec executable="codesign" failonerror="yes">
 			<arg line="${codesign.opts} ${codesign.entitlements.inherit} '${path.app}/Contents/PlugIns/jre'" />
 		</exec>
-		<exec executable="codesign" failonerror="yes">
-			<arg line="${codesign.opts} ${codesign.entitlements.inherit} '${path.app}/Contents/PlugIns/jre/Contents/_CodeSignature/CodeResources'" />
-		</exec>
+		<apply executable="codesign" parallel="yes" failonerror="yes">
+			<arg line="${codesign.opts} ${codesign.entitlements.inherit}" />
+			<fileset dir="${path.app}/Contents/PlugIns/jre/Contents/_CodeSignature" />
+		</apply>
 
 		<!-- sign helper tools with inherit entitlements -->
 		<apply executable="codesign" failonerror="yes">
