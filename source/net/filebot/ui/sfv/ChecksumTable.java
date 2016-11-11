@@ -1,7 +1,6 @@
 
 package net.filebot.ui.sfv;
 
-
 import static net.filebot.hash.VerificationUtilities.*;
 
 import java.awt.Color;
@@ -13,7 +12,6 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
 import net.filebot.util.ui.SwingUI.DragDropRowTableUI;
-
 
 class ChecksumTable extends JTable {
 
@@ -32,6 +30,7 @@ class ChecksumTable extends JTable {
 
 		// force white background (e.g. gtk-laf default table background is gray)
 		setBackground(Color.WHITE);
+		setGridColor(Color.LIGHT_GRAY);
 
 		// highlight CRC32 patterns in filenames in green and with smaller font-size
 		setDefaultRenderer(String.class, new HighlightPatternCellRenderer(EMBEDDED_CHECKSUM));
@@ -39,12 +38,10 @@ class ChecksumTable extends JTable {
 		setDefaultRenderer(ChecksumCell.class, new ChecksumCellRenderer());
 	}
 
-
 	@Override
 	protected ChecksumTableModel createDefaultDataModel() {
 		return new ChecksumTableModel();
 	}
-
 
 	@Override
 	protected JTableHeader createDefaultTableHeader() {
@@ -66,12 +63,10 @@ class ChecksumTable extends JTable {
 		};
 	}
 
-
 	@Override
 	public ChecksumTableModel getModel() {
 		return (ChecksumTableModel) super.getModel();
 	}
-
 
 	@Override
 	public void createDefaultColumnsFromModel() {
