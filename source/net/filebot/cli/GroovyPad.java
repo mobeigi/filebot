@@ -60,6 +60,8 @@ public class GroovyPad extends JFrame {
 		tools.setFloatable(true);
 		tools.add(run);
 		tools.add(cancel);
+		tools.addSeparator();
+		tools.add(newAction(DEFAULT_SCRIPT, ResourceManager.getIcon("status.info"), evt -> runScript(DEFAULT_SCRIPT)));
 		c.add(tools, BorderLayout.NORTH);
 
 		run.setEnabled(true);
@@ -93,15 +95,14 @@ public class GroovyPad extends JFrame {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setLocationByPlatform(true);
 		setSize(800, 600);
-
 	}
 
 	protected MessageConsole console;
 	protected TextEditorPane editor;
 	protected TextEditorPane output;
 
-	protected JComponent createEditor() throws IOException {
-		editor = new TextEditorPane(TextEditorPane.INSERT_MODE, false, getFileLocation("pad.groovy"), "UTF-8");
+	protected JComponent createEditor() {
+		editor = new TextEditorPane(TextEditorPane.INSERT_MODE, false);
 		editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_GROOVY);
 		editor.setAutoscrolls(false);
 		editor.setAnimateBracketMatching(false);
@@ -115,8 +116,19 @@ public class GroovyPad extends JFrame {
 		editor.setRoundedSelectionEdges(false);
 		editor.setTabsEmulated(false);
 
-		// restore on open
-		editor.reload();
+		try {
+			// use this default value so people can easily submit bug reports with fn:sysinfo logs
+			File pad = ApplicationFolder.AppData.resolve("pad.groovy");
+
+			if (!pad.exists()) {
+				ScriptShellMethods.saveAs(DEFAULT_SCRIPT, pad);
+			}
+
+			// restore on open
+			editor.load(FileLocation.create(pad), "UTF-8");
+		} catch (Exception e) {
+			debug.log(Level.WARNING, e, e::toString);
+		}
 
 		return new RTextScrollPane(editor, true);
 	}
@@ -144,21 +156,6 @@ public class GroovyPad extends JFrame {
 		return new RTextScrollPane(output, true);
 	}
 
-	protected FileLocation getFileLocation(String name) {
-		try {
-			// use this default value so people can easily submit bug reports with fn:sysinfo logs
-			File pad = ApplicationFolder.AppData.resolve(name);
-
-			if (!pad.exists()) {
-				ScriptShellMethods.saveAs(DEFAULT_SCRIPT, pad);
-				return FileLocation.create(pad);
-			}
-		} catch (Exception e) {
-			debug.log(Level.WARNING, e, e::toString);
-		}
-		return null;
-	}
-
 	protected final ScriptShell shell;
 
 	protected ScriptShell createScriptShell() {
@@ -175,14 +172,12 @@ public class GroovyPad extends JFrame {
 	private Runner currentRunner = null;
 
 	public void runScript(ActionEvent evt) {
-		// persist script file and clear output
 		try {
 			editor.save();
 		} catch (IOException e) {
-			debug.log(Level.WARNING, e, e::getMessage);
+			debug.log(Level.WARNING, e, e::toString);
 		}
 
-		output.setText("");
 		runScript(editor.getText());
 	}
 
@@ -199,6 +194,8 @@ public class GroovyPad extends JFrame {
 
 			run.setEnabled(false);
 			cancel.setEnabled(true);
+			output.setText(null);
+
 			currentRunner.execute();
 		}
 	}
