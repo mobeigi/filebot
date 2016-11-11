@@ -480,7 +480,7 @@
 		<exec executable="codesign" failonerror="yes">
 			<arg line="${codesign.opts} ${codesign.entitlements.inherit} '${path.app}/Contents/PlugIns/jre'" />
 		</exec>
-		<apply executable="codesign" parallel="yes" failonerror="yes">
+		<apply executable="codesign" failonerror="yes">
 			<arg line="${codesign.opts} ${codesign.entitlements.inherit}" />
 			<fileset dir="${path.app}/Contents/PlugIns/jre/Contents/_CodeSignature" />
 		</apply>
