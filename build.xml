@@ -380,11 +380,29 @@
 
 
 	<target name="appbundle-maspkg" depends="revision">
-		<property name="path.app" value="${application.name}.app" />
-		<property name="path.pkg" value="${application.identifier}_${version}_r${revision}.pkg" />
+		<property name="path.app" location="${dir.dist}/${application.name}.app" />
+		<property name="path.pkg" location="${dir.dist}/${application.identifier}_${version}_r${revision}.pkg" />
 
-		<property name="jre.version" value="jdk1.${jre.major}.0_${jre.build}.jdk" />
-		<property name="jre.path" value="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Home" />
+		<property name="jre.path" location="${dir.cache}/jre/Contents/Home" />
+
+		<!-- fetch latest JRE -->
+		<exec executable="get-java.sh" dir="${dir.cache}" failonerror="yes" />
+		<copy todir="${dir.cache}/jre">
+			<tarfileset>
+				<gzipresource>
+					<file file="${dir.cache}/jre-${jre.major}u${jre.build}-macosx-x64.tar.gz" />
+				</gzipresource>
+				<include name="**/Contents/Home/lib/**" />
+				<include name="**/Contents/Info.plist" />
+				<include name="**/Contents/MacOS/libjli.dylib" />
+
+				<!-- webkit uses deprecate font libraries which is not allowed in the app store  -->
+				<exclude name="**/Contents/Home/lib/libjfxmedia_qtkit.dylib" />
+				<exclude name="**/Contents/Home/lib/libjfxwebkit.dylib" />
+			</tarfileset>
+			<cutdirsmapper dirs="1" />
+		</copy>
+
 
 		<bundleapp jvmrequired="${jvm.version}" minimumsystemversion="${mac.version}" outputdirectory="${dir.dist}" executablename="${application.executable}" name="${application.name}" displayname="${application.name}" version="${revision}" shortversion="${version}" identifier="${application.identifier}" mainclassname="${main.class}" icon="${application.icon}" copyright="${tstamp.year} ${package.company}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
 			<classpath file="${path.fatjar}" />
@@ -429,79 +447,78 @@
 			<bundledocument role="viewer" handlerRank="none" contentTypes="public.folder" name="Media folder" />
 		</bundleapp>
 
-		<!-- fix code signing and submission issues -->
-		<delete verbose="yes" includeEmptyDirs="yes">
-			<fileset dir="${dir.dist}/${path.app}/Contents/PlugIns">
-				<include name="**/libjfxmedia_qtkit.dylib" />
-				<include name="**/libjfxwebkit.dylib" />
-				<include name="**/Contents/Info.plist" />
-				<include name="**/Contents/MacOS/libjli.dylib" />
+		<!-- fix broken symlink -->
+		<copy file="${jre.path}/lib/jli/libjli.dylib" tofile="${path.app}/Contents/MacOS/libjli.dylib" overwrite="yes" failonerror="yes" />
+
+		<!-- fix permissions (fpcalc and jspawnhelper be executable and signed with inherit entitlements) -->
+		<chmod perm="+x">
+			<fileset dir="${path.app}">
+				<include name="**/jspawnhelper" />
+				<include name="**/fpcalc" />
+				<include name="**/*.sh" />
 			</fileset>
-			<fileset dir="${dir.dist}/${path.app}/Contents/Resources">
+		</chmod>
+
+		<!-- remove unused language resources -->
+		<delete verbose="yes" includeEmptyDirs="yes">
+			<fileset dir="${path.app}/Contents/Resources">
 				<exclude name="en.lproj/**" />
 				<exclude name="*.icns" />
 			</fileset>
 		</delete>
-		<copy verbose="yes" failonerror="yes" overwrite="yes" file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Info.plist" tofile="${dir.dist}/${path.app}/Contents/PlugIns/${jre.version}/Contents/Info.plist" />
-		<copy verbose="yes" failonerror="yes" overwrite="yes" file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/MacOS/libjli.dylib" tofile="${dir.dist}/${path.app}/Contents/PlugIns/${jre.version}/Contents/MacOS/libjli.dylib" />
-
-		<!-- fix permissions -->
-		<chmod verbose="yes" dir="${dir.dist}" includes="**/fpcalc" perm="+x" />
-		<chmod verbose="yes" dir="${dir.dist}" includes="**/*.sh" perm="+x" />
-		<chmod verbose="yes" dir="${dir.dist}/${path.app}/Contents/PlugIns" perm="+rw" />
 
 		<!-- JRE sign all jars, dylibs and executables -->
 		<property name="codesign.opts" value="--verbose=4 --force --sign '${application.cert.appbundle}'" />
 		<property name="codesign.entitlements" value="--entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
 		<property name="codesign.entitlements.inherit" value="--entitlements '${dir.installer}/appbundle/inherit.entitlements'" />
 
-		<apply executable="codesign">
+		<!-- sign frameworks -->
+		<apply executable="codesign" parallel="yes" failonerror="yes">
 			<arg line="${codesign.opts} ${codesign.entitlements.inherit}" />
-			<srcfile />
-			<fileset dir="${dir.dist}/${path.app}/Contents/PlugIns">
-				<include name="**/jspawnhelper" />
-				<include name="**/*.dylib" />
-				<include name="**/*.jar" />
+			<fileset dir="${path.app}/Contents/PlugIns/jre" />
+		</apply>
+		<exec executable="codesign" failonerror="yes">
+			<arg line="${codesign.opts} ${codesign.entitlements.inherit} '${path.app}/Contents/PlugIns/jre'" />
+		</exec>
+		<exec executable="codesign" failonerror="yes">
+			<arg line="${codesign.opts} ${codesign.entitlements.inherit} '${path.app}/Contents/PlugIns/jre/Contents/_CodeSignature/CodeResources'" />
+		</exec>
+
+		<!-- sign helper tools with inherit entitlements -->
+		<apply executable="codesign" failonerror="yes">
+			<arg line="${codesign.opts} ${codesign.entitlements.inherit}" />
+			<fileset dir="${path.app}">
+				<include name="Contents/MacOS/fpcalc" />
 			</fileset>
 		</apply>
 
-		<!-- sign cmdline tool first -->
-		<exec dir="${dir.dist}/${path.app}" executable="codesign">
-			<arg line="${codesign.opts} ${codesign.entitlements.inherit} Contents/MacOS/fpcalc" />
-		</exec>
-
-		<!-- APP sign all jars, dylibs and executables -->
-		<apply executable="codesign">
+		<!-- sign everything that hasn't been signed yet and isn't the app launcher which is signed with the app bundle -->
+		<apply executable="codesign" parallel="yes" failonerror="yes">
 			<arg line="${codesign.opts} ${codesign.entitlements}" />
-			<srcfile />
-			<fileset dir="${dir.dist}/${path.app}/Contents">
-				<include name="MacOS/*.dylib" />
-				<include name="MacOS/*.sh" />
-				<include name="Java/*.jar" />
+			<fileset dir="${path.app}">
+				<exclude name="Contents/PlugIns/**" />
+				<exclude name="Contents/MacOS/${application.executable}" />
+				<exclude name="Contents/MacOS/fpcalc" />
 			</fileset>
 		</apply>
 
 		<!-- sign app with entitlements -->
-		<exec dir="${dir.dist}" executable="codesign">
-			<arg line="${codesign.opts} ${codesign.entitlements} '${path.app}/Contents/PlugIns/${jre.version}'" />
-		</exec>
-		<exec dir="${dir.dist}" executable="codesign">
+		<exec executable="codesign" failonerror="yes">
 			<arg line="${codesign.opts} ${codesign.entitlements} '${path.app}'" />
 		</exec>
 
-		<!-- verify signature & build pkg -->
-		<exec dir="${dir.dist}" executable="codesign" failonerror="on">
-			<arg line="--verify '${path.app}/Contents/PlugIns/${jre.version}'" />
+		<!-- verify signature -->
+		<exec executable="codesign" failonerror="yes">
+			<arg line="--verify --deep '${path.app}'" />
 		</exec>
-		<exec dir="${dir.dist}" executable="codesign" failonerror="on">
-			<arg line="--verify '${path.app}'" />
-		</exec>
-		<exec dir="${dir.dist}" executable="productbuild" failonerror="on">
+
+		<!-- build package -->
+		<exec executable="productbuild" failonerror="yes">
 			<arg line="--component '${path.app}' /Applications --sign '${application.cert.installer}' '${path.pkg}'" />
 		</exec>
 
 		<!-- store as release build-->
-		<copy todir="${dir.release}" file="${dir.dist}/${path.pkg}" verbose="yes" />
+		<copy todir="${dir.release}" file="${path.pkg}" verbose="yes" />
 	</target>
 
 
@@ -581,7 +598,7 @@
 
 		<!-- fetch latest JRE -->
 		<exec executable="powershell" dir="${dir.cache}" failonerror="yes">
-			<arg line="–NoProfile –ExecutionPolicy Bypass -Command 'Invoke-WebRequest https://raw.githubusercontent.com/rednoah/java-installer/master/release/install-jre.ps1 | Invoke-Expression'" />
+			<arg line="get-java" />
 		</exec>
 		<copy todir="${dir.dist}/appx/jre">
 			<tarfileset>
