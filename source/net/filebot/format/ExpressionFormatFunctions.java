@@ -1,6 +1,8 @@
 package net.filebot.format;
 
+import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.Settings.*;
 import static net.filebot.util.RegularExpressions.*;
 
 import java.io.File;
@@ -14,6 +16,8 @@ import java.util.stream.Stream;
 
 import groovy.lang.Closure;
 import groovy.util.XmlSlurper;
+import net.filebot.ApplicationFolder;
+import net.filebot.mac.MacAppUtilities;
 import net.filebot.util.FileUtilities;
 
 /**
@@ -76,11 +80,25 @@ public class ExpressionFormatFunctions {
 	}
 
 	public static List<String> readLines(String path) throws IOException {
-		return FileUtilities.readLines(new File(path));
+		return FileUtilities.readLines(getFile(path));
 	}
 
 	public static Object readXml(String path) throws Exception {
-		return new XmlSlurper().parse(new File(path));
+		return new XmlSlurper().parse(getFile(path));
+	}
+
+	public static File getFile(String path) {
+		File f = new File(path);
+
+		if (!f.isAbsolute()) {
+			f = ApplicationFolder.UserHome.resolve(path);
+		}
+
+		if (isMacSandbox()) {
+			MacAppUtilities.askUnlockFolders(null, singleton(f));
+		}
+
+		return f;
 	}
 
 }
