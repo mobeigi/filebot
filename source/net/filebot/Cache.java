@@ -128,8 +128,13 @@ public class Cache {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return cache.getName();
+	}
+
 	public static Predicate<Element> isStale(Duration expirationTime) {
-		return (element) -> System.currentTimeMillis() - element.getLatestOfCreationAndUpdateTime() > expirationTime.toMillis();
+		return element -> System.currentTimeMillis() - element.getLatestOfCreationAndUpdateTime() > expirationTime.toMillis();
 	}
 
 	@FunctionalInterface

@@ -107,7 +107,11 @@ public class CachedResource<K, R> implements Resource<R> {
 			}
 		});
 
-		return cast.transform(value);
+		try {
+			return cast.transform(value);
+		} catch (Exception e) {
+			throw new IllegalStateException(String.format("Failed to cast cached value: %s => %s (%s)", key, value, cache), e);
+		}
 	}
 
 	protected <T> T retry(Callable<T> callable, int retryCount, Duration retryWaitTime) throws Exception {
@@ -134,7 +138,7 @@ public class CachedResource<K, R> implements Resource<R> {
 	}
 
 	public static Transform<ByteBuffer, byte[]> getBytes() {
-		return (data) -> {
+		return data -> {
 			byte[] bytes = new byte[data.remaining()];
 			data.get(bytes, 0, bytes.length);
 			return bytes;
@@ -142,7 +146,7 @@ public class CachedResource<K, R> implements Resource<R> {
 	}
 
 	public static Transform<ByteBuffer, byte[]> getBytes(Transform<InputStream, InputStream> decompressor) {
-		return (data) -> {
+		return data -> {
 			ByteBufferOutputStream buffer = new ByteBufferOutputStream(data.remaining());
 			try (InputStream in = decompressor.transform(new ByteBufferInputStream(data))) {
 				buffer.transferFully(in);
@@ -154,11 +158,11 @@ public class CachedResource<K, R> implements Resource<R> {
 	}
 
 	public static Transform<ByteBuffer, String> getText(Charset charset) {
-		return (data) -> charset.decode(data).toString();
+		return data -> charset.decode(data).toString();
 	}
 
 	public static <T> Transform<T, String> validateXml(Transform<T, String> parse) {
-		return (object) -> {
+		return object -> {
 			String xml = parse.transform(object);
 			WebRequest.validateXml(xml);
 			return xml;
@@ -166,7 +170,7 @@ public class CachedResource<K, R> implements Resource<R> {
 	}
 
 	public static <T> Transform<T, String> validateJson(Transform<T, String> parse) {
-		return (object) -> {
+		return object -> {
 			String json = parse.transform(object);
 			JsonUtilities.readJson(json);
 			return json;
@@ -174,13 +178,13 @@ public class CachedResource<K, R> implements Resource<R> {
 	}
 
 	public static <T> Transform<T, Document> getXml(Transform<T, String> parse) {
-		return (object) -> {
+		return object -> {
 			return WebRequest.getDocument(parse.transform(object));
 		};
 	}
 
 	public static <T> Transform<T, Object> getJson(Transform<T, String> parse) {
-		return (object) -> {
+		return object -> {
 			return JsonUtilities.readJson(parse.transform(object));
 		};
 	}
@@ -238,7 +242,7 @@ public class CachedResource<K, R> implements Resource<R> {
 	}
 
 	private static Consumer<Map<String, List<String>>> storeETag(URL url, BiConsumer<URL, String> etagStore, Predicate<String> etagFilter) {
-		return (responseHeaders) -> {
+		return responseHeaders -> {
 			WebRequest.getETag(responseHeaders).filter(etagFilter).ifPresent(etag -> {
 				debug.finest(format("Store ETag: %s", etag));
 				etagStore.accept(url, etag);
