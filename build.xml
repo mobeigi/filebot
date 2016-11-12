@@ -381,8 +381,7 @@
 
 	<target name="appbundle-maspkg" depends="revision">
 		<property name="path.app" location="${dir.dist}/${application.name}.app" />
-		<property name="path.pkg" location="${dir.dist}/${application.identifier}_${version}_r${revision}.pkg" />
-
+		<property name="path.pkg" location="${dir.dist}/${application.name}_${version}_r${revision}.pkg" />
 		<property name="jre.path" location="${dir.cache}/jre/Contents/Home" />
 
 		<!-- fetch latest JRE -->
@@ -392,13 +391,13 @@
 				<gzipresource>
 					<file file="${dir.cache}/jre-${jre.major}u${jre.build}-macosx-x64.tar.gz" />
 				</gzipresource>
-				<include name="**/Contents/Home/lib/**" />
-				<include name="**/Contents/Info.plist" />
-				<include name="**/Contents/MacOS/libjli.dylib" />
+
+				<exclude name="**/bin/**" />
+				<exclude name="**/man/**" />
 
 				<!-- webkit uses deprecate font libraries which is not allowed in the app store  -->
-				<exclude name="**/Contents/Home/lib/libjfxmedia_qtkit.dylib" />
-				<exclude name="**/Contents/Home/lib/libjfxwebkit.dylib" />
+				<exclude name="**/libjfxmedia_qtkit.dylib" />
+				<exclude name="**/libjfxwebkit.dylib" />
 			</tarfileset>
 			<cutdirsmapper dirs="1" />
 		</copy>
@@ -416,16 +415,15 @@
 			<argument value="${application.mode}" />
 
 			<!-- WORKING_DIR is sandbox data folder -->
-			<option value="-Dapplication.dir=./Library/Application Support/User Data" />
-			<option value="-Dapplication.cache=./Library/Caches/ehcache.disk.store" />
-			<option value="-Djava.io.tmpdir=./Library/Caches/java.io.tmpdir" />
+			<option value="-Dapplication.dir=Library/Application Support/User Data" />
+			<option value="-Dapplication.cache=Library/Caches/ehcache.disk.store" />
+			<option value="-Djava.io.tmpdir=Library/Caches/java.io.tmpdir" />
 
 			<option value="-Dnet.filebot.UserFiles.fileChooser=COCOA" />
 			<option value="-Dapplication.name=${application.name}" />
 			<option value="-Dapplication.help=${application.help}" />
 			<option value="-Dapplication.deployment=mas" />
 			<option value="-Dapplication.update=skip" />
-			<option value="-Dunixfs=false" />
 			<option value="-DuseExtendedFileAttributes=true" />
 			<option value="-DuseCreationDate=false" />
 
@@ -436,6 +434,7 @@
 			<option value="-Djna.nounpack=true" />
 			<option value="-Djna.boot.library.name=jnidispatch" />
 			<option value="-Djna.boot.library.path=$APP_ROOT/Contents/MacOS" />
+
 			<option value="-Djna.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
@@ -462,8 +461,8 @@
 		<!-- remove unused language resources -->
 		<delete verbose="yes" includeEmptyDirs="yes">
 			<fileset dir="${path.app}/Contents/Resources">
+				<include name="**.lproj/**" />
 				<exclude name="en.lproj/**" />
-				<exclude name="*.icns" />
 			</fileset>
 		</delete>
 
@@ -480,7 +479,7 @@
 		<exec executable="codesign" failonerror="yes">
 			<arg line="${codesign.opts} ${codesign.entitlements.inherit} '${path.app}/Contents/PlugIns/jre'" />
 		</exec>
-		<apply executable="codesign" failonerror="yes">
+		<apply executable="codesign" parallel="yes" failonerror="yes">
 			<arg line="${codesign.opts} ${codesign.entitlements.inherit}" />
 			<fileset dir="${path.app}/Contents/PlugIns/jre/Contents/_CodeSignature" />
 		</apply>
@@ -489,7 +488,7 @@
 		<apply executable="codesign" failonerror="yes">
 			<arg line="${codesign.opts} ${codesign.entitlements.inherit}" />
 			<fileset dir="${path.app}">
-				<include name="Contents/MacOS/fpcalc" />
+				<include name="**/fpcalc" />
 			</fileset>
 		</apply>
 
