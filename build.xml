@@ -388,6 +388,7 @@
 
 		<!-- fetch latest JRE -->
 		<exec executable="get-java.sh" dir="${dir.cache}" failonerror="yes" />
+
 		<copy todir="${dir.cache}">
 			<tarfileset>
 				<gzipresource>
@@ -402,7 +403,6 @@
 				<exclude name="**/libjfxwebkit.dylib" />
 			</tarfileset>
 		</copy>
-
 
 		<bundleapp jvmrequired="${jvm.version}" minimumsystemversion="${mac.version}" outputdirectory="${dir.dist}" executablename="${application.executable}" name="${application.name}" displayname="${application.name}" version="${revision}" shortversion="${version}" identifier="${application.identifier}" mainclassname="${main.class}" icon="${application.icon}" copyright="${tstamp.year} ${package.company}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
 			<classpath file="${path.fatjar}" />
@@ -447,9 +447,6 @@
 			<bundledocument role="viewer" handlerRank="none" contentTypes="public.folder" name="Media folder" />
 		</bundleapp>
 
-		<!-- fix broken symlink -->
-		<copy file="${jre.path}/lib/jli/libjli.dylib" tofile="${path.app.jre}/Contents/MacOS/libjli.dylib" overwrite="yes" verbose="yes" failonerror="yes" />
-
 		<!-- remove unused language resources -->
 		<delete verbose="yes" includeEmptyDirs="yes">
 			<fileset dir="${path.app}/Contents/Resources">
@@ -457,6 +454,9 @@
 				<exclude name="en.lproj/**" />
 			</fileset>
 		</delete>
+
+		<!-- fix broken symlink -->
+		<copy file="${jre.path}/lib/jli/libjli.dylib" tofile="${path.app.jre}/Contents/MacOS/libjli.dylib" overwrite="yes" verbose="yes" failonerror="yes" />
 
 		<!-- fix permissions (fpcalc and jspawnhelper be executable and signed with inherit entitlements) -->
 		<chmod perm="+x">
@@ -472,36 +472,28 @@
 		<property name="codesign.entitlements" value="--entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
 		<property name="codesign.entitlements.inherit" value="--entitlements '${dir.installer}/appbundle/inherit.entitlements'" />
 
-		<!-- sign frameworks -->
-		<apply executable="codesign" parallel="yes" failonerror="yes">
-			<arg line="${codesign.opts} ${codesign.entitlements.inherit}" />
-			<fileset dir="${path.app.jre}">
-				<include name="**/*.dylib" />
-			</fileset>
-		</apply>
-		<exec executable="codesign" failonerror="yes">
-			<arg line="${codesign.opts} ${codesign.entitlements.inherit} '${path.app.jre}'" />
-		</exec>
-
 		<!-- sign helper tools with inherit entitlements -->
 		<apply executable="codesign" failonerror="yes">
 			<arg line="${codesign.opts} ${codesign.entitlements.inherit}" />
 			<fileset dir="${path.app}">
+				<include name="**/jspawnhelper" />
 				<include name="**/fpcalc" />
 			</fileset>
 		</apply>
 
-		<!-- sign everything that hasn't been signed yet and isn't the app launcher which is signed with the app bundle -->
+		<!-- sign frameworks -->
 		<apply executable="codesign" parallel="yes" failonerror="yes">
-			<arg line="${codesign.opts} ${codesign.entitlements}" />
+			<arg line="${codesign.opts}" />
 			<fileset dir="${path.app}">
-				<exclude name="Contents/PlugIns/**" />
-				<exclude name="Contents/MacOS/${application.executable}" />
-				<exclude name="Contents/MacOS/fpcalc" />
+				<include name="**/*.dylib" />
+				<include name="**/*.sh" />
 			</fileset>
 		</apply>
 
 		<!-- sign app with entitlements -->
+		<exec executable="codesign" failonerror="yes">
+			<arg line="${codesign.opts} '${path.app.jre}'" />
+		</exec>
 		<exec executable="codesign" failonerror="yes">
 			<arg line="${codesign.opts} ${codesign.entitlements} '${path.app}'" />
 		</exec>
