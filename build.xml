@@ -514,7 +514,7 @@
 
 		<!-- build package -->
 		<exec executable="productbuild" failonerror="yes">
-			<arg line="--component '${path.app}' /Applications --sign '${application.cert.installer}' '${path.pkg}'" />
+			<arg line="--component '${path.app}' /Applications '${path.pkg}' --sign '${application.cert.installer}' --identifier '${application.identifier}' --version '${application.version}'" />
 		</exec>
 
 		<!-- store as release build-->
