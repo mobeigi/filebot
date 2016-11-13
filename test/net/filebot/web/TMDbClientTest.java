@@ -21,7 +21,7 @@ import net.filebot.web.TMDbClient.MovieInfo;
 
 public class TMDbClientTest {
 
-	static TMDbClient db = new TMDbClient("66308fb6e3fd850dde4c7d21df2e8306");
+	static TMDbClient db = new TMDbClient("66308fb6e3fd850dde4c7d21df2e8306", false);
 
 	@Test
 	public void searchByName() throws Exception {

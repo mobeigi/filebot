@@ -41,16 +41,18 @@ import net.filebot.ResourceManager;
 
 public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 
-	private static final String host = "api.themoviedb.org";
-	private static final String version = "3";
-
 	// X-RateLimit: 40 requests per 10 seconds => https://developers.themoviedb.org/3/getting-started/request-rate-limiting
 	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(35, 10, TimeUnit.SECONDS);
 
-	private final String apikey;
+	private final String host = "api.themoviedb.org";
+	private final String version = "3";
 
-	public TMDbClient(String apikey) {
+	private String apikey;
+	private boolean adult;
+
+	public TMDbClient(String apikey, boolean adult) {
 		this.apikey = apikey;
+		this.adult = adult;
 	}
 
 	@Override
@@ -88,6 +90,9 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		query.put("query", movieName);
 		if (movieYear > 0) {
 			query.put("year", movieYear);
+		}
+		if (adult) {
+			query.put("include_adult", adult);
 		}
 
 		Object response = request("search/movie", query, locale);
