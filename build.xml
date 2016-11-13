@@ -454,6 +454,11 @@
 			</fileset>
 		</delete>
 
+		<!-- include brew install script (can't put it into Contents/MacOS because that will break codesign and MAS submissions -->
+		<copy todir="${path.app}/Contents/Resources">
+			<fileset dir="${dir.installer}/appbundle/MacOS" includes="brew.sh" />
+		</copy>
+
 		<!-- fix broken symlink -->
 		<copy file="${jre.path}/lib/jli/libjli.dylib" tofile="${path.app.jre}/Contents/MacOS/libjli.dylib" overwrite="yes" verbose="yes" failonerror="yes" />
 
