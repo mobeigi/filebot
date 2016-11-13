@@ -515,16 +515,16 @@ public class ExpressionFormatMethods {
 	 * Episode utilities (EXPERIMENTAL)
 	 */
 	public static EpisodeInfo getInfo(Episode self) throws Exception {
-		if (TheTVDB.getIdentifier().equals(self.getSeriesInfo().getDatabase()))
+		if (TheTVDB.getIdentifier().equals(self.getSeriesInfo().getDatabase())) {
 			return TheTVDBv2.getEpisodeInfo(self.getId(), Locale.ENGLISH);
-
+		}
 		return null;
 	}
 
 	public static List<String> getActors(SeriesInfo self) throws Exception {
-		if (TheTVDB.getIdentifier().equals(self.getDatabase()))
+		if (TheTVDB.getIdentifier().equals(self.getDatabase())) {
 			return TheTVDBv2.getActors(self.getId(), Locale.ENGLISH).stream().map(Person::getName).collect(toList());
-
+		}
 		return null;
 	}
 

@@ -181,23 +181,22 @@ public class MediaBindingBean {
 
 	@Define("t")
 	public String getTitle() {
+		String t = null;
+
 		if (infoObject instanceof Episode) {
-			// support multi-episode title formatting
-			String t = infoObject instanceof MultiEpisode ? EpisodeFormat.SeasonEpisode.formatMultiTitle(getEpisodes()) : getEpisode().getTitle();
-
-			// enforce title length limit by default
-			return truncateText(t, NamingStandard.TITLE_MAX_LENGTH);
+			t = infoObject instanceof MultiEpisode ? EpisodeFormat.SeasonEpisode.formatMultiTitle(getEpisodes()) : getEpisode().getTitle(); // implicit support for multi-episode title formatting
+		} else if (infoObject instanceof Movie) {
+			t = getMovieInfo().getTagline();
+		} else if (infoObject instanceof AudioTrack) {
+			t = getMusic().getTrackTitle() != null ? getMusic().getTrackTitle() : getMusic().getTitle();
 		}
 
-		if (infoObject instanceof AudioTrack) {
-			return getMusic().getTrackTitle() != null ? getMusic().getTrackTitle() : getMusic().getTitle();
-		}
-
-		return null;
+		// enforce title length limit by default
+		return truncateText(t, NamingStandard.TITLE_MAX_LENGTH);
 	}
 
 	@Define("d")
-	public SimpleDate getReleaseDate() throws Exception {
+	public SimpleDate getReleaseDate() {
 		if (infoObject instanceof Episode)
 			return getEpisode().getAirdate();
 		if (infoObject instanceof Movie)
@@ -260,7 +259,7 @@ public class MediaBindingBean {
 	}
 
 	@Define("primaryTitle")
-	public String getPrimaryTitle() throws Exception {
+	public String getPrimaryTitle() {
 		if (infoObject instanceof Movie)
 			return getPrimaryMovieInfo().getOriginalName();
 		if (infoObject instanceof Episode)
@@ -282,7 +281,7 @@ public class MediaBindingBean {
 	}
 
 	@Define("tmdbid")
-	public String getTmdbId() throws Exception {
+	public String getTmdbId() {
 		if (getMovie().getTmdbId() > 0)
 			return String.valueOf(getMovie().getTmdbId());
 		if (getMovie().getImdbId() > 0)
@@ -292,7 +291,7 @@ public class MediaBindingBean {
 	}
 
 	@Define("imdbid")
-	public String getImdbId() throws Exception {
+	public String getImdbId() {
 		if (getMovie().getImdbId() > 0)
 			return String.format("tt%07d", getMovie().getImdbId());
 		if (getMovie().getTmdbId() > 0)
@@ -556,7 +555,7 @@ public class MediaBindingBean {
 	}
 
 	@Define("languages")
-	public List<Language> getSpokenLanguages() throws Exception {
+	public List<Language> getSpokenLanguages() {
 		if (infoObject instanceof Movie) {
 			List<Locale> languages = getMovieInfo().getSpokenLanguages();
 			return languages.stream().map(Language::getLanguage).filter(Objects::nonNull).collect(toList());
@@ -569,7 +568,7 @@ public class MediaBindingBean {
 	}
 
 	@Define("runtime")
-	public Integer getRuntime() throws Exception {
+	public Integer getRuntime() {
 		if (infoObject instanceof Movie)
 			return getMovieInfo().getRuntime();
 		if (infoObject instanceof Episode)
@@ -589,7 +588,7 @@ public class MediaBindingBean {
 	}
 
 	@Define("genres")
-	public List<String> getGenres() throws Exception {
+	public List<String> getGenres() {
 		if (infoObject instanceof Movie)
 			return getMovieInfo().getGenres();
 		if (infoObject instanceof Episode)
@@ -599,7 +598,7 @@ public class MediaBindingBean {
 	}
 
 	@Define("genre")
-	public String getPrimaryGenre() throws Exception {
+	public String getPrimaryGenre() {
 		return getGenres().iterator().next();
 	}
 
@@ -608,13 +607,13 @@ public class MediaBindingBean {
 		if (infoObject instanceof Movie)
 			return getMovieInfo().getDirector();
 		if (infoObject instanceof Episode)
-			return ExpressionFormatMethods.getInfo(getEpisode()).getDirectors().iterator().next(); // use TheTVDB API v2 to retrieve extended episode info
+			return ExpressionFormatMethods.getInfo(getEpisode()).getDirector(); // use TheTVDB API v2 to retrieve extended episode info
 
 		return null;
 	}
 
 	@Define("certification")
-	public String getCertification() throws Exception {
+	public String getCertification() {
 		if (infoObject instanceof Movie)
 			return getMovieInfo().getCertification();
 		if (infoObject instanceof Episode)
@@ -624,7 +623,7 @@ public class MediaBindingBean {
 	}
 
 	@Define("rating")
-	public Double getRating() throws Exception {
+	public Double getRating() {
 		if (infoObject instanceof Movie)
 			return getMovieInfo().getRating();
 		if (infoObject instanceof Episode)
@@ -634,7 +633,7 @@ public class MediaBindingBean {
 	}
 
 	@Define("votes")
-	public Integer getVotes() throws Exception {
+	public Integer getVotes() {
 		if (infoObject instanceof Movie)
 			return getMovieInfo().getVotes();
 		if (infoObject instanceof Episode)
@@ -644,7 +643,7 @@ public class MediaBindingBean {
 	}
 
 	@Define("collection")
-	public String getCollection() throws Exception {
+	public String getCollection() {
 		if (infoObject instanceof Movie)
 			return getMovieInfo().getCollection();
 
@@ -652,7 +651,7 @@ public class MediaBindingBean {
 	}
 
 	@Define("info")
-	public synchronized AssociativeScriptObject getMetaInfo() throws Exception {
+	public synchronized AssociativeScriptObject getMetaInfo() {
 		if (infoObject instanceof Movie)
 			return createPropertyBindings(getMovieInfo());
 		if (infoObject instanceof Episode)
@@ -683,7 +682,7 @@ public class MediaBindingBean {
 	}
 
 	@Define("localize")
-	public Object getLocalizedInfoObject() throws Exception {
+	public Object getLocalizedInfoObject() {
 		return new DynamicBindings(Language::availableLanguages, k -> {
 			Language language = Language.findLanguage(k);
 			if (language == null) {
@@ -1034,9 +1033,14 @@ public class MediaBindingBean {
 		return getMediaFile();
 	}
 
-	public SeriesInfo getPrimarySeriesInfo() throws Exception {
-		if (TheTVDB.getIdentifier().equals(getSeriesInfo().getDatabase()))
-			return TheTVDB.getSeriesInfo(getSeriesInfo().getId(), Locale.ENGLISH);
+	public SeriesInfo getPrimarySeriesInfo() {
+		if (TheTVDB.getIdentifier().equals(getSeriesInfo().getDatabase())) {
+			try {
+				return TheTVDB.getSeriesInfo(getSeriesInfo().getId(), Locale.ENGLISH);
+			} catch (Exception e) {
+				debug.warning("Failed to retrieve primary series info: " + e); // default to seriesInfo property
+			}
+		}
 
 		return getSeriesInfo();
 	}
@@ -1044,12 +1048,20 @@ public class MediaBindingBean {
 	private final Resource<MovieInfo> primaryMovieInfo = Resource.lazy(() -> TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false));
 	private final Resource<MovieInfo> extendedMovieInfo = Resource.lazy(() -> getMovieInfo(getMovie().getLanguage(), true));
 
-	public MovieInfo getPrimaryMovieInfo() throws Exception {
-		return primaryMovieInfo.get();
+	public MovieInfo getPrimaryMovieInfo() {
+		try {
+			return primaryMovieInfo.get();
+		} catch (Exception e) {
+			throw new BindingException("info", "Failed to retrieve primary movie info: " + e, e);
+		}
 	}
 
-	public MovieInfo getMovieInfo() throws Exception {
-		return extendedMovieInfo.get();
+	public MovieInfo getMovieInfo() {
+		try {
+			return extendedMovieInfo.get();
+		} catch (Exception e) {
+			throw new BindingException("info", "Failed to retrieve extended movie info: " + e, e);
+		}
 	}
 
 	public synchronized MovieInfo getMovieInfo(Locale locale, boolean extendedInfo) throws Exception {

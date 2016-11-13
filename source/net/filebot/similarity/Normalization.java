@@ -106,7 +106,7 @@ public class Normalization {
 	}
 
 	public static String truncateText(String title, int limit) {
-		if (title.length() < limit) {
+		if (title == null || title.length() < limit) {
 			return title;
 		}
 
