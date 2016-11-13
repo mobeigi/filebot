@@ -382,11 +382,13 @@
 	<target name="appbundle-maspkg" depends="revision">
 		<property name="path.app" location="${dir.dist}/${application.name}.app" />
 		<property name="path.pkg" location="${dir.dist}/${application.name}_${version}_r${revision}.pkg" />
-		<property name="jre.path" location="${dir.cache}/jre/Contents/Home" />
+
+		<property name="path.app.jre" location="${path.app}/Contents/PlugIns/jre1.${jre.major}.0_${jre.build}.jre" />
+		<property name="jre.path" location="${dir.cache}/jre1.${jre.major}.0_${jre.build}.jre/Contents/Home" />
 
 		<!-- fetch latest JRE -->
 		<exec executable="get-java.sh" dir="${dir.cache}" failonerror="yes" />
-		<copy todir="${dir.cache}/jre">
+		<copy todir="${dir.cache}">
 			<tarfileset>
 				<gzipresource>
 					<file file="${dir.cache}/jre-${jre.major}u${jre.build}-macosx-x64.tar.gz" />
@@ -399,7 +401,6 @@
 				<exclude name="**/libjfxmedia_qtkit.dylib" />
 				<exclude name="**/libjfxwebkit.dylib" />
 			</tarfileset>
-			<cutdirsmapper dirs="1" />
 		</copy>
 
 
@@ -447,7 +448,15 @@
 		</bundleapp>
 
 		<!-- fix broken symlink -->
-		<copy file="${jre.path}/lib/jli/libjli.dylib" tofile="${path.app}/Contents/MacOS/libjli.dylib" overwrite="yes" failonerror="yes" />
+		<copy file="${jre.path}/lib/jli/libjli.dylib" tofile="${path.app.jre}/Contents/MacOS/libjli.dylib" overwrite="yes" verbose="yes" failonerror="yes" />
+
+		<!-- remove unused language resources -->
+		<delete verbose="yes" includeEmptyDirs="yes">
+			<fileset dir="${path.app}/Contents/Resources">
+				<include name="**.lproj/**" />
+				<exclude name="en.lproj/**" />
+			</fileset>
+		</delete>
 
 		<!-- fix permissions (fpcalc and jspawnhelper be executable and signed with inherit entitlements) -->
 		<chmod perm="+x">
@@ -458,31 +467,21 @@
 			</fileset>
 		</chmod>
 
-		<!-- remove unused language resources -->
-		<delete verbose="yes" includeEmptyDirs="yes">
-			<fileset dir="${path.app}/Contents/Resources">
-				<include name="**.lproj/**" />
-				<exclude name="en.lproj/**" />
-			</fileset>
-		</delete>
-
 		<!-- JRE sign all jars, dylibs and executables -->
-		<property name="codesign.opts" value="--verbose=4 --force --sign '${application.cert.appbundle}'" />
+		<property name="codesign.opts" value="--verbose --force --sign '${application.cert.appbundle}'" />
 		<property name="codesign.entitlements" value="--entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
 		<property name="codesign.entitlements.inherit" value="--entitlements '${dir.installer}/appbundle/inherit.entitlements'" />
 
 		<!-- sign frameworks -->
 		<apply executable="codesign" parallel="yes" failonerror="yes">
 			<arg line="${codesign.opts} ${codesign.entitlements.inherit}" />
-			<fileset dir="${path.app}/Contents/PlugIns/jre" />
+			<fileset dir="${path.app.jre}">
+				<include name="**/*.dylib" />
+			</fileset>
 		</apply>
 		<exec executable="codesign" failonerror="yes">
-			<arg line="${codesign.opts} ${codesign.entitlements.inherit} '${path.app}/Contents/PlugIns/jre'" />
+			<arg line="${codesign.opts} ${codesign.entitlements.inherit} '${path.app.jre}'" />
 		</exec>
-		<apply executable="codesign" parallel="yes" failonerror="yes">
-			<arg line="${codesign.opts} ${codesign.entitlements.inherit}" />
-			<fileset dir="${path.app}/Contents/PlugIns/jre/Contents/_CodeSignature" />
-		</apply>
 
 		<!-- sign helper tools with inherit entitlements -->
 		<apply executable="codesign" failonerror="yes">
