@@ -283,8 +283,10 @@ public class RenamePanel extends JComponent {
 					Match<Object, File> match = renameModel.getMatch(list.getSelectedIndex());
 					Map<File, Object> context = renameModel.getMatchContext(match);
 
-					MediaBindingBean sample = new MediaBindingBean(match.getValue(), match.getCandidate(), context);
-					showFormatEditor(sample);
+					if (match.getValue() != null) {
+						MediaBindingBean sample = new MediaBindingBean(match.getValue(), match.getCandidate(), context);
+						showFormatEditor(sample);
+					}
 				}
 			}
 		}));
