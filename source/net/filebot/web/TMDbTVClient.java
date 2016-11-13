@@ -4,7 +4,6 @@ import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.util.JsonUtilities.*;
-import static net.filebot.web.TMDbClient.*;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -73,7 +72,7 @@ public class TMDbTVClient extends AbstractEpisodeListProvider {
 		if (startYear > 0) {
 			query.put("first_air_date_year", startYear);
 		}
-		Object response = tmdb.request("search/tv", query, locale, SEARCH_LIMIT);
+		Object response = tmdb.request("search/tv", query, locale);
 
 		return streamJsonObjects(response, "results").map(it -> {
 			Integer id = getInteger(it, "id");
@@ -97,7 +96,7 @@ public class TMDbTVClient extends AbstractEpisodeListProvider {
 	@Override
 	protected SeriesData fetchSeriesData(SearchResult series, SortOrder sortOrder, Locale locale) throws Exception {
 		// http://api.themoviedb.org/3/tv/id
-		Object tv = tmdb.request("tv/" + series.getId(), emptyMap(), locale, REQUEST_LIMIT);
+		Object tv = tmdb.request("tv/" + series.getId(), emptyMap(), locale);
 
 		SeriesInfo info = new SeriesInfo(this, sortOrder, locale, series.getId());
 		info.setName(Stream.of("original_name", "name").map(key -> getString(tv, key)).filter(Objects::nonNull).findFirst().orElse(series.getName()));
@@ -117,7 +116,7 @@ public class TMDbTVClient extends AbstractEpisodeListProvider {
 
 		for (int s : seasons) {
 			// http://api.themoviedb.org/3/tv/id/season/season_number
-			Object season = tmdb.request("tv/" + series.getId() + "/season/" + s, emptyMap(), locale, REQUEST_LIMIT);
+			Object season = tmdb.request("tv/" + series.getId() + "/season/" + s, emptyMap(), locale);
 
 			streamJsonObjects(season, "episodes").forEach(episode -> {
 				Integer id = getInteger(episode, "id");

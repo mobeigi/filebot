@@ -44,8 +44,8 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 	private static final String host = "api.themoviedb.org";
 	private static final String version = "3";
 
-	protected static final FloodLimit SEARCH_LIMIT = new FloodLimit(10, 10, TimeUnit.SECONDS);
-	protected static final FloodLimit REQUEST_LIMIT = new FloodLimit(20, 10, TimeUnit.SECONDS);
+	// X-RateLimit: 40 requests per 10 seconds => https://developers.themoviedb.org/3/getting-started/request-rate-limiting
+	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(35, 10, TimeUnit.SECONDS);
 
 	private final String apikey;
 
@@ -89,7 +89,8 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		if (movieYear > 0) {
 			query.put("year", movieYear);
 		}
-		Object response = request("search/movie", query, locale, SEARCH_LIMIT);
+
+		Object response = request("search/movie", query, locale);
 
 		// e.g. {"id":16320,"title":"冲出宁静号","release_date":"2005-09-30","original_title":"Serenity"}
 		return streamJsonObjects(response, "results").map(it -> {
@@ -122,7 +123,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 
 		if (extendedInfo) {
 			try {
-				Object response = request(path + "/alternative_titles", emptyMap(), Locale.ENGLISH, REQUEST_LIMIT);
+				Object response = request(path + "/alternative_titles", emptyMap(), Locale.ENGLISH);
 				streamJsonObjects(response, key).map(n -> {
 					return getString(n, "title");
 				}).filter(Objects::nonNull).filter(n -> n.length() >= 2).forEach(alternativeTitles::add);
@@ -171,7 +172,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 	}
 
 	public MovieInfo getMovieInfo(String id, Locale locale, boolean extendedInfo) throws Exception {
-		Object response = request("movie/" + id, extendedInfo ? singletonMap("append_to_response", "alternative_titles,releases,casts,trailers") : emptyMap(), locale, REQUEST_LIMIT);
+		Object response = request("movie/" + id, extendedInfo ? singletonMap("append_to_response", "alternative_titles,releases,casts,trailers") : emptyMap(), locale);
 
 		// read all basic movie properties
 		Map<MovieProperty, String> fields = getEnumMap(response, MovieProperty.class);
@@ -291,7 +292,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 
 	@Override
 	public List<Artwork> getArtwork(int id, String category, Locale locale) throws Exception {
-		Object images = request("movie/" + id + "/images", emptyMap(), Locale.ROOT, REQUEST_LIMIT);
+		Object images = request("movie/" + id + "/images", emptyMap(), Locale.ROOT);
 
 		return streamJsonObjects(images, category).map(it -> {
 			URL image = getStringValue(it, "file_path", this::resolveImage);
@@ -304,7 +305,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 	}
 
 	protected Object getConfiguration() throws Exception {
-		return request("configuration", emptyMap(), Locale.ROOT, REQUEST_LIMIT);
+		return request("configuration", emptyMap(), Locale.ROOT);
 	}
 
 	protected URL resolveImage(String path) {
@@ -323,7 +324,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 	}
 
 	public Map<String, List<String>> getAlternativeTitles(int id) throws Exception {
-		Object titles = request("movie/" + id + "/alternative_titles", emptyMap(), Locale.ROOT, REQUEST_LIMIT);
+		Object titles = request("movie/" + id + "/alternative_titles", emptyMap(), Locale.ROOT);
 
 		return streamJsonObjects(titles, "titles").collect(groupingBy(it -> {
 			return getString(it, "iso_3166_1");
@@ -348,7 +349,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 	}
 
 	public List<Movie> discover(Map<String, Object> parameters, Locale locale) throws Exception {
-		Object json = request("discover/movie", parameters, locale, REQUEST_LIMIT);
+		Object json = request("discover/movie", parameters, locale);
 
 		return streamJsonObjects(json, "results").map(it -> {
 			String title = getString(it, "title");
@@ -358,13 +359,13 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		}).collect(toList());
 	}
 
-	protected Object request(String resource, Map<String, Object> parameters, Locale locale, FloodLimit limit) throws Exception {
+	protected Object request(String resource, Map<String, Object> parameters, Locale locale) throws Exception {
 		// default parameters
 		String key = parameters.isEmpty() ? resource : resource + '?' + encodeParameters(parameters, true);
 		String cacheName = locale.getLanguage().isEmpty() ? getName() : getName() + "_" + locale;
 
 		Cache cache = Cache.getCache(cacheName, CacheType.Monthly);
-		Object json = cache.json(key, k -> getResource(k, locale)).fetch(withPermit(fetchIfNoneMatch(url -> key, cache), r -> limit.acquirePermit())).expire(Cache.ONE_WEEK).get();
+		Object json = cache.json(key, k -> getResource(k, locale)).fetch(withPermit(fetchIfNoneMatch(url -> key, cache), r -> REQUEST_LIMIT.acquirePermit())).expire(Cache.ONE_WEEK).get();
 
 		if (asMap(json).isEmpty()) {
 			throw new FileNotFoundException(String.format("Resource is empty: %s => %s", json, getResource(key, locale)));
