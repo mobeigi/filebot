@@ -383,8 +383,26 @@
 		<property name="path.app" value="${application.name}.app" />
 		<property name="path.pkg" value="${application.identifier}_${version}_r${revision}.pkg" />
 
-		<property name="jre.version" value="jdk1.${jre.major}.0_${jre.build}.jdk" />
-		<property name="jre.path" value="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Home" />
+		<property name="jre.version" value="jre1.${jre.major}.0_${jre.build}.jre" />
+		<property name="jre.path" value="${dir.cache}/${jre.version}/Contents/Home" />
+
+		<!-- fetch latest JRE -->
+		<exec executable="get-java.sh" dir="${dir.cache}" failonerror="yes" />
+
+		<copy todir="${dir.cache}">
+			<tarfileset>
+				<gzipresource>
+					<file file="${dir.cache}/jre-${jre.major}u${jre.build}-macosx-x64.tar.gz" />
+				</gzipresource>
+
+				<exclude name="**/bin/**" />
+				<exclude name="**/man/**" />
+
+				<!-- webkit uses deprecate font libraries which is not allowed in the app store  -->
+				<exclude name="**/libjfxmedia_qtkit.dylib" />
+				<exclude name="**/libjfxwebkit.dylib" />
+			</tarfileset>
+		</copy>
 
 		<bundleapp jvmrequired="${jvm.version}" minimumsystemversion="${mac.version}" outputdirectory="${dir.dist}" executablename="${application.executable}" name="${application.name}" displayname="${application.name}" version="${revision}" shortversion="${version}" identifier="${application.identifier}" mainclassname="${main.class}" icon="${application.icon}" copyright="${tstamp.year} ${package.company}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
 			<classpath file="${path.fatjar}" />
@@ -442,8 +460,8 @@
 				<exclude name="*.icns" />
 			</fileset>
 		</delete>
-		<copy verbose="yes" failonerror="yes" overwrite="yes" file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Info.plist" tofile="${dir.dist}/${path.app}/Contents/PlugIns/${jre.version}/Contents/Info.plist" />
-		<copy verbose="yes" failonerror="yes" overwrite="yes" file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/MacOS/libjli.dylib" tofile="${dir.dist}/${path.app}/Contents/PlugIns/${jre.version}/Contents/MacOS/libjli.dylib" />
+		<copy verbose="yes" failonerror="yes" overwrite="yes" file="${dir.cache}/${jre.version}/Contents/Info.plist" tofile="${dir.dist}/${path.app}/Contents/PlugIns/${jre.version}/Contents/Info.plist" />
+		<copy verbose="yes" failonerror="yes" overwrite="yes" file="${dir.cache}/${jre.version}/Contents/Home/lib/jli/libjli.dylib" tofile="${dir.dist}/${path.app}/Contents/PlugIns/${jre.version}/Contents/MacOS/libjli.dylib" />
 
 		<!-- fix permissions -->
 		<chmod verbose="yes" dir="${dir.dist}" includes="**/fpcalc" perm="+x" />
@@ -455,7 +473,7 @@
 		<property name="codesign.entitlements" value="--entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
 		<property name="codesign.entitlements.inherit" value="--entitlements '${dir.installer}/appbundle/inherit.entitlements'" />
 
-		<apply executable="codesign">
+		<apply executable="codesign" parallel="yes">
 			<arg line="${codesign.opts} ${codesign.entitlements.inherit}" />
 			<srcfile />
 			<fileset dir="${dir.dist}/${path.app}/Contents/PlugIns">
@@ -471,7 +489,7 @@
 		</exec>
 
 		<!-- APP sign all jars, dylibs and executables -->
-		<apply executable="codesign">
+		<apply executable="codesign" parallel="yes">
 			<arg line="${codesign.opts} ${codesign.entitlements}" />
 			<srcfile />
 			<fileset dir="${dir.dist}/${path.app}/Contents">
