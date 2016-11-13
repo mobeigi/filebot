@@ -380,11 +380,11 @@
 
 
 	<target name="appbundle-maspkg" depends="revision">
-		<property name="path.app" value="${application.name}.app" />
-		<property name="path.pkg" value="${application.identifier}_${version}_r${revision}.pkg" />
+		<property name="path.app" location="${dir.dist}/${application.name}.app" />
+		<property name="path.pkg" location="${dir.dist}/${application.name}_${version}_r${revision}.pkg" />
 
-		<property name="jre.version" value="jre1.${jre.major}.0_${jre.build}.jre" />
-		<property name="jre.path" value="${dir.cache}/${jre.version}/Contents/Home" />
+		<property name="path.app.jre" location="${path.app}/Contents/PlugIns/jre1.${jre.major}.0_${jre.build}.jre" />
+		<property name="jre.path" location="${dir.cache}/jre1.${jre.major}.0_${jre.build}.jre/Contents/Home" />
 
 		<!-- fetch latest JRE -->
 		<exec executable="get-java.sh" dir="${dir.cache}" failonerror="yes" />
@@ -416,16 +416,15 @@
 			<argument value="${application.mode}" />
 
 			<!-- WORKING_DIR is sandbox data folder -->
-			<option value="-Dapplication.dir=./Library/Application Support/User Data" />
-			<option value="-Dapplication.cache=./Library/Caches/ehcache.disk.store" />
-			<option value="-Djava.io.tmpdir=./Library/Caches/java.io.tmpdir" />
+			<option value="-Dapplication.dir=Library/Application Support/User Data" />
+			<option value="-Dapplication.cache=Library/Caches/ehcache.disk.store" />
+			<option value="-Djava.io.tmpdir=Library/Caches/java.io.tmpdir" />
 
 			<option value="-Dnet.filebot.UserFiles.fileChooser=COCOA" />
 			<option value="-Dapplication.name=${application.name}" />
 			<option value="-Dapplication.help=${application.help}" />
 			<option value="-Dapplication.deployment=mas" />
 			<option value="-Dapplication.update=skip" />
-			<option value="-Dunixfs=false" />
 			<option value="-DuseExtendedFileAttributes=true" />
 			<option value="-DuseCreationDate=false" />
 
@@ -436,6 +435,7 @@
 			<option value="-Djna.nounpack=true" />
 			<option value="-Djna.boot.library.name=jnidispatch" />
 			<option value="-Djna.boot.library.path=$APP_ROOT/Contents/MacOS" />
+
 			<option value="-Djna.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
@@ -447,79 +447,65 @@
 			<bundledocument role="viewer" handlerRank="none" contentTypes="public.folder" name="Media folder" />
 		</bundleapp>
 
-		<!-- fix code signing and submission issues -->
+		<!-- remove unused language resources -->
 		<delete verbose="yes" includeEmptyDirs="yes">
-			<fileset dir="${dir.dist}/${path.app}/Contents/PlugIns">
-				<include name="**/libjfxmedia_qtkit.dylib" />
-				<include name="**/libjfxwebkit.dylib" />
-				<include name="**/Contents/Info.plist" />
-				<include name="**/Contents/MacOS/libjli.dylib" />
-			</fileset>
-			<fileset dir="${dir.dist}/${path.app}/Contents/Resources">
+			<fileset dir="${path.app}/Contents/Resources">
+				<include name="**.lproj/**" />
 				<exclude name="en.lproj/**" />
-				<exclude name="*.icns" />
 			</fileset>
 		</delete>
-		<copy verbose="yes" failonerror="yes" overwrite="yes" file="${dir.cache}/${jre.version}/Contents/Info.plist" tofile="${dir.dist}/${path.app}/Contents/PlugIns/${jre.version}/Contents/Info.plist" />
-		<copy verbose="yes" failonerror="yes" overwrite="yes" file="${dir.cache}/${jre.version}/Contents/Home/lib/jli/libjli.dylib" tofile="${dir.dist}/${path.app}/Contents/PlugIns/${jre.version}/Contents/MacOS/libjli.dylib" />
 
-		<!-- fix permissions -->
-		<chmod verbose="yes" dir="${dir.dist}" includes="**/fpcalc" perm="+x" />
-		<chmod verbose="yes" dir="${dir.dist}" includes="**/*.sh" perm="+x" />
-		<chmod verbose="yes" dir="${dir.dist}/${path.app}/Contents/PlugIns" perm="+rw" />
+		<!-- fix broken symlink -->
+		<copy file="${jre.path}/lib/jli/libjli.dylib" tofile="${path.app.jre}/Contents/MacOS/libjli.dylib" overwrite="yes" verbose="yes" failonerror="yes" />
+
+		<!-- fix permissions (fpcalc and jspawnhelper be executable and signed with inherit entitlements) -->
+		<chmod perm="+x">
+			<fileset dir="${path.app}">
+				<include name="**/jspawnhelper" />
+				<include name="**/fpcalc" />
+				<include name="**/*.sh" />
+			</fileset>
+		</chmod>
 
 		<!-- JRE sign all jars, dylibs and executables -->
-		<property name="codesign.opts" value="--verbose=4 --force --sign '${application.cert.appbundle}'" />
-		<property name="codesign.entitlements" value="--entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
-		<property name="codesign.entitlements.inherit" value="--entitlements '${dir.installer}/appbundle/inherit.entitlements'" />
+		<property name="sign" value="--verbose --force --sign '${application.cert.appbundle}'" />
+		<property name="entitlements" value="--entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
+		<property name="entitlements.inherit" value="--entitlements '${dir.installer}/appbundle/inherit.entitlements'" />
 
-		<apply executable="codesign" parallel="yes">
-			<arg line="${codesign.opts} ${codesign.entitlements.inherit}" />
-			<srcfile />
-			<fileset dir="${dir.dist}/${path.app}/Contents/PlugIns">
+		<!-- sign helper tools with inherit entitlements -->
+		<apply executable="codesign" parallel="yes" failonerror="yes">
+			<arg line="${sign} ${entitlements.inherit}" />
+			<fileset dir="${path.app}">
 				<include name="**/jspawnhelper" />
+				<include name="**/fpcalc" />
 				<include name="**/*.dylib" />
 				<include name="**/*.jar" />
+				<include name="**/*.sh" />
 			</fileset>
 		</apply>
 
-		<!-- sign cmdline tool first -->
-		<exec dir="${dir.dist}/${path.app}" executable="codesign">
-			<arg line="${codesign.opts} ${codesign.entitlements.inherit} Contents/MacOS/fpcalc" />
+		<!-- sign frameworks -->
+		<exec executable="codesign" failonerror="yes">
+			<arg line="${sign} ${entitlements.inherit} '${path.app.jre}'" />
 		</exec>
 
-		<!-- APP sign all jars, dylibs and executables -->
-		<apply executable="codesign" parallel="yes">
-			<arg line="${codesign.opts} ${codesign.entitlements}" />
-			<srcfile />
-			<fileset dir="${dir.dist}/${path.app}/Contents">
-				<include name="MacOS/*.dylib" />
-				<include name="MacOS/*.sh" />
-				<include name="Java/*.jar" />
-			</fileset>
-		</apply>
-
-		<!-- sign app with entitlements -->
-		<exec dir="${dir.dist}" executable="codesign">
-			<arg line="${codesign.opts} ${codesign.entitlements} '${path.app}/Contents/PlugIns/${jre.version}'" />
-		</exec>
-		<exec dir="${dir.dist}" executable="codesign">
-			<arg line="${codesign.opts} ${codesign.entitlements} '${path.app}'" />
+		<!-- sign app -->
+		<exec executable="codesign" failonerror="yes">
+			<arg line="${sign} ${entitlements} '${path.app}'" />
 		</exec>
 
-		<!-- verify signature & build pkg -->
-		<exec dir="${dir.dist}" executable="codesign" failonerror="on">
-			<arg line="--verify '${path.app}/Contents/PlugIns/${jre.version}'" />
+		<!-- verify signature -->
+		<exec executable="codesign" failonerror="yes">
+			<arg line="--verbose --deep --verify '${path.app}'" />
 		</exec>
-		<exec dir="${dir.dist}" executable="codesign" failonerror="on">
-			<arg line="--verify '${path.app}'" />
-		</exec>
-		<exec dir="${dir.dist}" executable="productbuild" failonerror="on">
-			<arg line="--component '${path.app}' /Applications --sign '${application.cert.installer}' '${path.pkg}'" />
+
+		<!-- build package -->
+		<exec executable="productbuild" failonerror="yes">
+			<arg line="--component '${path.app}' /Applications '${path.pkg}' --sign '${application.cert.installer}'" />
 		</exec>
 
 		<!-- store as release build-->
-		<copy todir="${dir.release}" file="${dir.dist}/${path.pkg}" verbose="yes" />
+		<copy todir="${dir.release}" file="${path.pkg}" verbose="yes" />
 	</target>
 
 
