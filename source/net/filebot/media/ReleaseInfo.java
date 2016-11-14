@@ -188,7 +188,6 @@ public class ReleaseInfo {
 		return items.stream().map(it -> {
 			String head = strict ? clean(it, stopwords[b]) : substringBefore(it, stopwords[b]);
 			String norm = normalizePunctuation(clean(head, blacklist[b]));
-			// debug.finest(format("CLEAN: %s => %s => %s", it, head, norm));
 			return norm;
 		}).filter(s -> s.length() > 0).collect(toList());
 	}
