@@ -443,7 +443,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		try {
 			return formatter.format(new MediaBindingBean(o, f));
 		} catch (SuppressedThrowables e) {
-			debug.warning(format("Failed to read media info: %s: %s => %s", e.getMessage(), format, f));
+			debug.warning(format("%s => %s", format, e.getMessage()));
 		}
 
 		return null;
