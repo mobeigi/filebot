@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 
 # brew requires Command Line Tools for Xcode
 xcode-select --print-path || sudo xcode-select --install

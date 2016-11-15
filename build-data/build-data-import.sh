@@ -8,7 +8,7 @@ fetch()
 
 	echo "Fetch $FILE"
 	if [ ! -f "$FILE" ] || test "`find $FILE -mtime $TIME`"; then
-		curl -L -o "$FILE" -z "$FILE" "$LINK"
+		curl -L -o "$FILE" -z "$FILE" --retry 5 "$LINK"
 
 		if [[ "${FILE##*.}" == "gz" ]]; then
 			gunzip -k -f "$FILE"
