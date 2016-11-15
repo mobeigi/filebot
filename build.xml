@@ -303,7 +303,7 @@
 
 
 	<target name="appbundle" description="Build Mac application bundle" depends="revision">
-		<bundleapp outputdirectory="${dir.dist}" executablename="purchase.sh" hidedockicon="true" minimumsystemversion="${mac.version}" jvmrequired="${jvm.version}" name="${application.name}" displayname="${application.name} ${version}" version="${revision}" shortversion="${version}" identifier="net.filebot.Main" mainclassname="${main.class}" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} ${package.developer}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
+		<bundleapp outputdirectory="${dir.dist}" executablename="purchase.sh" hidedockicon="true" minimumsystemversion="${mac.version}" jvmrequired="${jvm.version}" name="${application.name}" displayname="${application.name} ${version}" version="${revision}" shortversion="${version}" identifier="${package.identifier}.Command" mainclassname="${main.class}" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} ${package.developer}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<librarypath dir="${dir.installer}/appbundle/MacOS" />
@@ -351,7 +351,7 @@
 		<antcall target="appbundle-maspkg">
 			<param name="application.name" value="FileBot" />
 			<param name="application.executable" value="filebot.launcher" />
-			<param name="application.identifier" value="net.filebot.FileBot" />
+			<param name="application.identifier" value="${package.identifier}" />
 			<param name="application.icon" value="${dir.installer}/appbundle/filebot.icns" />
 			<param name="application.cert.appbundle" value="3rd Party Mac Developer Application: ${package.company}" />
 			<param name="application.cert.installer" value="3rd Party Mac Developer Installer: ${package.company}" />
@@ -369,7 +369,7 @@
 		<antcall target="appbundle-maspkg">
 			<param name="application.name" value="FileBot Subtitles" />
 			<param name="application.executable" value="filebot.subtitles.launcher" />
-			<param name="application.identifier" value="net.filebot.FileBot.Subtitles" />
+			<param name="application.identifier" value="${package.identifier}.Subtitles" />
 			<param name="application.icon" value="${dir.installer}/appbundle/subtitles.icns" />
 			<param name="application.cert.appbundle" value="Developer ID Application: ${package.company}" />
 			<param name="application.cert.installer" value="Developer ID Installer: ${package.company}" />
