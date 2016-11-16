@@ -25,7 +25,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
-import net.filebot.ResourceManager;
 
 public class GettingStartedStage {
 
@@ -56,11 +55,13 @@ public class GettingStartedStage {
 		Stage stage = new Stage();
 		stage.setResizable(false);
 
-		stage.initStyle(StageStyle.DECORATED);
-		stage.initModality(Modality.NONE);
-
-		if (!isMacApp()) {
-			stage.getIcons().addAll(ResourceManager.getApplicationIconsFX()); // Windows / Linux specific configuration
+		if (isMacApp()) {
+			stage.initStyle(StageStyle.DECORATED);
+			stage.initModality(Modality.NONE);
+		} else {
+			// Windows / Linux specific configuration
+			stage.initStyle(StageStyle.UTILITY);
+			stage.initModality(Modality.NONE);
 		}
 
 		return new GettingStartedStage(stage);

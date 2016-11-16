@@ -52,10 +52,6 @@ public final class ResourceManager {
 		return Stream.of("window.icon.large", "window.icon.medium", "window.icon.small").map(ResourceManager::getImage).collect(toList());
 	}
 
-	public static List<javafx.scene.image.Image> getApplicationIconsFX() {
-		return Stream.of("window.icon.large", "window.icon.medium", "window.icon.small").map(ResourceManager::getImageResource).map(URL::toString).map(r -> new javafx.scene.image.Image(r)).collect(toList());
-	}
-
 	public static Icon getFlagIcon(String languageCode) {
 		return getIcon("flags/" + languageCode);
 	}
