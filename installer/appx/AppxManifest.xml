@@ -7,9 +7,9 @@
 	xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10">
 
 	<Identity
-		Name="PointPlanck.FileBot"
+		Name="@{microsoft.application.name}"
 		ProcessorArchitecture="x64"
-		Publisher="CN=761A0D2B-9B86-4FE4-B664-18E4E0AFC3F1"
+		Publisher="@{microsoft.application.publisher}"
 		Version="@{application.version}.0"
 	/>
 
@@ -17,11 +17,11 @@
 		<DisplayName>@{application.name}</DisplayName>
 		<PublisherDisplayName>@{package.company}</PublisherDisplayName>
 		<Description>@{package.description}</Description>
-		<Logo>icon.png</Logo>
+		<Logo>Assets\StoreLogo.png</Logo>
 	</Properties>
 
 	<Resources>
-		<Resource Language="en-us" />
+		<Resource Language="en-US" />
 	</Resources>
 
 	<Dependencies>
@@ -33,23 +33,38 @@
 	</Capabilities>
 
 	<Applications>
-		<Application Id="@{package.name}" Executable="filebot.launcher.exe" EntryPoint="Windows.FullTrustApplication">
-			<uap:VisualElements
-				DisplayName="@{application.name}"
-				Description="@{package.synopsis}"
-				BackgroundColor="transparent"
-				Square44x44Logo="icon44.png"
-				Square150x150Logo="icon150.png"
-			/>
+		<Application Id="@{package.identifier}" Executable="filebot.launcher.exe" EntryPoint="Windows.FullTrustApplication">
+			<uap:VisualElements DisplayName="@{application.name}" Description="@{package.synopsis}" BackgroundColor="transparent" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" >
+				<uap:DefaultTile ShortName="@{application.name}" Wide310x150Logo="Assets\Wide310x150Logo.png" Square310x310Logo="Assets\Square310x310Logo.png" Square71x71Logo="Assets\Square71x71Logo.png">
+					<uap:ShowNameOnTiles>
+						<uap:ShowOn Tile="square150x150Logo" />
+						<uap:ShowOn Tile="wide310x150Logo" />
+						<uap:ShowOn Tile="square310x310Logo" />
+					</uap:ShowNameOnTiles>
+				</uap:DefaultTile>
+			</uap:VisualElements>
+			<Extensions>
+				<uap3:Extension Category="windows.appExecutionAlias" Executable="filebot.launcher.exe" EntryPoint="Windows.FullTrustApplication">
+					<uap3:AppExecutionAlias>
+						<desktop:ExecutionAlias Alias="filebot.launcher.exe" />
+					</uap3:AppExecutionAlias>
+				</uap3:Extension>
+			</Extensions>
+		</Application>
+		<Application Id="@{package.identifier}.Command" Executable="filebot.exe" EntryPoint="Windows.FullTrustApplication">
+			<uap:VisualElements DisplayName="@{application.name} (console)" Description="Run @{application.name} with Console" AppListEntry="none" BackgroundColor="black" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" >
+				<uap:DefaultTile ShortName="@{application.name} (console)" Wide310x150Logo="Assets\Wide310x150Logo.png" Square310x310Logo="Assets\Square310x310Logo.png" Square71x71Logo="Assets\Square71x71Logo.png">
+					<uap:ShowNameOnTiles>
+						<uap:ShowOn Tile="square150x150Logo" />
+						<uap:ShowOn Tile="wide310x150Logo" />
+						<uap:ShowOn Tile="square310x310Logo" />
+					</uap:ShowNameOnTiles>
+				</uap:DefaultTile>
+			</uap:VisualElements>
 			<Extensions>
 				<uap3:Extension Category="windows.appExecutionAlias" Executable="filebot.exe" EntryPoint="Windows.FullTrustApplication">
 					<uap3:AppExecutionAlias>
 						<desktop:ExecutionAlias Alias="filebot.exe" />
-					</uap3:AppExecutionAlias>
-				</uap3:Extension>
-				<uap3:Extension Category="windows.appExecutionAlias" Executable="filebot.launcher.exe" EntryPoint="Windows.FullTrustApplication">
-					<uap3:AppExecutionAlias>
-						<desktop:ExecutionAlias Alias="filebot.launcher.exe" />
 					</uap3:AppExecutionAlias>
 				</uap3:Extension>
 			</Extensions>

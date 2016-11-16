@@ -11,3 +11,7 @@ website/data/
 
 *.sh
 *.cmd
+
+*.cer
+*.pfx
+*.pvk
