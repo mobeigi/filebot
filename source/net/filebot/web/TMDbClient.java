@@ -411,7 +411,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 	}
 
 	public static enum MovieProperty {
-		adult, backdrop_path, budget, homepage, id, imdb_id, original_title, overview, popularity, poster_path, release_date, revenue, runtime, tagline, title, vote_average, vote_count, certification, collection
+		adult, backdrop_path, budget, homepage, id, imdb_id, original_title, original_language, overview, popularity, poster_path, release_date, revenue, runtime, tagline, title, vote_average, vote_count, certification, collection
 	}
 
 	public static class MovieInfo implements Crew, Serializable {
@@ -470,6 +470,10 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 
 		public String getOriginalName() {
 			return get(MovieProperty.original_title);
+		}
+
+		public String getOriginalLanguage() {
+			return get(MovieProperty.original_language);
 		}
 
 		public String getCollection() {

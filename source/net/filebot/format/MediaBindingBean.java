@@ -759,6 +759,11 @@ public class MediaBindingBean {
 		return getMediaInfo(StreamKind.General, 0, "Title", "Movie");
 	}
 
+	@Define("audioLanguages")
+	public List<Language> getAudioLanguageList() {
+		return getMediaInfo(StreamKind.Audio, "Language").filter(Objects::nonNull).distinct().map(Language::findLanguage).filter(Objects::nonNull).collect(toList());
+	}
+
 	@Define("textLanguages")
 	public List<Language> getTextLanguageList() {
 		return getMediaInfo(StreamKind.Text, "Language").filter(Objects::nonNull).distinct().map(Language::findLanguage).filter(Objects::nonNull).collect(toList());
