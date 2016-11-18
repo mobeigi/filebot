@@ -3,12 +3,14 @@ package net.filebot.gio;
 import java.io.File;
 import java.net.URI;
 
+import net.filebot.util.SystemProperty;
+
 public interface GVFS {
 
 	File getPathForURI(URI uri);
 
 	public static GVFS getDefaultVFS() {
-		return new PlatformGVFS();
+		return SystemProperty.of("net.filebot.gio.GVFS", PlatformGVFS::new, NativeGVFS::new).get();
 	}
 
 }
