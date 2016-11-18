@@ -4,31 +4,26 @@ import static net.filebot.Logging.*;
 
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 
 public class SystemProperty<T> {
-
-	public static <T> SystemProperty<T> of(String key, Function<String, T> valueFunction, T defaultValue) {
-		return new SystemProperty<T>(key, valueFunction, () -> defaultValue);
-	}
 
 	public static <T> SystemProperty<T> of(String key, Function<String, T> valueFunction) {
 		return new SystemProperty<T>(key, valueFunction, null);
 	}
 
-	public static <T> SystemProperty<T> of(String key, Function<String, T> valueFunction, Supplier<T> defaultValue) {
+	public static <T> SystemProperty<T> of(String key, Function<String, T> valueFunction, T defaultValue) {
 		return new SystemProperty<T>(key, valueFunction, defaultValue);
 	}
 
 	private final String key;
 	private final Function<String, T> valueFunction;
-	private final Supplier<T> defaultValueFunction;
+	private final T defaultValue;
 
-	private SystemProperty(String key, Function<String, T> valueFunction, Supplier<T> defaultValue) {
+	private SystemProperty(String key, Function<String, T> valueFunction, T defaultValue) {
 		this.key = key;
 		this.valueFunction = valueFunction;
-		this.defaultValueFunction = defaultValue;
+		this.defaultValue = defaultValue;
 	}
 
 	public T get() {
@@ -42,7 +37,7 @@ public class SystemProperty<T> {
 			}
 		}
 
-		return defaultValueFunction == null ? null : defaultValueFunction.get();
+		return defaultValue;
 	}
 
 	public Optional<T> optional() {
