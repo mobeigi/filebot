@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 
 import org.w3c.dom.Document;
 
@@ -96,8 +97,8 @@ public class CachedResource<K, R> implements Resource<R> {
 				}
 
 				return parse.transform(data);
-			} catch (IOException e) {
-				debug.warning(format("Fetch failed: %s [%s]", e, url));
+			} catch (Exception e) {
+				debug.severe(format("Fetch failed: %s [%s]", e, url));
 
 				// use previously cached data if possible
 				if (element == null || element.getObjectValue() == null) {
@@ -126,7 +127,7 @@ public class CachedResource<K, R> implements Resource<R> {
 				throw e;
 			}
 
-			debug.fine(format("Fetch failed: Try again in %d seconds (%d more) => %s", retryWaitTime.getSeconds(), retryCount, e));
+			debug.warning(format("Fetch failed: Try again in %d seconds (%d more) => %s", retryWaitTime.getSeconds(), retryCount, e));
 			Thread.sleep(retryWaitTime.toMillis());
 			return retry(callable, retryCount - 1, retryWaitTime.multipliedBy(2));
 		}
@@ -164,16 +165,26 @@ public class CachedResource<K, R> implements Resource<R> {
 	public static <T> Transform<T, String> validateXml(Transform<T, String> parse) {
 		return object -> {
 			String xml = parse.transform(object);
-			WebRequest.validateXml(xml);
-			return xml;
+			try {
+				WebRequest.validateXml(xml);
+				return xml;
+			} catch (Exception e) {
+				debug.log(Level.WARNING, xml, e);
+				throw e;
+			}
 		};
 	}
 
 	public static <T> Transform<T, String> validateJson(Transform<T, String> parse) {
 		return object -> {
 			String json = parse.transform(object);
-			JsonUtilities.readJson(json);
-			return json;
+			try {
+				JsonUtilities.readJson(json);
+				return json;
+			} catch (Exception e) {
+				debug.log(Level.WARNING, json, e);
+				throw e;
+			}
 		};
 	}
 
