@@ -10,7 +10,7 @@ public interface GVFS {
 	File getPathForURI(URI uri);
 
 	public static GVFS getDefaultVFS() {
-		return SystemProperty.of("net.filebot.gio.GVFS", PlatformGVFS::new, NativeGVFS::new).get();
+		return SystemProperty.of("net.filebot.gio.GVFS", path -> new PlatformGVFS(new File(path)), NativeGVFS::new).get();
 	}
 
 }

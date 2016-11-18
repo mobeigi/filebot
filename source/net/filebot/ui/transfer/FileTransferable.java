@@ -107,8 +107,7 @@ public class FileTransferable implements Transferable {
 						}
 
 						try {
-							URI uri = new URI(line);
-							File file = GVFS.getDefaultVFS().getPathForURI(uri);
+							File file = GVFS.getDefaultVFS().getPathForURI(new URI(line));
 
 							if (file == null || !file.exists()) {
 								throw new FileNotFoundException(line);
@@ -116,8 +115,7 @@ public class FileTransferable implements Transferable {
 
 							files.add(file);
 						} catch (Throwable e) {
-							// URISyntaxException, IllegalArgumentException, FileNotFoundException, LinkageError, etc
-							debug.warning("Invalid file URI: " + line);
+							debug.warning(e::toString);
 						}
 					}
 

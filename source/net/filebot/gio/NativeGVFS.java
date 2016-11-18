@@ -17,10 +17,11 @@ public class NativeGVFS implements GVFS {
 		Pointer chars = lib_gio.g_file_get_path(gfile);
 
 		try {
-			if (chars != null)
+			if (chars != null) {
 				return new File(chars.getString(0));
-			else
-				return null;
+			}
+
+			throw new IllegalArgumentException("Failed to locate local path: " + uri);
 		} finally {
 			lib_gio.g_object_unref(gfile);
 			lib_gio.g_free(chars);
