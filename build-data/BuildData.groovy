@@ -4,13 +4,12 @@ import java.util.regex.*
 import org.tukaani.xz.*
 
 
-/* ------------------------------------------------------------------------- */
+// ------------------------------ UPDATE LISTS ------------------------------ //
+
 
 def dir_root    = project as File
 def dir_website = dir_root.resolve('website')
 def dir_data    = dir_website.resolve('data')
-
-dir_data.mkdirs()
 
 // sort and check shared regex collections
 def dir_data_master = System.getProperty('net.filebot.data.master', 'https://raw.githubusercontent.com/filebot/data/master')
@@ -35,7 +34,7 @@ def dir_data_master = System.getProperty('net.filebot.data.master', 'https://raw
 }
 
 
-/* ------------------------------------------------------------------------- */
+// ------------------------------ UPDATE REVIEWS ------------------------------ //
 
 
 def reviews = []
@@ -52,7 +51,7 @@ json.toPrettyString().saveAs(dir_website.resolve('reviews.json'))
 log.info "Reviews: " + reviews.size()
 
 
-/* ------------------------------------------------------------------------- */
+// ------------------------------ FUNCTIONS ------------------------------ //
 
 
 def moviedb_out = dir_data.resolve('moviedb.txt')
@@ -78,9 +77,6 @@ def pack(file, lines) {
 }
 
 
-/* ------------------------------------------------------------------------- */
-
-
 def isValidMovieName(s) {
 	return (s.normalizePunctuation().length() >= 4) || (s=~ /^[A-Z0-9]/ && s =~ /[\p{Alnum}]{3}/)
 }
@@ -99,7 +95,6 @@ def getNamePermutations(names) {
 
 	out = out.findAll{ it.length() >= 2 && !(it ==~ /[1][0-9][1-9]/) && !(it =~ /^[a-z]/) && it =~ /^[@.\p{L}\p{Digit}]/ } // MUST START WITH UNICODE LETTER
 	out = out.findAll{ !MediaDetection.releaseInfo.structureRootPattern.matcher(it).matches() } // IGNORE NAMES THAT OVERLAP WITH MEDIA FOLDER NAMES
-	// out = out.findAll{ a -> names.take(1).contains(a) || out.findAll{ b -> normalize(a).startsWith(normalize(b) + ' ') }.size() == 0 } // TRY TO EXCLUDE REDUNDANT SUBSTRING DUPLICATES
 
 	return out
 }
@@ -123,47 +118,27 @@ def csv(f, delim, keyIndex, valueIndex) {
 }
 
 
-/* ------------------------------------------------------------------------- */
+// ------------------------------ BUILD MOVIE INDEX ------------------------------ //
+
 
 if (_args.mode == /no-index/) {
 	return
 }
 
-/* ------------------------------------------------------------------------- */
 
+def movies_index = [:]
 
-// BUILD moviedb index
-def omdb = new TreeMap()
-('omdbMovies.txt' as File).splitEachLine(/\t/, 'Windows-1252'){ line ->
-	if (line.size() > 11 && line[0] ==~ /\d+/ && line[3] ==~ /\d{4}/) {
-		def imdbid = line[1].substring(2).toInteger()
-		def name = line[2].replaceAll(/\s+/, ' ').trim()
-		def year = line[3].toInteger()
-		def runtime = line[5]
-		def genres = line[6]
-		def rating = tryQuietly{ line[12].toFloat() } ?: 0
-		def votes = tryQuietly{ line[13].replaceAll(/\D/, '').toInteger() } ?: 0
-
-		if (!(genres =~ /Short/ || votes <= 100 || rating <= 2) && ((year >= 1970 && (runtime =~ /(\d.h)|(\d{2,3}.min)/ || votes >= 1000)) || (year >= 1950 && votes >= 20000))) {
-			omdb[imdbid] = [imdbid.pad(7), name, year]
-		}
-	}
+['ancient-movies.txt', 'recent-movies.txt'].each{
+	movies_index << csv(it as File, '\t', 1, [1..-1])
 }
-('recent-movies.txt' as File).splitEachLine(/\t/, 'UTF-8'){ line ->
-		def imdbid = line[1].toInteger()
-		def year = line[2].toInteger()
-		def name = line[3]
-		omdb[imdbid] = [imdbid.pad(7), name, year]
-}
-
 
 def tmdb_txt = 'tmdb.txt' as File
 def tmdb_index = csv(tmdb_txt, '\t', 1, [0..-1])
 
 def tmdb = []
-omdb.values().findAll{ (it[0] as int) <= 9999999 && isValidMovieName(it[1]) }.each{ m ->
+movies_index.values().each{ m ->
 	def sync = System.currentTimeMillis()
-	if (tmdb_index.containsKey(m[0]) && (sync - tmdb_index[m[0]][0].toLong()) < ((m[2].toInteger() < 2000 ? 360 : 120) * 24 * 60 * 60 * 1000L) ) {
+	if (tmdb_index.containsKey(m[0]) && (sync - tmdb_index[m[0]][0].toLong()) < ((m[1].toInteger() < 2000 ? 360 : 120) * 24 * 60 * 60 * 1000L) ) {
 		tmdb << tmdb_index[m[0]]
 		return
 	}
@@ -174,19 +149,21 @@ omdb.values().findAll{ (it[0] as int) <= 9999999 && isValidMovieName(it[1]) }.ea
 			throw new IllegalArgumentException('Insufficient movie data: ' + info)
 
 		def names = [info.name, info.originalName] + info.alternativeTitles
-		[info?.released?.year, m[2]].findResults{ it?.toInteger() }.unique().each{ y ->
+		[info?.released?.year, m[1]].findResults{ it?.toInteger() }.unique().each{ y ->
 			def row = [sync, m[0].pad(7), info.id.pad(7), y.pad(4)] + names
 			log.info "Update ${m[0..2]}: $row"
 			tmdb << row
 		}
 	} catch(IllegalArgumentException | FileNotFoundException e) {
 		printException(e)
-		def row = [sync, m[0].pad(7), 0, m[2], m[1]]
-		log.info "[BAD] Update ${m[0..2]}: $row"
+		def row = [sync, m[0].pad(7), 0, m[1], m[2]]
+		log.info "[BAD] Update $m: $row"
 		tmdb << row
 	}
 }
+
 tmdb*.join('\t').join('\n').saveAs(tmdb_txt)
+
 
 def movies = tmdb.findResults{
 	def ity = it[1..3] // imdb id, tmdb id, year
@@ -203,10 +180,9 @@ if (movies.size() < 20000) { die('Movie index sanity failed:' + movies.size()) }
 pack(moviedb_out, movies*.join('\t'))
 
 
-/* ------------------------------------------------------------------------- */
+// ------------------------------ BUILD SERIES INDEX ------------------------------ //
 
 
-// BUILD tvdb index
 def tvdb_txt = 'tvdb.txt' as File
 def tvdb = [:]
 
@@ -342,10 +318,9 @@ if (thetvdb_txt.size() < 4000) { die('TheTVDB index sanity failed: ' + thetvdb_t
 pack(thetvdb_out, thetvdb_txt)
 
 
-/* ------------------------------------------------------------------------- */
+// ------------------------------ BUILD OSDB INDEX ------------------------------ //
 
 
-// BUILD osdb index
 def osdb = []
 
 ('osdb.txt' as File).eachLine('UTF-8'){
@@ -392,10 +367,9 @@ if (osdb.size() < 15000) { die('OSDB index sanity failed:' + osdb.size()) }
 pack(osdb_out, osdb*.join('\t'))
 
 
-/* ------------------------------------------------------------------------- */
+// ------------------------------ BUILD ANIDB INDEX ------------------------------ //
 
 
-// BUILD anidb index
 def anidb = new AnidbClient('filebot', 6).getAnimeTitles() as List
 def animeExcludes = [] as Set
 
