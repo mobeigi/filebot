@@ -55,14 +55,8 @@ public class GettingStartedStage {
 		Stage stage = new Stage();
 		stage.setResizable(false);
 
-		if (isMacApp()) {
-			stage.initStyle(StageStyle.DECORATED);
-			stage.initModality(Modality.NONE);
-		} else {
-			// Windows / Linux specific configuration
-			stage.initStyle(StageStyle.UTILITY);
-			stage.initModality(Modality.NONE);
-		}
+		stage.initStyle(StageStyle.UTILITY);
+		stage.initModality(Modality.NONE);
 
 		return new GettingStartedStage(stage);
 	}
