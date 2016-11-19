@@ -80,14 +80,14 @@ public class ExpressionFormatFunctions {
 	}
 
 	public static List<String> readLines(String path) throws IOException {
-		return FileUtilities.readLines(getFile(path));
+		return FileUtilities.readLines(getUserFile(path));
 	}
 
 	public static Object readXml(String path) throws Exception {
-		return new XmlSlurper().parse(getFile(path));
+		return new XmlSlurper().parse(getUserFile(path));
 	}
 
-	public static File getFile(String path) {
+	public static File getUserFile(String path) {
 		File f = new File(path);
 
 		if (!f.isAbsolute()) {
