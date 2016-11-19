@@ -6,8 +6,7 @@ import org.tukaani.xz.*
 
 /* ------------------------------------------------------------------------- */
 
-
-def dir_root    = ('..' as File).getCanonicalFile()
+def dir_root    = project as File
 def dir_website = dir_root.resolve('website')
 def dir_data    = dir_website.resolve('data')
 
