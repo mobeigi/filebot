@@ -285,7 +285,7 @@ public class Main {
 				dialog.setContentPane(pane);
 
 				pane.add(new JLabel(ResourceManager.getIcon("window.icon.medium")), "aligny top");
-				pane.add(new JLabel(update.get("message")), "gap 10, wrap paragraph:push");
+				pane.add(new JLabel(update.get("message")), "aligny top, gap 10, wrap paragraph:push");
 
 				pane.add(newButton("Download", ResourceManager.getIcon("dialog.continue"), evt -> {
 					openURI(update.get("download"));

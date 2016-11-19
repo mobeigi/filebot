@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
@@ -119,7 +118,7 @@ public class DropToUnlock extends JList<File> {
 	}
 
 	public static boolean showUnlockFoldersDialog(Window owner, Collection<File> files) {
-		final List<File> model = getParentFolders(files);
+		List<File> model = getParentFolders(files);
 
 		// immediately return if there is nothing that needs to be unlocked
 		if (model.isEmpty()) {
@@ -135,67 +134,64 @@ public class DropToUnlock extends JList<File> {
 		}
 
 		// show selection dialog on EDT
-		RunnableFuture<Boolean> showPermissionDialog = new FutureTask<Boolean>(new Callable<Boolean>() {
+		RunnableFuture<Boolean> showPermissionDialog = new FutureTask<Boolean>(() -> {
+			JDialog dialog = new JDialog(owner);
+			AtomicBoolean dialogCancelled = new AtomicBoolean(true);
 
-			@Override
-			public Boolean call() throws Exception {
-				final JDialog dialog = new JDialog(owner);
-				final AtomicBoolean dialogCancelled = new AtomicBoolean(true);
-				DropToUnlock d = new DropToUnlock(model) {
+			DropToUnlock d = new DropToUnlock(model) {
 
-					@Override
-					public void updateLockStatus(File... folders) {
-						super.updateLockStatus(folders);
+				@Override
+				public void updateLockStatus(File... folders) {
+					super.updateLockStatus(folders);
 
-						// if all folders have been unlocked auto-close dialog
-						if (model.stream().allMatch(f -> !isLockedFolder(f))) {
-							dialogCancelled.set(false);
-							invokeLater(750, () -> dialog.setVisible(false)); // auto-close unlock dialog once all folders have been unlocked
-							invokeLater(1000, () -> requestForeground()); // bring application to foreground now that folders have been unlocked
-						} else {
-							model.stream().filter(f -> isLockedFolder(f)).findFirst().ifPresent(f -> {
-								invokeLater(250, () -> {
-									revealFiles(singleton(f));
-								});
+					// if all folders have been unlocked auto-close dialog
+					if (model.stream().allMatch(f -> !isLockedFolder(f))) {
+						dialogCancelled.set(false);
+						invokeLater(750, () -> dialog.setVisible(false)); // auto-close unlock dialog once all folders have been unlocked
+						invokeLater(1000, () -> requestForeground()); // bring application to foreground now that folders have been unlocked
+					} else {
+						model.stream().filter(f -> isLockedFolder(f)).findFirst().ifPresent(f -> {
+							invokeLater(250, () -> {
+								revealFiles(singleton(f));
 							});
-						}
-					};
+						});
+					}
 				};
-				d.setBorder(createEmptyBorder(5, 15, 120, 15));
+			};
+			d.setBorder(createEmptyBorder(5, 15, 120, 15));
 
-				JComponent c = (JComponent) dialog.getContentPane();
-				c.setLayout(new MigLayout("insets 0, fill"));
+			JComponent c = (JComponent) dialog.getContentPane();
+			c.setLayout(new MigLayout("insets 0, fill"));
 
-				HeaderPanel h = new HeaderPanel();
-				h.getTitleLabel().setText("Folder Permissions Required");
-				h.getTitleLabel().setIcon(ResourceManager.getIcon("file.lock"));
-				h.getTitleLabel().setBorder(createEmptyBorder(0, 0, 0, 64));
+			HeaderPanel h = new HeaderPanel();
+			h.getTitleLabel().setText("Folder Permissions Required");
+			h.getTitleLabel().setIcon(ResourceManager.getIcon("file.lock"));
+			h.getTitleLabel().setBorder(createEmptyBorder(0, 0, 0, 64));
 
-				JLabel help = new JLabel("<html>FileBot does not have permission to access the folder above. To allow FileBot access, drag and drop the folder from Finder onto the drop area above</b>. The permissions for this folder (and all the folders it contains) will be remembered and FileBot will not need to ask for it again.</html>");
-				help.setBorder(createCompoundBorder(new SeparatorBorder(1, new Color(0xB4B4B4), new Color(0xACACAC), GradientStyle.LEFT_TO_RIGHT, Position.TOP), createTitledBorder("About App Sandboxing")));
+			JLabel help = new JLabel("<html>FileBot does not have permission to access the folder above. To allow FileBot access, drag and drop the folder from Finder onto the drop area above</b>. The permissions for this folder (and all the folders it contains) will be remembered and FileBot will not need to ask for it again.</html>");
+			help.setBorder(createCompoundBorder(new SeparatorBorder(1, new Color(0xB4B4B4), new Color(0xACACAC), GradientStyle.LEFT_TO_RIGHT, Position.TOP), createTitledBorder("About App Sandboxing")));
 
-				c.add(h, "wmin 150px, hmin 75px, growx, dock north");
-				c.add(d, "wmin 150px, hmin 150px, grow");
-				c.add(help, "wmin 150px, hmin 75px, growx, dock south");
+			c.add(h, "wmin 150px, hmin 75px, growx, dock north");
+			c.add(d, "wmin 150px, hmin 150px, grow");
+			c.add(help, "wmin 150px, hmin 75px, growx, aligny center, dock south");
 
-				dialog.setModal(true);
-				dialog.setModalExclusionType(ModalExclusionType.TOOLKIT_EXCLUDE);
-				dialog.setSize(new Dimension(540, 500));
-				dialog.setResizable(false);
-				dialog.setLocationByPlatform(true);
-				dialog.setAlwaysOnTop(true);
+			dialog.setModal(true);
+			dialog.setModalExclusionType(ModalExclusionType.TOOLKIT_EXCLUDE);
+			dialog.setSize(new Dimension(540, 500));
+			dialog.setResizable(false);
+			dialog.setLocationByPlatform(true);
+			dialog.setAlwaysOnTop(true);
 
-				// open required folders for easy drag and drop (a few milliseconds after the dialog has become visible)
-				invokeLater(500, () -> {
-					revealFiles(model);
-				});
+			// open required folders for easy drag and drop (a few milliseconds after the dialog has become visible)
+			invokeLater(500, () -> {
+				revealFiles(model);
+			});
 
-				// show and wait for user input
-				dialog.setVisible(true);
+			// show and wait for user input
+			dialog.setVisible(true);
 
-				// abort if user has closed the window before all folders have been unlocked
-				return !dialogCancelled.get();
-			}
+			// abort if user has closed the window before all folders have been unlocked
+			return !dialogCancelled.get();
 		});
 
 		// show dialog on EDT and wait for user input
