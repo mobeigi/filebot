@@ -30,7 +30,7 @@ import net.filebot.web.WebRequest;
 public class CachedResource<K, R> implements Resource<R> {
 
 	public static final int DEFAULT_RETRY_LIMIT = 2;
-	public static final Duration DEFAULT_RETRY_DELAY = Duration.ofSeconds(2);
+	public static final Duration DEFAULT_RETRY_DELAY = Duration.ofSeconds(5);
 
 	private K key;
 
