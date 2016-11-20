@@ -3,6 +3,7 @@ package net.filebot.format;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.RegularExpressions.*;
 
 import java.security.AccessController;
 import java.text.FieldPosition;
@@ -65,7 +66,7 @@ public class ExpressionFormat extends Format {
 			if (c == open) {
 				if (level == 0) {
 					if (token.length() > 0) {
-						compilation.add(token.toString());
+						compilation.add(NEWLINE.matcher(token).replaceAll(""));
 						token.setLength(0);
 					}
 				} else {
