@@ -1,6 +1,7 @@
 
 package net.filebot.media;
 
+import static java.util.Collections.*;
 import static org.junit.Assert.*;
 
 import java.util.regex.Pattern;
@@ -41,6 +42,9 @@ public class ReleaseInfoTest {
 
 		assertEquals("DVL", info.getReleaseGroup("Movie-DVL"));
 		assertEquals("iMBT", info.getReleaseGroup("The.Legend.Of.Zorro-iMBT"));
+
+		assertEquals("[The Legend of the Blue Sea]", info.cleanRelease(singleton("The.Legend.of.the.Blue.Sea.E01"), false).toString());
+		assertEquals("[The Legend of the Blue Sea]", info.cleanRelease(singleton("[Legend].The.Legend.of.the.Blue.Sea.E01-Legend"), false).toString());
 	}
 
 	@Test

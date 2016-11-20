@@ -336,7 +336,7 @@ public class ReleaseInfo {
 		String group = "((?<!\\p{Alnum})" + or(releaseGroup.get()) + "(?!\\p{Alnum})[\\p{Punct}]??)+";
 
 		// group pattern at beginning or ending of the string
-		String[] groupHeadTail = { "(?<=^[^\\p{Alnum}]*)" + group, group + "(?=[\\p{Alpha}\\p{Punct}]*$)" };
+		String[] groupHeadTail = { "(?<=^[\\P{Alnum}]*)" + group, group + "(?=[\\P{Alnum}]*$)" };
 
 		return compile(or(groupHeadTail), strict ? 0 : CASE_INSENSITIVE);
 	}
