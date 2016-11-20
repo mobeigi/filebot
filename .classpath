@@ -9,7 +9,7 @@
 	<classpathentry kind="lib" path="lib/jars/xmlrpc.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/ehcache.jar" sourcepath="lib/ivy/source/ehcache.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/glazedlists_java15.jar" sourcepath="lib/ivy/source/glazedlists_java15.jar"/>
-	<classpathentry kind="lib" path="lib/ivy/jar/icu4j.jar"/>
+	<classpathentry kind="lib" path="lib/ivy/jar/icu4j.jar" sourcepath="lib/ivy/source/icu4j.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/jna.jar" sourcepath="lib/ivy/source/jna.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/junit.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/miglayout-core.jar"/>

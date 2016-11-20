@@ -1,5 +1,6 @@
 package net.filebot.subtitle;
 
+import static java.nio.charset.StandardCharsets.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
@@ -10,11 +11,10 @@ import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,6 +32,8 @@ import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.apache.commons.io.IOUtils;
 
 import com.optimaize.langdetect.DetectedLanguage;
 import com.optimaize.langdetect.LanguageDetector;
@@ -53,7 +55,7 @@ import net.filebot.similarity.SequenceMatchSimilarity;
 import net.filebot.similarity.SimilarityComparator;
 import net.filebot.similarity.SimilarityMetric;
 import net.filebot.util.ByteBufferInputStream;
-import net.filebot.util.UnicodeReader;
+import net.filebot.util.ByteBufferOutputStream;
 import net.filebot.vfs.ArchiveType;
 import net.filebot.vfs.MemoryFile;
 import net.filebot.web.Movie;
@@ -325,7 +327,7 @@ public final class SubtitleUtilities {
 		// decode subtitle file with the first reader that seems to work
 		for (SubtitleFormat format : likelyFormats) {
 			// decode bytes and beware of byte-order marks
-			Reader reader = new UnicodeReader(new ByteBufferInputStream(file.getData()), true, StandardCharsets.UTF_8);
+			Reader reader = createTextReader(new ByteBufferInputStream(file.getData()), true, UTF_8);
 
 			// reset reader to position 0
 			SubtitleReader parser = format.newReader(reader);
@@ -347,29 +349,31 @@ public final class SubtitleUtilities {
 		throw new IOException("Subtitle format not supported");
 	}
 
-	public static ByteBuffer exportSubtitles(MemoryFile data, SubtitleFormat outputFormat, long outputTimingOffset, Charset outputEncoding) throws IOException {
+	public static ByteBuffer exportSubtitles(MemoryFile file, SubtitleFormat outputFormat, long outputTimingOffset, Charset outputEncoding) throws IOException {
 		if (outputFormat != null && outputFormat != SubtitleFormat.SubRip) {
 			throw new IllegalArgumentException("Format not supported");
 		}
 
-		// convert to target format and target encoding
+		ByteBufferOutputStream buffer = new ByteBufferOutputStream(file.size());
+		OutputStreamWriter writer = new OutputStreamWriter(buffer, outputEncoding);
+
 		if (outputFormat == SubtitleFormat.SubRip) {
-			// output buffer
-			StringBuilder buffer = new StringBuilder(4 * 1024);
-			try (SubRipWriter out = new SubRipWriter(buffer)) {
-				for (SubtitleElement it : decodeSubtitles(data)) {
+			// convert to target format and target encoding
+			try (SubRipWriter out = new SubRipWriter(writer)) {
+				for (SubtitleElement it : decodeSubtitles(file)) {
 					if (outputTimingOffset != 0) {
 						it = new SubtitleElement(Math.max(0, it.getStart() + outputTimingOffset), Math.max(0, it.getEnd() + outputTimingOffset), it.getText());
 					}
 					out.write(it);
 				}
 			}
-
-			return outputEncoding.encode(CharBuffer.wrap(buffer));
+		} else {
+			// convert only text encoding
+			Reader reader = createTextReader(new ByteBufferInputStream(file.getData()), true, UTF_8);
+			IOUtils.copy(reader, writer);
 		}
 
-		// only change encoding
-		return outputEncoding.encode(getText(data.getData()));
+		return buffer.getByteBuffer();
 	}
 
 	public static SubtitleFormat getSubtitleFormat(File file) {

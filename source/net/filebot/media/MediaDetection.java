@@ -1219,7 +1219,7 @@ public class MediaDetection {
 		// parse ids from nfo files
 		for (File nfo : nfoFiles) {
 			try {
-				String text = new String(readFile(nfo), "UTF-8");
+				String text = readTextFile(nfo);
 				collection.addAll(grepImdbId(text));
 			} catch (Exception e) {
 				debug.warning("Failed to read nfo: " + e.getMessage());
@@ -1246,7 +1246,7 @@ public class MediaDetection {
 				continue;
 
 			for (File nfo : getChildren(folder, NFO_FILES)) {
-				String text = new String(readFile(nfo), "UTF-8");
+				String text = readTextFile(nfo);
 
 				for (int imdbid : grepImdbId(text)) {
 					SearchResult series = WebServices.TheTVDB.lookupByIMDbID(imdbid, language);

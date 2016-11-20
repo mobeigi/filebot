@@ -3,6 +3,7 @@ package net.filebot.ui.subtitle.upload;
 import static java.util.Collections.*;
 import static net.filebot.Logging.*;
 import static net.filebot.media.MediaDetection.*;
+import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
@@ -32,7 +33,6 @@ import net.filebot.Language;
 import net.filebot.ResourceManager;
 import net.filebot.WebServices;
 import net.filebot.media.MediaDetection;
-import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.EmptySelectionModel;
 import net.filebot.web.Movie;
 import net.filebot.web.OpenSubtitlesClient;
@@ -151,7 +151,7 @@ public class SubtitleUploadDialog extends JDialog {
 			if (mapping.getLanguage() == null) {
 				mapping.setState(Status.Identifying);
 				try {
-					Locale locale = database.detectLanguage(FileUtilities.readFile(mapping.getSubtitle()));
+					Locale locale = database.detectLanguage(readFile(mapping.getSubtitle()));
 					mapping.setLanguage(Language.getLanguage(locale));
 				} catch (Exception e) {
 					debug.log(Level.WARNING, "Failed to auto-detect language: " + e.getMessage());

@@ -4,23 +4,22 @@ import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.Comparator.*;
-import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.util.RegularExpressions.*;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.FileVisitOption;
@@ -48,7 +47,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
@@ -196,18 +194,21 @@ public final class FileUtilities {
 		return Files.readAllBytes(file.toPath());
 	}
 
-	public static <R, A> R readLines(File file, Collector<? super String, A, R> collector) throws IOException {
-		try (BufferedReader reader = new BufferedReader(new UnicodeReader(new ByteArrayInputStream(readFile(file)), false, UTF_8))) {
-			return reader.lines().collect(collector);
+	public static String readTextFile(File file) throws IOException {
+		byte[] bytes = readFile(file);
+
+		// check BOM
+		BOM bom = BOM.detect(bytes);
+
+		if (bom != null) {
+			return new String(bytes, bom.size(), bytes.length - bom.size(), bom.getCharset());
+		} else {
+			return new String(bytes, UTF_8);
 		}
 	}
 
 	public static List<String> readLines(File file) throws IOException {
-		return readLines(file, toList());
-	}
-
-	public static String readTextFile(File file) throws IOException {
-		return readLines(file, joining(System.lineSeparator()));
+		return asList(NEWLINE.split(readTextFile(file)));
 	}
 
 	public static File writeFile(ByteBuffer data, File destination) throws IOException {
@@ -217,35 +218,37 @@ public final class FileUtilities {
 		return destination;
 	}
 
-	public static Reader createTextReader(File file) throws IOException {
-		CharsetDetector detector = new CharsetDetector();
-		detector.setDeclaredEncoding("UTF-8"); // small boost for UTF-8 as default encoding
-		detector.setText(new BufferedInputStream(new FileInputStream(file)));
+	public static Reader createTextReader(InputStream in, boolean guess, Charset declaredEncoding) throws IOException {
+		byte head[] = new byte[BOM.SIZE];
+		in.mark(head.length);
+		in.read(head);
+		in.reset(); // rewind
 
-		CharsetMatch charset = detector.detect();
-		if (charset != null)
-			return charset.getReader();
+		// check BOM
+		BOM bom = BOM.detect(head);
 
-		// assume UTF-8 by default
-		return new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
-	}
+		if (bom != null) {
+			in.skip(bom.size()); // skip BOM
+			return new InputStreamReader(in, bom.getCharset());
+		}
 
-	public static String getText(ByteBuffer data) throws IOException {
-		CharsetDetector detector = new CharsetDetector();
-		detector.setDeclaredEncoding("UTF-8"); // small boost for UTF-8 as default encoding
-		detector.setText(new ByteBufferInputStream(data));
-
-		CharsetMatch charset = detector.detect();
-		if (charset != null) {
-			try {
-				return charset.getString();
-			} catch (RuntimeException e) {
-				throw new IOException("Failed to read text", e);
+		// auto-detect character encoding
+		if (guess) {
+			CharsetDetector detector = new CharsetDetector();
+			detector.setDeclaredEncoding(declaredEncoding.name());
+			detector.setText(in);
+			CharsetMatch match = detector.detect();
+			if (match != null) {
+				return match.getReader();
 			}
 		}
 
-		// assume UTF-8 by default
-		return UTF_8.decode(data).toString();
+		// default to declared encoding
+		return new InputStreamReader(in, declaredEncoding);
+	}
+
+	public static Reader createTextReader(File file) throws IOException {
+		return createTextReader(new BufferedInputStream(new FileInputStream(file), BUFFER_SIZE), true, UTF_8);
 	}
 
 	public static boolean equalsCaseSensitive(File a, File b) {
