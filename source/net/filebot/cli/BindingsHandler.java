@@ -70,7 +70,7 @@ public class BindingsHandler extends MapOptionHandler {
 			try {
 				return readTextFile(f).trim();
 			} catch (IOException e) {
-				throw new CmdLineException(owner, e.getMessage(), e);
+				throw new CmdLineException(owner, "Failed to read @file", e);
 			}
 		}
 		return v;

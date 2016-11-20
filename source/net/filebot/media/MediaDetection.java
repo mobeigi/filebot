@@ -583,11 +583,15 @@ public class MediaDetection {
 			}
 
 			// try to grep imdb id from nfo files
-			for (int imdbid : grepImdbIdFor(movieFile)) {
-				Movie movie = service.getMovieDescriptor(new Movie(imdbid), locale);
-				if (movie != null) {
-					options.add(movie);
+			try {
+				for (int imdbid : grepImdbIdFor(movieFile)) {
+					Movie movie = service.getMovieDescriptor(new Movie(imdbid), locale);
+					if (movie != null) {
+						options.add(movie);
+					}
 				}
+			} catch (Exception e) {
+				debug.warning("Failed to lookup info by id: " + e);
 			}
 		}
 
@@ -1210,20 +1214,16 @@ public class MediaDetection {
 	public static Set<Integer> grepImdbIdFor(File file) throws Exception {
 		Set<Integer> collection = new LinkedHashSet<Integer>();
 		List<File> nfoFiles = new ArrayList<File>();
+
 		if (file.isDirectory()) {
 			nfoFiles.addAll(listFiles(file, NFO_FILES));
 		} else if (file.getParentFile() != null && file.getParentFile().isDirectory()) {
 			nfoFiles.addAll(getChildren(file.getParentFile(), NFO_FILES));
 		}
 
-		// parse ids from nfo files
+		// parse IMDb IDs from NFO files
 		for (File nfo : nfoFiles) {
-			try {
-				String text = readTextFile(nfo);
-				collection.addAll(grepImdbId(text));
-			} catch (Exception e) {
-				debug.warning("Failed to read nfo: " + e.getMessage());
-			}
+			collection.addAll(grepImdbId(readTextFile(nfo)));
 		}
 
 		return collection;
@@ -1242,8 +1242,9 @@ public class MediaDetection {
 
 		// search for id in sibling nfo files
 		for (File folder : folders) {
-			if (!folder.exists())
+			if (!folder.exists()) {
 				continue;
+			}
 
 			for (File nfo : getChildren(folder, NFO_FILES)) {
 				String text = readTextFile(nfo);

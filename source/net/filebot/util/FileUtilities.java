@@ -195,10 +195,16 @@ public final class FileUtilities {
 	}
 
 	public static String readTextFile(File file) throws IOException {
+		long size = file.length();
+
+		// ignore absurdly large text files that might cause OutOfMemoryError issues
+		if (size > ONE_GIGABYTE) {
+			throw new IOException(String.format("Text file is too large: %s (%s)", file, formatSize(size)));
+		}
+
 		byte[] bytes = readFile(file);
 
-		// check BOM
-		BOM bom = BOM.detect(bytes);
+		BOM bom = BOM.detect(bytes); // check BOM
 
 		if (bom != null) {
 			return new String(bytes, bom.size(), bytes.length - bom.size(), bom.getCharset());
