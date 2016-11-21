@@ -107,6 +107,8 @@ public class SeasonEpisodeMatcherTest {
 
 		assertEquals(new SxE(1, 1), matcher.match("1x01.1x02.1x03.1x04").get(0));
 		assertEquals(new SxE(1, 4), matcher.match("1x01.1x02.1x03.1x04").get(3));
+
+		assertEquals(new SxE(null, 4), matcher.match("E1E2E3E4").get(3));
 	}
 
 	@Test

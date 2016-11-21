@@ -65,8 +65,8 @@ public class SeasonEpisodeMatcher {
 		});
 
 		// match patterns like ep1, ep.1, ...
-		EP0 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{2}|\\d{4})?[^\\p{Alnum}]{0,3}(?i:e|ep|episode|p|part)[^\\p{Alnum}]{0,3}(\\d{1,3})(?!\\p{Digit})", m -> {
-			return single(m.group(1), m.group(2));
+		EP0 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{2}|\\d{4})?[\\P{Alnum}]{0,3}(((?i:e|ep|episode|p|part)[\\P{Alnum}]{0,3}\\d{1,3})+)(?!\\p{Digit})", m -> {
+			return multi(m.group(1), m.group(2));
 		});
 
 		// match patterns like 01, 102, 1003, 10102 (enclosed in separators)
@@ -100,7 +100,7 @@ public class SeasonEpisodeMatcher {
 	}
 
 	protected List<SxE> multi(String season, String... episodes) {
-		int s = Integer.parseInt(season);
+		Integer s = matchInteger(season);
 		return stream(episodes).flatMap(e -> matchIntegers(e).stream()).map(e -> new SxE(s, e)).collect(toList());
 	}
 
