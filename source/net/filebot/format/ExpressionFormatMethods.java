@@ -21,6 +21,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -327,6 +328,36 @@ public class ExpressionFormatMethods {
 
 		// no pattern matches, nothing to replace
 		return self;
+	}
+
+	/**
+	 * Replace numbers 1..12 with Roman numerals
+	 * 
+	 * e.g. "Star Wars: Episode 4" -> "Star Wars: Episode IV"
+	 */
+	public static String roman(String self) {
+		TreeMap<Integer, String> numerals = new TreeMap<Integer, String>();
+		numerals.put(10, "X");
+		numerals.put(9, "IX");
+		numerals.put(5, "V");
+		numerals.put(4, "IV");
+		numerals.put(1, "Ⅰ");
+
+		StringBuffer s = new StringBuffer();
+		Matcher m = compile("\\b\\d+\\b").matcher(self);
+		while (m.find()) {
+			int n = Integer.parseInt(m.group());
+			m.appendReplacement(s, n >= 1 && n <= 12 ? roman(n, numerals) : m.group());
+		}
+		return m.appendTail(s).toString();
+	}
+
+	public static String roman(Integer n, TreeMap<Integer, String> numerals) {
+		int l = numerals.floorKey(n);
+		if (n == l) {
+			return numerals.get(n);
+		}
+		return numerals.get(l) + roman(n - l, numerals);
 	}
 
 	/**
