@@ -55,6 +55,10 @@ public class MultiEpisode extends Episode {
 		return episodes[0].getAirdate();
 	}
 
+	public Integer getId() {
+		return episodes[0].getId();
+	}
+
 	public SeriesInfo getSeriesInfo() {
 		return episodes[0].getSeriesInfo();
 	}

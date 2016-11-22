@@ -8,12 +8,24 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Stream;
 
 import net.filebot.WebServices;
 
 public final class EpisodeUtilities {
+
+	public static Episode createEpisode(Stream<Episode> episode) {
+		List<Episode> es = episode.sorted(EPISODE_NUMBERS_COMPARATOR).collect(toList());
+
+		if (es.isEmpty()) {
+			throw new NoSuchElementException("No such Episode");
+		}
+
+		return es.size() == 1 ? es.get(0) : new MultiEpisode(es);
+	}
 
 	public static List<Episode> getMultiEpisodeList(Episode e) {
 		return e instanceof MultiEpisode ? ((MultiEpisode) e).getEpisodes() : singletonList(e);
