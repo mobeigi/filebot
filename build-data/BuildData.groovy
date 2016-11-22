@@ -145,8 +145,9 @@ movies_index.values().each{ m ->
 	try {
 		def info = WebServices.TheMovieDB.getMovieInfo("tt${m[0]}", Locale.ENGLISH, true)
 
-		if (info.votes <= 1 || info.rating <= 2)
-			throw new IllegalArgumentException('Insufficient movie data: ' + info)
+		if (info.votes <= 1 || info.rating <= 2) {
+			throw new IllegalArgumentException('Movie not popular enough: ' + info)
+		}
 
 		def names = [info.name, info.originalName] + info.alternativeTitles
 		[info?.released?.year, m[1]].findResults{ it?.toInteger() }.unique().each{ y ->
