@@ -341,7 +341,7 @@ public class ExpressionFormatMethods {
 		numerals.put(9, "IX");
 		numerals.put(5, "V");
 		numerals.put(4, "IV");
-		numerals.put(1, "Ⅰ");
+		numerals.put(1, "I");
 
 		StringBuffer s = new StringBuffer();
 		Matcher m = compile("\\b\\d+\\b").matcher(self);
