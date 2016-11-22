@@ -683,15 +683,15 @@ public class MediaBindingBean {
 	public DynamicBindings getSortOrderObject() {
 		return new DynamicBindings(SortOrder::names, k -> {
 			if (infoObject instanceof Episode) {
-				try {
-					SortOrder order = SortOrder.forName(k);
-					SeriesInfo info = getSeriesInfo();
-					List<Episode> episodeList = getEpisodeListProvider(info.getDatabase()).getEpisodeList(info.getId(), order, new Locale(info.getLanguage()));
-					return createBindingObject(null, createEpisode(episodeList.stream().filter(e -> getEpisodes().contains(e))), null);
-				} catch (Exception e) {
-					throw new BindingException(k, e);
-				}
+				SortOrder order = SortOrder.forName(k);
+				SeriesInfo info = getSeriesInfo();
+
+				List<Episode> episodeList = getEpisodeListProvider(info.getDatabase()).getEpisodeList(info.getId(), order, new Locale(info.getLanguage()));
+				Episode episode = createEpisode(episodeList.stream().filter(e -> getEpisodes().contains(e)));
+
+				return createBindingObject(null, episode, null);
 			}
+
 			return undefined(k);
 		});
 	}
@@ -700,23 +700,17 @@ public class MediaBindingBean {
 	public DynamicBindings getLocalizedInfoObject() {
 		return new DynamicBindings(Language::availableLanguages, k -> {
 			Language language = Language.findLanguage(k);
-			if (language == null) {
-				return undefined(k);
+
+			if (language != null && infoObject instanceof Movie) {
+				MovieInfo m = getMovieInfo(language.getLocale(), true);
+				return createPropertyBindings(m); // TODO use createBindingObject -> BREAKING CHANGE
 			}
 
-			try {
-				if (infoObject instanceof Movie) {
-					MovieInfo m = getMovieInfo(language.getLocale(), true);
-					return createPropertyBindings(m); // TODO use createBindingObject -> BREAKING CHANGE
-				}
-				if (infoObject instanceof Episode) {
-					SeriesInfo i = getSeriesInfo();
-					List<Episode> es = getEpisodeListProvider(i.getDatabase()).getEpisodeList(i.getId(), SortOrder.forName(i.getOrder()), language.getLocale());
-					Episode e = es.stream().filter(it -> getEpisode().getNumbers().equals(it.getNumbers())).findFirst().get();
-					return createPropertyBindings(e); // TODO use createBindingObject -> BREAKING CHANGE
-				}
-			} catch (Exception e) {
-				throw new BindingException(k, e);
+			if (language != null && infoObject instanceof Episode) {
+				SeriesInfo i = getSeriesInfo();
+				List<Episode> es = getEpisodeListProvider(i.getDatabase()).getEpisodeList(i.getId(), SortOrder.forName(i.getOrder()), language.getLocale());
+				Episode e = es.stream().filter(it -> getEpisode().getNumbers().equals(it.getNumbers())).findFirst().get();
+				return createPropertyBindings(e); // TODO use createBindingObject -> BREAKING CHANGE
 			}
 
 			return undefined(k);
