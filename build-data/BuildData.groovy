@@ -289,14 +289,14 @@ tvdb.values().each{ r ->
 		return
 	}
 
+	if (year > 0) {
+		names.add(1, names[0].replaceTrailingBrackets() + " ($year)")
+	}
+
 	def alias = extraAliasNames[names[0]]
 	if (alias) {
 		log.fine "Add alias ${names[0]} => ${alias}"
 		names += alias
-	}
-
-	if (year > 0 && !names[0].endsWith(" ($year)")) {
-		names.add(1, names[0] + " ($year)")
 	}
 
 	// always include if alias has been manually added
