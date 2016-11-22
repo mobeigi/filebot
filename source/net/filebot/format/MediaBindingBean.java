@@ -684,14 +684,9 @@ public class MediaBindingBean {
 		return new DynamicBindings(SortOrder::names, k -> {
 			if (infoObject instanceof Episode) {
 				SortOrder order = SortOrder.forName(k);
-				SeriesInfo info = getSeriesInfo();
-
-				List<Episode> episodeList = getEpisodeListProvider(info.getDatabase()).getEpisodeList(info.getId(), order, new Locale(info.getLanguage()));
-				Episode episode = createEpisode(episodeList.stream().filter(e -> getEpisodes().contains(e)));
-
+				Episode episode = fetchEpisode(getEpisode(), order, null);
 				return createBindingObject(null, episode, null);
 			}
-
 			return undefined(k);
 		});
 	}
@@ -702,15 +697,13 @@ public class MediaBindingBean {
 			Language language = Language.findLanguage(k);
 
 			if (language != null && infoObject instanceof Movie) {
-				MovieInfo m = getMovieInfo(language.getLocale(), true);
-				return createPropertyBindings(m); // TODO use createBindingObject -> BREAKING CHANGE
+				MovieInfo movie = getMovieInfo(language.getLocale(), true);
+				return createPropertyBindings(movie); // TODO use createBindingObject -> BREAKING CHANGE
 			}
 
 			if (language != null && infoObject instanceof Episode) {
-				SeriesInfo i = getSeriesInfo();
-				List<Episode> es = getEpisodeListProvider(i.getDatabase()).getEpisodeList(i.getId(), SortOrder.forName(i.getOrder()), language.getLocale());
-				Episode e = es.stream().filter(it -> getEpisode().getNumbers().equals(it.getNumbers())).findFirst().get();
-				return createPropertyBindings(e); // TODO use createBindingObject -> BREAKING CHANGE
+				Episode episode = fetchEpisode(getEpisode(), null, language.getLocale());
+				return createPropertyBindings(episode); // TODO use createBindingObject -> BREAKING CHANGE
 			}
 
 			return undefined(k);
@@ -738,9 +731,7 @@ public class MediaBindingBean {
 
 	@Define("episodelist")
 	public List<Episode> getEpisodeList() throws Exception {
-		SeriesInfo i = getSeriesInfo();
-
-		return getEpisodeListProvider(i.getDatabase()).getEpisodeList(i.getId(), SortOrder.forName(i.getOrder()), new Locale(i.getLanguage()));
+		return fetchEpisodeList(getEpisode());
 	}
 
 	@Define("sy")
