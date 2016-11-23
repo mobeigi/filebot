@@ -11,8 +11,6 @@ import static net.filebot.util.XPathUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Dialog.ModalityType;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -215,19 +213,15 @@ public class Main {
 			frame.setLocation(120, 80);
 		}
 
-		frame.addWindowListener(new WindowAdapter() {
+		frame.addWindowListener(windowClosed(evt -> {
+			evt.getWindow().setVisible(false);
 
-			@Override
-			public void windowClosing(WindowEvent e) {
-				e.getWindow().setVisible(false);
+			// make sure any long running operations are done now and not later on the shutdown hook thread
+			HistorySpooler.getInstance().commit();
+			SupportDialog.maybeShow();
 
-				// make sure any long running operations are done now and not later on the shutdown hook thread
-				HistorySpooler.getInstance().commit();
-				SupportDialog.maybeShow();
-
-				System.exit(0);
-			}
-		});
+			System.exit(0);
+		}));
 
 		// configure main window
 		if (isMacApp()) {
@@ -268,11 +262,7 @@ public class Main {
 		Document dom = cache.xml("update.url", s -> new URL(getApplicationProperty(s))).expire(Cache.ONE_WEEK).retry(0).get();
 
 		// parse update xml
-		final Map<String, String> update = streamElements(dom.getFirstChild()).collect(toMap(n -> {
-			return n.getNodeName();
-		}, n -> {
-			return n.getTextContent().trim();
-		}));
+		Map<String, String> update = streamElements(dom.getFirstChild()).collect(toMap(n -> n.getNodeName(), n -> n.getTextContent().trim()));
 
 		// check if update is required
 		int latestRev = Integer.parseInt(update.get("revision"));
@@ -280,8 +270,8 @@ public class Main {
 
 		if (latestRev > currentRev && currentRev > 0) {
 			SwingUtilities.invokeLater(() -> {
-				final JDialog dialog = new JDialog(JFrame.getFrames()[0], update.get("title"), ModalityType.APPLICATION_MODAL);
-				final JPanel pane = new JPanel(new MigLayout("fill, nogrid, insets dialog"));
+				JDialog dialog = new JDialog(JFrame.getFrames()[0], update.get("title"), ModalityType.APPLICATION_MODAL);
+				JPanel pane = new JPanel(new MigLayout("fill, nogrid, insets dialog"));
 				dialog.setContentPane(pane);
 
 				pane.add(new JLabel(ResourceManager.getIcon("window.icon.medium")), "aligny top");
@@ -321,21 +311,17 @@ public class Main {
 		}
 	}
 
-	private static void restoreWindowBounds(final JFrame window, final Settings settings) {
+	private static void restoreWindowBounds(JFrame window, Settings settings) {
 		// store bounds on close
-		window.addWindowListener(new WindowAdapter() {
-
-			@Override
-			public void windowClosing(WindowEvent e) {
-				// don't save window bounds if window is maximized
-				if (!isMaximized(window)) {
-					settings.put("window.x", String.valueOf(window.getX()));
-					settings.put("window.y", String.valueOf(window.getY()));
-					settings.put("window.width", String.valueOf(window.getWidth()));
-					settings.put("window.height", String.valueOf(window.getHeight()));
-				}
+		window.addWindowListener(windowClosed(evt -> {
+			// don't save window bounds if window is maximized
+			if (!isMaximized(window)) {
+				settings.put("window.x", String.valueOf(window.getX()));
+				settings.put("window.y", String.valueOf(window.getY()));
+				settings.put("window.width", String.valueOf(window.getWidth()));
+				settings.put("window.height", String.valueOf(window.getHeight()));
 			}
-		});
+		}));
 
 		// restore bounds
 		int x = Integer.parseInt(settings.get("window.x"));

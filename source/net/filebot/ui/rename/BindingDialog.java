@@ -142,13 +142,7 @@ class BindingDialog extends JDialog {
 		});
 
 		// finish dialog and close window manually
-		addWindowListener(new WindowAdapter() {
-
-			@Override
-			public void windowClosing(WindowEvent e) {
-				finish(false);
-			}
-		});
+		addWindowListener(windowClosed(evt -> finish(false)));
 
 		mediaFileTextField.setEditable(editable);
 		infoTextField.setEditable(editable);

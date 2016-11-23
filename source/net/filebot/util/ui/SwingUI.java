@@ -23,6 +23,8 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
@@ -325,6 +327,16 @@ public final class SwingUI {
 		} finally {
 			window.ifPresent(w -> w.setCursor(Cursor.getDefaultCursor()));
 		}
+	}
+
+	public static WindowAdapter windowClosed(Consumer<WindowEvent> handler) {
+		return new WindowAdapter() {
+
+			@Override
+			public void windowClosing(WindowEvent evt) {
+				handler.accept(evt);
+			}
+		};
 	}
 
 	public static MouseAdapter mouseClicked(Consumer<MouseEvent> handler) {

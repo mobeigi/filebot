@@ -95,8 +95,10 @@ public class MainFrame extends JFrame {
 
 		// KEYBOARD SHORTCUTS
 		installAction(getRootPane(), getKeyStroke(VK_DELETE, CTRL_MASK | SHIFT_MASK), newAction("Clear Cache", evt -> {
-			CacheManager.getInstance().clearAll();
-			log.info("Cache has been cleared");
+			withWaitCursor(getRootPane(), () -> {
+				CacheManager.getInstance().clearAll();
+				log.info("Cache has been cleared");
+			});
 		}));
 
 		installAction(getRootPane(), getKeyStroke(VK_F5, 0), newAction("Run", evt -> {

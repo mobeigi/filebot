@@ -75,21 +75,24 @@ public class CacheManager {
 			// make sure cache is readable and writable
 			createFolders(cache);
 
-			final File lockFile = new File(cache, ".lock");
+			File lockFile = new File(cache, ".lock");
 			boolean isNewCache = !lockFile.exists();
 
-			final FileChannel channel = FileChannel.open(lockFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
-			final FileLock lock = channel.tryLock();
+			FileChannel channel = FileChannel.open(lockFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
+			FileLock lock = channel.tryLock();
 
 			if (lock != null) {
 				debug.config(format("Using persistent disk cache %s", cache));
 
 				int applicationRevision = getApplicationRevisionNumber();
 				int cacheRevision = 0;
-				try {
-					cacheRevision = new Scanner(channel, "UTF-8").nextInt();
-				} catch (Exception e) {
-					// ignore
+
+				if (channel.size() > 0) {
+					try {
+						cacheRevision = new Scanner(channel, "UTF-8").nextInt();
+					} catch (Exception e) {
+						debug.log(Level.WARNING, e, e::toString);
+					}
 				}
 
 				if (cacheRevision != applicationRevision && applicationRevision > 0 && !isNewCache) {
