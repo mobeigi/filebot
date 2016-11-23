@@ -13,8 +13,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.text.Format;
 import java.util.ArrayList;
