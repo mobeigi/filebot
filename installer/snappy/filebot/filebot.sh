@@ -8,7 +8,7 @@ export JAVA_HOME="$SNAP/usr/lib/jvm/java-8-openjdk-$SNAP_ARCH"
 export PATH="$JAVA_HOME/jre/bin:$PATH"
 export LD_LIBRARY_PATH="$SNAP:$LD_LIBRARY_PATH"
 
-export APP_ROOT="$SNAP/filebot"
+export APP_ROOT="$SNAP"
 export APP_DATA="$SNAP_USER_DATA/data"
 export APP_CACHE="$SNAP_USER_DATA/cache"
 export APP_PREFS="$SNAP_USER_DATA/prefs"
