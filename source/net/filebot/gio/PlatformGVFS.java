@@ -9,10 +9,6 @@ public class PlatformGVFS implements GVFS {
 	private final File gvfs;
 
 	public PlatformGVFS(File gvfs) {
-		if (gvfs.list() == null) {
-			throw new IllegalArgumentException(gvfs.getPath() + " is not a valid directory");
-		}
-
 		this.gvfs = gvfs;
 	}
 
