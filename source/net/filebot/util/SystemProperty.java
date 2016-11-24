@@ -33,7 +33,7 @@ public class SystemProperty<T> {
 			try {
 				return valueFunction.apply(prop);
 			} catch (Exception e) {
-				log.logp(Level.WARNING, "SystemProperty", key, e.toString());
+				debug.logp(Level.WARNING, "SystemProperty", key, e.toString());
 			}
 		}
 
