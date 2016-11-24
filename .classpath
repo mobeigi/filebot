@@ -34,5 +34,6 @@
 	<classpathentry kind="lib" path="lib/ivy/jar/streamex.jar"/>
 	<classpathentry kind="lib" path="lib/jars/AppleJavaExtensions.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/controlsfx.jar" sourcepath="lib/ivy/source/controlsfx.jar"/>
+	<classpathentry kind="lib" path="lib/ivy/jar/lanterna.jar" sourcepath="lib/ivy/source/lanterna.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

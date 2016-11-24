@@ -601,7 +601,7 @@ public class CmdlineOperations implements CmdlineInterface {
 						destination = resolve(source, destination);
 					}
 
-					if (!destination.equals(source) && destination.exists() && renameAction != StandardRenameAction.TEST) {
+					if (!destination.equals(source) && destination.exists() && renameAction.canRevert()) {
 						if (conflictAction == ConflictAction.FAIL) {
 							throw new CmdlineException("File already exists: " + destination);
 						}
@@ -632,14 +632,16 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 		} finally {
 			// update rename history
-			HistorySpooler.getInstance().append(renameLog.entrySet());
+			if (renameAction.canRevert()) {
+				HistorySpooler.getInstance().append(renameLog.entrySet());
+			}
 
 			// printer number of renamed files if any
 			log.fine(format("Processed %d files", renameLog.size()));
 		}
 
 		// write metadata into xattr if xattr is enabled
-		if (matches != null && renameLog.size() > 0 && renameAction != StandardRenameAction.TEST) {
+		if (matches != null && renameLog.size() > 0 && renameAction.canRevert()) {
 			for (Match<File, ?> match : matches) {
 				File source = match.getValue();
 				Object infoObject = match.getCandidate();
@@ -868,7 +870,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return output;
 	}
 
-	private List<SearchResult> selectSearchResult(String query, Collection<? extends SearchResult> options, boolean alias, boolean strict) throws Exception {
+	protected List<SearchResult> selectSearchResult(String query, Collection<? extends SearchResult> options, boolean alias, boolean strict) throws Exception {
 		List<SearchResult> probableMatches = getProbableMatches(query, options, alias, strict);
 
 		if (probableMatches.isEmpty() || (strict && probableMatches.size() != 1)) {

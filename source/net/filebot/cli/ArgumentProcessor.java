@@ -20,12 +20,15 @@ public class ArgumentProcessor {
 
 	public int run(ArgumentBean args) {
 		try {
+			// interactive mode enables basic selection and confirmation dialogs in the CLI
+			CmdlineInterface cli = args.isInteractive() ? new CmdlineOperationsTextUI() : new CmdlineOperations();
+
 			if (args.script == null) {
 				// execute command
-				return runCommand(args);
+				return runCommand(cli, args);
 			} else {
 				// execute user script
-				runScript(args);
+				runScript(cli, args);
 
 				// script finished successfully
 				log.finest("Done ヾ(＠⌒ー⌒＠)ノ");
@@ -46,9 +49,7 @@ public class ArgumentProcessor {
 		return 1;
 	}
 
-	public int runCommand(ArgumentBean args) throws Exception {
-		CmdlineInterface cli = new CmdlineOperations();
-
+	public int runCommand(CmdlineInterface cli, ArgumentBean args) throws Exception {
 		// sanity checks
 		if (args.getSubtitles && args.recursive) {
 			throw new CmdlineException("`filebot -get-subtitles -r` has been disabled due to abuse. Please see http://bit.ly/suball for details.");
@@ -103,13 +104,13 @@ public class ArgumentProcessor {
 		return 0;
 	}
 
-	public void runScript(ArgumentBean args) throws Throwable {
+	public void runScript(CmdlineInterface cli, ArgumentBean args) throws Throwable {
 		Bindings bindings = new SimpleBindings();
-		bindings.put(ScriptShell.SHELL_ARGV_BINDING_NAME, args.getArgumentArray());
+		bindings.put(ScriptShell.SHELL_ARGS_BINDING_NAME, args);
 		bindings.put(ScriptShell.ARGV_BINDING_NAME, args.getFiles(false));
 
 		ScriptSource source = ScriptSource.findScriptProvider(args.script);
-		ScriptShell shell = new ScriptShell(source.getScriptProvider(args.script), args.defines);
+		ScriptShell shell = new ScriptShell(source.getScriptProvider(args.script), cli, args.defines);
 		shell.runScript(source.accept(args.script), bindings);
 	}
 

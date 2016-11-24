@@ -124,6 +124,10 @@ public class ArgumentBean {
 		return rename || getSubtitles || check || list || mediaInfo || revert || extract || script != null;
 	}
 
+	public boolean isInteractive() {
+		return "interactive".equalsIgnoreCase(mode) && System.console() != null;
+	}
+
 	public boolean printVersion() {
 		return version;
 	}

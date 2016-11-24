@@ -25,6 +25,7 @@
 		<dependency rev="latest.release" org="com.optimaize.languagedetector" name="language-detector" />
 		<dependency rev="latest.release" org="one.util" name="streamex" />
 		<dependency rev="latest.release" org="org.controlsfx" name="controlsfx" />
+		<dependency rev="latest.release" org="com.googlecode.lanterna" name="lanterna" />
 
 		<!-- FileBot Scripting -->
 		<dependency rev="latest.release" org="org.apache.ant" name="ant" />

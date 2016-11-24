@@ -160,7 +160,7 @@ public class GroovyPad extends JFrame {
 
 	protected ScriptShell createScriptShell() {
 		try {
-			return new ScriptShell(s -> ScriptSource.GITHUB_STABLE.getScriptProvider(s).getScript(s), new HashMap<String, Object>());
+			return new ScriptShell(s -> ScriptSource.GITHUB_STABLE.getScriptProvider(s).getScript(s), new CmdlineOperations(), new HashMap<String, Object>());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -226,7 +226,7 @@ public class GroovyPad extends JFrame {
 				public void run() {
 					try {
 						Bindings bindings = new SimpleBindings();
-						bindings.put(ScriptShell.SHELL_ARGV_BINDING_NAME, Settings.getApplicationArguments().getArgumentArray());
+						bindings.put(ScriptShell.SHELL_ARGS_BINDING_NAME, Settings.getApplicationArguments());
 						bindings.put(ScriptShell.ARGV_BINDING_NAME, Settings.getApplicationArguments().getFiles(false));
 
 						result = shell.evaluate(script, bindings);

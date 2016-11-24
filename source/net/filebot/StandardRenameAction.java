@@ -129,6 +129,11 @@ public enum StandardRenameAction implements RenameAction {
 		public File rename(File from, File to) throws IOException {
 			return FileUtilities.resolve(from, to);
 		}
+
+		@Override
+		public boolean canRevert() {
+			return false;
+		}
 	};
 
 	public String getDisplayName() {

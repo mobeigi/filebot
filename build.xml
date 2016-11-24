@@ -253,6 +253,11 @@
 				<include name="controlsfx.properties" />
 			</zipfileset>
 
+			<zipfileset src="${dir.lib}/ivy/jar/lanterna.jar">
+				<include name="com/googlecode/lanterna/**" />
+				<include name="**/*.properties" />
+			</zipfileset>
+
 			<!-- include classes and native libraries -->
 			<zipfileset src="${dir.lib}/ivy/jar/jna.jar">
 				<include name="com/sun/jna/**" />

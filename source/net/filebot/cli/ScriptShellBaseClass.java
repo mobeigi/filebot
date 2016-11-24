@@ -78,6 +78,18 @@ public abstract class ScriptShellBaseClass extends Script {
 		}
 	}
 
+	private ArgumentBean getArgumentBean() {
+		return (ArgumentBean) getBinding().getVariable(ScriptShell.SHELL_ARGS_BINDING_NAME);
+	}
+
+	private ScriptShell getShell() {
+		return (ScriptShell) getBinding().getVariable(ScriptShell.SHELL_BINDING_NAME);
+	}
+
+	private CmdlineInterface getCLI() {
+		return (CmdlineInterface) getBinding().getVariable(ScriptShell.SHELL_CLI_BINDING_NAME);
+	}
+
 	public void include(String input) throws Throwable {
 		try {
 			executeScript(input, null, null, null);
@@ -109,12 +121,11 @@ public abstract class ScriptShellBaseClass extends Script {
 			parameters.putAll(bindings);
 		}
 
-		parameters.put(ScriptShell.SHELL_ARGV_BINDING_NAME, argv != null ? argv.toArray(new String[0]) : new String[0]);
+		parameters.put(ScriptShell.SHELL_ARGS_BINDING_NAME, new ArgumentBean(argv != null ? argv.toArray(new String[0]) : new String[0]));
 		parameters.put(ScriptShell.ARGV_BINDING_NAME, args != null ? new ArrayList<File>(args) : new ArrayList<File>());
 
 		// run given script
-		ScriptShell shell = (ScriptShell) getBinding().getVariable(ScriptShell.SHELL_BINDING_NAME);
-		return shell.runScript(input, parameters);
+		return getShell().runScript(input, parameters);
 	}
 
 	public Object tryQuietly(Closure<?> c) {
@@ -317,8 +328,6 @@ public abstract class ScriptShellBaseClass extends Script {
 		action, conflict, query, filter, format, db, order, lang, output, encoding, strict, forceExtractAll
 	}
 
-	private static final CmdlineInterface cli = new CmdlineOperations();
-
 	public List<File> rename(Map<String, ?> parameters) throws Exception {
 		List<File> input = getInputFileList(parameters);
 		Map<Option, Object> option = getDefaultOptions(parameters);
@@ -327,9 +336,9 @@ public abstract class ScriptShellBaseClass extends Script {
 
 		try {
 			if (input.isEmpty() && !getInputFileMap(parameters).isEmpty()) {
-				return cli.rename(getInputFileMap(parameters), action, asString(option.get(Option.conflict)));
+				return getCLI().rename(getInputFileMap(parameters), action, asString(option.get(Option.conflict)));
 			} else {
-				return cli.rename(input, action, asString(option.get(Option.conflict)), asString(option.get(Option.output)), asString(option.get(Option.format)), asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.order)), asString(option.get(Option.filter)), asString(option.get(Option.lang)), strict);
+				return getCLI().rename(input, action, asString(option.get(Option.conflict)), asString(option.get(Option.output)), asString(option.get(Option.format)), asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.order)), asString(option.get(Option.filter)), asString(option.get(Option.lang)), strict);
 			}
 		} catch (Exception e) {
 			printException(e);
@@ -344,7 +353,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		boolean strict = DefaultTypeTransformation.castToBoolean(option.get(Option.strict));
 
 		try {
-			return cli.getSubtitles(input, asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.lang)), asString(option.get(Option.output)), asString(option.get(Option.encoding)), asString(option.get(Option.format)), strict);
+			return getCLI().getSubtitles(input, asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.lang)), asString(option.get(Option.output)), asString(option.get(Option.encoding)), asString(option.get(Option.format)), strict);
 		} catch (Exception e) {
 			printException(e);
 		}
@@ -358,7 +367,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		boolean strict = DefaultTypeTransformation.castToBoolean(option.get(Option.strict));
 
 		try {
-			return cli.getMissingSubtitles(input, asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.lang)), asString(option.get(Option.output)), asString(option.get(Option.encoding)), asString(option.get(Option.format)), strict);
+			return getCLI().getMissingSubtitles(input, asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.lang)), asString(option.get(Option.output)), asString(option.get(Option.encoding)), asString(option.get(Option.format)), strict);
 		} catch (Exception e) {
 			printException(e);
 		}
@@ -370,7 +379,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		List<File> input = getInputFileList(parameters);
 
 		try {
-			return cli.check(input);
+			return getCLI().check(input);
 		} catch (Exception e) {
 			printException(e);
 		}
@@ -383,7 +392,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		Map<Option, Object> option = getDefaultOptions(parameters);
 
 		try {
-			return cli.compute(input, asString(option.get(Option.output)), asString(option.get(Option.encoding)));
+			return getCLI().compute(input, asString(option.get(Option.output)), asString(option.get(Option.encoding)));
 		} catch (Exception e) {
 			printException(e);
 		}
@@ -398,7 +407,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		boolean forceExtractAll = DefaultTypeTransformation.castToBoolean(option.get(Option.forceExtractAll));
 
 		try {
-			return cli.extract(input, asString(option.get(Option.output)), asString(option.get(Option.conflict)), filter, forceExtractAll);
+			return getCLI().extract(input, asString(option.get(Option.output)), asString(option.get(Option.conflict)), filter, forceExtractAll);
 		} catch (Exception e) {
 			printException(e);
 		}
@@ -410,7 +419,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		Map<Option, Object> option = getDefaultOptions(parameters);
 
 		try {
-			return cli.fetchEpisodeList(asString(option.get(Option.query)), asString(option.get(Option.format)), asString(option.get(Option.db)), asString(option.get(Option.order)), asString(option.get(Option.filter)), asString(option.get(Option.lang)));
+			return getCLI().fetchEpisodeList(asString(option.get(Option.query)), asString(option.get(Option.format)), asString(option.get(Option.db)), asString(option.get(Option.order)), asString(option.get(Option.filter)), asString(option.get(Option.lang)));
 		} catch (Exception e) {
 			printException(e);
 		}
@@ -426,7 +435,7 @@ public abstract class ScriptShellBaseClass extends Script {
 
 		Map<Option, Object> option = getDefaultOptions(parameters);
 		try {
-			return cli.getMediaInfo(input, asString(option.get(Option.format)), asString(option.get(Option.filter)));
+			return getCLI().getMediaInfo(input, asString(option.get(Option.format)), asString(option.get(Option.filter)));
 		} catch (Exception e) {
 			printException(e);
 		}
@@ -482,14 +491,6 @@ public abstract class ScriptShellBaseClass extends Script {
 			}
 		}
 		return files;
-	}
-
-	private ArgumentBean getArgumentBean() {
-		try {
-			return new ArgumentBean((String[]) getBinding().getVariable(ScriptShell.SHELL_ARGV_BINDING_NAME));
-		} catch (Exception e) {
-			throw new IllegalStateException(e.getMessage(), e);
-		}
 	}
 
 	private Map<Option, Object> getDefaultOptions(Map<String, ?> parameters) throws Exception {

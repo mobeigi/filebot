@@ -21,12 +21,13 @@ public class ScriptShell {
 
 	public static final String ARGV_BINDING_NAME = "args";
 	public static final String SHELL_BINDING_NAME = "__shell";
-	public static final String SHELL_ARGV_BINDING_NAME = "__args";
+	public static final String SHELL_CLI_BINDING_NAME = "__cli";
+	public static final String SHELL_ARGS_BINDING_NAME = "__args";
 
 	private final ScriptEngine engine;
 	private final ScriptProvider scriptProvider;
 
-	public ScriptShell(ScriptProvider scriptProvider, Map<String, ?> globals) throws ScriptException {
+	public ScriptShell(ScriptProvider scriptProvider, CmdlineInterface cli, Map<String, ?> globals) throws ScriptException {
 		this.engine = createScriptEngine();
 		this.scriptProvider = scriptProvider;
 
@@ -36,6 +37,7 @@ public class ScriptShell {
 
 		// bind API objects
 		bindings.put(SHELL_BINDING_NAME, this);
+		bindings.put(SHELL_CLI_BINDING_NAME, cli);
 
 		// setup script context
 		engine.getContext().setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
