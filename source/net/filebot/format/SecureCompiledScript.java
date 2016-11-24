@@ -38,11 +38,14 @@ public class SecureCompiledScript extends CompiledScript {
 		permissions.add(new RuntimePermission("loadLibrary.*"));
 		permissions.add(new RuntimePermission("accessClassInPackage.*"));
 		permissions.add(new RuntimePermission("accessDeclaredMembers"));
+		permissions.add(new RuntimePermission("canProcessApplicationEvents"));
 		permissions.add(new RuntimePermission("getenv.*"));
 		permissions.add(new RuntimePermission("getFileSystemAttributes"));
 		permissions.add(new RuntimePermission("readFileDescriptor"));
 		permissions.add(new RuntimePermission("preferences"));
-		permissions.add(new AWTPermission("*"));
+		permissions.add(new AWTPermission("toolkitModality"));
+		permissions.add(new AWTPermission("setWindowAlwaysOnTop"));
+		permissions.add(new AWTPermission("showWindowWithoutWarningBanner"));
 		permissions.add(new FilePermission("<<ALL FILES>>", "read"));
 		permissions.add(new SocketPermission("*", "connect"));
 		permissions.add(new PropertyPermission("*", "read"));
@@ -54,7 +57,7 @@ public class SecureCompiledScript extends CompiledScript {
 
 		// write permissions for cache and temp folders
 		for (ApplicationFolder it : ApplicationFolder.values()) {
-			permissions.add(new FilePermission(it.getCanonicalFile() + File.separator + "-", "read, write, delete"));
+			permissions.add(new FilePermission(it.get() + File.separator + "-", "read, write, delete"));
 		}
 
 		return permissions;
