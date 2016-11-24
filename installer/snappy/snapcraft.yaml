@@ -4,6 +4,7 @@ summary: @{package.synopsis}
 description: @{package.description}
 
 confinement: strict
+grade: stable
 
 architectures: [amd64]
 
@@ -14,13 +15,14 @@ apps:
 
 parts:
   filebot:
-    plugin: copy
-    files:
+    plugin: dump
+    source: .
+    organize:
       filebot: filebot
   java:
     plugin: nil
     stage-packages: [openjdk-8-jre, openjfx, jayatana]
-    after: [desktop/gtk2]
+    after: [desktop-gtk2]
   mediainfo:
     plugin: nil
     stage-packages: [libmediainfo0v5, libchromaprint-tools]
