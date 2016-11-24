@@ -10,19 +10,17 @@ architectures: [amd64]
 
 apps:
   filebot:
-    command: desktop-launch $SNAP/filebot/filebot.sh
+    command: desktop-launch $SNAP/filebot.sh
     plugs: [unity7, opengl, x11, home, network, network-bind, pulseaudio, gsettings]
 
 parts:
   filebot:
     plugin: dump
-    source: .
-    organize:
-      filebot: filebot
-    after: [desktop-gtk2]
+    source: filebot
   java:
     plugin: nil
     stage-packages: [openjdk-8-jre, openjfx, jayatana]
+    after: [desktop-gtk2]
   mediainfo:
     plugin: nil
     stage-packages: [libmediainfo0v5, libchromaprint-tools]
