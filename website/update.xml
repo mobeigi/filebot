@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
-	<name>FileBot 4.7.2</name>
-	<revision>4178</revision>
+	<name>FileBot 4.7.5</name>
+	<revision>4600</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 4.7.2</b><br>
+		<b>FileBot 4.7.5</b><br>
 		This release features:<br>
-		+ Improved multi-part movie auto-detection<br>
-		+ Improved auto-delete behaviour<br>
-		+ Improved {plex} binding<br>
-		+ Fixed NFO parser regression issues<br>
+		+ Keyboard shortcuts for calling user-defined Presets (Numpad 1..9)<br>
+		+ Improved episode auto-detection<br>
+		+ Improved file sort order<br>
+		+ Improved bindings: {plex}, {t}, {votes}, {group} and {tags}<br>
+		+ Reduce xattr metadata size<br>
 		+ Lots of bugfixes<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=3709&p=22453#p22453]]></discussion>
+	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=3709&p=24567#p24567]]></discussion>
 	<download><![CDATA[http://www.filebot.net/#download]]></download>
 </update>
