@@ -43,6 +43,7 @@ public class SecureCompiledScript extends CompiledScript {
 		permissions.add(new RuntimePermission("readFileDescriptor"));
 		permissions.add(new RuntimePermission("preferences"));
 		permissions.add(new AWTPermission("toolkitModality"));
+		permissions.add(new AWTPermission("setWindowAlwaysOnTop"));
 		permissions.add(new FilePermission("<<ALL FILES>>", "read"));
 		permissions.add(new SocketPermission("*", "connect"));
 		permissions.add(new PropertyPermission("*", "read"));
