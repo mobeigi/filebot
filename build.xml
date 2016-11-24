@@ -843,7 +843,7 @@
 	</target>
 
 
-	<target name="deploy-synology" description="Update Synology Package Source">
+	<target name="deploy-synology" description="Update Synology Package Source" depends="init">
 		<mkdir dir="${dir.dist}/website/syno" />
 
 		<!-- merge all filebot related packages into a single package source file -->
