@@ -115,7 +115,7 @@ public class CmdlineOperationsTextUI extends CmdlineOperations {
 			checkBoxList.addItem(new CheckBoxListItem(String.format(labelFormat, k.getName(), v.getName()), k, v), true);
 		});
 
-		Button continueButton = new Button(LocalizedString.OK.toString(), () -> {
+		Button okButton = new Button(LocalizedString.OK.toString(), () -> {
 			checkBoxList.getCheckedItems().forEach(it -> selection.put(it.key, it.value));
 			dialog.close();
 		});
@@ -130,7 +130,7 @@ public class CmdlineOperationsTextUI extends CmdlineOperations {
 
 		contentPane.addComponent(checkBoxList.setLayoutData(GridLayout.createLayoutData(GridLayout.Alignment.BEGINNING, GridLayout.Alignment.BEGINNING, true, true, 1, 1)));
 		contentPane.addComponent(new Separator(Direction.HORIZONTAL).setLayoutData(GridLayout.createLayoutData(GridLayout.Alignment.FILL, GridLayout.Alignment.CENTER, true, false, 1, 1)));
-		contentPane.addComponent(Panels.grid(2, continueButton, cancelButton).setLayoutData(GridLayout.createLayoutData(GridLayout.Alignment.END, GridLayout.Alignment.CENTER, false, false, 1, 1)));
+		contentPane.addComponent(Panels.grid(2, okButton, cancelButton).setLayoutData(GridLayout.createLayoutData(GridLayout.Alignment.END, GridLayout.Alignment.CENTER, false, false, 1, 1)));
 
 		dialog.setComponent(contentPane);
 
