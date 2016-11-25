@@ -191,10 +191,6 @@ public final class Settings {
 		return applicationArguments;
 	}
 
-	public static File getApplicationFolder() {
-		return ApplicationFolder.AppData.get(); // added for script compatibility
-	}
-
 	public static Settings forPackage(Class<?> type) {
 		return new Settings(Preferences.userNodeForPackage(type));
 	}

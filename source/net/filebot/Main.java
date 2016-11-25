@@ -91,7 +91,7 @@ public class Main {
 				// clear caches
 				if (args.clearCache()) {
 					log.info("Clear cache");
-					for (File folder : getChildren(ApplicationFolder.Cache.getCanonicalFile(), FOLDERS)) {
+					for (File folder : getChildren(ApplicationFolder.Cache.getFile(), FOLDERS)) {
 						log.fine("* Delete " + folder);
 						delete(folder);
 					}
@@ -109,7 +109,7 @@ public class Main {
 			initializeLogging(args);
 
 			// make sure java.io.tmpdir exists
-			createFolders(ApplicationFolder.Temp.get());
+			createFolders(ApplicationFolder.Temp.getFile());
 
 			// initialize this stuff before anything else
 			CacheManager.getInstance();
@@ -365,7 +365,7 @@ public class Main {
 		System.setProperty("sun.net.client.defaultReadTimeout", "60000");
 
 		System.setProperty("swing.crossplatformlaf", "javax.swing.plaf.nimbus.NimbusLookAndFeel");
-		System.setProperty("grape.root", ApplicationFolder.AppData.path("grape").getPath());
+		System.setProperty("grape.root", ApplicationFolder.AppData.resolve("grape").getPath());
 		System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 
 		if (args.unixfs) {
@@ -389,7 +389,7 @@ public class Main {
 
 			// log errors to file
 			try {
-				Handler error = createSimpleFileHandler(ApplicationFolder.AppData.path("error.log"), Level.WARNING);
+				Handler error = createSimpleFileHandler(ApplicationFolder.AppData.resolve("error.log"), Level.WARNING);
 				log.addHandler(error);
 				debug.addHandler(error);
 			} catch (Exception e) {
@@ -401,7 +401,7 @@ public class Main {
 		if (args.logFile != null) {
 			File logFile = new File(args.logFile);
 			if (!logFile.isAbsolute()) {
-				logFile = new File(ApplicationFolder.AppData.path("logs"), logFile.getPath()).getAbsoluteFile(); // by default resolve relative paths against {applicationFolder}/logs/{logFile}
+				logFile = new File(ApplicationFolder.AppData.resolve("logs"), logFile.getPath()).getAbsoluteFile(); // by default resolve relative paths against {applicationFolder}/logs/{logFile}
 			}
 			if (!logFile.exists() && !logFile.getParentFile().mkdirs() && !logFile.createNewFile()) {
 				throw new IOException("Failed to create log file: " + logFile);

@@ -57,7 +57,7 @@ public class SecureCompiledScript extends CompiledScript {
 
 		// write permissions for cache and temp folders
 		for (ApplicationFolder it : ApplicationFolder.values()) {
-			permissions.add(new FilePermission(it.get() + File.separator + "-", "read, write, delete"));
+			permissions.add(new FilePermission(it.getFile().getAbsolutePath() + File.separator + "-", "read, write, delete"));
 		}
 
 		return permissions;

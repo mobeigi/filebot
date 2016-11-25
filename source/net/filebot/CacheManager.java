@@ -67,7 +67,7 @@ public class CacheManager {
 
 	private File acquireDiskStore() throws IOException {
 		// prepare cache folder for this application instance
-		File cacheRoot = ApplicationFolder.Cache.getCanonicalFile();
+		File cacheRoot = ApplicationFolder.Cache.getFile();
 
 		for (int i = 0; i < 10; i++) {
 			File cache = new File(cacheRoot, Integer.toString(i));

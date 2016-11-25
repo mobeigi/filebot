@@ -1012,7 +1012,7 @@ public class MediaDetection {
 	}
 
 	public static boolean isStructureRoot(File folder) throws Exception {
-		return isVolumeRoot(folder) || releaseInfo.getStructureRootPattern().matcher(folder.getName()).matches() || ApplicationFolder.UserHome.get().equals(folder.getParentFile());
+		return isVolumeRoot(folder) || releaseInfo.getStructureRootPattern().matcher(folder.getName()).matches() || ApplicationFolder.UserHome.getFile().equals(folder.getParentFile());
 	}
 
 	public static File getStructureRoot(File file) throws Exception {

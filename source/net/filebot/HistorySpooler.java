@@ -31,7 +31,7 @@ public final class HistorySpooler {
 		Runtime.getRuntime().addShutdownHook(new Thread(HistorySpooler.getInstance()::commit, "HistorySpoolerShutdownHook")); // commit session history on shutdown
 	}
 
-	private final File persistentHistoryFile = ApplicationFolder.AppData.path("history.xml");
+	private final File persistentHistoryFile = ApplicationFolder.AppData.resolve("history.xml");
 
 	private int persistentHistoryTotalSize = -1;
 	private boolean persistentHistoryEnabled = true;

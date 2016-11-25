@@ -179,8 +179,8 @@ public final class FileUtilities {
 		}
 	}
 
-	public static File createFolders(File folder) throws IOException {
-		return Files.createDirectories(folder.toPath()).toFile();
+	public static void createFolders(File folder) throws IOException {
+		Files.createDirectories(folder.toPath());
 	}
 
 	private static final String WIN_THUMBNAIL_STORE = "Thumbs.db";

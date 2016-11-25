@@ -91,7 +91,7 @@ public class ExpressionFormatFunctions {
 		File f = new File(path);
 
 		if (!f.isAbsolute()) {
-			f = ApplicationFolder.UserHome.path(path);
+			f = ApplicationFolder.UserHome.resolve(path);
 		}
 
 		if (isMacSandbox()) {
