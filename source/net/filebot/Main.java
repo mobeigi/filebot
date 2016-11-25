@@ -40,6 +40,7 @@ import org.w3c.dom.Document;
 
 import net.filebot.cli.ArgumentBean;
 import net.filebot.cli.ArgumentProcessor;
+import net.filebot.cli.CmdlineException;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.ui.FileBotMenuBar;
@@ -190,27 +191,23 @@ public class Main {
 			setSystemLookAndFeel();
 		}
 
-		// default frame
-		JFrame frame = new MainFrame(PanelBuilder.defaultSequence());
+		// start multi panel or single panel frame
+		PanelBuilder[] panels = PanelBuilder.defaultSequence();
 
-		// single panel frame
 		if (args.mode != null) {
-			PanelBuilder[] selection = stream(PanelBuilder.defaultSequence()).filter(p -> p.getName().matches(args.mode)).toArray(PanelBuilder[]::new);
-			if (selection.length == 1) {
-				frame = new SinglePanelFrame(selection[0]);
-			} else if (selection.length > 1) {
-				frame = new MainFrame(selection);
-			} else {
-				throw new IllegalArgumentException("Illegal mode: " + args.mode);
+			panels = stream(panels).filter(p -> p.getName().matches(args.mode)).toArray(PanelBuilder[]::new); // only selected panels
+
+			if (panels.length == 0) {
+				throw new CmdlineException("Illegal mode: " + args.mode);
 			}
 		}
 
+		JFrame frame = panels.length > 1 ? new MainFrame(panels) : new SinglePanelFrame(panels[0]);
+
 		try {
-			// restore previous size and location
-			restoreWindowBounds(frame, Settings.forPackage(MainFrame.class));
+			restoreWindowBounds(frame, Settings.forPackage(MainFrame.class)); // restore previous size and location
 		} catch (Exception e) {
-			// make sure the main window is not displayed out of screen bounds
-			frame.setLocation(120, 80);
+			frame.setLocation(120, 80); // make sure the main window is not displayed out of screen bounds
 		}
 
 		frame.addWindowListener(windowClosed(evt -> {
@@ -368,18 +365,16 @@ public class Main {
 		System.setProperty("sun.net.client.defaultReadTimeout", "60000");
 
 		System.setProperty("swing.crossplatformlaf", "javax.swing.plaf.nimbus.NimbusLookAndFeel");
-		System.setProperty("grape.root", ApplicationFolder.AppData.resolve("grape").getAbsolutePath());
+		System.setProperty("grape.root", ApplicationFolder.AppData.path("grape").getPath());
 		System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 
 		if (args.unixfs) {
 			System.setProperty("unixfs", "true");
 		}
-		if (args.disableExtendedAttributes || "TEST".equalsIgnoreCase(args.action)) {
+
+		if (args.disableExtendedAttributes) {
 			System.setProperty("useExtendedFileAttributes", "false");
 			System.setProperty("useCreationDate", "false");
-		}
-		if ("TEST".equalsIgnoreCase(args.action)) {
-			System.setProperty("application.rename.history", "false"); // do not keep history of --action test rename operations
 		}
 	}
 
@@ -394,7 +389,7 @@ public class Main {
 
 			// log errors to file
 			try {
-				Handler error = createSimpleFileHandler(ApplicationFolder.AppData.resolve("error.log"), Level.WARNING);
+				Handler error = createSimpleFileHandler(ApplicationFolder.AppData.path("error.log"), Level.WARNING);
 				log.addHandler(error);
 				debug.addHandler(error);
 			} catch (Exception e) {
@@ -406,7 +401,7 @@ public class Main {
 		if (args.logFile != null) {
 			File logFile = new File(args.logFile);
 			if (!logFile.isAbsolute()) {
-				logFile = new File(ApplicationFolder.AppData.resolve("logs"), logFile.getPath()).getAbsoluteFile(); // by default resolve relative paths against {applicationFolder}/logs/{logFile}
+				logFile = new File(ApplicationFolder.AppData.path("logs"), logFile.getPath()).getAbsoluteFile(); // by default resolve relative paths against {applicationFolder}/logs/{logFile}
 			}
 			if (!logFile.exists() && !logFile.getParentFile().mkdirs() && !logFile.createNewFile()) {
 				throw new IOException("Failed to create log file: " + logFile);

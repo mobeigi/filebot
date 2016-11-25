@@ -67,7 +67,6 @@ import net.filebot.format.MediaBindingBean;
 import net.filebot.format.SuppressedThrowables;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.media.MetaAttributes;
-import net.filebot.mediainfo.MediaInfo;
 import net.filebot.util.DefaultThreadFactory;
 import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.PreferencesList;
@@ -305,16 +304,18 @@ public class FormatDialog extends JDialog {
 	}
 
 	public void setFormatCode(String text) {
-		// update format code
-		editor.setText(text);
-
-		// scroll to last character and focus
 		try {
-			editor.scrollRectToVisible(new Rectangle(0, 0)); // reset scroll
-			editor.setCaretPosition(text.length()); // scroll to end of format
-			editor.requestFocusInWindow();
+			// update format code
+			editor.setText(text);
+
+			// scroll to last character and focus
+			if (text != null && text.length() > 0) {
+				editor.scrollRectToVisible(new Rectangle(0, 0)); // reset scroll
+				editor.setCaretPosition(editor.getText().length()); // scroll to end of format
+				editor.requestFocusInWindow();
+			}
 		} catch (Exception e) {
-			log.warning(e::getMessage);
+			debug.warning(e::toString);
 		}
 	}
 
@@ -711,17 +712,6 @@ public class FormatDialog extends JDialog {
 
 	protected void fireSampleChanged() {
 		firePropertyChange("sample", null, sample);
-	}
-
-	static {
-		try {
-			// load all necessarily classes to avoid focus issues with RSyntaxTextArea
-			new RSyntaxTextArea(new RSyntaxDocument(SyntaxConstants.SYNTAX_STYLE_GROOVY));
-			new ExpressionFormat("{n.space('.').lower()}.{s}{e.pad(2)}");
-			new MediaInfo();
-		} catch (Throwable e) {
-			debug.log(Level.SEVERE, "Failed to initialize FormatDialog", e);
-		}
 	}
 
 }

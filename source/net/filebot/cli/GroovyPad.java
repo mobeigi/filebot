@@ -118,7 +118,7 @@ public class GroovyPad extends JFrame {
 
 		try {
 			// use this default value so people can easily submit bug reports with fn:sysinfo logs
-			File pad = ApplicationFolder.AppData.resolve("pad.groovy");
+			File pad = ApplicationFolder.AppData.path("pad.groovy");
 
 			if (!pad.exists()) {
 				ScriptShellMethods.saveAs(DEFAULT_SCRIPT, pad);

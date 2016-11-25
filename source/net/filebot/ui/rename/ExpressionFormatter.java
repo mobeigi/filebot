@@ -83,7 +83,7 @@ class ExpressionFormatter implements MatchFormatter {
 
 		// resolve against home folder
 		if (destination.startsWith("~")) {
-			return ApplicationFolder.UserHome.resolve(destination.substring(1)).getAbsolutePath();
+			return ApplicationFolder.UserHome.path(destination.substring(1)).getAbsolutePath();
 		}
 
 		// try to resolve against structure root folder by default

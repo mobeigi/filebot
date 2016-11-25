@@ -499,8 +499,8 @@ public abstract class ScriptShellBaseClass extends Script {
 		for (Entry<String, ?> it : parameters.entrySet()) {
 			try {
 				options.put(Option.valueOf(it.getKey()), it.getValue());
-			} catch (IllegalArgumentException e) {
-				// just ignore illegal options
+			} catch (Exception e) {
+				debug.warning(e::toString);
 			}
 		}
 

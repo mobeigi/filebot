@@ -21,6 +21,8 @@ import org.kohsuke.args4j.ParserProperties;
 import org.kohsuke.args4j.spi.ExplicitBooleanOptionHandler;
 
 import net.filebot.Language;
+import net.filebot.StandardRenameAction;
+import net.filebot.web.SortOrder;
 
 public class ArgumentBean {
 
@@ -178,6 +180,18 @@ public class ArgumentBean {
 		}
 
 		return files;
+	}
+
+	public StandardRenameAction getRenameAction() {
+		return StandardRenameAction.forName(action);
+	}
+
+	public ConflictAction getConflictAction() {
+		return ConflictAction.forName(conflict);
+	}
+
+	public SortOrder getSortOrder() {
+		return SortOrder.forName(order);
 	}
 
 	public Locale getLocale() {
