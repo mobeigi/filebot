@@ -64,6 +64,11 @@ public class CmdlineOperationsTextUI extends CmdlineOperations {
 
 	@Override
 	public List<File> renameAll(Map<File, File> renameMap, RenameAction renameAction, ConflictAction conflictAction, List<Match<File, ?>> matches) throws Exception {
+		// default behavior if rename map is empty
+		if (renameMap.isEmpty()) {
+			return super.renameAll(renameMap, renameAction, conflictAction, matches);
+		}
+
 		// manually confirm each file mapping
 		Map<File, File> selection = onScreen(() -> confirmRenameMap(renameMap, renameAction, conflictAction));
 
@@ -74,12 +79,11 @@ public class CmdlineOperationsTextUI extends CmdlineOperations {
 	protected List<SearchResult> selectSearchResult(String query, Collection<? extends SearchResult> options, boolean alias, boolean strict) throws Exception {
 		List<SearchResult> matches = getProbableMatches(query, options, alias, false);
 
-		// manually select option if there is more than one
-		if (matches.size() > 1) {
-			return onScreen(() -> confirmSearchResult(query, matches));
+		if (matches.size() < 2) {
+			return matches;
 		}
 
-		return matches;
+		return onScreen(() -> confirmSearchResult(query, matches)); // manually select option if there is more than one
 	}
 
 	protected List<SearchResult> confirmSearchResult(String query, List<SearchResult> options) {
