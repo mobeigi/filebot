@@ -53,7 +53,7 @@ public class CmdlineOperationsTextUI extends CmdlineOperations {
 		ui.setTheme(LanternaThemes.getRegisteredTheme(DEFAULT_THEME));
 	}
 
-	public <T> T onScreen(Supplier<T> dialog) throws Exception {
+	public synchronized <T> T onScreen(Supplier<T> dialog) throws Exception {
 		try {
 			screen.startScreen();
 			return dialog.get();
@@ -71,6 +71,11 @@ public class CmdlineOperationsTextUI extends CmdlineOperations {
 
 		// manually confirm each file mapping
 		Map<File, File> selection = onScreen(() -> confirmRenameMap(renameMap, renameAction, conflictAction));
+
+		// no selection, do nothing and return successfully
+		if (selection.isEmpty()) {
+			return emptyList();
+		}
 
 		return super.renameAll(selection, renameAction, conflictAction, matches);
 	}
