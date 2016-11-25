@@ -108,21 +108,6 @@ public enum StandardRenameAction implements RenameAction {
 		}
 	},
 
-	RENAME {
-
-		@Override
-		public File rename(File from, File to) throws Exception {
-			// rename only the filename
-			File dest = new File(from.getParentFile(), to.getName());
-
-			if (!from.renameTo(dest)) {
-				throw new IOException("Failed to rename " + from + " to " + dest);
-			}
-
-			return dest;
-		}
-	},
-
 	TEST {
 
 		@Override
@@ -148,8 +133,12 @@ public enum StandardRenameAction implements RenameAction {
 			return "Symlink";
 		case HARDLINK:
 			return "Hardlink";
+		case DUPLICATE:
+			return "Hardlink or Copy";
+		case REFLINK:
+			return "Lightweight Copy";
 		default:
-			return null;
+			return "Test";
 		}
 	}
 

@@ -529,9 +529,11 @@ public abstract class ScriptShellBaseClass extends Script {
 		if (obj instanceof RenameAction) {
 			return (RenameAction) obj;
 		}
+
 		if (obj instanceof CharSequence) {
 			return StandardRenameAction.forName(obj.toString());
 		}
+
 		if (obj instanceof Closure<?>) {
 			return new RenameAction() {
 
@@ -542,7 +544,12 @@ public abstract class ScriptShellBaseClass extends Script {
 					Object value = closure.call(from, to);
 
 					// must return File object, so we try the result of the closure, but if it's not a File we just return the original destination parameter
-					return value instanceof File ? (File) value : to;
+					return new File(value.toString());
+				}
+
+				@Override
+				public boolean canRevert() {
+					return false;
 				}
 
 				@Override
