@@ -1057,7 +1057,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	@Override
 	public List<String> getMediaInfo(Collection<File> files, String format, String filter) throws Exception {
-		ExpressionFormat formatter = new ExpressionFormat(format != null && format.length() > 0 ? format : "{fn} [{resolution} {vc} {channels} {ac} {minutes+'m'}]");
+		ExpressionFormat formatter = new ExpressionFormat(format != null && format.length() > 0 ? format : "{fn} [{resolution} {vc} {channels} {ac} {minutes}m]");
 		List<File> selection = filter(files, filter == null || filter.isEmpty() ? f -> true : new ExpressionFileFilter(new ExpressionFilter(filter), false));
 
 		return new FunctionList<File, String>(selection, f -> formatter.format(new MediaBindingBean(xattr.getMetaInfo(f), f, null)));
