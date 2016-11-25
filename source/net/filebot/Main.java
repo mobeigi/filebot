@@ -108,10 +108,6 @@ public class Main {
 			initializeSystemProperties(args);
 			initializeLogging(args);
 
-			// make sure that these folders exist
-			ApplicationFolder.TemporaryFiles.getFile().mkdirs();
-			ApplicationFolder.AppData.getFile().mkdirs();
-
 			// initialize this stuff before anything else
 			CacheManager.getInstance();
 			initializeSecurityManager();
@@ -380,6 +376,10 @@ public class Main {
 	}
 
 	public static void initializeLogging(ArgumentBean args) throws IOException {
+		// make sure that these folders exist
+		ApplicationFolder.TemporaryFiles.getFile().mkdirs();
+		ApplicationFolder.AppData.getFile().mkdirs();
+
 		if (args.runCLI()) {
 			// CLI logging settings
 			log.setLevel(args.getLogLevel());
@@ -394,7 +394,7 @@ public class Main {
 				log.addHandler(error);
 				debug.addHandler(error);
 			} catch (Exception e) {
-				debug.log(Level.WARNING, "Failed to initialize error log", e);
+				log.log(Level.WARNING, "Failed to initialize error log", e);
 			}
 		}
 
