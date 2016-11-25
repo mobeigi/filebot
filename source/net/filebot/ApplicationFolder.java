@@ -11,7 +11,7 @@ public enum ApplicationFolder {
 
 	AppData(System.getProperty("application.dir", UserHome.resolve(".filebot").getPath())),
 
-	Temp(System.getProperty("java.io.tmpdir")),
+	TemporaryFiles(System.getProperty("java.io.tmpdir")),
 
 	Cache(System.getProperty("application.cache", AppData.resolve("cache").getPath()));
 

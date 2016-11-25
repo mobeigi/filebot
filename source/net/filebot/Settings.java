@@ -2,7 +2,6 @@ package net.filebot;
 
 import static net.filebot.Logging.*;
 
-import java.io.File;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;

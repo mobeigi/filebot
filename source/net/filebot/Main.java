@@ -108,8 +108,9 @@ public class Main {
 			initializeSystemProperties(args);
 			initializeLogging(args);
 
-			// make sure java.io.tmpdir exists
-			createFolders(ApplicationFolder.Temp.getFile());
+			// make sure that these folders exist
+			ApplicationFolder.TemporaryFiles.getFile().mkdirs();
+			ApplicationFolder.AppData.getFile().mkdirs();
 
 			// initialize this stuff before anything else
 			CacheManager.getInstance();
