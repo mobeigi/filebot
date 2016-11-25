@@ -928,7 +928,7 @@ public class MediaBindingBean {
 
 	@Define("home")
 	public File getUserHome() {
-		return ApplicationFolder.UserHome.getFile();
+		return ApplicationFolder.UserHome.get();
 	}
 
 	@Define("output")

@@ -160,7 +160,7 @@ public class RenamePanel extends JComponent {
 			renameModel.useFormatter(FileInfo.class, new FileNameFormatter());
 		}
 
-		RenameListCellRenderer cellrenderer = new RenameListCellRenderer(renameModel, ApplicationFolder.UserHome.getFile());
+		RenameListCellRenderer cellrenderer = new RenameListCellRenderer(renameModel, ApplicationFolder.UserHome.get());
 
 		namesList.getListComponent().setCellRenderer(cellrenderer);
 		filesList.getListComponent().setCellRenderer(cellrenderer);

@@ -21,7 +21,7 @@ public enum ApplicationFolder {
 		this.path = new File(path);
 	}
 
-	public File getFile() {
+	public File get() {
 		return path;
 	}
 

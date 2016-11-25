@@ -91,7 +91,7 @@ public class Main {
 				// clear caches
 				if (args.clearCache()) {
 					log.info("Clear cache");
-					for (File folder : getChildren(ApplicationFolder.Cache.getFile(), FOLDERS)) {
+					for (File folder : getChildren(ApplicationFolder.Cache.get(), FOLDERS)) {
 						log.fine("* Delete " + folder);
 						delete(folder);
 					}
@@ -377,8 +377,8 @@ public class Main {
 
 	public static void initializeLogging(ArgumentBean args) throws IOException {
 		// make sure that these folders exist
-		ApplicationFolder.TemporaryFiles.getFile().mkdirs();
-		ApplicationFolder.AppData.getFile().mkdirs();
+		ApplicationFolder.TemporaryFiles.get().mkdirs();
+		ApplicationFolder.AppData.get().mkdirs();
 
 		if (args.runCLI()) {
 			// CLI logging settings

@@ -220,7 +220,7 @@ public class ReleaseInfo {
 		if (volumeRoots == null) {
 			Set<File> volumes = new HashSet<File>();
 
-			File home = ApplicationFolder.UserHome.getFile();
+			File home = ApplicationFolder.UserHome.get();
 			List<File> roots = getFileSystemRoots();
 
 			// user root folder

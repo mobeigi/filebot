@@ -66,11 +66,8 @@ public class CacheManager {
 	}
 
 	private File acquireDiskStore() throws IOException {
-		// prepare cache folder for this application instance
-		File cacheRoot = ApplicationFolder.Cache.getFile();
-
 		for (int i = 0; i < 10; i++) {
-			File cache = new File(cacheRoot, Integer.toString(i));
+			File cache = ApplicationFolder.Cache.resolve(String.valueOf(i));
 
 			// make sure cache is readable and writable
 			createFolders(cache);
@@ -124,7 +121,7 @@ public class CacheManager {
 		}
 
 		// serious error, abort
-		throw new IOException("Unable to acquire cache lock: " + cacheRoot);
+		throw new IOException("Unable to acquire cache lock: " + ApplicationFolder.Cache.get().getAbsolutePath());
 	}
 
 	private static class ShutdownHook extends Thread {
