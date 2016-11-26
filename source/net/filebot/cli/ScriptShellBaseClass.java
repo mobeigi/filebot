@@ -564,7 +564,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		return (RenameAction) DefaultTypeTransformation.castToType(obj, RenameAction.class);
 	}
 
-	public <T> T getUserChoice(Collection<T> options, String title, String message) throws Exception {
+	public <T> T showInputDialog(Collection<T> options, String title, String message) throws Exception {
 		if (options.isEmpty()) {
 			return null;
 		}
