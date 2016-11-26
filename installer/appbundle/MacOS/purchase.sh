@@ -1,7 +1,7 @@
 #!/bin/sh
 
 function validate {
-	/usr/bin/codesign -v /Applications/FileBot.app
+	/usr/bin/codesign --verbose --deep --verify  /Applications/FileBot.app
 }
 
 function purchase {
