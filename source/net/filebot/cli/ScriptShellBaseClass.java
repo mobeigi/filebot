@@ -16,6 +16,7 @@ import java.io.PrintStream;
 import java.io.StringWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -561,6 +562,31 @@ public abstract class ScriptShellBaseClass extends Script {
 
 		// object probably can't be casted
 		return (RenameAction) DefaultTypeTransformation.castToType(obj, RenameAction.class);
+	}
+
+	public <T> T getUserChoice(Collection<T> options, String title, String message) throws Exception {
+		if (options.isEmpty()) {
+			return null;
+		}
+
+		// use Text UI in interactive mode
+		if (getCLI() instanceof CmdlineOperationsTextUI) {
+			CmdlineOperationsTextUI cli = (CmdlineOperationsTextUI) getCLI();
+			return cli.showInputDialog(options, title, message);
+		}
+
+		// use Swing dialog non-headless environments
+		if (!java.awt.GraphicsEnvironment.isHeadless()) {
+			List<T> selection = new ArrayList<T>(1);
+			javax.swing.SwingUtilities.invokeAndWait(() -> {
+				T value = (T) javax.swing.JOptionPane.showInputDialog(null, message, title, javax.swing.JOptionPane.QUESTION_MESSAGE, null, options.toArray(), options.iterator().next());
+				selection.add(0, value);
+			});
+			return selection.get(0);
+		}
+
+		// just pick the first option if we can't ask the user
+		return options.iterator().next();
 	}
 
 }

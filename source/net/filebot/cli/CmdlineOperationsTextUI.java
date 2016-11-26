@@ -2,13 +2,18 @@ package net.filebot.cli;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.media.MediaDetection.*;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import com.googlecode.lanterna.TextColor;
@@ -71,14 +76,22 @@ public class CmdlineOperationsTextUI extends CmdlineOperations {
 		}
 
 		// manually confirm each file mapping
-		Map<File, File> selection = onScreen(() -> confirmRenameMap(renameMap, renameAction, conflictAction));
+		String title = String.format("%s / %s", renameAction, conflictAction);
+
+		// Alias.1x01.mp4 => Alias - 1x01 - Pilot.mp4
+		int columnSize = renameMap.keySet().stream().mapToInt(f -> f.getName().length()).max().orElse(0);
+
+		Function<Entry<File, File>, String> renderer = m -> String.format("%-" + columnSize + "s\t=>\t%s", m.getKey().getName(), m.getValue().getName());
+		Predicate<Entry<File, File>> checked = m -> m.getKey().exists() && !m.getValue().exists();
+
+		List<Entry<File, File>> selection = showInputDialog(renameMap.entrySet(), renderer, checked, title);
 
 		// no selection, do nothing and return successfully
-		if (selection.isEmpty()) {
+		if (selection == null || selection.isEmpty()) {
 			return emptyList();
 		}
 
-		return super.renameAll(selection, renameAction, conflictAction, matches);
+		return super.renameAll(selection.stream().collect(toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new)), renameAction, conflictAction, matches);
 	}
 
 	@Override
@@ -89,19 +102,9 @@ public class CmdlineOperationsTextUI extends CmdlineOperations {
 			return matches;
 		}
 
-		return onScreen(() -> confirmSearchResult(query, matches)); // manually select option if there is more than one
-	}
+		// manually select option if there is more than one
+		SearchResult selection = showInputDialog(matches, "Multiple Options", String.format("Select best match for \"%s\"", query));
 
-	protected List<SearchResult> confirmSearchResult(String query, List<SearchResult> options) {
-		ListSelectDialogBuilder<SearchResult> dialog = new ListSelectDialogBuilder<SearchResult>();
-		dialog.setTitle("Multiple Options");
-		dialog.setDescription(String.format("Select best match for \"%s\"", query));
-		dialog.setExtraWindowHints(singleton(Hint.CENTERED));
-
-		options.forEach(dialog::addListItem);
-
-		// show UI
-		SearchResult selection = dialog.build().showDialog(ui);
 		if (selection == null) {
 			return emptyList();
 		}
@@ -109,57 +112,71 @@ public class CmdlineOperationsTextUI extends CmdlineOperations {
 		return singletonList(selection);
 	}
 
-	protected Map<File, File> confirmRenameMap(Map<File, File> renameMap, RenameAction renameAction, ConflictAction conflictAction) {
-		Map<File, File> selection = new LinkedHashMap<File, File>();
+	public <T> T showInputDialog(Collection<T> options, String title, String message) throws Exception {
+		return onScreen(() -> {
+			ListSelectDialogBuilder<T> dialog = new ListSelectDialogBuilder<T>();
+			dialog.setExtraWindowHints(singleton(Hint.CENTERED));
 
-		BasicWindow dialog = new BasicWindow();
-		dialog.setTitle(String.format("%s / %s", renameAction, conflictAction));
-		dialog.setHints(asList(Hint.MODAL, Hint.CENTERED));
+			dialog.setTitle(title);
+			dialog.setDescription(message);
+			options.forEach(dialog::addListItem);
 
-		CheckBoxList<CheckBoxListItem> checkBoxList = new CheckBoxList<CheckBoxListItem>();
-
-		int columnSize = renameMap.keySet().stream().mapToInt(f -> f.getName().length()).max().orElse(0);
-		String labelFormat = "%-" + columnSize + "s\t=>\t%s";
-
-		renameMap.forEach((k, v) -> {
-			checkBoxList.addItem(new CheckBoxListItem(String.format(labelFormat, k.getName(), v.getName()), k, v), true);
+			return dialog.build().showDialog(ui);
 		});
-
-		Button okButton = new Button(LocalizedString.OK.toString(), () -> {
-			checkBoxList.getCheckedItems().forEach(it -> selection.put(it.key, it.value));
-			dialog.close();
-		});
-
-		Button cancelButton = new Button(LocalizedString.Cancel.toString(), () -> {
-			selection.clear();
-			dialog.close();
-		});
-
-		Panel contentPane = new Panel();
-		contentPane.setLayoutManager(new GridLayout(1));
-
-		contentPane.addComponent(checkBoxList.setLayoutData(GridLayout.createLayoutData(GridLayout.Alignment.BEGINNING, GridLayout.Alignment.BEGINNING, true, true, 1, 1)));
-		contentPane.addComponent(new Separator(Direction.HORIZONTAL).setLayoutData(GridLayout.createLayoutData(GridLayout.Alignment.FILL, GridLayout.Alignment.CENTER, true, false, 1, 1)));
-		contentPane.addComponent(Panels.grid(2, okButton, cancelButton).setLayoutData(GridLayout.createLayoutData(GridLayout.Alignment.END, GridLayout.Alignment.CENTER, false, false, 1, 1)));
-
-		dialog.setComponent(contentPane);
-
-		ui.addWindowAndWait(dialog);
-
-		return selection;
 	}
 
-	protected static class CheckBoxListItem {
+	public <T> List<T> showInputDialog(Collection<T> options, Function<T, String> renderer, Predicate<T> checked, String title) throws Exception {
+		return onScreen(() -> {
+			List<T> selection = new ArrayList<T>(options.size());
 
-		public final String label;
+			BasicWindow dialog = new BasicWindow();
+			dialog.setTitle(title);
+			dialog.setHints(asList(Hint.MODAL, Hint.CENTERED));
 
-		public final File key;
-		public final File value;
+			CheckBoxList<CheckBoxListItem> checkBoxList = new CheckBoxList<CheckBoxListItem>();
 
-		public CheckBoxListItem(String label, File key, File value) {
-			this.label = label;
-			this.key = key;
+			for (T option : options) {
+				checkBoxList.addItem(new CheckBoxListItem<T>(option, renderer.apply(option)), checked.test(option));
+			}
+
+			Button okButton = new Button(LocalizedString.OK.toString(), () -> {
+				for (CheckBoxListItem<T> it : checkBoxList.getCheckedItems()) {
+					selection.add(it.getValue());
+				}
+				dialog.close();
+			});
+
+			Button cancelButton = new Button(LocalizedString.Cancel.toString(), () -> {
+				dialog.close();
+			});
+
+			Panel contentPane = new Panel();
+			contentPane.setLayoutManager(new GridLayout(1));
+
+			contentPane.addComponent(checkBoxList.setLayoutData(GridLayout.createLayoutData(GridLayout.Alignment.BEGINNING, GridLayout.Alignment.BEGINNING, true, true, 1, 1)));
+			contentPane.addComponent(new Separator(Direction.HORIZONTAL).setLayoutData(GridLayout.createLayoutData(GridLayout.Alignment.FILL, GridLayout.Alignment.CENTER, true, false, 1, 1)));
+			contentPane.addComponent(Panels.grid(2, okButton, cancelButton).setLayoutData(GridLayout.createLayoutData(GridLayout.Alignment.END, GridLayout.Alignment.CENTER, false, false, 1, 1)));
+
+			dialog.setComponent(contentPane);
+
+			ui.addWindowAndWait(dialog);
+
+			return selection;
+		});
+	}
+
+	protected static class CheckBoxListItem<T> {
+
+		private final T value;
+		private final String label;
+
+		public CheckBoxListItem(T value, String label) {
 			this.value = value;
+			this.label = label;
+		}
+
+		public T getValue() {
+			return value;
 		}
 
 		@Override

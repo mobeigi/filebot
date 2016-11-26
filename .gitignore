@@ -11,6 +11,7 @@ website/data/
 
 *.sh
 *.cmd
+*.groovy
 
 *.cer
 *.pfx
