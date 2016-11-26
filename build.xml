@@ -258,9 +258,15 @@
 				<include name="**/*.properties" />
 			</zipfileset>
 
-			<!-- include classes and native libraries -->
 			<zipfileset src="${dir.lib}/ivy/jar/jna.jar">
 				<include name="com/sun/jna/**" />
+
+				<!-- exclude native libraries -->
+				<exclude name="**/*.a" />
+				<exclude name="**/*.so" />
+				<exclude name="**/*.dll" />
+				<exclude name="**/*.dylib" />
+				<exclude name="**/*.jnilib" />
 			</zipfileset>
 			<zipfileset src="${dir.lib}/ivy/jar/jna-platform.jar">
 				<include name="com/sun/jna/platform/**" />
