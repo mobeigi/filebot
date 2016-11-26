@@ -586,6 +586,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		}
 
 		// just pick the first option if we can't ask the user
+		log.log(Level.CONFIG, format("Auto-Select %s from %s", options.iterator().next(), options));
 		return options.iterator().next();
 	}
 
