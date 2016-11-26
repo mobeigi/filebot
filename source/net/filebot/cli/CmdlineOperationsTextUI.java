@@ -31,6 +31,7 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
+import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
 
 import net.filebot.RenameAction;
 import net.filebot.similarity.Match;
@@ -45,7 +46,7 @@ public class CmdlineOperationsTextUI extends CmdlineOperations {
 	private MultiWindowTextGUI ui;
 
 	public CmdlineOperationsTextUI() throws Exception {
-		terminal = new DefaultTerminalFactory().createTerminal();
+		terminal = new DefaultTerminalFactory().setTerminalEmulatorFrameAutoCloseTrigger(TerminalEmulatorAutoCloseTrigger.CloseOnEscape).createTerminal();
 		screen = new TerminalScreen(terminal);
 		ui = new MultiWindowTextGUI(screen, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.DEFAULT));
 
