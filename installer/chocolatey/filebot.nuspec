@@ -8,8 +8,12 @@
 		<owners>@{package.maintainer}</owners>
 		<summary>@{package.synopsis}</summary>
 		<description>@{package.description}</description>
-		<projectUrl>@{package.homepage}</projectUrl>
+		<tags>batch rename movie series music subtitles kodi plex admin</tags>
 		<iconUrl>@{link.image.logo}</iconUrl>
+		<projectUrl>@{package.homepage}</projectUrl>
+		<docsUrl>@{link.intro}</docsUrl>
+		<mailingListUrl>@{link.forums}</mailingListUrl>
+		<bugTrackerUrl>@{link.bugs}</bugTrackerUrl>
 		<copyright>@{tstamp.year} @{package.developer}</copyright>
 		<licenseUrl>http://www.gnu.org/licenses/gpl-3.0.en.html</licenseUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
