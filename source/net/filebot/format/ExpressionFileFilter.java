@@ -6,14 +6,14 @@ import static net.filebot.media.XattrMetaInfo.*;
 import java.io.File;
 import java.io.FileFilter;
 
+import javax.script.ScriptException;
+
 public class ExpressionFileFilter implements FileFilter {
 
-	private final ExpressionFilter filter;
-	private final boolean error;
+	private ExpressionFilter filter;
 
-	public ExpressionFileFilter(ExpressionFilter filter, boolean error) {
-		this.filter = filter;
-		this.error = error;
+	public ExpressionFileFilter(String expression) throws ScriptException {
+		this.filter = new ExpressionFilter(expression);
 	}
 
 	public ExpressionFilter getExpressionFilter() {
@@ -25,9 +25,9 @@ public class ExpressionFileFilter implements FileFilter {
 		try {
 			return filter.matches(new MediaBindingBean(xattr.getMetaInfo(f), f, null));
 		} catch (Exception e) {
-			debug.warning(format("Expression failed: %s", e));
-			return error;
+			debug.warning("Filter expression failed: " + e);
 		}
+		return false;
 	}
 
 }

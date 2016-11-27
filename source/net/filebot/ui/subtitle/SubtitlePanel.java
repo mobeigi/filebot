@@ -124,15 +124,18 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 	private final SubtitleDropTarget downloadDropTarget = new SubtitleDropTarget.Download() {
 
+		public Locale getLocale() {
+			return languageComboBox.getModel().getSelectedItem() == ALL_LANGUAGES ? Locale.ROOT : languageComboBox.getModel().getSelectedItem().getLocale();
+		}
+
 		@Override
 		public VideoHashSubtitleService[] getVideoHashSubtitleServices() {
-			Locale locale = languageComboBox.getModel().getSelectedItem() == ALL_LANGUAGES ? Locale.ROOT : languageComboBox.getModel().getSelectedItem().getLocale();
-			return WebServices.getVideoHashSubtitleServices(locale);
+			return WebServices.getVideoHashSubtitleServices(getLocale());
 		}
 
 		@Override
 		public SubtitleProvider[] getSubtitleProviders() {
-			return WebServices.getSubtitleProviders();
+			return WebServices.getSubtitleProviders(getLocale());
 		}
 
 		@Override
@@ -182,7 +185,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 	@Override
 	protected SubtitleProvider[] getSearchEngines() {
-		return WebServices.getSubtitleProviders();
+		return WebServices.getSubtitleProviders(getLocale());
 	}
 
 	@Override

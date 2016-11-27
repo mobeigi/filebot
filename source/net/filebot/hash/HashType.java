@@ -24,7 +24,6 @@ public enum HashType {
 		public ExtensionFileFilter getFilter() {
 			return MediaTypes.getDefaultFilter("verification/sfv");
 		}
-
 	},
 
 	MD5 {
@@ -44,7 +43,6 @@ public enum HashType {
 		public ExtensionFileFilter getFilter() {
 			return MediaTypes.getDefaultFilter("verification/md5sum");
 		}
-
 	},
 
 	SHA1 {
@@ -69,7 +67,6 @@ public enum HashType {
 		public String toString() {
 			return "SHA1";
 		}
-
 	},
 
 	SHA256 {
@@ -94,7 +91,6 @@ public enum HashType {
 		public String toString() {
 			return "SHA2";
 		}
-
 	},
 
 	ED2K {

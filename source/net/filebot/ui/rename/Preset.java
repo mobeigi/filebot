@@ -57,7 +57,7 @@ public class Preset {
 	}
 
 	public ExpressionFileFilter getIncludeFilter() {
-		return getInputFolder() == null ? null : getValue(includes, expression -> new ExpressionFileFilter(new ExpressionFilter(expression), false));
+		return getInputFolder() == null ? null : getValue(includes, expression -> new ExpressionFileFilter(expression));
 	}
 
 	public ExpressionFormat getFormat() {

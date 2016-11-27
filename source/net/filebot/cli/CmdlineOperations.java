@@ -17,7 +17,6 @@ import static net.filebot.util.RegularExpressions.*;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -37,7 +36,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -49,7 +47,6 @@ import net.filebot.RenameAction;
 import net.filebot.StandardRenameAction;
 import net.filebot.archive.Archive;
 import net.filebot.archive.FileMapper;
-import net.filebot.format.ExpressionFileFilter;
 import net.filebot.format.ExpressionFilter;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
@@ -59,7 +56,6 @@ import net.filebot.hash.VerificationFileWriter;
 import net.filebot.media.AutoDetection;
 import net.filebot.media.AutoDetection.Group;
 import net.filebot.media.AutoDetection.Type;
-import net.filebot.media.MediaDetection;
 import net.filebot.media.VideoQuality;
 import net.filebot.media.XattrMetaInfoProvider;
 import net.filebot.similarity.CommonSequenceMatcher;
@@ -93,30 +89,25 @@ import net.filebot.web.VideoHashSubtitleService;
 public class CmdlineOperations implements CmdlineInterface {
 
 	@Override
-	public List<File> rename(Collection<File> files, RenameAction action, String conflict, String output, String formatExpression, String db, String query, String sortOrder, String filterExpression, String lang, boolean strict) throws Exception {
-		ExpressionFormat format = (formatExpression != null) ? new ExpressionFormat(formatExpression) : null;
-		ExpressionFilter filter = (filterExpression != null) ? new ExpressionFilter(filterExpression) : null;
-		File outputDir = (output != null && output.length() > 0) ? new File(output).getAbsoluteFile() : null;
-		Locale locale = getLanguage(lang).getLocale();
-		ConflictAction conflictAction = ConflictAction.forName(conflict);
-
-		if (getMovieIdentificationService(db) != null) {
-			// movie mode
-			return renameMovie(files, action, conflictAction, outputDir, format, getMovieIdentificationService(db), query, filter, locale, strict);
+	public List<File> rename(Collection<File> files, RenameAction action, ConflictAction conflict, File output, ExpressionFormat format, Datasource db, String query, SortOrder order, ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
+		// movie mode
+		if (db instanceof MovieIdentificationService) {
+			return renameMovie(files, action, conflict, output, format, (MovieIdentificationService) db, query, filter, locale, strict);
 		}
 
-		if (getEpisodeListProvider(db) != null) {
-			// tv series mode
-			return renameSeries(files, action, conflictAction, outputDir, format, getEpisodeListProvider(db), query, SortOrder.forName(sortOrder), filter, locale, strict);
+		// series mode
+		if (db instanceof EpisodeListProvider) {
+			return renameSeries(files, action, conflict, output, format, (EpisodeListProvider) db, query, order, filter, locale, strict);
 		}
 
-		if (getMusicIdentificationService(db) != null) {
-			// music mode
-			return renameMusic(files, action, conflictAction, outputDir, format, getMusicIdentificationService(db));
+		// music mode
+		if (db instanceof MusicIdentificationService) {
+			return renameMusic(files, action, conflict, output, format, (MusicIdentificationService) db);
 		}
 
-		if (XattrMetaData.getIdentifier().equalsIgnoreCase(db)) {
-			return renameFiles(files, action, conflictAction, outputDir, format, XattrMetaData, filter, strict);
+		// generic file / xattr mode
+		if (db instanceof XattrMetaInfoProvider) {
+			return renameFiles(files, action, conflict, output, format, (XattrMetaInfoProvider) db, filter, strict);
 		}
 
 		// auto-detect mode for each fileset
@@ -128,16 +119,16 @@ public class CmdlineOperations implements CmdlineInterface {
 				for (Type key : it.getKey().types()) {
 					switch (key) {
 					case Movie:
-						results.addAll(renameMovie(it.getValue(), action, conflictAction, outputDir, format, TheMovieDB, query, filter, locale, strict));
+						results.addAll(renameMovie(it.getValue(), action, conflict, output, format, TheMovieDB, query, filter, locale, strict));
 						break;
 					case Series:
-						results.addAll(renameSeries(it.getValue(), action, conflictAction, outputDir, format, TheTVDB, query, SortOrder.forName(sortOrder), filter, locale, strict));
+						results.addAll(renameSeries(it.getValue(), action, conflict, output, format, TheTVDB, query, order, filter, locale, strict));
 						break;
 					case Anime:
-						results.addAll(renameSeries(it.getValue(), action, conflictAction, outputDir, format, AniDB, query, SortOrder.forName(sortOrder), filter, locale, strict));
+						results.addAll(renameSeries(it.getValue(), action, conflict, output, format, AniDB, query, order, filter, locale, strict));
 						break;
 					case Music:
-						results.addAll(renameMusic(it.getValue(), action, conflictAction, outputDir, format, MediaInfoID3, AcoustID));
+						results.addAll(renameMusic(it.getValue(), action, conflict, output, format, MediaInfoID3, AcoustID));
 						break;
 					}
 				}
@@ -146,13 +137,17 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 		}
 
+		if (results.isEmpty()) {
+			throw new CmdlineException("Failed to identify or process any files");
+		}
+
 		return results;
 	}
 
 	@Override
-	public List<File> rename(Map<File, File> renameMap, RenameAction renameAction, String conflict) throws Exception {
+	public List<File> rename(Map<File, File> renameMap, RenameAction renameAction, ConflictAction conflict) throws Exception {
 		// generic rename function that can be passed any set of files
-		return renameAll(renameMap, renameAction, ConflictAction.forName(conflict), null);
+		return renameAll(renameMap, renameAction, conflict, null);
 	}
 
 	public List<File> renameSeries(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, EpisodeListProvider db, String query, SortOrder sortOrder, ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
@@ -658,7 +653,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return new ArrayList<File>(renameLog.values());
 	}
 
-	private static File nextAvailableIndexedName(File file) {
+	protected static File nextAvailableIndexedName(File file) {
 		File parent = file.getParentFile();
 		String name = getName(file);
 		String ext = getExtension(file);
@@ -666,17 +661,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	@Override
-	public List<File> getSubtitles(Collection<File> files, String db, String query, String languageName, String output, String csn, String format, boolean strict) throws Exception {
-		Language language = getLanguage(languageName);
-		SubtitleNaming naming = getSubtitleNaming(format);
-
-		// use all or only selected subtitle services
-		Predicate<Datasource> serviceFilter = service -> db == null ? true : db.contains(service.getName()) || db.contains(service.getIdentifier());
-
-		// when rewriting subtitles to target format an encoding must be defined, default to UTF-8
-		Charset outputEncoding = csn != null ? Charset.forName(csn) : output != null ? UTF_8 : null;
-		SubtitleFormat outputFormat = output != null ? getSubtitleFormatByName(output) : null;
-
+	public List<File> getSubtitles(Collection<File> files, String query, Language language, SubtitleFormat output, Charset encoding, SubtitleNaming format, boolean strict) throws Exception {
 		// ignore anything that is not a video
 		files = filter(files, VIDEO_FILES);
 
@@ -696,14 +681,14 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		// lookup subtitles by hash
 		for (VideoHashSubtitleService service : getVideoHashSubtitleServices(language.getLocale())) {
-			if (remainingVideos.isEmpty() || !serviceFilter.test(service) || !requireLogin(service)) {
+			if (remainingVideos.isEmpty() || !requireLogin(service)) {
 				continue;
 			}
 
 			try {
 				log.fine("Looking up subtitles by hash via " + service.getName());
 				Map<File, List<SubtitleDescriptor>> options = lookupSubtitlesByHash(service, remainingVideos, language.getName(), false, strict);
-				Map<File, File> downloads = downloadSubtitleBatch(service, options, outputFormat, outputEncoding, naming);
+				Map<File, File> downloads = downloadSubtitleBatch(service, options, output, encoding, format);
 				remainingVideos.removeAll(downloads.keySet());
 				subtitleFiles.addAll(downloads.values());
 			} catch (Exception e) {
@@ -711,15 +696,15 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 		}
 
-		for (SubtitleProvider service : getSubtitleProviders()) {
-			if (strict || remainingVideos.isEmpty() || !serviceFilter.test(service) || !requireLogin(service)) {
+		for (SubtitleProvider service : getSubtitleProviders(language.getLocale())) {
+			if (strict || remainingVideos.isEmpty() || !requireLogin(service)) {
 				continue;
 			}
 
 			try {
 				log.fine(format("Looking up subtitles by name via %s", service.getName()));
 				Map<File, List<SubtitleDescriptor>> options = findSubtitlesByName(service, remainingVideos, language.getName(), query, false, strict);
-				Map<File, File> downloads = downloadSubtitleBatch(service, options, outputFormat, outputEncoding, naming);
+				Map<File, File> downloads = downloadSubtitleBatch(service, options, output, encoding, format);
 				remainingVideos.removeAll(downloads.keySet());
 				subtitleFiles.addAll(downloads.values());
 			} catch (Exception e) {
@@ -735,7 +720,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return subtitleFiles;
 	}
 
-	private static boolean requireLogin(Object service) {
+	protected static boolean requireLogin(Object service) {
 		if (service instanceof OpenSubtitlesClient) {
 			OpenSubtitlesClient osdb = (OpenSubtitlesClient) service;
 			if (osdb.isAnonymous()) {
@@ -746,47 +731,38 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	@Override
-	public List<File> getMissingSubtitles(Collection<File> files, String db, String query, String languageName, String output, String csn, String format, boolean strict) throws Exception {
-		// sanity check
-		for (File f : files) {
-			if (!f.exists()) {
-				throw new FileNotFoundException(f.toString());
-			}
-		}
-
+	public List<File> getMissingSubtitles(Collection<File> files, String query, Language language, SubtitleFormat output, Charset encoding, SubtitleNaming format, boolean strict) throws Exception {
 		List<File> videoFiles = filter(filter(files, VIDEO_FILES), new FileFilter() {
 
 			// save time on repeating filesystem calls
 			private Map<File, List<File>> cache = new HashMap<File, List<File>>();
 
-			private SubtitleNaming naming = getSubtitleNaming(format);
-
-			// get language code suffix for given language (.eng)
-			private String languageCode = Language.getStandardLanguageCode(getLanguage(languageName).getName());
-
 			public boolean matchesLanguageCode(File f) {
-				Locale languageSuffix = MediaDetection.releaseInfo.getSubtitleLanguageTag(getName(f));
-				Language language = Language.getLanguage(languageSuffix);
-				if (language != null) {
-					return language.getISO3().equalsIgnoreCase(languageCode);
+				Language languageSuffix = Language.getLanguage(releaseInfo.getSubtitleLanguageTag(getName(f)));
+				if (languageSuffix != null) {
+					return languageSuffix.getCode().equals(language.getCode());
 				}
 				return false;
 			}
 
 			@Override
 			public boolean accept(File video) {
+				if (!video.isFile()) {
+					return false;
+				}
+
 				List<File> subtitleFiles = cache.computeIfAbsent(video.getParentFile(), parent -> {
 					return getChildren(parent, SUBTITLE_FILES);
 				});
 
 				// can't tell which subtitle belongs to which file -> if any subtitles exist skip the whole folder
-				if (naming == SubtitleNaming.ORIGINAL) {
+				if (format == SubtitleNaming.ORIGINAL) {
 					return subtitleFiles.size() == 0;
 				}
 
 				return subtitleFiles.stream().allMatch(f -> {
 					if (isDerived(f, video)) {
-						return naming != SubtitleNaming.MATCH_VIDEO && !matchesLanguageCode(f);
+						return format != SubtitleNaming.MATCH_VIDEO && !matchesLanguageCode(f);
 					}
 					return true;
 				});
@@ -798,16 +774,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			return emptyList();
 		}
 
-		return getSubtitles(videoFiles, db, query, languageName, output, csn, format, strict);
-	}
-
-	private SubtitleNaming getSubtitleNaming(String format) {
-		SubtitleNaming naming = SubtitleNaming.forName(format);
-		if (naming != null) {
-			return naming;
-		} else {
-			return SubtitleNaming.MATCH_VIDEO_ADD_LANGUAGE_TAG;
-		}
+		return getSubtitles(videoFiles, query, language, output, encoding, format, strict);
 	}
 
 	private Map<File, File> downloadSubtitleBatch(Datasource service, Map<File, List<SubtitleDescriptor>> subtitles, SubtitleFormat outputFormat, Charset outputEncoding, SubtitleNaming naming) {
@@ -834,19 +801,25 @@ public class CmdlineOperations implements CmdlineInterface {
 		MemoryFile subtitleFile = fetchSubtitle(descriptor);
 
 		// subtitle filename is based on movie filename
-		String ext = getExtension(subtitleFile.getName());
+		String extension = getExtension(subtitleFile.getName());
 		ByteBuffer data = subtitleFile.getData();
 
 		if (outputFormat != null || outputEncoding != null) {
+			// adjust extension of the output file
 			if (outputFormat != null) {
-				ext = outputFormat.getFilter().extension(); // adjust extension of the output file
+				extension = outputFormat.getFilter().extension();
 			}
 
-			log.finest(format("Export [%s] as [%s / %s]", subtitleFile.getName(), outputFormat, outputEncoding.displayName(Locale.ROOT)));
+			// default to UTF-8 if no other encoding is given
+			if (outputEncoding == null) {
+				outputEncoding = UTF_8;
+			}
+
+			log.finest(format("Export [%s] as [%s / %s]", subtitleFile.getName(), outputFormat, outputEncoding));
 			data = exportSubtitles(subtitleFile, outputFormat, 0, outputEncoding);
 		}
 
-		File destination = new File(movieFile.getParentFile(), naming.format(movieFile, descriptor, ext));
+		File destination = new File(movieFile.getParentFile(), naming.format(movieFile, descriptor, extension));
 		log.info(format("Writing [%s] to [%s]", subtitleFile.getName(), destination.getName()));
 
 		writeFile(data, destination);
@@ -893,18 +866,6 @@ public class CmdlineOperations implements CmdlineInterface {
 		return probableMatches.size() <= 5 ? probableMatches : probableMatches.subList(0, 5); // trust that the correct match is in the Top 3
 	}
 
-	private Language getLanguage(String lang) throws Exception {
-		// try to look up by language code
-		Language language = Language.findLanguage(lang);
-
-		if (language == null) {
-			// unable to lookup language
-			throw new CmdlineException("Illegal language code: " + lang);
-		}
-
-		return language;
-	}
-
 	@Override
 	public boolean check(Collection<File> files) throws Exception {
 		// only check existing hashes
@@ -918,9 +879,13 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	@Override
-	public File compute(Collection<File> files, String output, String csn) throws Exception {
+	public File compute(Collection<File> files, File output, HashType hash, Charset encoding) throws Exception {
 		// ignore folders and any sort of special files
 		files = filter(files, FILES);
+
+		if (files.isEmpty()) {
+			throw new CmdlineException("No files: " + files);
+		}
 
 		// find common parent folder of all files
 		File[] fileList = files.toArray(new File[0]);
@@ -933,38 +898,22 @@ public class CmdlineOperations implements CmdlineInterface {
 		File[] common = csm.matchFirstCommonSequence(pathArray);
 
 		if (common == null) {
-			throw new CmdlineException("Paths must be on the same filesystem: " + files);
+			throw new CmdlineException("All paths must be on the same filesystem: " + files);
 		}
 
 		// last element in the common sequence must be the root folder
 		File root = common[common.length - 1];
 
-		// create verification file
-		File outputFile;
-		HashType hashType;
-
-		if (output != null && getExtension(output) != null) {
-			// use given filename
-			hashType = getHashTypeByExtension(getExtension(output));
-			outputFile = new File(root, output);
-		} else {
-			// auto-select the filename based on folder and type
-			hashType = (output != null) ? getHashTypeByExtension(output) : HashType.SFV;
-			outputFile = new File(root, root.getName() + "." + hashType.getFilter().extension());
+		if (output == null) {
+			output = new File(root, root.getName() + '.' + hash.getFilter().extension());
+		} else if (!output.isAbsolute()) {
+			output = new File(root, output.getPath());
 		}
 
-		if (hashType == null) {
-			throw new CmdlineException("Illegal output type: " + output);
-		}
+		log.info(format("Compute %s hash for %s files [%s]", hash, files.size(), output));
+		compute(root, files, output, hash, encoding);
 
-		if (files.isEmpty()) {
-			throw new CmdlineException("No files: " + files);
-		}
-
-		log.info(format("Compute %s hash for %s files [%s]", hashType, files.size(), outputFile));
-		compute(root.getPath(), files, outputFile, hashType, csn);
-
-		return outputFile;
+		return output;
 	}
 
 	private boolean check(File verificationFile, File root) throws Exception {
@@ -1004,16 +953,16 @@ public class CmdlineOperations implements CmdlineInterface {
 		return status;
 	}
 
-	private void compute(String root, Collection<File> files, File outputFile, HashType hashType, String csn) throws IOException, Exception {
+	private void compute(File root, Collection<File> files, File outputFile, HashType hashType, Charset encoding) throws IOException, Exception {
 		// compute hashes recursively and write to file
-		VerificationFileWriter out = new VerificationFileWriter(outputFile, hashType.getFormat(), csn != null ? csn : "UTF-8");
+		VerificationFileWriter out = new VerificationFileWriter(outputFile, hashType.getFormat(), encoding != null ? encoding : UTF_8);
 
 		try {
 			for (File it : files) {
 				if (it.isHidden() || MediaTypes.getDefaultFilter("verification").accept(it))
 					continue;
 
-				String relativePath = normalizePathSeparators(it.getPath().replace(root, "")).substring(1);
+				String relativePath = normalizePathSeparators(it.getPath().substring(root.getPath().length() + 1)); // skip root and first slash
 				String hash = computeHash(it, hashType);
 				log.info(format("%s %s", hash, relativePath));
 
@@ -1028,17 +977,13 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	@Override
-	public List<String> fetchEpisodeList(String query, String expression, String db, String sortOrderName, String filterExpression, String languageName) throws Exception {
-		if (query == null || query.isEmpty()) {
+	public List<String> fetchEpisodeList(Datasource db, String query, ExpressionFormat format, ExpressionFilter filter, SortOrder order, Locale locale) throws Exception {
+		if (query == null) {
 			throw new IllegalArgumentException("query is not defined");
 		}
 
 		// find series on the web and fetch episode list
-		ExpressionFormat format = expression == null ? null : new ExpressionFormat(expression);
-		ExpressionFilter filter = filterExpression == null ? null : new ExpressionFilter(filterExpression);
-		EpisodeListProvider service = db == null ? TheTVDB : getEpisodeListProvider(db);
-		SortOrder sortOrder = SortOrder.forName(sortOrderName);
-		Locale locale = getLanguage(languageName).getLocale();
+		EpisodeListProvider service = db instanceof EpisodeListProvider ? (EpisodeListProvider) db : TheTVDB;
 
 		// search and select search result
 		List<SearchResult> options = selectSearchResult(query, service.search(query, locale), false, false);
@@ -1047,7 +992,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// fetch episodes and apply filter
-		List<Episode> episodes = applyExpressionFilter(service.getEpisodeList(options.get(0), sortOrder, locale), filter);
+		List<Episode> episodes = applyExpressionFilter(service.getEpisodeList(options.get(0), order, locale), filter);
 		Map<File, Episode> context = new EntryList<File, Episode>(null, episodes);
 
 		return episodes.stream().map(episode -> {
@@ -1056,49 +1001,52 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	@Override
-	public List<String> getMediaInfo(Collection<File> files, String format, String filter) throws Exception {
-		ExpressionFormat formatter = new ExpressionFormat(format != null && format.length() > 0 ? format : "{fn} [{resolution} {vc} {channels} {ac} {minutes}m]");
-		List<File> selection = filter(files, filter == null || filter.isEmpty() ? f -> true : new ExpressionFileFilter(new ExpressionFilter(filter), false));
+	public List<String> getMediaInfo(Collection<File> files, FileFilter filter, ExpressionFormat format) throws Exception {
+		List<File> selection = filter(files, FILES);
 
+		// apply custom filter
+		if (filter != null) {
+			selection = filter(selection, filter);
+		}
+
+		// default expression format if not set
+		ExpressionFormat formatter = format != null ? format : new ExpressionFormat("{fn} [{resolution} {vc} {channels} {ac} {minutes}m]");
+
+		// lazy format
 		return new FunctionList<File, String>(selection, f -> formatter.format(new MediaBindingBean(xattr.getMetaInfo(f), f, null)));
 	}
 
 	@Override
-	public List<File> revert(Collection<File> files, String filter, boolean test) throws Exception {
+	public List<File> revert(Collection<File> files, FileFilter filter, RenameAction action) throws Exception {
 		if (files.isEmpty()) {
 			throw new CmdlineException("Expecting at least one input path");
 		}
 
-		FileFilter fileFilter = filter == null || filter.isEmpty() ? f -> true : new ExpressionFileFilter(new ExpressionFilter(filter), false);
 		Set<File> whitelist = new HashSet<File>(files);
 		Map<File, File> history = HistorySpooler.getInstance().getCompleteHistory().getRenameMap();
 
 		return history.entrySet().stream().filter(it -> {
 			File original = it.getKey();
 			File current = it.getValue();
-			return Stream.of(current, original).flatMap(f -> listPath(f).stream()).anyMatch(whitelist::contains) && current.exists() && fileFilter.accept(current);
+			return Stream.of(current, original).flatMap(f -> listPath(f).stream()).anyMatch(whitelist::contains) && current.exists() && (filter == null || filter.accept(current));
 		}).map(it -> {
 			File original = it.getKey();
 			File current = it.getValue();
 
 			log.info(format("Revert [%s] to [%s]", current, original));
-			if (test) {
-				return original;
+			if (action.canRevert()) {
+				try {
+					return StandardRenameAction.revert(current, original);
+				} catch (Exception e) {
+					log.warning("Failed to revert file: " + e);
+				}
 			}
-
-			try {
-				return StandardRenameAction.revert(current, original);
-			} catch (Exception e) {
-				log.warning(format("Failed to revert file: %s", e.getMessage()));
-				return null;
-			}
+			return null;
 		}).filter(Objects::nonNull).collect(toList());
 	}
 
 	@Override
-	public List<File> extract(Collection<File> files, String output, String conflict, FileFilter filter, boolean forceExtractAll) throws Exception {
-		ConflictAction conflictAction = ConflictAction.forName(conflict);
-
+	public List<File> extract(Collection<File> files, File output, ConflictAction conflict, FileFilter filter, boolean forceExtractAll) throws Exception {
 		// only keep single-volume archives or first part of multi-volume archives
 		List<File> archiveFiles = filter(files, Archive.VOLUME_ONE_FILTER);
 		List<File> extractedFiles = new ArrayList<File>();
@@ -1106,11 +1054,11 @@ public class CmdlineOperations implements CmdlineInterface {
 		for (File file : archiveFiles) {
 			Archive archive = Archive.open(file);
 			try {
-				File outputFolder = new File(output != null ? output : getName(file));
-				if (!outputFolder.isAbsolute()) {
-					outputFolder = new File(file.getParentFile(), outputFolder.getPath());
+				File outputFolder = output;
+
+				if (outputFolder == null || !outputFolder.isAbsolute()) {
+					outputFolder = new File(file.getParentFile(), outputFolder == null ? getName(file) : outputFolder.getPath()).getCanonicalFile();
 				}
-				outputFolder = outputFolder.getCanonicalFile(); // normalize weird paths
 
 				log.info(format("Read archive [%s] and extract to [%s]", file.getName(), outputFolder));
 				FileMapper outputMapper = new FileMapper(outputFolder);
@@ -1135,14 +1083,14 @@ public class CmdlineOperations implements CmdlineInterface {
 
 				boolean skip = true;
 				for (FileInfo future : filter == null || forceExtractAll ? outputMapping : selection) {
-					if (conflictAction == ConflictAction.AUTO) {
+					if (conflict == ConflictAction.AUTO) {
 						skip &= (future.toFile().exists() && future.getLength() == future.toFile().length());
 					} else {
 						skip &= (future.toFile().exists());
 					}
 				}
 
-				if (!skip || conflictAction == ConflictAction.OVERRIDE) {
+				if (!skip || conflict == ConflictAction.OVERRIDE) {
 					if (filter == null || forceExtractAll) {
 						log.finest("Extracting files " + outputMapping);
 

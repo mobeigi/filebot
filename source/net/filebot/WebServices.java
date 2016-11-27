@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 import net.filebot.media.XattrMetaInfoProvider;
 import net.filebot.similarity.MetricAvg;
@@ -40,7 +41,6 @@ import net.filebot.web.TVMazeClient;
 import net.filebot.web.TheTVDBClient;
 import net.filebot.web.TheTVDBClientV1;
 import net.filebot.web.VideoHashSubtitleService;
-import one.util.streamex.StreamEx;
 
 /**
  * Reuse the same web service client so login, cache, etc. can be shared.
@@ -72,27 +72,37 @@ public final class WebServices {
 	public static final XattrMetaInfoProvider XattrMetaData = new XattrMetaInfoProvider();
 	public static final ID3Lookup MediaInfoID3 = new ID3Lookup();
 
-	public static EpisodeListProvider[] getEpisodeListProviders() {
-		return new EpisodeListProvider[] { TheTVDB, AniDB, TheMovieDB_TV, TVmaze };
+	public static Datasource[] getServices() {
+		return new Datasource[] { TheMovieDB, OMDb, TheTVDB, AniDB, TheMovieDB_TV, TVmaze, AcoustID, MediaInfoID3, XattrMetaData, OpenSubtitles, Shooter, TheTVDBv2, FanartTV };
 	}
 
 	public static MovieIdentificationService[] getMovieIdentificationServices() {
 		return new MovieIdentificationService[] { TheMovieDB, OMDb };
 	}
 
-	public static SubtitleProvider[] getSubtitleProviders() {
-		return new SubtitleProvider[] { OpenSubtitles };
-	}
-
-	public static VideoHashSubtitleService[] getVideoHashSubtitleServices(Locale locale) {
-		if (locale.equals(Locale.CHINESE))
-			return new VideoHashSubtitleService[] { OpenSubtitles, Shooter };
-		else
-			return new VideoHashSubtitleService[] { OpenSubtitles };
+	public static EpisodeListProvider[] getEpisodeListProviders() {
+		return new EpisodeListProvider[] { TheTVDB, AniDB, TheMovieDB_TV, TVmaze };
 	}
 
 	public static MusicIdentificationService[] getMusicIdentificationServices() {
 		return new MusicIdentificationService[] { AcoustID, MediaInfoID3 };
+	}
+
+	public static SubtitleProvider[] getSubtitleProviders(Locale locale) {
+		return new SubtitleProvider[] { OpenSubtitles };
+	}
+
+	public static VideoHashSubtitleService[] getVideoHashSubtitleServices(Locale locale) {
+		// special support for 射手网 for Chinese language subtitles
+		if (locale.equals(Locale.CHINESE)) {
+			return new VideoHashSubtitleService[] { OpenSubtitles, Shooter };
+		}
+
+		return new VideoHashSubtitleService[] { OpenSubtitles };
+	}
+
+	public static Datasource getService(String name) {
+		return getService(name, getServices());
 	}
 
 	public static EpisodeListProvider getEpisodeListProvider(String name) {
@@ -107,8 +117,10 @@ public final class WebServices {
 		return getService(name, getMusicIdentificationServices());
 	}
 
-	public static <T extends Datasource> T getService(String name, T[] services) {
-		return StreamEx.of(services).findFirst(it -> it.getIdentifier().equalsIgnoreCase(name) || it.getName().equalsIgnoreCase(name)).orElse(null);
+	public static <T extends Datasource> T getService(String name, T... services) {
+		return stream(services).filter(it -> {
+			return it.getIdentifier().equalsIgnoreCase(name) || it.getName().equalsIgnoreCase(name);
+		}).findFirst().orElse(null);
 	}
 
 	public static final ExecutorService requestThreadPool = Executors.newCachedThreadPool();
@@ -127,7 +139,8 @@ public final class WebServices {
 		private SearchResult merge(SearchResult prime, List<SearchResult> group) {
 			int id = prime.getId();
 			String name = prime.getName();
-			String[] aliasNames = StreamEx.of(group).flatMap(it -> stream(it.getAliasNames())).remove(name::equals).distinct().toArray(String[]::new);
+
+			String[] aliasNames = group.stream().flatMap(it -> stream(it.getAliasNames())).filter(n -> !n.equals(name)).distinct().toArray(String[]::new);
 			return new SearchResult(id, name, aliasNames);
 		}
 
@@ -138,7 +151,7 @@ public final class WebServices {
 			Future<List<SearchResult>> localSearch = requestThreadPool.submit(() -> localIndex.get().search(query));
 
 			// combine alias names into a single search results, and keep API search name as primary name
-			Map<Integer, SearchResult> results = StreamEx.of(apiSearch.get()).append(localSearch.get()).groupingBy(SearchResult::getId, collectingAndThen(toList(), group -> merge(group.get(0), group)));
+			Map<Integer, SearchResult> results = Stream.concat(apiSearch.get().stream(), localSearch.get().stream()).collect(groupingBy(SearchResult::getId, collectingAndThen(toList(), group -> merge(group.get(0), group))));
 
 			return sortBySimilarity(results.values(), singleton(query), getSeriesMatchMetric());
 		}

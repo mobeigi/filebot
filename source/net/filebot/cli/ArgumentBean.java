@@ -2,15 +2,20 @@ package net.filebot.cli;
 
 import static java.util.Collections.*;
 import static net.filebot.Logging.*;
+import static net.filebot.hash.VerificationUtilities.*;
+import static net.filebot.subtitle.SubtitleUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 import org.kohsuke.args4j.Argument;
@@ -22,6 +27,14 @@ import org.kohsuke.args4j.spi.ExplicitBooleanOptionHandler;
 
 import net.filebot.Language;
 import net.filebot.StandardRenameAction;
+import net.filebot.WebServices;
+import net.filebot.format.ExpressionFileFilter;
+import net.filebot.format.ExpressionFilter;
+import net.filebot.format.ExpressionFormat;
+import net.filebot.hash.HashType;
+import net.filebot.subtitle.SubtitleFormat;
+import net.filebot.subtitle.SubtitleNaming;
+import net.filebot.web.Datasource;
 import net.filebot.web.SortOrder;
 
 public class ArgumentBean {
@@ -194,12 +207,61 @@ public class ArgumentBean {
 		return SortOrder.forName(order);
 	}
 
-	public Locale getLocale() {
-		return new Locale(lang);
+	public ExpressionFormat getExpressionFormat() throws Exception {
+		return format == null ? null : new ExpressionFormat(format);
+	}
+
+	public ExpressionFilter getExpressionFilter() throws Exception {
+		return filter == null ? null : new ExpressionFilter(filter);
+	}
+
+	public FileFilter getExpressionFileFilter() throws Exception {
+		return filter == null ? null : new ExpressionFileFilter(filter);
+	}
+
+	public Datasource getDatasource() {
+		return db == null ? null : WebServices.getService(db);
+	}
+
+	public String getSearchQuery() {
+		return query == null || query.isEmpty() ? null : query;
+	}
+
+	public File getOutputPath() {
+		return output == null ? null : new File(output);
+	}
+
+	public File getAbsoluteOutputFolder() throws Exception {
+		return output == null ? null : new File(output).getCanonicalFile();
+	}
+
+	public SubtitleFormat getSubtitleOutputFormat() {
+		return output == null ? null : getSubtitleFormatByName(output);
+	}
+
+	public SubtitleNaming getSubtitleNamingFormat() {
+		return optional(format).map(SubtitleNaming::forName).orElse(SubtitleNaming.MATCH_VIDEO_ADD_LANGUAGE_TAG);
+	}
+
+	public HashType getOutputHashType() {
+		// support --output checksum.sfv
+		return optional(output).map(File::new).map(f -> getHashType(f)).orElseGet(() -> {
+			// support --format SFV
+			return optional(format).map(k -> getHashTypeByExtension(k)).orElse(HashType.SFV);
+		});
+	}
+
+	public Charset getEncoding() {
+		return encoding == null ? null : Charset.forName(encoding);
 	}
 
 	public Language getLanguage() {
-		return Language.findLanguage(lang);
+		// find language code for any input (en, eng, English, etc)
+		return optional(lang).map(Language::findLanguage).orElseThrow(error("Illegal language code", lang));
+	}
+
+	public boolean isStrict() {
+		return !nonStrict;
 	}
 
 	public Level getLogLevel() {
@@ -224,6 +286,14 @@ public class ArgumentBean {
 		CmdLineParser parser = new CmdLineParser(this, ParserProperties.defaults().withShowDefaults(false).withOptionSorter(null));
 		parser.printUsage(buffer, null);
 		return buffer.toString();
+	}
+
+	private static <T> Optional<T> optional(T value) {
+		return Optional.ofNullable(value);
+	}
+
+	private static Supplier<CmdlineException> error(String message, Object value) {
+		return () -> new CmdlineException(message + ": " + value);
 	}
 
 }
