@@ -10,7 +10,6 @@
 		<description>@{package.description}</description>
 		<projectUrl>@{package.homepage}</projectUrl>
 		<iconUrl>@{link.image.logo}</iconUrl>
-		<tags>@{package.tags}</tags>
 		<copyright>@{tstamp.year} @{package.developer}</copyright>
 		<licenseUrl>http://www.gnu.org/licenses/gpl-3.0.en.html</licenseUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
