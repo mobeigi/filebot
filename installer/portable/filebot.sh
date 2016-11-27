@@ -31,7 +31,7 @@ export LC_ALL="en_US.UTF-8"
 
 # add APP_ROOT to LD_LIBRARY_PATH
 if [ ! -z "$LD_LIBRARY_PATH" ]; then
-	export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$APP_ROOT"
+	export LD_LIBRARY_PATH="$APP_ROOT:$LD_LIBRARY_PATH"
 else
 	export LD_LIBRARY_PATH="$APP_ROOT"
 fi
@@ -42,7 +42,7 @@ EXTRACTOR="ApacheVFS"					# use Apache Commons VFS2 with junrar plugin
 # EXTRACTOR="SevenZipNativeBindings"	# use the lib7-Zip-JBinding.so native library
 
 # select application data folder
-APP_DATA="$APP_ROOT/data/$USER"
+APP_DATA="$APP_ROOT/data"
 
 # start filebot
-java -Dunixfs=false -DuseGVFS=true -DuseExtendedFileAttributes=true -DuseCreationDate=false -Dfile.encoding="UTF-8" -Dsun.jnu.encoding="UTF-8" -Djava.net.useSystemProxies=false -Djna.nosys=true -Dapplication.deployment=portable -Dnet.filebot.Archive.extractor="$EXTRACTOR" -Dnet.filebot.AcoustID.fpcalc="fpcalc" -Dapplication.dir="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/temp" -Duser.home="$APP_DATA" -Djava.util.prefs.PreferencesFactory=net.filebot.util.prefs.FilePreferencesFactory -Dnet.filebot.util.prefs.file="$APP_DATA/prefs.properties" $JAVA_OPTS -jar "$APP_ROOT/FileBot.jar" "$@"
+java -Dunixfs=false -DuseGVFS=true -DuseExtendedFileAttributes=true -DuseCreationDate=false -Djava.net.useSystemProxies=false -Dapplication.deployment=portable -Dfile.encoding="UTF-8" -Dsun.jnu.encoding="UTF-8" -Djna.nosys=false -Djna.nounpack=true -Dnet.filebot.Archive.extractor="$EXTRACTOR" -Dnet.filebot.AcoustID.fpcalc="fpcalc" -Dapplication.dir="$APP_DATA" -Duser.home="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/tmp" -Djava.util.prefs.PreferencesFactory=net.filebot.util.prefs.FilePreferencesFactory -Dnet.filebot.util.prefs.file="$APP_DATA/prefs.properties" $JAVA_OPTS -jar "$APP_ROOT/FileBot.jar" "$@"
