@@ -205,7 +205,7 @@ public class FormatDialog extends JDialog {
 		editorScrollPane.setBackground(new JTextField().getBackground());
 		editorScrollPane.setBorder(new JTextField().getBorder());
 
-		content.add(editorScrollPane, "w 120px:min(pref, 420px), h pref!, growx, wrap 4px, id editor");
+		content.add(editorScrollPane, "w 120px:min(pref, 420px), h pref, growx, wrap 4px, id editor");
 		content.add(createImageButton(changeSampleAction), "sg action, w 25!, h 19!, pos n editor.y2+2 editor.x2 n");
 		content.add(createImageButton(selectFolderAction), "sg action, w 25!, h 19!, pos n editor.y2+2 editor.x2-(27*1) n");
 		content.add(createImageButton(showRecentAction), "sg action, w 25!, h 19!, pos n editor.y2+2 editor.x2-(27*2) n");
@@ -341,6 +341,16 @@ public class FormatDialog extends JDialog {
 		// update format on change
 		editor.getDocument().addDocumentListener(new LazyDocumentListener(evt -> {
 			checkFormatInBackground();
+		}));
+
+		// dynamically resize the code editor depending on how many lines the current format expression has
+		editor.getDocument().addDocumentListener(new LazyDocumentListener(0, evt -> {
+			int r1 = editor.getRows();
+			int r2 = (int) editor.getText().chars().filter(c -> c == '\n').count() + 1;
+			if (r1 != r2) {
+				editor.setRows(r2);
+				getWindow(editor).revalidate();
+			}
 		}));
 
 		return editor;
