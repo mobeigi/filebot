@@ -78,7 +78,7 @@ public class ArgumentProcessor {
 		Set<File> files = new LinkedHashSet<File>(args.getFiles(true));
 
 		if (args.extract) {
-			files.addAll(cli.extract(files, args.getOutputPath(), args.getConflictAction(), null, true));
+			files.addAll(cli.extract(files, args.getOutputPath(), args.getConflictAction(), null, args.isStrict()));
 		}
 
 		if (args.getSubtitles) {

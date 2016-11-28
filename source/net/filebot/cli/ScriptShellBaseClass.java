@@ -2,10 +2,10 @@ package net.filebot.cli;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.util.FileUtilities.*;
-import static net.filebot.util.StringUtilities.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,20 +14,20 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
@@ -217,6 +217,21 @@ public abstract class ScriptShellBaseClass extends Script {
 		return null;
 	}
 
+	public String getMediaInfo(File file, String format) throws Exception {
+		ExpressionFormat formatter = new ExpressionFormat(format);
+
+		Object o = xattr.getMetaInfo(file);
+		File f = file.getCanonicalFile();
+
+		try {
+			return formatter.format(new MediaBindingBean(o, f));
+		} catch (SuppressedThrowables e) {
+			debug.warning(format("%s => %s", format, e.getMessage()));
+		}
+
+		return null;
+	}
+
 	public String detectSeriesName(Object files) throws Exception {
 		return detectSeriesName(files, false);
 	}
@@ -325,21 +340,19 @@ public abstract class ScriptShellBaseClass extends Script {
 		return null;
 	}
 
-	private enum Option {
-		action, conflict, query, filter, format, db, order, lang, output, encoding, strict, forceExtractAll
-	}
-
 	public List<File> rename(Map<String, ?> parameters) throws Exception {
-		List<File> input = getInputFileList(parameters);
-		Map<Option, Object> option = getDefaultOptions(parameters);
-		RenameAction action = getRenameFunction(option.get(Option.action));
-		boolean strict = DefaultTypeTransformation.castToBoolean(option.get(Option.strict));
+		List<File> files = getInputFileList(parameters);
+		RenameAction action = getRenameAction(parameters);
+		ArgumentBean args = getArgumentBean(parameters);
 
 		try {
-			if (input.isEmpty() && !getInputFileMap(parameters).isEmpty()) {
-				return getCLI().rename(getInputFileMap(parameters), action, asString(option.get(Option.conflict)));
+			if (files.size() > 0) {
+				return getCLI().rename(files, args.getRenameAction(), args.getConflictAction(), args.getAbsoluteOutputFolder(), args.getExpressionFormat(), args.getDatasource(), args.getSearchQuery(), args.getSortOrder(), args.getExpressionFilter(), args.getLanguage().getLocale(), args.isStrict());
 			} else {
-				return getCLI().rename(input, action, asString(option.get(Option.conflict)), asString(option.get(Option.output)), asString(option.get(Option.format)), asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.order)), asString(option.get(Option.filter)), asString(option.get(Option.lang)), strict);
+				Map<File, File> map = getInputFileMap(parameters);
+				if (map.size() > 0) {
+					return getCLI().rename(map, action, args.getConflictAction());
+				}
 			}
 		} catch (Exception e) {
 			printException(e);
@@ -349,12 +362,11 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public List<File> getSubtitles(Map<String, ?> parameters) throws Exception {
-		List<File> input = getInputFileList(parameters);
-		Map<Option, Object> option = getDefaultOptions(parameters);
-		boolean strict = DefaultTypeTransformation.castToBoolean(option.get(Option.strict));
+		List<File> files = getInputFileList(parameters);
+		ArgumentBean args = getArgumentBean(parameters);
 
 		try {
-			return getCLI().getSubtitles(input, asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.lang)), asString(option.get(Option.output)), asString(option.get(Option.encoding)), asString(option.get(Option.format)), strict);
+			return getCLI().getSubtitles(files, args.getSearchQuery(), args.getLanguage(), args.getSubtitleOutputFormat(), args.getEncoding(), args.getSubtitleNamingFormat(), args.isStrict());
 		} catch (Exception e) {
 			printException(e);
 		}
@@ -363,12 +375,11 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public List<File> getMissingSubtitles(Map<String, ?> parameters) throws Exception {
-		List<File> input = getInputFileList(parameters);
-		Map<Option, Object> option = getDefaultOptions(parameters);
-		boolean strict = DefaultTypeTransformation.castToBoolean(option.get(Option.strict));
+		List<File> files = getInputFileList(parameters);
+		ArgumentBean args = getArgumentBean(parameters);
 
 		try {
-			return getCLI().getMissingSubtitles(input, asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.lang)), asString(option.get(Option.output)), asString(option.get(Option.encoding)), asString(option.get(Option.format)), strict);
+			return getCLI().getMissingSubtitles(files, args.getSearchQuery(), args.getLanguage(), args.getSubtitleOutputFormat(), args.getEncoding(), args.getSubtitleNamingFormat(), args.isStrict());
 		} catch (Exception e) {
 			printException(e);
 		}
@@ -377,10 +388,10 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public boolean check(Map<String, ?> parameters) throws Exception {
-		List<File> input = getInputFileList(parameters);
+		List<File> files = getInputFileList(parameters);
 
 		try {
-			return getCLI().check(input);
+			return getCLI().check(files);
 		} catch (Exception e) {
 			printException(e);
 		}
@@ -389,11 +400,11 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public File compute(Map<String, ?> parameters) throws Exception {
-		List<File> input = getInputFileList(parameters);
-		Map<Option, Object> option = getDefaultOptions(parameters);
+		List<File> files = getInputFileList(parameters);
+		ArgumentBean args = getArgumentBean(parameters);
 
 		try {
-			return getCLI().compute(input, asString(option.get(Option.output)), asString(option.get(Option.encoding)));
+			return getCLI().compute(files, args.getOutputPath(), args.getOutputHashType(), args.getEncoding());
 		} catch (Exception e) {
 			printException(e);
 		}
@@ -402,13 +413,12 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public List<File> extract(Map<String, ?> parameters) throws Exception {
-		List<File> input = getInputFileList(parameters);
-		Map<Option, Object> option = getDefaultOptions(parameters);
-		FileFilter filter = (FileFilter) DefaultTypeTransformation.castToType(option.get(Option.filter), FileFilter.class);
-		boolean forceExtractAll = DefaultTypeTransformation.castToBoolean(option.get(Option.forceExtractAll));
+		List<File> files = getInputFileList(parameters);
+		FileFilter filter = getFileFilter(parameters);
+		ArgumentBean args = getArgumentBean(parameters);
 
 		try {
-			return getCLI().extract(input, asString(option.get(Option.output)), asString(option.get(Option.conflict)), filter, forceExtractAll);
+			return getCLI().extract(files, args.getOutputPath(), args.getConflictAction(), filter, args.isStrict());
 		} catch (Exception e) {
 			printException(e);
 		}
@@ -417,10 +427,10 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public List<String> fetchEpisodeList(Map<String, ?> parameters) throws Exception {
-		Map<Option, Object> option = getDefaultOptions(parameters);
+		ArgumentBean args = getArgumentBean();
 
 		try {
-			return getCLI().fetchEpisodeList(asString(option.get(Option.query)), asString(option.get(Option.format)), asString(option.get(Option.db)), asString(option.get(Option.order)), asString(option.get(Option.filter)), asString(option.get(Option.lang)));
+			return getCLI().fetchEpisodeList(args.getDatasource(), args.getSearchQuery(), args.getExpressionFormat(), args.getExpressionFilter(), args.getSortOrder(), args.getLanguage().getLocale());
 		} catch (Exception e) {
 			printException(e);
 		}
@@ -429,14 +439,11 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public Object getMediaInfo(Map<String, ?> parameters) throws Exception {
-		List<File> input = getInputFileList(parameters);
-		if (input == null || input.isEmpty()) {
-			return null;
-		}
+		List<File> files = getInputFileList(parameters);
+		ArgumentBean args = getArgumentBean(parameters);
 
-		Map<Option, Object> option = getDefaultOptions(parameters);
 		try {
-			return getCLI().getMediaInfo(input, asString(option.get(Option.format)), asString(option.get(Option.filter)));
+			return getCLI().getMediaInfo(files, args.getExpressionFileFilter(), args.getExpressionFormat());
 		} catch (Exception e) {
 			printException(e);
 		}
@@ -444,89 +451,61 @@ public abstract class ScriptShellBaseClass extends Script {
 		return null;
 	}
 
-	public String getMediaInfo(File file, String format) throws Exception {
-		ExpressionFormat formatter = new ExpressionFormat(format);
+	private ArgumentBean getArgumentBean(Map<String, ?> parameters) throws Exception {
+		// clone default arguments
+		ArgumentBean args = new ArgumentBean(getArgumentBean().getArgumentArray());
 
-		Object o = xattr.getMetaInfo(file);
-		File f = file.getCanonicalFile();
+		// for compatibility reasons [forceExtractAll: true] and [strict: true] is the same as -non-strict
+		Stream.of("forceExtractAll", "strict").map(parameters::remove).filter(Objects::nonNull).forEach(v -> {
+			args.nonStrict = !DefaultTypeTransformation.castToBoolean(v);
+		});
 
-		try {
-			return formatter.format(new MediaBindingBean(o, f));
-		} catch (SuppressedThrowables e) {
-			debug.warning(format("%s => %s", format, e.getMessage()));
-		}
+		// override default values with given values
+		parameters.forEach((k, v) -> {
+			try {
+				Field field = args.getClass().getField(k);
+				Object value = DefaultTypeTransformation.castToType(v, field.getType());
+				field.set(args, value);
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Illegal parameter: " + k, e);
+			}
+		});
 
-		return null;
+		return args;
 	}
 
 	private List<File> getInputFileList(Map<String, ?> parameters) {
-		Object file = parameters.get("file");
-		if (file != null) {
-			return asFileList(file);
-		}
-
-		Object folder = parameters.get("folder");
-		if (folder != null) {
-			List<File> files = new ArrayList<File>();
-			for (File f : asFileList(folder)) {
-				files.addAll(getChildren(f, FILES, HUMAN_NAME_ORDER));
-			}
-			return files;
-		}
-
-		return emptyList();
+		// check file parameter add consume File values as they are
+		return consumeParameter(parameters, "file").map(f -> asFileList(f)).findFirst().orElseGet(() -> {
+			// check folder parameter and resolve children
+			return consumeParameter(parameters, "folder").flatMap(f -> asFileList(f).stream()).flatMap(f -> getChildren(f, FILES, HUMAN_NAME_ORDER).stream()).collect(toList());
+		});
 	}
 
 	private Map<File, File> getInputFileMap(Map<String, ?> parameters) {
-		Map<?, ?> map = (Map<?, ?>) parameters.get("map");
-		Map<File, File> files = new LinkedHashMap<File, File>();
-		if (map != null) {
-			for (Entry<?, ?> it : map.entrySet()) {
-				List<File> key = asFileList(it.getKey());
-				List<File> value = asFileList(it.getValue());
-				if (key.size() == 1 && value.size() == 1) {
-					files.put(key.get(0), value.get(0));
-				} else {
-					throw new IllegalArgumentException("Illegal file mapping: " + it);
-				}
-			}
-		}
-		return files;
+		// convert keys and values to files
+		Function<Object, File> mapping = f -> asFileList(f).iterator().next();
+
+		return consumeParameter(parameters, "map").map(Map.class::cast).collect(toMap(mapping, mapping, (a, b) -> a, LinkedHashMap::new));
 	}
 
-	private Map<Option, Object> getDefaultOptions(Map<String, ?> parameters) throws Exception {
-		Map<Option, Object> options = new EnumMap<Option, Object>(Option.class);
-
-		for (Entry<String, ?> it : parameters.entrySet()) {
-			try {
-				options.put(Option.valueOf(it.getKey()), it.getValue());
-			} catch (Exception e) {
-				debug.warning(e::toString);
-			}
-		}
-
-		ArgumentBean args = getArgumentBean();
-		Set<Option> complement = EnumSet.allOf(Option.class);
-		complement.removeAll(options.keySet());
-
-		for (Option missing : complement) {
-			switch (missing) {
-			case forceExtractAll:
-				options.put(missing, false);
-				break;
-			case strict:
-				options.put(missing, !args.nonStrict);
-				break;
-			default:
-				options.put(missing, args.getClass().getField(missing.name()).get(args));
-				break;
-			}
-		}
-
-		return options;
+	private RenameAction getRenameAction(Map<String, ?> parameters) {
+		return consumeParameter(parameters, "action").map(action -> {
+			return getRenameAction(action);
+		}).findFirst().orElse(getArgumentBean().getRenameAction()); // default to global rename action
 	}
 
-	public RenameAction getRenameFunction(final Object obj) {
+	private FileFilter getFileFilter(Map<String, ?> parameters) {
+		return consumeParameter(parameters, "filter").map(filter -> {
+			return (FileFilter) DefaultTypeTransformation.castToType(filter, FileFilter.class);
+		}).findFirst().orElse(null);
+	}
+
+	private Stream<?> consumeParameter(Map<String, ?> parameters, String... names) {
+		return Stream.of(names).map(parameters::remove).filter(Objects::nonNull);
+	}
+
+	public RenameAction getRenameAction(Object obj) {
 		if (obj instanceof RenameAction) {
 			return (RenameAction) obj;
 		}
