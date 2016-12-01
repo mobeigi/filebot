@@ -613,6 +613,12 @@
 			<fileset dir="${dir.installer}/appx" includes="*.xml, *.ini" excludes="*.l4j.xml" />
 		</copy-replace>
 
+		<exec executable="makepri" dir="${dir.dist}/appx" failonerror="yes">
+			<arg line="createconfig /v /o /pv 10.0.0 /cf priconfig.xml /dq en-US" />
+		</exec>
+		<exec executable="makepri" dir="${dir.dist}/appx" failonerror="yes">
+			<arg line="new /v /o /pr . /cf priconfig.xml /in ${microsoft.application.name}" />
+		</exec>
 		<exec executable="makeappx" dir="${dir.dist}" failonerror="yes">
 			<arg line="pack /v /o /d appx /p ${release}_r${revision}.appx" />
 		</exec>
