@@ -614,10 +614,10 @@
 		</copy-replace>
 
 		<exec executable="makepri" dir="${dir.dist}/appx" failonerror="yes">
-			<arg line="createconfig /v /o /pv 10.0.0 /cf priconfig.xml /dq en-US" />
+			<arg line="createconfig /o /pv 10.0.0 /cf priconfig.xml /dq en-US" />
 		</exec>
 		<exec executable="makepri" dir="${dir.dist}/appx" failonerror="yes">
-			<arg line="new /v /o /pr . /cf priconfig.xml /in ${microsoft.application.name}" />
+			<arg line="new /o /pr . /cf priconfig.xml /in ${microsoft.application.name}" />
 		</exec>
 		<exec executable="makeappx" dir="${dir.dist}" failonerror="yes">
 			<arg line="pack /v /o /d appx /p ${release}_r${revision}.appx" />
