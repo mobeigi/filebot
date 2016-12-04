@@ -592,9 +592,7 @@ public class FormatDialog extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			BindingDialog dialog = new BindingDialog(getWindow(evt.getSource()), String.format("%s Bindings", mode), mode.getFormat(), !locked);
-
-			dialog.setInfoObject(sample.getInfoObject());
-			dialog.setMediaFile(sample.getFileObject());
+			dialog.setSample(sample);
 
 			// open dialog
 			dialog.setLocationRelativeTo((Component) evt.getSource());

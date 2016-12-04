@@ -77,7 +77,7 @@ public class MediaBindingBean {
 	private MediaInfo mediaInfo;
 
 	public MediaBindingBean(Object infoObject, File mediaFile) {
-		this(infoObject, mediaFile, singletonMap(mediaFile, infoObject));
+		this(infoObject, mediaFile, null);
 	}
 
 	public MediaBindingBean(Object infoObject, File mediaFile, Map<File, ?> context) {
@@ -949,13 +949,18 @@ public class MediaBindingBean {
 	}
 
 	@Define("i")
-	public Integer getModelIndex() {
+	public Number getModelIndex() {
 		return 1 + identityIndexOf(context.values(), getInfoObject());
 	}
 
 	@Define("di")
-	public Integer getDuplicateIndex() {
-		return 1 + identityIndexOf(context.values().stream().filter(it -> getInfoObject().equals(it)).collect(toList()), getInfoObject());
+	public Number getDuplicateIndex() {
+		return 1 + identityIndexOf(context.values().stream().filter(getInfoObject()::equals).collect(toList()), getInfoObject());
+	}
+
+	@Define("dc")
+	public Number getDuplicateCount() {
+		return context.values().stream().filter(getInfoObject()::equals).count();
 	}
 
 	@Define("plex")

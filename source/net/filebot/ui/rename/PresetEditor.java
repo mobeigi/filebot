@@ -344,8 +344,7 @@ public class PresetEditor extends JDialog {
 						popup.add(newAction(f.getPath(), e -> {
 							BindingDialog dialog = new BindingDialog(getWindow(evt.getSource()), "File Bindings", FormatDialog.Mode.File.getFormat(), false);
 							dialog.setLocation(getOffsetLocation(getWindow(evt.getSource())));
-							dialog.setInfoObject(f);
-							dialog.setMediaFile(f);
+							dialog.setSample(new MediaBindingBean(f, f));
 							dialog.setVisible(true);
 						}));
 					}

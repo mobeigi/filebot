@@ -42,7 +42,6 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingWorker;
-import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -66,6 +65,8 @@ class BindingDialog extends JDialog {
 
 	private final Format infoObjectFormat;
 	private final BindingTableModel bindingModel = new BindingTableModel();
+
+	private MediaBindingBean sample = null;
 
 	private boolean submit = false;
 
@@ -106,10 +107,11 @@ class BindingDialog extends JDialog {
 		// update preview on change
 		DocumentListener changeListener = new LazyDocumentListener(1000, evt -> {
 			// ignore lazy events that come in after the window has been closed
-			if (bindingModel.executor.isShutdown())
+			if (sample == null || bindingModel.executor.isShutdown()) {
 				return;
+			}
 
-			bindingModel.setModel(getSampleExpressions(), new MediaBindingBean(getInfoObject(), getMediaFile()));
+			bindingModel.setModel(getSampleExpressions(), sample);
 		});
 
 		// update example bindings on change
@@ -121,23 +123,9 @@ class BindingDialog extends JDialog {
 		mediaInfoAction.setEnabled(false);
 
 		// disable media info action if media file is invalid
-		mediaFileTextField.getDocument().addDocumentListener(new DocumentListener() {
-
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				mediaInfoAction.setEnabled(getMediaFile() != null && getMediaFile().isFile());
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				changedUpdate(e);
-			}
-
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				changedUpdate(e);
-			}
-		});
+		mediaFileTextField.getDocument().addDocumentListener(new LazyDocumentListener(0, evt -> {
+			mediaInfoAction.setEnabled(getMediaFile() != null && getMediaFile().isFile());
+		}));
 
 		// finish dialog and close window manually
 		addWindowListener(windowClosed(evt -> finish(false)));
@@ -216,31 +204,25 @@ class BindingDialog extends JDialog {
 		dispose();
 	}
 
-	public void setInfoObject(Object info) {
-		infoTextField.putClientProperty("model", info);
+	public void setSample(MediaBindingBean sample) {
+		this.sample = sample;
 
-		infoTextField.setText(info == null ? "" : infoObjectFormat.format(info));
-		infoTextField.setToolTipText(info == null ? "null" : "<html><pre>" + escapeHTML(json(info, true)) + "</pre></html>");
+		infoTextField.setText(getInfoObject() == null ? "" : infoObjectFormat.format(getInfoObject()));
+		infoTextField.setToolTipText(getInfoObject() == null ? "null" : "<html><pre>" + escapeHTML(json(getInfoObject(), true)) + "</pre></html>");
+
+		mediaFileTextField.setText(getMediaFile() == null ? "" : getMediaFile().getAbsolutePath());
+	}
+
+	public MediaBindingBean getSample() {
+		return sample;
 	}
 
 	public Object getInfoObject() {
-		return infoTextField.getClientProperty("model");
-	}
-
-	public void setMediaFile(File mediaFile) {
-		mediaFileTextField.setText(mediaFile == null ? "" : mediaFile.getAbsolutePath());
+		return sample == null ? null : sample.getInfoObject();
 	}
 
 	public File getMediaFile() {
-		// allow only absolute paths
-		String path = mediaFileTextField.getText().trim();
-		if (path.length() > 0) {
-			File file = new File(mediaFileTextField.getText());
-			if (file.isAbsolute()) {
-				return file;
-			}
-		}
-		return null;
+		return sample == null ? null : sample.getFileObject();
 	}
 
 	protected final Action mediaInfoAction = new AbstractAction("Open MediaInfo", ResourceManager.getIcon("action.properties")) {
@@ -315,17 +297,18 @@ class BindingDialog extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			ExtensionFileFilter mediaFiles = combineFilter(VIDEO_FILES, AUDIO_FILES, SUBTITLE_FILES);
-			List<File> file = showLoadDialogSelectFiles(false, false, getMediaFile(), mediaFiles, (String) getValue(NAME), evt);
+			List<File> selection = showLoadDialogSelectFiles(false, false, getMediaFile(), mediaFiles, (String) getValue(NAME), evt);
 
-			if (file.size() > 0) {
+			if (selection.size() > 0) {
 				// update text field
-				mediaFileTextField.setText(file.get(0).getAbsolutePath());
+				File file = selection.get(0).getAbsoluteFile();
+				Object info = xattr.getMetaInfo(file);
 
-				// set info object from xattr if possible
-				Object object = xattr.getMetaInfo(file.get(0));
-				if (object != null && infoObjectFormat.format(object) != null) {
-					setInfoObject(object);
+				if (info == null || infoObjectFormat.format(info) == null) {
+					info = getInfoObject();
 				}
+
+				setSample(new MediaBindingBean(info, file));
 			}
 		}
 	};
