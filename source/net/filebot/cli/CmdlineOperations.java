@@ -1013,7 +1013,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		ExpressionFormat formatter = format != null ? format : new ExpressionFormat("{fn} [{resolution} {vc} {channels} {ac} {minutes}m]");
 
 		// lazy format
-		return new FunctionList<File, String>(selection, f -> formatter.format(new MediaBindingBean(xattr.getMetaInfo(f), f, null)));
+		return new FunctionList<File, String>(selection, f -> formatter.format(new MediaBindingBean(xattr.getMetaInfo(f), f)));
 	}
 
 	@Override

@@ -23,7 +23,7 @@ public class ExpressionFileFilter implements FileFilter {
 	@Override
 	public boolean accept(File f) {
 		try {
-			return filter.matches(new MediaBindingBean(xattr.getMetaInfo(f), f, null));
+			return filter.matches(new MediaBindingBean(xattr.getMetaInfo(f), f));
 		} catch (Exception e) {
 			debug.warning("Filter expression failed: " + e);
 		}
