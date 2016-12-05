@@ -275,14 +275,14 @@ class ConflictDialog extends JDialog {
 				issues.add("Missing extension");
 			}
 
-			// check if input and output overlap
-			if (renameMap.containsKey(to)) {
-				issues.add("Conflict with source path");
-			}
-
 			// one file per unique output path
 			if (!destFiles.add(to)) {
 				issues.add("Duplicate destination path");
+			}
+
+			// check if input and output overlap
+			if (renameMap.containsKey(to) && !to.equals(from)) {
+				issues.add("Conflict with source path");
 			}
 
 			// check if destination path already exists
