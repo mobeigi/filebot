@@ -60,14 +60,14 @@ public enum NamingStandard {
 
 	public String getPath(AudioTrack a) {
 		// Music
-		String name = String.join(" - ", a.getArtist(), first(a.getTrackTitle(), a.getTitle()));
+		String name = first(a.getTrackTitle(), a.getTitle());
 
 		// prepend track number
 		if (a.getTrack() != null) {
-			name = String.format("%02d. %s", a.getTrack(), name);
+			name = String.format("%02d - %s", a.getTrack(), name);
 		}
 
-		return path(getMusicFolder(), first(a.getAlbumArtist(), a.getArtist()), a.getAlbum(), name);
+		return path(getMusicFolder(), a.getArtist(), a.getAlbum(), name);
 	}
 
 	private static String path(String... name) {
