@@ -320,6 +320,10 @@ public final class FileUtilities {
 	public static String getName(File file) {
 		if (file == null)
 			return null;
+
+		if (file.isDirectory())
+			return file.getName();
+
 		if (file.getName().isEmpty() || UNC_PREFIX.equals(file.getParent()))
 			return getFolderName(file);
 
