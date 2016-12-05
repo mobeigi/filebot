@@ -318,24 +318,26 @@ public final class FileUtilities {
 	}
 
 	public static String getName(File file) {
-		if (file == null)
+		if (file == null) {
 			return null;
+		}
 
-		if (file.isDirectory())
-			return file.getName();
-
-		if (file.getName().isEmpty() || UNC_PREFIX.equals(file.getParent()))
+		if (file.isDirectory() || file.getName().isEmpty() || UNC_PREFIX.equals(file.getParent())) {
 			return getFolderName(file);
+		}
 
 		return getNameWithoutExtension(file.getName());
 	}
 
 	public static String getFolderName(File file) {
-		if (UNC_PREFIX.equals(file.getParent()))
+		if (UNC_PREFIX.equals(file.getParent())) {
 			return file.toString();
+		}
 
-		if (file.getName().length() > 0)
-			return file.getName();
+		String name = file.getName();
+		if (name.length() > 0) {
+			return name;
+		}
 
 		// file might be a drive (only has a path, but no name)
 		return replacePathSeparators(file.toString(), "");
