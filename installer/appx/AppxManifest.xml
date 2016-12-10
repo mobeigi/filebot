@@ -10,7 +10,7 @@
 		Name="@{microsoft.application.name}"
 		ProcessorArchitecture="x64"
 		Publisher="@{microsoft.application.publisher}"
-		Version="@{application.version}.@{revision}"
+		Version="@{application.version}.0"
 	/>
 
 	<Properties>
