@@ -192,12 +192,13 @@ public class ExpressionFormatMethods {
 	}
 
 	public static String replaceHeadTail(String self, Function<String, String> head, Function<String, String> tail) {
-		Matcher matcher = compile("\\b(\\p{Alnum})(\\p{Alnum}*)\\b", UNICODE_CHARACTER_CLASS).matcher(self);
+		Matcher matcher = compile("\\b(['`´]|\\p{Alnum})(\\p{Alnum}*)\\b", UNICODE_CHARACTER_CLASS).matcher(self);
 
 		StringBuffer buffer = new StringBuffer();
 		while (matcher.find()) {
 			matcher.appendReplacement(buffer, head.apply(matcher.group(1)) + tail.apply(matcher.group(2)));
 		}
+
 		return matcher.appendTail(buffer).toString();
 	}
 
