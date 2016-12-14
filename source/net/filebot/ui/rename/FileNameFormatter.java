@@ -32,11 +32,11 @@ class FileNameFormatter implements MatchFormatter {
 
 		if (value instanceof FileInfo) {
 			FileInfo file = (FileInfo) value;
-			return extension ? file.getPath() : file.getName();
+			return extension ? file.toFile().getName() : file.getName();
 		}
 
 		if (value instanceof String) {
-			return extension ? value.toString() : getNameWithoutExtension(new File(value.toString()).getName());
+			return extension ? value.toString() : getNameWithoutExtension(value.toString());
 		}
 
 		// cannot format value
