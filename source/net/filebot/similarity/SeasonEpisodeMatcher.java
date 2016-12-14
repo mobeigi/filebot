@@ -219,7 +219,7 @@ public class SeasonEpisodeMatcher {
 		return null;
 	}
 
-	public static class SxE {
+	public static class SxE implements Comparable<SxE> {
 
 		public static final int UNDEFINED = -1;
 
@@ -252,6 +252,11 @@ public class SeasonEpisodeMatcher {
 			}
 
 			return false;
+		}
+
+		@Override
+		public int compareTo(SxE other) {
+			return season < other.season ? -1 : season != other.season ? 1 : episode < other.episode ? -1 : episode != other.episode ? 1 : 0;
 		}
 
 		@Override
@@ -324,7 +329,9 @@ public class SeasonEpisodeMatcher {
 			while (matcher.find()) {
 				for (SxE value : process.apply(matcher)) {
 					if (sanity == null || sanity.filter(value)) {
-						matches.add(value);
+						if (matches.isEmpty() || matches.get(matches.size() - 1).compareTo(value) < 0) {
+							matches.add(value);
+						}
 					}
 				}
 			}
