@@ -14,7 +14,7 @@ public class ByteBufferOutputStream extends OutputStream {
 	private final float loadFactor;
 
 	public ByteBufferOutputStream(long initialCapacity) {
-		this((int) initialCapacity);
+		this((int) initialCapacity, 1.0f);
 	}
 
 	public ByteBufferOutputStream(int initialCapacity) {
@@ -23,10 +23,10 @@ public class ByteBufferOutputStream extends OutputStream {
 
 	public ByteBufferOutputStream(int initialCapacity, float loadFactor) {
 		if (initialCapacity < 0)
-			throw new IllegalArgumentException("initialCapacity must not be negative");
+			throw new IllegalArgumentException("initialCapacity must not be negative: " + initialCapacity);
 
 		if (loadFactor <= 0 || Float.isNaN(loadFactor))
-			throw new IllegalArgumentException("loadFactor must be greater than 0");
+			throw new IllegalArgumentException("loadFactor must be greater than zero: " + loadFactor);
 
 		this.buffer = ByteBuffer.allocate(initialCapacity + 1);
 		this.loadFactor = loadFactor;
