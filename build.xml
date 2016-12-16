@@ -716,10 +716,10 @@
 			<package file="${path.fatjar}" fullpath="FileBot.jar" />
 
 			<!-- include native libraries for all supported platforms -->
-			<package prefix="lib/armv7l" dir="${dir.lib}/native/linux-armv7l" />
-			<package prefix="lib/armv8" dir="${dir.lib}/native/linux-armv8" />
-			<package prefix="lib/i686" dir="${dir.lib}/native/linux-i686" />
-			<package prefix="lib/x86_64" dir="${dir.lib}/native/linux-amd64" />
+			<package prefix="lib/armv7l" dir="${dir.lib}/native/linux-armv7l" includes="*.so" />
+			<package prefix="lib/armv8" dir="${dir.lib}/native/linux-armv8" includes="*.so" />
+			<package prefix="lib/i686" dir="${dir.lib}/native/linux-i686" includes="*.so" />
+			<package prefix="lib/x86_64" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
 
 			<codesign secring="${dir.installer}/gpg/secring.gpg" keyid="${gpg.key}" password="${gpg.pwd}" />
 		</spk>

@@ -17,6 +17,17 @@ WORKING_DIR=`pwd`
 PRG_DIR=`dirname "$PRG"`
 APP_ROOT=`cd "$PRG_DIR" && pwd`
 
+
+# add package lib folder to library path
+PACKAGE_LIBRARY_PATH="$APP_ROOT/lib/$(uname -m)"
+
+# add 3rd party packages to $LD_LIBRARY_PATH by default
+SYNO_LIBRARY_PATH="/usr/local/mediainfo/lib:/usr/local/chromaprint/lib"
+
+# add fpcalc to the $PATH by default
+export PATH="$PATH:/usr/local/chromaprint/bin"
+
+
 # restore original working dir (which may be /root and yield permission denied)
 if [ -x "$WORKING_DIR" ]; then
 	cd "$WORKING_DIR"
@@ -34,12 +45,6 @@ fi
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 
-# add 3rd party packages to the library path by default
-SYNO_FPCALC="/usr/local/chromaprint/bin/fpcalc"
-SYNO_LIBRARY_PATH="/usr/local/mediainfo/lib:/usr/local/chromaprint/lib"
-
-# add package lib folder to library path
-PACKAGE_LIBRARY_PATH="$APP_ROOT/lib/$(uname -m)"
 
 # add PACKAGE_LIBRARY_PATH to LD_LIBRARY_PATH
 if [ ! -z "$LD_LIBRARY_PATH" ]; then
@@ -57,4 +62,4 @@ EXTRACTOR="ApacheVFS"					# use Apache Commons VFS2 with junrar plugin
 APP_DATA="$APP_ROOT/data/$USER"
 
 # start filebot
-java -Djava.awt.headless=true -Dunixfs=false -DuseExtendedFileAttributes=true -DuseCreationDate=false -Dfile.encoding="UTF-8" -Dsun.jnu.encoding="UTF-8" -Djava.net.useSystemProxies=false -Djna.nosys=false -Djna.nounpack=true -Dapplication.deployment=spk -Dnet.filebot.Archive.extractor="$EXTRACTOR" -Dnet.filebot.AcoustID.fpcalc="$SYNO_FPCALC" -Dapplication.dir="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/temp" -Duser.home="$APP_DATA" -Djava.util.prefs.PreferencesFactory=net.filebot.util.prefs.FilePreferencesFactory -Dnet.filebot.util.prefs.file="$APP_DATA/prefs.properties" $JAVA_OPTS -jar "$APP_ROOT/FileBot.jar" "$@"
+java -Djava.awt.headless=true -Dunixfs=false -DuseExtendedFileAttributes=true -DuseCreationDate=false -Dfile.encoding="UTF-8" -Dsun.jnu.encoding="UTF-8" -Djava.net.useSystemProxies=false -Djna.nosys=false -Djna.nounpack=true -Dapplication.deployment=spk -Dnet.filebot.Archive.extractor="$EXTRACTOR" -Dapplication.dir="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/temp" -Duser.home="$APP_DATA" -Djava.util.prefs.PreferencesFactory=net.filebot.util.prefs.FilePreferencesFactory -Dnet.filebot.util.prefs.file="$APP_DATA/prefs.properties" $JAVA_OPTS -jar "$APP_ROOT/FileBot.jar" "$@"
