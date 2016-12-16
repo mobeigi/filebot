@@ -38,11 +38,14 @@ export LC_ALL="en_US.UTF-8"
 SYNO_FPCALC="/usr/local/chromaprint/bin/fpcalc"
 SYNO_LIBRARY_PATH="/usr/local/mediainfo/lib:/usr/local/chromaprint/lib"
 
-# add APP_ROOT to LD_LIBRARY_PATH
+# add package lib folder to library path
+PACKAGE_LIBRARY_PATH="$APP_ROOT/lib/$(uname -m)"
+
+# add PACKAGE_LIBRARY_PATH to LD_LIBRARY_PATH
 if [ ! -z "$LD_LIBRARY_PATH" ]; then
-	export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SYNO_LIBRARY_PATH:$APP_ROOT"
+	export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SYNO_LIBRARY_PATH:$PACKAGE_LIBRARY_PATH"
 else
-	export LD_LIBRARY_PATH="$SYNO_LIBRARY_PATH:$APP_ROOT"
+	export LD_LIBRARY_PATH="$SYNO_LIBRARY_PATH:$PACKAGE_LIBRARY_PATH"
 fi
 
 # choose extractor

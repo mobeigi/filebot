@@ -715,6 +715,12 @@
 			<package dir="${dir.installer}/spk/package" includes="*.sh" filemode="755" />
 			<package file="${path.fatjar}" fullpath="FileBot.jar" />
 
+			<!-- include native libraries for all supported platforms -->
+			<package prefix="lib/armv7l" dir="${dir.lib}/native/linux-armv7l" />
+			<package prefix="lib/armv8" dir="${dir.lib}/native/linux-armv8" />
+			<package prefix="lib/i686" dir="${dir.lib}/native/linux-i686" />
+			<package prefix="lib/x86_64" dir="${dir.lib}/native/linux-amd64" />
+
 			<codesign secring="${dir.installer}/gpg/secring.gpg" keyid="${gpg.key}" password="${gpg.pwd}" />
 		</spk>
 	</target>
