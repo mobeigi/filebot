@@ -77,9 +77,14 @@
 			<param name="arch.7zj" value="Linux-i386" />
 		</antcall>
 		<antcall target="resolve-import-native">
-			<param name="arch" value="linux-arm" />
+			<param name="arch" value="linux-armv7l" />
 			<param name="arch.jna" value="linux-arm" />
-			<param name="arch.7zj" value="Linux-arm" />
+			<param name="arch.7zj" value="linux-arm" />
+		</antcall>
+		<antcall target="resolve-import-native">
+			<param name="arch" value="linux-armv8" />
+			<param name="arch.jna" value="linux-aarch64" />
+			<param name="arch.7zj" value="linux-aarch64" />
 		</antcall>
 	</target>
 
