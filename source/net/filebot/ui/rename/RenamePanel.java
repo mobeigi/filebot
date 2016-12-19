@@ -861,6 +861,7 @@ public class RenamePanel extends JComponent {
 			// select files
 			List<File> files = getFiles(evt);
 			if (files == null) {
+				namesList.firePropertyChange(LOADING_PROPERTY, true, false);
 				return;
 			}
 
@@ -872,6 +873,7 @@ public class RenamePanel extends JComponent {
 
 			if (isMacSandbox()) {
 				if (!MacAppUtilities.askUnlockFolders(getWindow(RenamePanel.this), remainingFiles)) {
+					namesList.firePropertyChange(LOADING_PROPERTY, true, false);
 					return;
 				}
 			}
