@@ -769,7 +769,7 @@ public class RenamePanel extends JComponent {
 				}
 
 				super.actionPerformed(evt);
-			}, () -> namesList.firePropertyChange(LOADING_PROPERTY, true, false));
+			});
 
 			// auto-match in progress
 			namesList.firePropertyChange(LOADING_PROPERTY, false, true);
