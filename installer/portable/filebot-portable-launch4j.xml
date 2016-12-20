@@ -3,7 +3,7 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
   <jar>FileBot.jar</jar>
-  <outfile>FileBot.exe</outfile>
+  <outfile>filebot.portable.launcher.exe</outfile>
   <errTitle>Launch4j</errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
