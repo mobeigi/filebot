@@ -672,16 +672,11 @@
 
 
 	<target name="portable" description="Build portable package" depends="revision">
-		<mkdir dir="${dir.dist}/portable" />
-		<copy file="${path.fatjar}" tofile="${dir.dist}/portable/FileBot.jar" />
-		<copy todir="${dir.dist}/portable">
-			<fileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd, *.sh" />
-		</copy>
-
 		<cmp:xz destfile="${dir.dist}/${release}-portable.tar.xz">
 			<cmp:tar format="gnu" encoding="utf-8">
-				<cmp:tarfileset dir="${dir.dist}/portable" includes="*.jar, *.exe, *.ini, *.cmd" />
-				<cmp:tarfileset dir="${dir.dist}/portable" includes="*.sh" filemode="755" />
+				<cmp:tarfileset file="${path.fatjar}" fullpath="FileBot.jar" />
+				<cmp:tarfileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd" />
+				<cmp:tarfileset dir="${dir.installer}/portable" includes="*.sh" filemode="755" />
 			</cmp:tar>
 		</cmp:xz>
 	</target>
