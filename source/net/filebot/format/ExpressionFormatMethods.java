@@ -545,7 +545,7 @@ public class ExpressionFormatMethods {
 	}
 
 	public static List<?> bounds(Iterable<?> self) {
-		return asList(DefaultGroovyMethods.min(self), DefaultGroovyMethods.max(self));
+		return Stream.of(DefaultGroovyMethods.min(self), DefaultGroovyMethods.max(self)).filter(Objects::nonNull).distinct().collect(toList());
 	}
 
 	/**
