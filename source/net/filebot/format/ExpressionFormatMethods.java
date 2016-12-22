@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 
 import com.ibm.icu.text.Transliterator;
@@ -541,6 +542,10 @@ public class ExpressionFormatMethods {
 
 	public static String plus(SimpleDate self, Object other) {
 		return concat(self, other);
+	}
+
+	public static List<?> bounds(Iterable<?> self) {
+		return asList(DefaultGroovyMethods.min(self), DefaultGroovyMethods.max(self));
 	}
 
 	/**
