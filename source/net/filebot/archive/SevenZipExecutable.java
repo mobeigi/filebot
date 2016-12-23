@@ -12,8 +12,6 @@ import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import net.filebot.util.ByteBufferOutputStream;
@@ -22,10 +20,7 @@ import net.filebot.vfs.SimpleFileInfo;
 
 public class SevenZipExecutable implements ArchiveExtractor {
 
-	// e.g. 2014-09-15 05:33:10 ....A 398536 625065 folder/file.txt
-	final Pattern listFilesLinePattern = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}\\s+\\S+\\s+(?<size>\\d+)\\s+\\d*\\s+(?<name>.+)$", Pattern.MULTILINE);
-
-	final File archive;
+	private File archive;
 
 	public SevenZipExecutable(File file) throws Exception {
 		if (!file.exists()) {
@@ -65,19 +60,41 @@ public class SevenZipExecutable implements ArchiveExtractor {
 
 	@Override
 	public List<FileInfo> listFiles() throws IOException {
+		// e.g. 7z l -y archive.7z
+		CharSequence output = execute(get7zCommand(), "l", "-slt", "-y", archive.getPath());
+
 		List<FileInfo> paths = new ArrayList<FileInfo>();
 
-		// e.g. 7z l -y archive.7z
-		CharSequence output = execute(get7zCommand(), "l", "-y", archive.getPath());
+		String path = null;
+		long size = -1;
 
-		Matcher m = listFilesLinePattern.matcher(output);
-		while (m.find()) {
-			String path = m.group("name").trim();
-			long size = Long.parseLong(m.group("size"));
+		for (String line : NEWLINE.split(output)) {
+			int split = line.indexOf(" = ");
 
-			// ignore folders, e.g. 2015-03-26 02:37:24 D.... 0 0 folder
-			if (size > 0 && path.length() > 0) {
+			// ignore empty lines
+			if (split < 0) {
+				continue;
+			}
+
+			String key = line.substring(0, split);
+			String value = line.substring(split + 3, line.length());
+
+			// ignore empty lines
+			if (key.isEmpty() || value.isEmpty()) {
+				continue;
+			}
+
+			if ("Path".equals(key)) {
+				path = value;
+			} else if ("Size".equals(key)) {
+				size = Long.parseLong(value);
+			}
+
+			if (path != null && size >= 0) {
 				paths.add(new SimpleFileInfo(path, size));
+
+				path = null;
+				size = -1;
 			}
 		}
 
