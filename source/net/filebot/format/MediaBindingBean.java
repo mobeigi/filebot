@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -219,7 +220,7 @@ public class MediaBindingBean {
 
 		if (releaseDate != null) {
 			// avoid time zone issues by interpreting all dates and times as UTC
-			long days = ChronoUnit.DAYS.between(releaseDate.toLocalDate().atStartOfDay(ZoneOffset.UTC), ZonedDateTime.now(ZoneOffset.UTC));
+			long days = ChronoUnit.DAYS.between(releaseDate.toLocalDate().atStartOfDay(ZoneOffset.UTC).toInstant(), Instant.now());
 
 			if (days >= 0) {
 				return days;
