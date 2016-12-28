@@ -246,7 +246,7 @@ tvdb_updates.values().each{ update ->
 												.collect{ it.attr('value') }
 												.findAll{ it?.length() > 0 }
 
-					log.info "Scraped data $akaseries and $intlseries for series $seriesNames"
+					log.fine "Scraped data $akaseries and $intlseries for series $seriesNames"
 					seriesNames += akaseries
 					seriesNames += intlseries
 				}
