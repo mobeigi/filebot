@@ -112,6 +112,8 @@ public class SeasonEpisodeMatcherTest {
 
 		assertEquals("[05]", matcher.match("05.Chapter.04+1").toString());
 
+		assertEquals("[285, 286]", matcher.match("Episode_285-286").toString());
+		assertEquals("[290, 291, 292, 293, 294, 295]", matcher.match("Episode_290-295").toString());
 	}
 
 	@Test

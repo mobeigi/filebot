@@ -32,7 +32,7 @@ public class SeasonEpisodeMatcher {
 
 	public SeasonEpisodeMatcher(SeasonEpisodeFilter sanity, boolean strict) {
 		// define variables
-		SeasonEpisodePattern Season_00_Episode_00, S00E00SEQ, S00E00, SxE1_SxE2, SxE, Dot101, EP0, Num101_TOKEN, E1of2, Num101_SUBSTRING;
+		SeasonEpisodePattern Season_00_Episode_00, S00E00SEQ, S00E00, SxE1_SxE2, SxE, Dot101, E01E02SEQ, EP0, Num101_TOKEN, E1of2, Num101_SUBSTRING;
 
 		// match patterns like Season 01 Episode 02, ...
 		Season_00_Episode_00 = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})(?i:season|series)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?i:episode)[^\\p{Alnum}]{0,3}((\\d{1,3}(\\D|$))+)[^\\p{Alnum}]{0,3}(?!\\p{Digit})", m -> {
@@ -64,6 +64,11 @@ public class SeasonEpisodeMatcher {
 			return multi(m.group(1), m.group(2));
 		});
 
+		// match patterns like 101-105
+		E01E02SEQ = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum}|[-])(\\d{2,3})[-](\\d{2,3})(?!\\p{Alnum}|[-])", m -> {
+			return range(null, m.group(1), m.group(2));
+		});
+
 		// match patterns like ep1, ep.1, ...
 		EP0 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{2}|\\d{4})?[\\P{Alnum}]{0,3}(((?i:e|ep|episode|p|part)[\\P{Alnum}]{0,3}\\d{1,3})+)(?!\\p{Digit})", m -> {
 			return multi(m.group(1), m.group(2));
@@ -88,7 +93,7 @@ public class SeasonEpisodeMatcher {
 		if (strict) {
 			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00SEQ, S00E00, SxE1_SxE2, SxE, Dot101 };
 		} else {
-			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00SEQ, S00E00, SxE1_SxE2, SxE, Dot101, new SeasonEpisodeUnion(EP0, Num101_TOKEN, E1of2), Num101_SUBSTRING };
+			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00SEQ, S00E00, SxE1_SxE2, SxE, Dot101, E01E02SEQ, new SeasonEpisodeUnion(EP0, Num101_TOKEN, E1of2), Num101_SUBSTRING };
 		}
 
 		// season folder pattern for complementing partial sxe info from filename
@@ -107,8 +112,8 @@ public class SeasonEpisodeMatcher {
 	protected List<SxE> range(String season, String... episodes) {
 		IntSummaryStatistics stats = stream(episodes).flatMap(s -> matchIntegers(s).stream()).mapToInt(i -> i).summaryStatistics();
 
-		int s = Integer.parseInt(season);
-		return IntStream.rangeClosed(stats.getMin(), stats.getMax()).mapToObj(e -> new SxE(s, e)).collect(toList());
+		Integer s = matchInteger(season);
+		return IntStream.rangeClosed(stats.getMin(), stats.getMax()).boxed().map(e -> new SxE(s, e)).collect(toList());
 	}
 
 	protected List<SxE> pairs(String text) {
@@ -289,6 +294,12 @@ public class SeasonEpisodeMatcher {
 		boolean filter(SxE sxe) {
 			return (sxe.season >= 0 && (sxe.season < seasonLimit || (sxe.season > seasonYearBegin && sxe.season < seasonYearEnd)) && sxe.episode < seasonEpisodeLimit) || (sxe.season < 0 && sxe.episode < absoluteEpisodeLimit);
 		}
+
+		public boolean filter(SxE value, List<SxE> sequence) {
+			return filter(value) && sequence.stream().filter(other -> {
+				return (value.season == SxE.UNDEFINED) == (other.season == SxE.UNDEFINED) && other.compareTo(value) > 0;
+			}).count() == 0;
+		}
 	}
 
 	public static interface SeasonEpisodeParser {
@@ -328,10 +339,8 @@ public class SeasonEpisodeMatcher {
 
 			while (matcher.find()) {
 				for (SxE value : process.apply(matcher)) {
-					if (sanity == null || sanity.filter(value)) {
-						if (matches.isEmpty() || matches.get(matches.size() - 1).compareTo(value) < 0) {
-							matches.add(value);
-						}
+					if (sanity == null || sanity.filter(value, matches)) {
+						matches.add(value);
 					}
 				}
 			}
