@@ -1036,6 +1036,7 @@ public class MediaBindingBean {
 	}
 
 	public Episode getSeasonEpisode() {
+		// magically convert AniDB absolute numbers to TheTVDB SxE numbers if AniDB is selected with airdate SxE episode sort order
 		if (getEpisodes().stream().allMatch(it -> isAnime(it) && isRegular(it) && !isAbsolute(it))) {
 			try {
 				return getEpisodeByAbsoluteNumber(getEpisode(), TheTVDB, SortOrder.Airdate);
