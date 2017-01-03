@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
-	<name>FileBot 4.7.6</name>
-	<revision>4674</revision>
+	<name>FileBot 4.7.7</name>
+	<revision>4678</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 4.7.6</b><br>
+		<b>FileBot 4.7.7</b><br>
 		This release features:<br>
-		+ Improved episode auto-detection<br>
-		+ Lots of minor improvements bugfixes<br>
+		+ Minor improvements bugfixes<br>
 	<html>]]></message>
 	<discussion><![CDATA[https://www.filebot.net/forums/viewtopic.php?f=7&t=3709&p=25510#p25510]]></discussion>
 	<download><![CDATA[https://www.filebot.net/#download]]></download>
