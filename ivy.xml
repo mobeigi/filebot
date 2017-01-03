@@ -3,42 +3,42 @@
 	<info organisation="net.filebot" module="filebot" />
 	<dependencies>
 		<!-- FileBot -->
-		<dependency rev="latest.release" org="org.codehaus.groovy" name="groovy-all" />
-		<dependency rev="latest.release" org="net.java.dev.jna" name="jna" />
-		<dependency rev="latest.release" org="net.java.dev.jna" name="jna-platform" />
-		<dependency rev="latest.release" org="args4j" name="args4j" />
-		<dependency rev="latest.release" org="net.sf.ehcache" name="ehcache" />
-		<dependency rev="latest.release" org="com.ibm.icu" name="icu4j" />
-		<dependency rev="latest.release" org="org.jsoup" name="jsoup" />
-		<dependency rev="latest.release" org="org.tukaani" name="xz" />
-		<dependency rev="latest.release" org="com.cedarsoftware" name="json-io" />
-		<dependency rev="latest.release" org="commons-io" name="commons-io" />
-		<dependency rev="latest.release" org="commons-net" name="commons-net" />
-		<dependency rev="latest.release" org="org.slf4j" name="slf4j-jdk14" />
-		<dependency rev="latest.release" org="net.java.dev.glazedlists" name="glazedlists_java15" />
-		<dependency rev="latest.release" org="com.miglayout" name="miglayout-swing" />
-		<dependency rev="latest.release" org="org.apache.commons" name="commons-vfs2" />
-		<dependency rev="latest.release" org="com.github.junrar" name="junrar" />
-		<dependency rev="latest.release" org="com.fifesoft" name="rsyntaxtextarea" />
-		<dependency rev="latest.release" org="net.sf.sevenzipjbinding" name="sevenzipjbinding" />
-		<dependency rev="latest.release" org="net.sf.sevenzipjbinding" name="sevenzipjbinding-all-platforms" />
-		<dependency rev="latest.release" org="com.optimaize.languagedetector" name="language-detector" />
-		<dependency rev="latest.release" org="one.util" name="streamex" />
-		<dependency rev="latest.release" org="org.controlsfx" name="controlsfx" />
-		<dependency rev="latest.release" org="com.googlecode.lanterna" name="lanterna" />
+		<dependency rev="2.4.7" org="org.codehaus.groovy" name="groovy-all" />
+		<dependency rev="4.2.2" org="net.java.dev.jna" name="jna" />
+		<dependency rev="4.2.2" org="net.java.dev.jna" name="jna-platform" />
+		<dependency rev="2.33" org="args4j" name="args4j" />
+		<dependency rev="2.10.3" org="net.sf.ehcache" name="ehcache" />
+		<dependency rev="58.2" org="com.ibm.icu" name="icu4j" />
+		<dependency rev="1.10.2" org="org.jsoup" name="jsoup" />
+		<dependency rev="1.6" org="org.tukaani" name="xz" />
+		<dependency rev="4.9.1" org="com.cedarsoftware" name="json-io" />
+		<dependency rev="2.5" org="commons-io" name="commons-io" />
+		<dependency rev="3.5" org="commons-net" name="commons-net" />
+		<dependency rev="1.7.22" org="org.slf4j" name="slf4j-jdk14" />
+		<dependency rev="1.9.1" org="net.java.dev.glazedlists" name="glazedlists_java15" />
+		<dependency rev="5.0" org="com.miglayout" name="miglayout-swing" />
+		<dependency rev="2.1" org="org.apache.commons" name="commons-vfs2" />
+		<dependency rev="0.7" org="com.github.junrar" name="junrar" />
+		<dependency rev="2.6.0" org="com.fifesoft" name="rsyntaxtextarea" />
+		<dependency rev="9.20-2.00beta" org="net.sf.sevenzipjbinding" name="sevenzipjbinding" />
+		<dependency rev="9.20-2.00beta" org="net.sf.sevenzipjbinding" name="sevenzipjbinding-all-platforms" />
+		<dependency rev="0.6" org="com.optimaize.languagedetector" name="language-detector" />
+		<dependency rev="0.6.4" org="one.util" name="streamex" />
+		<dependency rev="8.40.12" org="org.controlsfx" name="controlsfx" />
+		<dependency rev="3.0.0-beta3" org="com.googlecode.lanterna" name="lanterna" />
 
 		<!-- FileBot Scripting -->
-		<dependency rev="latest.release" org="org.apache.ant" name="ant" />
-		<dependency rev="latest.release" org="org.apache.ant" name="ant-launcher" />
-		<dependency rev="latest.release" org="org.apache.ant" name="ant-commons-net" />
-		<dependency rev="latest.release" org="org.apache.ant" name="ant-javamail" />
-		<dependency rev="latest.release" org="org.apache.ant" name="ant-jsch" />
-		<dependency rev="latest.release" org="org.apache.ivy" name="ivy" />
+		<dependency rev="1.10.0" org="org.apache.ant" name="ant" />
+		<dependency rev="1.10.0" org="org.apache.ant" name="ant-launcher" />
+		<dependency rev="1.10.0" org="org.apache.ant" name="ant-commons-net" />
+		<dependency rev="1.10.0" org="org.apache.ant" name="ant-javamail" />
+		<dependency rev="1.10.0" org="org.apache.ant" name="ant-jsch" />
+		<dependency rev="2.4.0" org="org.apache.ivy" name="ivy" />
 
 		<!-- FileBot Ant Build -->
-		<dependency rev="latest.release" org="org.apache.ant" name="ant-junit" />
-		<dependency rev="latest.release" org="org.apache.commons" name="commons-compress" />
-		<dependency rev="latest.release" org="net.filebot" name="ant-spk" />
-		<dependency rev="latest.release" org="org.vafer" name="jdeb" />
+		<dependency rev="1.10.0" org="org.apache.ant" name="ant-junit" />
+		<dependency rev="1.13" org="org.apache.commons" name="commons-compress" />
+		<dependency rev="0.5" org="net.filebot" name="ant-spk" />
+		<dependency rev="1.5" org="org.vafer" name="jdeb" />
 	</dependencies>
 </ivy-module>
