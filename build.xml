@@ -18,7 +18,7 @@
 	<property name="version" value="${application.version}" />
 
 	<!-- define output paths -->
-	<property name="dir.cache" location="${basedir}/cache/${release}" />
+	<property name="dir.cache" location="${basedir}/cache" />
 	<property name="dir.release" location="${basedir}/release/${release}" />
 	<property name="path.fatjar" location="${dir.dist}/${release}.jar" />
 
@@ -791,12 +791,12 @@
 			</fileset>
 		</copy>
 
-		<checksum algorithm="SHA-256" pattern="{0}	{1}" todir="${dir.cache}" fileext=".sha256">
+		<checksum algorithm="SHA-256" pattern="{0}	{1}" todir="${dir.cache}/${release}" fileext=".sha256">
 			<fileset dir="${dir.release}" />
 		</checksum>
 		<concat destfile="${dir.release}/README.md" overwrite="true" eol="unix" outputencoding="utf-8">
 			<fileset file="${dir.installer}/ant/digest.head.md" />
-			<fileset dir="${dir.cache}" includes="*.sha256" />
+			<fileset dir="${dir.cache}/${release}" includes="*.sha256" />
 			<fileset file="${dir.installer}/ant/digest.tail.md" />
 		</concat>
 	</target>
@@ -859,7 +859,7 @@
 		<scp todir="${deploy.website}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
 			<fileset dir="${dir.dist}/website">
 				<modified>
-					<param name="cache.cachefile" value="${dir.cache}/../scp.cache" />
+					<param name="cache.cachefile" value="${dir.cache}/scp.cache" />
 				</modified>
 			</fileset>
 		</scp>
@@ -920,7 +920,7 @@
 				<include name="data/*.txt" />
 				<include name="data/*.xz" />
 				<modified>
-					<param name="cache.cachefile" value="${dir.cache}/../scp.cache" />
+					<param name="cache.cachefile" value="${dir.cache}/scp.cache" />
 				</modified>
 			</fileset>
 		</scp>
