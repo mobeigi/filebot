@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
-	<name>FileBot 4.7.5</name>
-	<revision>4600</revision>
+	<name>FileBot 4.7.6</name>
+	<revision>4674</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 4.7.5</b><br>
+		<b>FileBot 4.7.6</b><br>
 		This release features:<br>
-		+ Keyboard shortcuts for calling user-defined Presets (Numpad 1..9)<br>
 		+ Improved episode auto-detection<br>
-		+ Improved file sort order<br>
-		+ Improved bindings: {plex}, {t}, {votes}, {group} and {tags}<br>
-		+ Reduce xattr metadata size<br>
-		+ Lots of bugfixes<br>
+		+ Lots of minor improvements bugfixes<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=3709&p=24567#p24567]]></discussion>
-	<download><![CDATA[http://www.filebot.net/#download]]></download>
+	<discussion><![CDATA[https://www.filebot.net/forums/viewtopic.php?f=7&t=3709&p=25510#p25510]]></discussion>
+	<download><![CDATA[https://www.filebot.net/#download]]></download>
 </update>
