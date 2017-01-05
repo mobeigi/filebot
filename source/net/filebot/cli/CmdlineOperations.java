@@ -995,9 +995,10 @@ public class CmdlineOperations implements CmdlineInterface {
 		List<Episode> episodes = applyExpressionFilter(service.getEpisodeList(options.get(0), order, locale), filter);
 		Map<File, Episode> context = new EntryList<File, Episode>(null, episodes);
 
-		return episodes.stream().map(episode -> {
-			return format != null ? format.format(new MediaBindingBean(episode, null, context)) : EpisodeFormat.SeasonEpisode.format(episode);
-		}).collect(toList());
+		// lazy format
+		return new FunctionList<Episode, String>(episodes, e -> {
+			return format != null ? format.format(new MediaBindingBean(e, null, context)) : EpisodeFormat.SeasonEpisode.format(e);
+		});
 	}
 
 	@Override
@@ -1013,7 +1014,9 @@ public class CmdlineOperations implements CmdlineInterface {
 		ExpressionFormat formatter = format != null ? format : new ExpressionFormat("{fn} [{resolution} {vc} {channels} {ac} {minutes}m]");
 
 		// lazy format
-		return new FunctionList<File, String>(selection, f -> formatter.format(new MediaBindingBean(xattr.getMetaInfo(f), f)));
+		return new FunctionList<File, String>(selection, f -> {
+			return formatter.format(new MediaBindingBean(xattr.getMetaInfo(f), f));
+		});
 	}
 
 	@Override

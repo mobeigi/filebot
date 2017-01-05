@@ -56,22 +56,17 @@ public class ArgumentProcessor {
 
 		// print episode info
 		if (args.list) {
-			List<String> lines = cli.fetchEpisodeList(args.getDatasource(), args.getSearchQuery(), args.getExpressionFormat(), args.getExpressionFilter(), args.getSortOrder(), args.getLanguage().getLocale());
-			lines.forEach(System.out::println);
-			return lines.isEmpty() ? 1 : 0;
+			return print(cli.fetchEpisodeList(args.getDatasource(), args.getSearchQuery(), args.getExpressionFormat(), args.getExpressionFilter(), args.getSortOrder(), args.getLanguage().getLocale()));
 		}
 
 		// print media info
 		if (args.mediaInfo) {
-			List<String> lines = cli.getMediaInfo(args.getFiles(true), args.getExpressionFileFilter(), args.getExpressionFormat());
-			lines.forEach(System.out::println);
-			return lines.isEmpty() ? 1 : 0;
+			return print(cli.getMediaInfo(args.getFiles(true), args.getExpressionFileFilter(), args.getExpressionFormat()));
 		}
 
 		// revert files
 		if (args.revert) {
-			List<File> files = cli.revert(args.getFiles(false), args.getExpressionFileFilter(), args.getRenameAction());
-			return files.isEmpty() ? 1 : 0;
+			return cli.revert(args.getFiles(false), args.getExpressionFileFilter(), args.getRenameAction()).isEmpty() ? 1 : 0;
 		}
 
 		// file operations
@@ -101,6 +96,21 @@ public class ArgumentProcessor {
 		}
 
 		return 0;
+	}
+
+	private int print(List<?> values) {
+		int lines = 0;
+
+		for (int i = 0; i < values.size(); i++) {
+			try {
+				System.out.println(values.get(i));
+				lines++;
+			} catch (Exception e) {
+				debug.warning(e::getMessage);
+			}
+		}
+
+		return lines == 0 ? 1 : 0;
 	}
 
 	public void runScript(CmdlineInterface cli, ArgumentBean args) throws Throwable {
