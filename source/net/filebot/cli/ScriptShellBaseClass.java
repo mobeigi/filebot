@@ -226,7 +226,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		try {
 			return formatter.format(new MediaBindingBean(o, f));
 		} catch (SuppressedThrowables e) {
-			debug.warning(format("%s => %s", format, e.getMessage()));
+			debug.finest(format("%s => %s", format, e.getMessage()));
 		}
 
 		return null;
