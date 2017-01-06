@@ -113,7 +113,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		return executeScript(input, asList(getArgumentBean().getArgumentArray()), bindings, asFileList(args));
 	}
 
-	public Object executeScript(String input, List<String> argv, Map<String, ?> bindings, List<File> args) throws Throwable {
+	public Object executeScript(String input, List<String> argv, Map<String, ?> bindings, List<?> args) throws Throwable {
 		// apply parent script defines
 		Bindings parameters = new SimpleBindings();
 
@@ -122,8 +122,8 @@ public abstract class ScriptShellBaseClass extends Script {
 			parameters.putAll(bindings);
 		}
 
-		parameters.put(ScriptShell.SHELL_ARGS_BINDING_NAME, new ArgumentBean(argv != null ? argv.toArray(new String[0]) : new String[0]));
-		parameters.put(ScriptShell.ARGV_BINDING_NAME, args != null ? new ArrayList<File>(args) : new ArrayList<File>());
+		parameters.put(ScriptShell.SHELL_ARGS_BINDING_NAME, argv != null ? new ArgumentBean(argv.toArray(new String[0])) : new ArgumentBean());
+		parameters.put(ScriptShell.ARGV_BINDING_NAME, args != null ? asFileList(args) : new ArrayList<File>());
 
 		// run given script
 		return getShell().runScript(input, parameters);
