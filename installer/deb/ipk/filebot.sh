@@ -26,4 +26,4 @@ EXTRACTOR="ApacheVFS"					# use Apache Commons VFS2 with junrar plugin
 APP_DATA="$APP_ROOT/data/$USER"
 
 # start filebot
-java -Dunixfs=false -DuseExtendedFileAttributes=true -DuseCreationDate=false -Dfile.encoding="UTF-8" -Dsun.jnu.encoding="UTF-8" -Dapplication.deployment=ipkg -Dnet.filebot.Archive.extractor="$EXTRACTOR" -Dnet.filebot.AcoustID.fpcalc="fpcalc" -Dapplication.dir="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/temp" -Duser.home="$APP_DATA" $JAVA_OPTS -jar "$APP_ROOT/FileBot.jar" "$@"
+java -Dunixfs=false -DuseExtendedFileAttributes=true -DuseCreationDate=false -Dfile.encoding="UTF-8" -Djna.nosys=false -Djna.nounpack=true -Dsun.jnu.encoding="UTF-8" -Dapplication.deployment=ipkg -Dnet.filebot.Archive.extractor="$EXTRACTOR" -Dnet.filebot.AcoustID.fpcalc="fpcalc" -Dapplication.dir="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/temp" -Duser.home="$APP_DATA" $JAVA_OPTS -jar "$APP_ROOT/FileBot.jar" "$@"
