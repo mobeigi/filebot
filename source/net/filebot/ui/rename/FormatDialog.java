@@ -15,7 +15,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -37,7 +36,6 @@ import java.util.logging.Level;
 import java.util.prefs.Preferences;
 
 import javax.script.ScriptException;
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -68,7 +66,6 @@ import net.filebot.format.SuppressedThrowables;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.media.MetaAttributes;
 import net.filebot.util.DefaultThreadFactory;
-import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.PreferencesList;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.ui.GradientStyle;
@@ -111,22 +108,23 @@ public class FormatDialog extends JDialog {
 	private static final PreferencesEntry<String> persistentSampleFile = Settings.forPackage(FormatDialog.class).entry("format.sample.file");
 
 	public enum Mode {
+
 		Episode, Movie, Music, File;
 
 		public Mode next() {
 			// cycle through Episode -> Movie -> Music (but ignore generic File mode)
-			return values()[(this.ordinal() + 1) % File.ordinal()];
+			return values()[(ordinal() + 1) % File.ordinal()];
 		}
 
 		public String key() {
-			return this.name().toLowerCase();
+			return name().toLowerCase();
 		}
 
 		public Format getFormat() {
 			switch (this) {
 			case Episode:
 				return new EpisodeFormat();
-			case Movie: // case Movie
+			case Movie:
 				return new MovieFormat(true, true, false);
 			case Music:
 				return new AudioTrackFormat();
@@ -157,6 +155,7 @@ public class FormatDialog extends JDialog {
 				if (key.startsWith(prefix))
 					examples.put(key, bundle.getString(key));
 			}
+
 			return examples.values();
 		}
 
@@ -526,7 +525,7 @@ public class FormatDialog extends JDialog {
 			executor.execute(currentPreviewFuture);
 		} catch (ScriptException e) {
 			// incorrect syntax
-			status.setText(ExceptionUtilities.getRootCauseMessage(e));
+			status.setText(getRootCauseMessage(e));
 			status.setIcon(ResourceManager.getIcon("status.error"));
 			status.setVisible(true);
 
@@ -587,136 +586,111 @@ public class FormatDialog extends JDialog {
 		return popup;
 	}
 
-	protected final Action changeSampleAction = new AbstractAction("Change Sample", ResourceManager.getIcon("action.variables")) {
+	protected final Action changeSampleAction = newAction("Change Sample", ResourceManager.getIcon("action.variables"), evt -> {
+		BindingDialog dialog = new BindingDialog(getWindow(evt.getSource()), String.format("%s Bindings", mode), mode.getFormat(), !locked);
+		dialog.setSample(sample);
 
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			BindingDialog dialog = new BindingDialog(getWindow(evt.getSource()), String.format("%s Bindings", mode), mode.getFormat(), !locked);
-			dialog.setSample(sample);
+		// open dialog
+		dialog.setLocationRelativeTo((Component) evt.getSource());
+		dialog.setVisible(true);
 
-			// open dialog
-			dialog.setLocationRelativeTo((Component) evt.getSource());
-			dialog.setVisible(true);
+		if (dialog.submit()) {
+			Object info = dialog.getInfoObject();
+			File file = dialog.getMediaFile();
 
-			if (dialog.submit()) {
-				Object info = dialog.getInfoObject();
-				File file = dialog.getMediaFile();
+			// change sample
+			sample = new MediaBindingBean(info, file);
 
-				// change sample
-				sample = new MediaBindingBean(info, file);
-
-				// remember sample
-				try {
-					mode.persistentSample().setValue(info == null ? "" : MetaAttributes.toJson(info));
-					persistentSampleFile.setValue(file == null ? "" : sample.getFileObject().getAbsolutePath());
-				} catch (Exception e) {
-					debug.log(Level.WARNING, e.getMessage(), e);
-				}
-
-				// reevaluate everything
-				fireSampleChanged();
-			}
-		}
-	};
-
-	protected final Action selectFolderAction = new AbstractAction("Change Folder", ResourceManager.getIcon("action.load")) {
-
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			String relativeFormat = editor.getText().trim();
-			File absoluteFolder = null;
-
-			if (relativeFormat.length() > 0) {
-				File templatePath = new File(relativeFormat);
-				if (templatePath.isAbsolute()) {
-					File existingPath = null;
-					for (File next : listPath(templatePath)) {
-						if (existingPath != null && !next.exists()) {
-							absoluteFolder = existingPath;
-							relativeFormat = relativeFormat.substring(existingPath.getPath().length() + 1); // account for file separator
-							break;
-						}
-						existingPath = next;
-					}
-				}
-			}
-
-			File selectedFolder = UserFiles.showOpenDialogSelectFolder(absoluteFolder, "Select Folder", evt);
-			if (selectedFolder != null) {
-				editor.setText(normalizePathSeparators(selectedFolder.getAbsolutePath()) + "/" + relativeFormat);
-			}
-		}
-
-	};
-
-	protected final Action showRecentAction = new AbstractAction("Change Format", ResourceManager.getIcon("action.menu")) {
-
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			// display popup below format editor
-			JComponent c = (JComponent) evt.getSource();
-			editor.getComponentPopupMenu().show(c, 0, c.getHeight() + 3);
-		}
-	};
-
-	protected final Action cancelAction = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			finish(false);
-		}
-	};
-
-	protected final Action switchEditModeAction = new AbstractAction("Switch Mode", ResourceManager.getIcon("dialog.switch")) {
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			Mode next = mode.next();
-			setState(next, restoreSample(next), false);
-		}
-	};
-
-	protected final Action approveFormatAction = new AbstractAction("Use Format", ResourceManager.getIcon("dialog.continue")) {
-
-		@Override
-		public void actionPerformed(ActionEvent evt) {
+			// remember sample
 			try {
-				// check syntax
-				format = new ExpressionFormat(editor.getText().trim());
+				mode.persistentSample().setValue(info == null ? "" : MetaAttributes.toJson(info));
+				persistentSampleFile.setValue(file == null ? "" : sample.getFileObject().getAbsolutePath());
+			} catch (Exception e) {
+				debug.log(Level.WARNING, e.getMessage(), e);
+			}
 
-				if (format.getExpression().isEmpty()) {
-					throw new ScriptException("Expression is empty");
-				}
-				if (format.getExpression().length() > Preferences.MAX_VALUE_LENGTH) {
-					throw new ScriptException("Expression is limited to " + Preferences.MAX_VALUE_LENGTH + " characters");
-				}
+			// reevaluate everything
+			fireSampleChanged();
+		}
+	});
 
-				// create new recent history and ignore duplicates
-				Set<String> recent = new LinkedHashSet<String>();
+	protected final Action selectFolderAction = newAction("Change Folder", ResourceManager.getIcon("action.load"), evt -> {
+		String relativeFormat = editor.getText().trim();
+		File absoluteFolder = null;
 
-				// add new format first
-				recent.add(format.getExpression());
-
-				// save the 8 most recent formats
-				for (String expression : mode.persistentFormatHistory()) {
-					recent.add(expression);
-
-					if (recent.size() >= 8) {
+		if (relativeFormat.length() > 0) {
+			File templatePath = new File(relativeFormat);
+			if (templatePath.isAbsolute()) {
+				File existingPath = null;
+				for (File next : listPath(templatePath)) {
+					if (existingPath != null && !next.exists()) {
+						absoluteFolder = existingPath;
+						relativeFormat = relativeFormat.substring(existingPath.getPath().length() + 1); // account for file separator
 						break;
 					}
+					existingPath = next;
 				}
-
-				// update persistent history
-				mode.persistentFormatHistory().set(recent);
-
-				finish(true);
-			} catch (ScriptException e) {
-				log.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e));
-			} catch (Exception e) {
-				log.log(Level.WARNING, e.getMessage(), e);
 			}
 		}
-	};
+
+		File selectedFolder = UserFiles.showOpenDialogSelectFolder(absoluteFolder, "Select Folder", evt);
+		if (selectedFolder != null) {
+			editor.setText(normalizePathSeparators(selectedFolder.getAbsolutePath()) + "/" + relativeFormat);
+		}
+	});
+
+	protected final Action showRecentAction = newAction("Change Format", ResourceManager.getIcon("action.menu"), evt -> {
+		// display popup below format editor
+		JComponent c = (JComponent) evt.getSource();
+		editor.getComponentPopupMenu().show(c, 0, c.getHeight() + 3);
+	});
+
+	protected final Action cancelAction = newAction("Cancel", ResourceManager.getIcon("dialog.cancel"), evt -> {
+		finish(false);
+	});
+
+	protected final Action switchEditModeAction = newAction("Switch Mode", ResourceManager.getIcon("dialog.switch"), evt -> {
+		Mode next = mode.next();
+		setState(next, restoreSample(next), false);
+	});
+
+	protected final Action approveFormatAction = newAction("Use Format", ResourceManager.getIcon("dialog.continue"), evt -> {
+		try {
+			// check syntax
+			format = new ExpressionFormat(editor.getText().trim());
+
+			if (format.getExpression().isEmpty()) {
+				throw new ScriptException("Expression is empty");
+			}
+			if (format.getExpression().length() > Preferences.MAX_VALUE_LENGTH) {
+				throw new ScriptException("Expression is limited to " + Preferences.MAX_VALUE_LENGTH + " characters");
+			}
+
+			// create new recent history and ignore duplicates
+			Set<String> recent = new LinkedHashSet<String>();
+
+			// add new format first
+			recent.add(format.getExpression());
+
+			// save the 8 most recent formats
+			for (String expression : mode.persistentFormatHistory()) {
+				recent.add(expression);
+
+				if (recent.size() >= 8) {
+					break;
+				}
+			}
+
+			// update persistent history
+			mode.persistentFormatHistory().set(recent);
+
+			finish(true);
+		} catch (ScriptException e) {
+			log.log(Level.WARNING, getRootCauseMessage(e));
+		} catch (Exception e) {
+			log.log(Level.WARNING, e.getMessage(), e);
+		}
+	});
 
 	protected void fireSampleChanged() {
 		firePropertyChange("sample", null, sample);
