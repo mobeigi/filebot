@@ -7,8 +7,6 @@ import java.awt.Color;
 import java.io.File;
 import java.util.List;
 
-import net.filebot.util.FileUtilities;
-
 public class TextColorizer {
 
 	private Color pathRainbowBeginColor;
@@ -40,13 +38,13 @@ public class TextColorizer {
 		for (int i = 0; i < path.size() - 1; i++) {
 			float f = (path.size() <= 2) ? 1 : (float) i / (path.size() - 2);
 			Color c = interpolateHSB(pathRainbowBeginColor, pathRainbowEndColor, f);
-			html.append(String.format("<span style='color:rgb(%1$d, %2$d, %3$d)'>%4$s</span><span style='color:rgb(%1$d, %2$d, %3$d)'>/</span>", c.getRed(), c.getGreen(), c.getBlue(), escapeHTML(FileUtilities.getFolderName(path.get(i)))));
+			html.append(String.format("<span style='color:rgb(%1$d, %2$d, %3$d)'>%4$s</span><span style='color:rgb(%1$d, %2$d, %3$d)'>/</span>", c.getRed(), c.getGreen(), c.getBlue(), escapeHTML(getFolderName(path.get(i)))));
 		}
 
 		// only colorize extension
 		if (hasExtension) {
-			html.append(escapeHTML(FileUtilities.getName(file)));
-			String extension = FileUtilities.getExtension(file);
+			html.append(escapeHTML(getNameWithoutExtension(file.getName())));
+			String extension = getExtension(file);
 			if (extension != null) {
 				html.append(String.format("<span style='color:#607080'>.%s</span>", escapeHTML(extension))); // highlight extension
 			}

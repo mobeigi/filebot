@@ -322,12 +322,12 @@ public final class FileUtilities {
 			return null;
 		}
 
-		if (file.isFile()) {
-			return getNameWithoutExtension(file.getName());
+		// directory || root drive || network share
+		if (file.isDirectory()) {
+			return getFolderName(file);
 		}
 
-		// directory || root drive || network share
-		return getFolderName(file);
+		return getNameWithoutExtension(file.getName());
 	}
 
 	public static String getFolderName(File file) {

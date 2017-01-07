@@ -98,7 +98,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 			if (renameModel.preserveExtension()) {
 				setText(FileUtilities.getName(file));
 			} else {
-				setText(isSelected || !renameModel.hasComplement(index) ? formatPath(file) : colorizePath(file.getAbsoluteFile(), true));
+				setText(isSelected || !renameModel.hasComplement(index) ? formatPath(file) : colorizePath(file, true));
 			}
 		} else if (value instanceof FormattedFuture) {
 			// display progress icon
@@ -215,7 +215,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 			return "Folder";
 		}
 
-		String extension = FileUtilities.getExtension(file);
+		String extension = getExtension(file);
 		if (extension != null) {
 			return extension.toLowerCase();
 		}
