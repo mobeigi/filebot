@@ -702,12 +702,12 @@ public class MediaBindingBean {
 
 			if (language != null && infoObject instanceof Movie) {
 				MovieInfo movie = getMovieInfo(language.getLocale(), true);
-				return createPropertyBindings(movie); // TODO use createBindingObject -> BREAKING CHANGE
+				return createPropertyBindings(movie);
 			}
 
 			if (language != null && infoObject instanceof Episode) {
 				Episode episode = fetchEpisode(getEpisode(), null, language.getLocale());
-				return createPropertyBindings(episode); // TODO use createBindingObject -> BREAKING CHANGE
+				return createPropertyBindings(episode);
 			}
 
 			return undefined(k);
