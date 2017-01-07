@@ -953,18 +953,18 @@ public class MediaBindingBean {
 	}
 
 	@Define("i")
-	public Number getModelIndex() {
+	public Integer getModelIndex() {
 		return 1 + identityIndexOf(context.values(), getInfoObject());
 	}
 
 	@Define("di")
-	public Number getDuplicateIndex() {
+	public Integer getDuplicateIndex() {
 		return 1 + identityIndexOf(context.values().stream().filter(getInfoObject()::equals).collect(toList()), getInfoObject());
 	}
 
 	@Define("dc")
-	public Number getDuplicateCount() {
-		return context.values().stream().filter(getInfoObject()::equals).count();
+	public Integer getDuplicateCount() {
+		return context.values().stream().filter(getInfoObject()::equals).mapToInt(i -> 1).sum();
 	}
 
 	@Define("plex")

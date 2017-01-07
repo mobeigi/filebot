@@ -24,6 +24,7 @@ public class IndexedBindingBean extends MediaBindingBean {
 		this.to = to;
 	}
 
+	@Override
 	@Define("i")
 	public Integer getModelIndex() {
 		return i;

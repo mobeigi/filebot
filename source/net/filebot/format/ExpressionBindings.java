@@ -30,8 +30,9 @@ public class ExpressionBindings extends AbstractMap<String, Object> implements B
 				for (String name : define.value()) {
 					Method existingBinding = bindings.put(name, method);
 
-					if (existingBinding != null)
+					if (existingBinding != null) {
 						throw new IllegalArgumentException(String.format("Illegal binding {%s} on %s", name, method.getName()));
+					}
 				}
 			}
 		}
