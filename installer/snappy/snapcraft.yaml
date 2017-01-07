@@ -11,7 +11,7 @@ architectures: [amd64]
 apps:
   filebot:
     command: desktop-launch $SNAP/filebot.sh
-    plugs: [unity7, opengl, x11, home, network, network-bind, pulseaudio, gsettings]
+    plugs: [unity7, opengl, x11, home, removable-media, network, network-bind, pulseaudio, gsettings]
 
 parts:
   filebot:
