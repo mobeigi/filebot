@@ -72,7 +72,6 @@ import net.filebot.util.ui.GradientStyle;
 import net.filebot.util.ui.LazyDocumentListener;
 import net.filebot.util.ui.LinkButton;
 import net.filebot.util.ui.ProgressIndicator;
-import net.filebot.util.ui.SwingUI;
 import net.filebot.util.ui.notification.SeparatorBorder;
 import net.filebot.util.ui.notification.SeparatorBorder.Position;
 import net.filebot.web.AudioTrackFormat;
@@ -443,7 +442,7 @@ public class FormatDialog extends JDialog {
 			ExpressionFormat format = new ExpressionFormat(editor.getText().trim());
 
 			// activate delayed to avoid flickering when formatting takes only a couple of milliseconds
-			Timer progressIndicatorTimer = SwingUI.invokeLater(400, () -> progressIndicator.setVisible(true));
+			Timer progressIndicatorTimer = invokeLater(400, () -> progressIndicator.setVisible(true));
 
 			// cancel old worker later
 			Future<String> obsoletePreviewFuture = currentPreviewFuture;

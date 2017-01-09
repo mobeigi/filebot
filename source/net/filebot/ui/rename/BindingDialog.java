@@ -356,7 +356,7 @@ class BindingDialog extends JDialog {
 
 		private final List<Evaluator> model = new ArrayList<Evaluator>();
 
-		private final ExecutorService executor = Executors.newFixedThreadPool(2, new DefaultThreadFactory("Evaluator", Thread.MIN_PRIORITY));
+		private final ExecutorService executor = Executors.newFixedThreadPool(1, new DefaultThreadFactory("Evaluator", Thread.MIN_PRIORITY));
 
 		public void setModel(Collection<String> expressions, Object bindingBean) {
 			// cancel old workers and clear model
