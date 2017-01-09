@@ -701,13 +701,13 @@ public class MediaBindingBean {
 			Language language = Language.findLanguage(k);
 
 			if (language != null && infoObject instanceof Movie) {
-				MovieInfo movie = getMovieInfo(language.getLocale(), true);
-				return createPropertyBindings(movie);
+				Movie movie = TheMovieDB.getMovieDescriptor(getMovie(), language.getLocale());
+				return createBindingObject(null, movie, null);
 			}
 
 			if (language != null && infoObject instanceof Episode) {
 				Episode episode = fetchEpisode(getEpisode(), null, language.getLocale());
-				return createPropertyBindings(episode);
+				return createBindingObject(null, episode, null);
 			}
 
 			return undefined(k);
