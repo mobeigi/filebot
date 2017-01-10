@@ -51,19 +51,75 @@
 					</uap3:AppExecutionAlias>
 				</uap3:Extension>
 				<uap3:Extension Category="windows.fileTypeAssociation">
-					<uap3:FileTypeAssociation Name="media">
-						<uap:Logo>Assets\StoreLogo.png</uap:Logo>
+					<!--
+						File type associations and verbs for "reserved file types" such as .mp4 or .wmv are ignored unfortunately.
+
+						@see https://msdn.microsoft.com/en-us/windows/uwp/launch-resume/reserved-uri-scheme-names
+					-->
+					<uap3:FileTypeAssociation Name="@{package.identifier}_media_files">
+						<uap:DisplayName>Media Files</uap:DisplayName>
+						<uap:Logo>Assets\Square44x44Logo.png</uap:Logo>
 						<uap:SupportedFileTypes>
 							<uap:FileType>.avi</uap:FileType>
 							<uap:FileType>.mkv</uap:FileType>
+							<uap:FileType>.mk3d</uap:FileType>
+							<uap:FileType>.ogm</uap:FileType>
+							<uap:FileType>.ogg</uap:FileType>
 							<uap:FileType>.mp4</uap:FileType>
+							<uap:FileType>.m4v</uap:FileType>
+							<uap:FileType>.3gp</uap:FileType>
 							<uap:FileType>.mov</uap:FileType>
+							<uap:FileType>.divx</uap:FileType>
+							<uap:FileType>.mpg</uap:FileType>
+							<uap:FileType>.mpeg</uap:FileType>
+							<uap:FileType>.vob</uap:FileType>
+							<uap:FileType>.ts</uap:FileType>
+							<uap:FileType>.tp</uap:FileType>
+							<uap:FileType>.m2ts</uap:FileType>
+							<uap:FileType>.rec</uap:FileType>
 							<uap:FileType>.wmv</uap:FileType>
+							<uap:FileType>.asf</uap:FileType>
+							<uap:FileType>.wtv</uap:FileType>
+							<uap:FileType>.webm</uap:FileType>
+							<uap:FileType>.flv</uap:FileType>
+							<uap:FileType>.rm</uap:FileType>
+							<uap:FileType>.rmvb</uap:FileType>
+							<uap:FileType>.rmp4</uap:FileType>
+							<uap:FileType>.tivo</uap:FileType>
+							<uap:FileType>.nuv</uap:FileType>
+							<uap:FileType>.3DSBS</uap:FileType>
+							<uap:FileType>.3DTAB</uap:FileType>
+							<uap:FileType>.strm</uap:FileType>
+							<uap:FileType>.ac3</uap:FileType>
+							<uap:FileType>.dts</uap:FileType>
+							<uap:FileType>.iso</uap:FileType>
 							<uap:FileType>.srt</uap:FileType>
+							<uap:FileType>.sub</uap:FileType>
+							<uap:FileType>.sub</uap:FileType>
+							<uap:FileType>.ssa</uap:FileType>
+							<uap:FileType>.ass</uap:FileType>
+							<uap:FileType>.smi</uap:FileType>
+							<uap:FileType>.sami</uap:FileType>
+							<uap:FileType>.vtt</uap:FileType>
+							<uap:FileType>.vobsub</uap:FileType>
+							<uap:FileType>.sub</uap:FileType>
+							<uap:FileType>.idx</uap:FileType>
+							<uap:FileType>.mp3</uap:FileType>
+							<uap:FileType>.m4a</uap:FileType>
+							<uap:FileType>.aac</uap:FileType>
+							<uap:FileType>.flac</uap:FileType>
+							<uap:FileType>.wma</uap:FileType>
+							<uap:FileType>.ogg</uap:FileType>
+							<uap:FileType>.ogm</uap:FileType>
+							<uap:FileType>.ogv</uap:FileType>
+							<uap:FileType>.oga</uap:FileType>
+							<uap:FileType>.wav</uap:FileType>
+							<uap:FileType>.aiff</uap:FileType>
+							<uap:FileType>.alac</uap:FileType>
 						</uap:SupportedFileTypes>
 						<uap2:SupportedVerbs>
-							<uap3:Verb MultiSelectModel="Player" Id="rename" Parameters="--mode Rename &quot;%1&quot;">Rename</uap3:Verb>
-							<uap3:Verb MultiSelectModel="Player" Id="check" Extended="true" Parameters="--mode SFV &quot;%1&quot;">Calculate Hash</uap3:Verb>
+							<uap3:Verb MultiSelectModel="Player" Id="@{package.identifier}_open_rename" Parameters="--mode Rename &quot;%1&quot;">Rename</uap3:Verb>
+							<uap3:Verb MultiSelectModel="Player" Id="@{package.identifier}_open_checksum" Extended="true" Parameters="--mode SFV &quot;%1&quot;">Calculate Hash</uap3:Verb>
 						</uap2:SupportedVerbs>
 					</uap3:FileTypeAssociation>
 				</uap3:Extension>
