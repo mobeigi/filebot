@@ -51,19 +51,19 @@
 					</uap3:AppExecutionAlias>
 				</uap3:Extension>
 				<uap3:Extension Category="windows.fileTypeAssociation">
-					<uap3:FileTypeAssociation Name="FileBot.MediaFiles">
+					<uap3:FileTypeAssociation Name="media">
 						<uap:Logo>Assets\StoreLogo.png</uap:Logo>
 						<uap:SupportedFileTypes>
-							<uap:FileType MultiSelectModel="Player">.avi</uap:FileType>
-							<uap:FileType MultiSelectModel="Player">.mkv</uap:FileType>
-							<uap:FileType MultiSelectModel="Player">.mp4</uap:FileType>
-							<uap:FileType MultiSelectModel="Player">.mov</uap:FileType>
-							<uap:FileType MultiSelectModel="Player">.wmv</uap:FileType>
-							<uap:FileType MultiSelectModel="Player">.srt</uap:FileType>
+							<uap:FileType>.avi</uap:FileType>
+							<uap:FileType>.mkv</uap:FileType>
+							<uap:FileType>.mp4</uap:FileType>
+							<uap:FileType>.mov</uap:FileType>
+							<uap:FileType>.wmv</uap:FileType>
+							<uap:FileType>.srt</uap:FileType>
 						</uap:SupportedFileTypes>
 						<uap2:SupportedVerbs>
-							<uap3:Verb Id="Mode.Rename" Parameters="--mode Rename &quot;%1&quot;">Rename</uap3:Verb>
-							<uap3:Verb Id="Mode.SFV" Extended="true" Parameters="--mode SFV &quot;%1&quot;">Calculate Hash</uap3:Verb>
+							<uap3:Verb MultiSelectModel="Player" Id="rename" Parameters="--mode Rename &quot;%1&quot;">Rename</uap3:Verb>
+							<uap3:Verb MultiSelectModel="Player" Id="check" Extended="true" Parameters="--mode SFV &quot;%1&quot;">Calculate Hash</uap3:Verb>
 						</uap2:SupportedVerbs>
 					</uap3:FileTypeAssociation>
 				</uap3:Extension>
