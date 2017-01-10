@@ -56,7 +56,7 @@
 
 						@see https://msdn.microsoft.com/en-us/windows/uwp/launch-resume/reserved-uri-scheme-names
 					-->
-					<uap3:FileTypeAssociation Name="@{package.name}_media_files">
+					<uap3:FileTypeAssociation Name="media.association">
 						<uap:DisplayName>Media Files</uap:DisplayName>
 						<uap:Logo>Assets\Square44x44Logo.png</uap:Logo>
 						<uap:SupportedFileTypes>
@@ -118,8 +118,8 @@
 							<uap:FileType>.alac</uap:FileType>
 						</uap:SupportedFileTypes>
 						<uap2:SupportedVerbs>
-							<uap3:Verb MultiSelectModel="Player" Id="@{package.name}_open_rename" Parameters="--mode Rename &quot;%1&quot;">Rename with @{application.name}</uap3:Verb>
-							<uap3:Verb MultiSelectModel="Player" Id="@{package.name}_open_checksum" Extended="true" Parameters="--mode SFV &quot;%1&quot;">Calculate Hash with @{application.name}</uap3:Verb>
+							<uap3:Verb MultiSelectModel="Player" Id="FileBotRename" Parameters="--mode Rename &quot;%1&quot;">Rename with @{application.name}</uap3:Verb>
+							<uap3:Verb MultiSelectModel="Player" Id="FileBotChecksum" Extended="true" Parameters="--mode SFV &quot;%1&quot;">Calculate Hash with @{application.name}</uap3:Verb>
 						</uap2:SupportedVerbs>
 					</uap3:FileTypeAssociation>
 				</uap3:Extension>
