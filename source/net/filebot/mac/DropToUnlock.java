@@ -114,7 +114,7 @@ public class DropToUnlock extends JList<File> {
 			} catch (Exception e) {
 				return null;
 			}
-		}).filter(f -> f != null && isLockedFolder(f)).sorted().distinct().collect(Collectors.toList());
+		}).filter(f -> f != null && !f.getName().isEmpty() && isLockedFolder(f)).sorted().distinct().collect(Collectors.toList());
 	}
 
 	public static boolean showUnlockFoldersDialog(Window owner, Collection<File> files) {
