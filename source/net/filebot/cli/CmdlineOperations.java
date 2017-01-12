@@ -42,7 +42,6 @@ import java.util.stream.Stream;
 
 import net.filebot.HistorySpooler;
 import net.filebot.Language;
-import net.filebot.MediaTypes;
 import net.filebot.RenameAction;
 import net.filebot.StandardRenameAction;
 import net.filebot.archive.Archive;
@@ -871,7 +870,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		// only check existing hashes
 		boolean result = true;
 
-		for (File it : filter(files, MediaTypes.getDefaultFilter("verification"))) {
+		for (File it : filter(files, VERIFICATION_FILES)) {
 			result &= check(it, it.getParentFile());
 		}
 
@@ -959,8 +958,9 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		try {
 			for (File it : files) {
-				if (it.isHidden() || MediaTypes.getDefaultFilter("verification").accept(it))
+				if (it.isHidden() || VERIFICATION_FILES.accept(it)) {
 					continue;
+				}
 
 				String relativePath = normalizePathSeparators(it.getPath().substring(root.getPath().length() + 1)); // skip root and first slash
 				String hash = computeHash(it, hashType);

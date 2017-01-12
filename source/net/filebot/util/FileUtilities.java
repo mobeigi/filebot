@@ -796,6 +796,16 @@ public final class FileUtilities {
 			}
 			return s.toString();
 		}
+
+		public static ExtensionFileFilter union(ExtensionFileFilter... filters) {
+			List<String> extensions = new ArrayList<String>();
+			for (ExtensionFileFilter it : filters) {
+				if (!it.acceptAny()) {
+					addAll(extensions, it.extensions());
+				}
+			}
+			return new ExtensionFileFilter(extensions);
+		}
 	}
 
 	public static class RegexFileFilter implements FileFilter, FilenameFilter {

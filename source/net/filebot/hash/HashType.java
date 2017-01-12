@@ -22,7 +22,7 @@ public enum HashType {
 
 		@Override
 		public ExtensionFileFilter getFilter() {
-			return MediaTypes.getDefaultFilter("verification/sfv");
+			return MediaTypes.getTypeFilter("verification/sfv");
 		}
 	},
 
@@ -41,7 +41,7 @@ public enum HashType {
 
 		@Override
 		public ExtensionFileFilter getFilter() {
-			return MediaTypes.getDefaultFilter("verification/md5sum");
+			return MediaTypes.getTypeFilter("verification/md5sum");
 		}
 	},
 
@@ -60,7 +60,7 @@ public enum HashType {
 
 		@Override
 		public ExtensionFileFilter getFilter() {
-			return MediaTypes.getDefaultFilter("verification/sha1sum");
+			return MediaTypes.getTypeFilter("verification/sha1sum");
 		}
 
 		@Override
@@ -84,7 +84,7 @@ public enum HashType {
 
 		@Override
 		public ExtensionFileFilter getFilter() {
-			return MediaTypes.getDefaultFilter("verification/sha256sum");
+			return MediaTypes.getTypeFilter("verification/sha256sum");
 		}
 
 		@Override
@@ -107,7 +107,7 @@ public enum HashType {
 
 		@Override
 		public ExtensionFileFilter getFilter() {
-			return MediaTypes.getDefaultFilter("verification/ed2k");
+			return MediaTypes.getTypeFilter("verification/ed2k");
 		}
 
 		@Override

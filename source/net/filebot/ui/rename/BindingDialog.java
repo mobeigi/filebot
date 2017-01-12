@@ -296,7 +296,7 @@ class BindingDialog extends JDialog {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
-			ExtensionFileFilter mediaFiles = combineFilter(VIDEO_FILES, AUDIO_FILES, SUBTITLE_FILES);
+			ExtensionFileFilter mediaFiles = ExtensionFileFilter.union(VIDEO_FILES, AUDIO_FILES, SUBTITLE_FILES);
 			List<File> selection = showLoadDialogSelectFiles(false, false, getMediaFile(), mediaFiles, (String) getValue(NAME), evt);
 
 			if (selection.size() > 0) {

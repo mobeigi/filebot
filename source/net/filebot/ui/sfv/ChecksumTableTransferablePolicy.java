@@ -19,7 +19,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 
-import net.filebot.MediaTypes;
 import net.filebot.hash.HashType;
 import net.filebot.hash.VerificationFileReader;
 import net.filebot.mac.MacAppUtilities;
@@ -247,7 +246,7 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 
 				if (seenLevel == null) {
 					// folder we have never encountered before
-					for (File verificationFile : getChildren(folder, MediaTypes.getDefaultFilter("verification"))) {
+					for (File verificationFile : getChildren(folder, VERIFICATION_FILES)) {
 						HashType hashType = getHashType(verificationFile);
 						cache.put(verificationFile, importVerificationFile(verificationFile, hashType, verificationFile.getParentFile()));
 						types.put(verificationFile, hashType);

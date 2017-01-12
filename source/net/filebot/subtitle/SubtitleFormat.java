@@ -12,6 +12,11 @@ public enum SubtitleFormat {
 		public SubtitleReader newReader(Readable readable) {
 			return new SubRipReader(readable);
 		}
+
+		@Override
+		public ExtensionFileFilter getFilter() {
+			return MediaTypes.getTypeFilter("subtitle/SubRip");
+		}
 	},
 
 	MicroDVD {
@@ -19,6 +24,11 @@ public enum SubtitleFormat {
 		@Override
 		public SubtitleReader newReader(Readable readable) {
 			return new MicroDVDReader(readable);
+		}
+
+		@Override
+		public ExtensionFileFilter getFilter() {
+			return MediaTypes.getTypeFilter("subtitle/MicroDVD");
 		}
 	},
 
@@ -28,6 +38,11 @@ public enum SubtitleFormat {
 		public SubtitleReader newReader(Readable readable) {
 			return new SubViewerReader(readable);
 		}
+
+		@Override
+		public ExtensionFileFilter getFilter() {
+			return MediaTypes.getTypeFilter("subtitle/SubViewer");
+		}
 	},
 
 	SubStationAlpha {
@@ -36,12 +51,15 @@ public enum SubtitleFormat {
 		public SubtitleReader newReader(Readable readable) {
 			return new SubStationAlphaReader(readable);
 		}
+
+		@Override
+		public ExtensionFileFilter getFilter() {
+			return MediaTypes.getTypeFilter("subtitle/SubStationAlpha");
+		}
 	};
 
 	public abstract SubtitleReader newReader(Readable readable);
 
-	public ExtensionFileFilter getFilter() {
-		return MediaTypes.getDefaultFilter("subtitle/" + name());
-	}
+	public abstract ExtensionFileFilter getFilter();
 
 }

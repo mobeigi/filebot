@@ -1,6 +1,7 @@
 package net.filebot.cli;
 
 import static net.filebot.Logging.*;
+import static net.filebot.MediaTypes.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 
@@ -12,8 +13,6 @@ import java.util.logging.Level;
 
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
-
-import net.filebot.MediaTypes;
 
 public class ArgumentProcessor {
 
@@ -86,7 +85,7 @@ public class ArgumentProcessor {
 
 		if (args.check) {
 			// check verification file
-			if (containsOnly(files, MediaTypes.getDefaultFilter("verification"))) {
+			if (containsOnly(files, VERIFICATION_FILES)) {
 				if (!cli.check(files)) {
 					throw new Exception("Data corruption detected"); // one or more hashes do not match
 				}

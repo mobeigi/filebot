@@ -111,7 +111,7 @@ public class ScriptShellMethods {
 		}
 
 		// check disk image
-		if (self.isFile() && MediaTypes.getDefaultFilter("video/iso").accept(self)) {
+		if (self.isFile() && MediaTypes.getTypeFilter("video/iso").accept(self)) {
 			try {
 				return MediaDetection.isVideoDiskFile(self);
 			} catch (Exception e) {

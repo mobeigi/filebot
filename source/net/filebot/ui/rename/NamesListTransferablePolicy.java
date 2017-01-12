@@ -1,7 +1,6 @@
 package net.filebot.ui.rename;
 
 import static java.awt.datatransfer.DataFlavor.*;
-import static java.util.Arrays.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.hash.VerificationUtilities.*;
@@ -17,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 import net.filebot.hash.HashType;
 import net.filebot.hash.VerificationFileReader;
@@ -24,6 +24,7 @@ import net.filebot.torrent.Torrent;
 import net.filebot.ui.transfer.ArrayTransferable;
 import net.filebot.ui.transfer.FileTransferablePolicy;
 import net.filebot.util.FastFile;
+import net.filebot.util.FileUtilities.ExtensionFileFilter;
 import net.filebot.vfs.SimpleFileInfo;
 import net.filebot.web.Episode;
 
@@ -148,7 +149,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 
 	@Override
 	public List<String> getFileFilterExtensions() {
-		return asList(combineFilter(VIDEO_FILES, SUBTITLE_FILES, AUDIO_FILES, LIST_FILES, TORRENT_FILES, VERIFICATION_FILES).extensions());
+		return Stream.of(VIDEO_FILES, SUBTITLE_FILES, AUDIO_FILES, LIST_FILES, TORRENT_FILES, VERIFICATION_FILES).map(ExtensionFileFilter::extensions).flatMap(Stream::of).collect(toList());
 	}
 
 }

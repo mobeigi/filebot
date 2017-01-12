@@ -151,9 +151,6 @@ public class Main {
 			SwingEventBus.getInstance().post(new FileTransferable(files));
 		}
 
-		// preload media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
-		MediaTypes.getDefault();
-
 		// JavaFX is used for ProgressMonitor and GettingStartedDialog
 		try {
 			initJavaFX();
