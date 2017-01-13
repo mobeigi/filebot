@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -193,9 +194,9 @@ class SubtitleAutoMatchDialog extends JDialog {
 		servicePanel.add(component);
 	}
 
-	public void startQuery(String languageName) {
-		final SubtitleMappingTableModel mappingModel = (SubtitleMappingTableModel) subtitleMappingTable.getModel();
-		QueryTask queryTask = new QueryTask(services, mappingModel.getVideoFiles(), languageName, SubtitleAutoMatchDialog.this) {
+	public void startQuery(Locale locale) {
+		SubtitleMappingTableModel mappingModel = (SubtitleMappingTableModel) subtitleMappingTable.getModel();
+		QueryTask queryTask = new QueryTask(services, mappingModel.getVideoFiles(), locale, SubtitleAutoMatchDialog.this) {
 
 			@Override
 			protected void process(List<Map<File, List<SubtitleDescriptorBean>>> sequence) {
@@ -724,13 +725,13 @@ class SubtitleAutoMatchDialog extends JDialog {
 		private final Collection<SubtitleServiceBean> services;
 
 		private final Collection<File> remainingVideos;
-		private final String languageName;
+		private final Locale locale;
 
-		public QueryTask(Collection<SubtitleServiceBean> services, Collection<File> videoFiles, String languageName, Component parent) {
+		public QueryTask(Collection<SubtitleServiceBean> services, Collection<File> videoFiles, Locale locale, Component parent) {
 			this.parent = parent;
 			this.services = services;
 			this.remainingVideos = new TreeSet<File>(videoFiles);
-			this.languageName = languageName;
+			this.locale = locale;
 		}
 
 		@Override
@@ -746,7 +747,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 				try {
 					Map<File, List<SubtitleDescriptorBean>> subtitleSet = new HashMap<File, List<SubtitleDescriptorBean>>();
-					for (final Entry<File, List<SubtitleDescriptor>> result : service.lookupSubtitles(remainingVideos, languageName, parent).entrySet()) {
+					for (final Entry<File, List<SubtitleDescriptor>> result : service.lookupSubtitles(remainingVideos, locale, parent).entrySet()) {
 						Set<SubtitleDescriptor> subtitlesByRelevance = new LinkedHashSet<SubtitleDescriptor>();
 
 						// guess best hash match (default order is open bad due to invalid hash links)
@@ -871,13 +872,13 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 		public abstract float getMatchProbabilty(File videoFile, SubtitleDescriptor descriptor);
 
-		protected abstract Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName, Component parent) throws Exception;
+		protected abstract Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, Locale locale, Component parent) throws Exception;
 
-		public final Map<File, List<SubtitleDescriptor>> lookupSubtitles(Collection<File> files, String languageName, Component parent) throws Exception {
+		public final Map<File, List<SubtitleDescriptor>> lookupSubtitles(Collection<File> files, Locale locale, Component parent) throws Exception {
 			setState(StateValue.STARTED);
 
 			try {
-				return getSubtitleList(files, languageName, parent);
+				return getSubtitleList(files, locale, parent);
 			} catch (Exception e) {
 				throw (error = e);
 			} finally {
@@ -914,8 +915,8 @@ class SubtitleAutoMatchDialog extends JDialog {
 		}
 
 		@Override
-		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName, Component parent) throws Exception {
-			return lookupSubtitlesByHash(service, files, languageName, true, false);
+		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, Locale locale, Component parent) throws Exception {
+			return lookupSubtitlesByHash(service, files, locale, true, false);
 		}
 
 		@Override
@@ -939,8 +940,8 @@ class SubtitleAutoMatchDialog extends JDialog {
 		}
 
 		@Override
-		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> fileSet, String languageName, Component parent) throws Exception {
-			return findSubtitlesByName(service, fileSet, languageName, null, true, false);
+		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> fileSet, Locale locale, Component parent) throws Exception {
+			return findSubtitlesByName(service, fileSet, locale, null, true, false);
 		}
 
 		@Override

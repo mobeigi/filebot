@@ -144,9 +144,9 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		};
 
 		@Override
-		public String getQueryLanguage() {
+		public Locale getQueryLanguage() {
 			// use currently selected language for drop target
-			return languageComboBox.getModel().getSelectedItem() == ALL_LANGUAGES ? null : languageComboBox.getModel().getSelectedItem().getName();
+			return languageComboBox.getModel().getSelectedItem() == ALL_LANGUAGES ? null : languageComboBox.getModel().getSelectedItem().getLocale();
 		}
 
 		@Override
@@ -267,8 +267,8 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 			return provider;
 		}
 
-		public String getLanguageName() {
-			return language == ALL_LANGUAGES ? null : language.getName();
+		public Locale getLanguage() {
+			return language == ALL_LANGUAGES ? null : language.getLocale();
 		}
 
 		public int[][] getEpisodeFilter() {
@@ -296,7 +296,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		public Collection<SubtitlePackage> fetch() throws Exception {
 			List<SubtitlePackage> packages = new ArrayList<SubtitlePackage>();
 
-			for (SubtitleDescriptor subtitle : request.getProvider().getSubtitleList(getSearchResult(), request.getEpisodeFilter(), request.getLanguageName())) {
+			for (SubtitleDescriptor subtitle : request.getProvider().getSubtitleList(getSearchResult(), request.getEpisodeFilter(), request.getLanguage())) {
 				packages.add(new SubtitlePackage(request.getProvider(), subtitle));
 			}
 
@@ -305,12 +305,12 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 		@Override
 		public URI getLink() {
-			return request.getProvider().getSubtitleListLink(getSearchResult(), request.getLanguageName());
+			return request.getProvider().getSubtitleListLink(getSearchResult(), request.getLanguage());
 		}
 
 		@Override
 		public void process(Collection<SubtitlePackage> subtitles) {
-			getComponent().setLanguageVisible(request.getLanguageName() == null);
+			getComponent().setLanguageVisible(request.getLanguage() == null);
 			getComponent().getPackageModel().addAll(subtitles);
 		}
 

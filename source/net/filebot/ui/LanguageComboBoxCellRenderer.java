@@ -22,7 +22,7 @@ public class LanguageComboBoxCellRenderer implements ListCellRenderer {
 
 	private ListCellRenderer base;
 
-	public LanguageComboBoxCellRenderer(final ListCellRenderer base) {
+	public LanguageComboBoxCellRenderer(ListCellRenderer base) {
 		this.base = base;
 		this.padding = new CompoundBorder(padding, ((JLabel) base).getBorder());
 	}

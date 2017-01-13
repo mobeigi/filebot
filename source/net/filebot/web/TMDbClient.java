@@ -36,7 +36,6 @@ import javax.swing.Icon;
 import net.filebot.Cache;
 import net.filebot.CacheType;
 import net.filebot.CachedResource.Transform;
-import net.filebot.Language;
 import net.filebot.ResourceManager;
 
 public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
@@ -367,25 +366,26 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 	protected Object request(String resource, Map<String, Object> parameters, Locale locale) throws Exception {
 		// default parameters
 		String key = parameters.isEmpty() ? resource : resource + '?' + encodeParameters(parameters, true);
-		String cacheName = locale.getLanguage().isEmpty() ? getName() : getName() + "_" + locale;
+		String language = getLanguageCode(locale);
+		String cacheName = language == null ? getName() : getName() + "_" + language;
 
 		Cache cache = Cache.getCache(cacheName, CacheType.Monthly);
-		Object json = cache.json(key, k -> getResource(k, locale)).fetch(withPermit(fetchIfNoneMatch(url -> key, cache), r -> REQUEST_LIMIT.acquirePermit())).expire(Cache.ONE_WEEK).get();
+		Object json = cache.json(key, k -> getResource(k, language)).fetch(withPermit(fetchIfNoneMatch(url -> key, cache), r -> REQUEST_LIMIT.acquirePermit())).expire(Cache.ONE_WEEK).get();
 
 		if (asMap(json).isEmpty()) {
-			throw new FileNotFoundException(String.format("Resource is empty: %s => %s", json, getResource(key, locale)));
+			throw new FileNotFoundException(String.format("Resource is empty: %s => %s", json, getResource(key, language)));
 		}
 		return json;
 	}
 
-	protected URL getResource(String path, Locale locale) throws Exception {
+	protected URL getResource(String path, String language) throws Exception {
 		StringBuilder file = new StringBuilder();
 		file.append('/').append(version);
 		file.append('/').append(path);
 		file.append(path.lastIndexOf('?') < 0 ? '?' : '&');
 
-		if (locale.getLanguage().length() > 0) {
-			file.append("language=").append(getLanguageCode(locale)).append('&');
+		if (language != null) {
+			file.append("language=").append(language).append('&');
 		}
 		file.append("api_key=").append(apikey);
 
@@ -402,12 +402,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 			return locale.getLanguage(); // e.g. en
 		}
 
-		Language lang = Language.getLanguage(locale);
-		if (lang != null) {
-			return lang.getISO2();
-		}
-
-		throw new IllegalArgumentException("Illegal language code: " + language);
+		return null;
 	}
 
 	public static enum MovieProperty {

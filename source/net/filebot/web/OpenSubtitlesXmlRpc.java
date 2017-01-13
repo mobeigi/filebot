@@ -318,7 +318,7 @@ public class OpenSubtitlesXmlRpc {
 		Map<String, String> subLanguageMap = new HashMap<String, String>();
 
 		for (Map<String, String> language : response.get("data")) {
-			subLanguageMap.put(language.get("SubLanguageID"), language.get("LanguageName"));
+			subLanguageMap.put(language.get("SubLanguageID"), language.get("ISO639"));
 		}
 
 		return subLanguageMap;

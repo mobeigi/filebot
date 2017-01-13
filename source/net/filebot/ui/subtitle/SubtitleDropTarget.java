@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -154,7 +155,7 @@ abstract class SubtitleDropTarget extends JButton {
 
 		public abstract SubtitleProvider[] getSubtitleProviders();
 
-		public abstract String getQueryLanguage();
+		public abstract Locale getQueryLanguage();
 
 		@Override
 		protected DropAction getDropAction(List<File> selection) {

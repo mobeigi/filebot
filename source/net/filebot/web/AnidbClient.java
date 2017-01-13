@@ -131,7 +131,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		}).map(it -> it.getKey()).limit(5).collect(Collectors.toList()));
 
 		// parse episode data
-		String animeTitle = selectString("anime/titles/title[@type='official' and @lang='" + locale.getLanguage() + "']", dom);
+		String animeTitle = selectString("anime/titles/title[@type='official' and @lang='" + getLanguageCode(locale) + "']", dom);
 		if (animeTitle == null || animeTitle.length() == 0) {
 			animeTitle = seriesInfo.getName();
 		}
@@ -146,7 +146,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 			if (type == 1 || type == 2) {
 				Integer id = Integer.parseInt(getAttribute("id", node));
 				SimpleDate airdate = SimpleDate.parse(getTextContent("airdate", node));
-				String title = selectString(".//title[@lang='" + locale.getLanguage() + "']", node);
+				String title = selectString(".//title[@lang='" + getLanguageCode(locale) + "']", node);
 				if (title.isEmpty()) { // English language fall-back
 					title = selectString(".//title[@lang='en']", node);
 				}
@@ -177,6 +177,26 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Map locale to AniDB language code
+	 */
+	public String getLanguageCode(Locale locale) {
+		// Note: ISO 639 is not a stable standard— some languages' codes have changed.
+		// Locale's constructor recognizes both the new and the old codes for the languages whose codes have changed,
+		// but this function always returns the old code.
+		String code = locale.getLanguage();
+
+		// Java language code => AniDB language code
+		switch (code) {
+		case "iw":
+			return "he"; // Hebrew
+		case "in":
+			return "id"; // Indonesian
+		}
+
+		return code;
 	}
 
 	/**

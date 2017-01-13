@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -117,15 +116,15 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		});
 	}
 
-	public List<SubtitleDescriptor> getSubtitleList(SubtitleSearchResult searchResult, String languageName) throws Exception {
-		return getSubtitleList(searchResult, -1, -1, languageName);
+	public List<SubtitleDescriptor> getSubtitleList(SubtitleSearchResult searchResult, Locale locale) throws Exception {
+		return getSubtitleList(searchResult, -1, -1, locale);
 	}
 
 	@Override
-	public List<SubtitleDescriptor> getSubtitleList(SubtitleSearchResult searchResult, int[][] episodeFilter, String languageName) throws Exception {
+	public List<SubtitleDescriptor> getSubtitleList(SubtitleSearchResult searchResult, int[][] episodeFilter, Locale locale) throws Exception {
 		// no filter
 		if (episodeFilter == null || episodeFilter.length == 0) {
-			return getSubtitleList(searchResult, -1, -1, languageName);
+			return getSubtitleList(searchResult, -1, -1, locale);
 		}
 
 		int[] seasons = stream(episodeFilter).mapToInt(ii -> ii[0]).filter(i -> i >= 0).sorted().distinct().toArray();
@@ -133,21 +132,21 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 		// no filter
 		if (seasons.length == 0 && episodes.length == 0) {
-			return getSubtitleList(searchResult, -1, -1, languageName);
+			return getSubtitleList(searchResult, -1, -1, locale);
 		}
 
 		// episode filter
 		if (seasons.length == 1 && episodes.length == 1) {
-			return getSubtitleList(searchResult, seasons[0], episodes[0], languageName);
+			return getSubtitleList(searchResult, seasons[0], episodes[0], locale);
 		}
 
 		// season filter
 		if (seasons.length > 0 && episodes.length == 0) {
 			return stream(seasons).boxed().flatMap(s -> {
 				try {
-					return getSubtitleList(searchResult, s, -1, languageName).stream();
+					return getSubtitleList(searchResult, s, -1, locale).stream();
 				} catch (Exception e) {
-					throw new RuntimeException(String.format("Failed to retrieve subtitle list for season: %s S%02d [%s]", searchResult, s, languageName), e);
+					throw new RuntimeException(String.format("Failed to retrieve subtitle list for season: %s S%02d [%s]", searchResult, s, locale), e);
 				}
 			}).distinct().collect(toList());
 		}
@@ -155,15 +154,15 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		// multi-episode filter
 		return stream(episodeFilter).flatMap(ii -> {
 			try {
-				return getSubtitleList(searchResult, ii[0], ii[1], languageName).stream();
+				return getSubtitleList(searchResult, ii[0], ii[1], locale).stream();
 			} catch (Exception e) {
-				throw new RuntimeException(String.format("Failed to retrieve subtitle list for episode: %s %s [%s]", searchResult, asList(ii), languageName), e);
+				throw new RuntimeException(String.format("Failed to retrieve subtitle list for episode: %s %s [%s]", searchResult, asList(ii), locale), e);
 			}
 		}).distinct().collect(toList());
 	}
 
-	public synchronized List<SubtitleDescriptor> getSubtitleList(SubtitleSearchResult searchResult, int season, int episode, String languageName) throws Exception {
-		Query query = Query.forImdbId(searchResult.getImdbId(), season, episode, getLanguageFilter(languageName));
+	public synchronized List<SubtitleDescriptor> getSubtitleList(SubtitleSearchResult searchResult, int season, int episode, Locale locale) throws Exception {
+		Query query = Query.forImdbId(searchResult.getImdbId(), season, episode, getLanguageFilter(locale));
 
 		// require login
 		return getSubtitlesCache().computeIfAbsent(query, it -> {
@@ -173,13 +172,13 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	@Override
-	public Map<File, List<SubtitleDescriptor>> getSubtitleList(File[] files, String languageName) throws Exception {
+	public Map<File, List<SubtitleDescriptor>> getSubtitleList(File[] files, Locale locale) throws Exception {
 		Map<File, List<SubtitleDescriptor>> results = new HashMap<File, List<SubtitleDescriptor>>(files.length);
 		Set<File> remainingFiles = new HashSet<File>(asList(files));
 
 		// lookup subtitles by hash
 		if (remainingFiles.size() > 0) {
-			results.putAll(getSubtitleListByHash(remainingFiles.toArray(new File[0]), languageName));
+			results.putAll(getSubtitleListByHash(remainingFiles.toArray(new File[0]), locale));
 		}
 
 		// remove files for which subtitles have already been found
@@ -191,7 +190,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 		// lookup subtitles by tag
 		if (remainingFiles.size() > 0) {
-			results.putAll(getSubtitleListByTag(remainingFiles.toArray(new File[0]), languageName));
+			results.putAll(getSubtitleListByTag(remainingFiles.toArray(new File[0]), locale));
 		}
 
 		return results;
@@ -213,12 +212,12 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		return results;
 	}
 
-	public Map<File, List<SubtitleDescriptor>> getSubtitleListByHash(File[] files, String language) throws Exception {
+	public Map<File, List<SubtitleDescriptor>> getSubtitleListByHash(File[] files, Locale locale) throws Exception {
 		return getSubtitleList(files, f -> {
 			if (f.length() > HASH_CHUNK_SIZE) {
 				try {
 					String hash = computeHash(f);
-					return Query.forHash(hash, f.length(), getLanguageFilter(language));
+					return Query.forHash(hash, f.length(), getLanguageFilter(locale));
 				} catch (Exception e) {
 					debug.log(Level.SEVERE, "Failed to compute hash", e);
 				}
@@ -227,7 +226,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 				try {
 					Map<?, ?> json = asMap(readJson(readTextFile(f)));
 					if (json != null) {
-						return Query.forHash(json.get("hash").toString(), Long.parseLong(json.get("size").toString()), getLanguageFilter(language));
+						return Query.forHash(json.get("hash").toString(), Long.parseLong(json.get("size").toString()), getLanguageFilter(locale));
 					}
 				} catch (Exception e) {
 					debug.finest("Ignore sample file: " + f);
@@ -237,10 +236,10 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		});
 	}
 
-	public Map<File, List<SubtitleDescriptor>> getSubtitleListByTag(File[] files, String language) throws Exception {
+	public Map<File, List<SubtitleDescriptor>> getSubtitleListByTag(File[] files, Locale locale) throws Exception {
 		return getSubtitleList(files, f -> {
 			String tag = getNameWithoutExtension(f.getName());
-			return Query.forTag(tag, getLanguageFilter(language));
+			return Query.forTag(tag, getLanguageFilter(locale));
 		});
 	}
 
@@ -279,7 +278,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	@Override
-	public synchronized void uploadSubtitle(Object identity, Locale language, File[] videoFile, File[] subtitleFile) throws Exception {
+	public synchronized void uploadSubtitle(Object identity, Locale locale, File[] videoFile, File[] subtitleFile) throws Exception {
 		int imdbid = -1;
 		try {
 			imdbid = ((Movie) identity).getImdbId();
@@ -287,7 +286,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			throw new IllegalArgumentException("Illegal Movie ID: " + identity);
 		}
 
-		String subLanguageID = getSubLanguageID(language.getDisplayName(Locale.ENGLISH), false);
+		String subLanguageID = getSubLanguageID(locale);
 
 		BaseInfo info = new BaseInfo();
 		info.setIDMovieImdb(imdbid);
@@ -368,19 +367,8 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	@Override
-	public URI getSubtitleListLink(SubtitleSearchResult searchResult, String languageName) {
-		Movie movie = searchResult;
-		String sublanguageid = "all";
-
-		if (languageName != null) {
-			try {
-				sublanguageid = getSubLanguageID(languageName, true);
-			} catch (Exception e) {
-				debug.log(Level.WARNING, e.getMessage(), e);
-			}
-		}
-
-		return URI.create(String.format("http://www.opensubtitles.org/en/search/imdbid-%d/sublanguageid-%s", movie.getImdbId(), sublanguageid));
+	public URI getSubtitleListLink(SubtitleSearchResult searchResult, Locale locale) {
+		return URI.create(String.format("http://www.opensubtitles.org/en/search/imdbid-%d/sublanguageid-%s", searchResult.getImdbId(), getSubLanguageID(locale)));
 	}
 
 	public synchronized Locale detectLanguage(byte[] data) throws Exception {
@@ -442,13 +430,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 		// try to get language map from cache
 		Cache cache = Cache.getCache(getName() + "_languages", CacheType.Persistent);
-		Map<?, ?> m = (Map<?, ?>) cache.computeIfAbsent("subLanguageMap", it -> {
-			try {
-				return xmlrpc.getSubLanguages();
-			} catch (Exception e) {
-				throw new IOException("Failed to retrieve subtitle language map", e);
-			}
-		});
+		Map<?, ?> m = (Map<?, ?>) cache.computeIfAbsent("subLanguageMap", k -> xmlrpc.getSubLanguages());
 
 		// add additional language aliases for improved compatibility
 		Map<String, Locale> additionalLanguageMappings = MediaDetection.releaseInfo.getLanguageMap(Locale.ENGLISH);
@@ -456,13 +438,13 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		m.forEach((k, v) -> {
 			// map id by name
 			String subLanguageID = k.toString().toLowerCase();
-			String subLanguageName = v.toString().toLowerCase();
+			String languageCode = v.toString().toLowerCase();
 
-			subLanguageMap.put(subLanguageName, subLanguageID);
+			subLanguageMap.put(languageCode, subLanguageID);
 			subLanguageMap.put(subLanguageID, subLanguageID); // add reverse mapping as well for improved compatibility
 
 			// add additional language aliases for improved compatibility
-			for (String key : new String[] { subLanguageID, subLanguageName }) {
+			for (String key : new String[] { subLanguageID, languageCode }) {
 				Locale locale = additionalLanguageMappings.get(key);
 				if (locale != null) {
 					for (String identifier : asList(locale.getLanguage(), locale.getISO3Language(), locale.getDisplayLanguage(Locale.ENGLISH))) {
@@ -475,38 +457,34 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		});
 
 		// some additional special handling
-		subLanguageMap.put("brazilian", "pob");
-		subLanguageMap.put("chinese", "chi,zht,zhe"); // Chinese (Simplified) / Chinese (Traditional) / Chinese (bilingual)
+		subLanguageMap.put("pb", "pob");
+		subLanguageMap.put("zh", "chi"); // Chinese (Simplified)
+		subLanguageMap.put("tw", "zht"); // Chinese (Traditional)
 
 		return subLanguageMap;
 	}
 
-	protected String[] getLanguageFilter(String language) {
-		return language == null || language.isEmpty() ? new String[0] : new String[] { getSubLanguageID(language, true) };
+	protected String[] getLanguageFilter(Locale locale) {
+		return locale == null || locale.getLanguage().isEmpty() ? new String[0] : new String[] { getSubLanguageID(locale) };
 	}
 
-	protected String getSubLanguageID(String languageName, boolean allowMultiLanguageID) {
+	protected String getSubLanguageID(Locale locale) {
+		if (locale == null || locale.getLanguage().isEmpty()) {
+			return "all";
+		}
+
+		String subLanguageID = null;
 		try {
-			String subLanguageID = getSubLanguageMap().get(languageName.toLowerCase());
-			if (subLanguageID == null) {
-				throw new IllegalArgumentException(String.format("SubLanguageID for '%s' not found", languageName));
-			}
-			if (!allowMultiLanguageID && subLanguageID.contains(",")) {
-				subLanguageID = subLanguageID.substring(0, subLanguageID.indexOf(","));
-			}
-			return subLanguageID;
+			subLanguageID = getSubLanguageMap().get(locale.getLanguage());
 		} catch (Exception e) {
-			throw new IllegalStateException(e);
-		}
-	}
-
-	protected String getLanguageName(String subLanguageID) throws Exception {
-		for (Entry<String, String> it : getSubLanguageMap().entrySet()) {
-			if (it.getValue().equals(subLanguageID.toLowerCase()))
-				return it.getKey();
+			throw new IllegalStateException("Failed to retrieve subtitle language map", e);
 		}
 
-		return null;
+		if (subLanguageID == null) {
+			throw new IllegalArgumentException("SubLanguageID not found: " + locale);
+		}
+
+		return subLanguageID;
 	}
 
 	public Cache getCache(String section) {

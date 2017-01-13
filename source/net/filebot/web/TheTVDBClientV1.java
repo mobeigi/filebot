@@ -63,24 +63,22 @@ public class TheTVDBClientV1 extends AbstractEpisodeListProvider implements Artw
 		return true;
 	}
 
+	/**
+	 * Map locale to TheTVDB language code
+	 */
 	public String getLanguageCode(Locale locale) {
+		// Note: ISO 639 is not a stable standard— some languages' codes have changed.
+		// Locale's constructor recognizes both the new and the old codes for the languages whose codes have changed,
+		// but this function always returns the old code.
 		String code = locale.getLanguage();
 
-		// sanity check
-		if (code.length() != 2) {
-			// see http://thetvdb.com/api/BA864DEE427E384A/languages.xml
-			throw new IllegalArgumentException("Expecting 2-letter language code: " + code);
-		}
-
 		// Java language code => TheTVDB language code
-		if (code.equals("iw")) // Hebrew
-			return "he";
-		if (code.equals("hi")) // Hungarian
-			return "hu";
-		if (code.equals("in")) // Indonesian
-			return "id";
-		if (code.equals("ro")) // Russian
-			return "ru";
+		switch (code) {
+		case "iw":
+			return "he"; // Hebrew
+		case "in":
+			return "id"; // Indonesian
+		}
 
 		return code;
 	}
@@ -203,13 +201,13 @@ public class TheTVDBClientV1 extends AbstractEpisodeListProvider implements Artw
 		return new SeriesData(seriesInfo, episodes);
 	}
 
-	public SearchResult lookupByID(int id, Locale language) throws Exception {
+	public SearchResult lookupByID(int id, Locale locale) throws Exception {
 		if (id <= 0) {
 			throw new IllegalArgumentException("Illegal TheTVDB ID: " + id);
 		}
 
-		return getLookupCache("id", language).computeIfAbsent(id, it -> {
-			Document dom = getXmlResource(MirrorType.XML, "series/" + id + "/all/" + getLanguageCode(language) + ".xml");
+		return getLookupCache("id", locale).computeIfAbsent(id, it -> {
+			Document dom = getXmlResource(MirrorType.XML, "series/" + id + "/all/" + getLanguageCode(locale) + ".xml");
 			String name = selectString("//SeriesName", dom);
 
 			return new SearchResult(id, name);

@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.swing.Icon;
 
@@ -31,9 +32,6 @@ import net.filebot.CacheType;
 import net.filebot.ResourceManager;
 
 public class ShooterSubtitles implements VideoHashSubtitleService {
-
-	private static final String LANGUAGE_CHINESE = "Chinese";
-	private static final String LANGUAGE_ENGLISH = "English";
 
 	@Override
 	public String getName() {
@@ -60,10 +58,10 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 	}
 
 	@Override
-	public Map<File, List<SubtitleDescriptor>> getSubtitleList(File[] videoFiles, String languageName) throws Exception {
+	public Map<File, List<SubtitleDescriptor>> getSubtitleList(File[] videoFiles, Locale locale) throws Exception {
 		Map<File, List<SubtitleDescriptor>> result = new HashMap<File, List<SubtitleDescriptor>>();
 		for (File it : videoFiles) {
-			result.put(it, getSubtitleList(it, languageName));
+			result.put(it, getSubtitleList(it, locale));
 		}
 		return result;
 	}
@@ -79,10 +77,11 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 	/**
 	 * @see https://docs.google.com/document/d/1ufdzy6jbornkXxsD-OGl3kgWa4P9WO5NZb6_QYZiGI0/preview
 	 */
-	public synchronized List<SubtitleDescriptor> getSubtitleList(File file, String languageName) throws Exception {
-		if (!LANGUAGE_CHINESE.equals(languageName) && !LANGUAGE_ENGLISH.equals(languageName)) {
-			throw new IllegalArgumentException("Language not supported: " + languageName);
+	public synchronized List<SubtitleDescriptor> getSubtitleList(File file, Locale locale) throws Exception {
+		if (Stream.of(Locale.CHINESE, Locale.ENGLISH).noneMatch(l -> l.getLanguage().equals(locale.getLanguage()))) {
+			throw new IllegalArgumentException("Language not supported: " + locale);
 		}
+
 		if (file.length() < 8192) {
 			return emptyList();
 		}
@@ -92,7 +91,7 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 		param.put("filehash", computeFileHash(file));
 		param.put("pathinfo", file.getPath());
 		param.put("format", "json");
-		param.put("lang", LANGUAGE_CHINESE.equals(languageName) ? "Chn" : "Eng");
+		param.put("lang", Locale.CHINESE.getLanguage().equals(locale.getLanguage()) ? "Chn" : "Eng");
 
 		// use the first best option and ignore the rest
 		return getCache().castList(SubtitleDescriptor.class).computeIfAbsent(param.toString(), it -> {
@@ -108,7 +107,7 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 			return streamJsonObjects(response).flatMap(n -> streamJsonObjects(n, "Files")).map(f -> {
 				String type = getString(f, "Ext");
 				String link = getString(f, "Link");
-				return new ShooterSubtitleDescriptor(name, type, link, languageName);
+				return new ShooterSubtitleDescriptor(name, type, link, locale.getDisplayLanguage(Locale.ENGLISH));
 			}).limit(1).collect(toList());
 		});
 	}

@@ -8,7 +8,7 @@ import java.util.Map;
 
 public interface VideoHashSubtitleService extends Datasource {
 
-	public Map<File, List<SubtitleDescriptor>> getSubtitleList(File[] videoFiles, String languageName) throws Exception;
+	public Map<File, List<SubtitleDescriptor>> getSubtitleList(File[] videoFiles, Locale locale) throws Exception;
 
 	public URI getLink();
 

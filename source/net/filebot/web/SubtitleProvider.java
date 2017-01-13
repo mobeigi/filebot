@@ -2,6 +2,7 @@ package net.filebot.web;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Locale;
 
 public interface SubtitleProvider extends Datasource {
 
@@ -9,9 +10,9 @@ public interface SubtitleProvider extends Datasource {
 
 	public List<SubtitleSearchResult> guess(String tag) throws Exception;
 
-	public List<SubtitleDescriptor> getSubtitleList(SubtitleSearchResult searchResult, int[][] episodeFilter, String languageName) throws Exception;
+	public List<SubtitleDescriptor> getSubtitleList(SubtitleSearchResult searchResult, int[][] episodeFilter, Locale locale) throws Exception;
 
-	public URI getSubtitleListLink(SubtitleSearchResult searchResult, String languageName);
+	public URI getSubtitleListLink(SubtitleSearchResult searchResult, Locale locale);
 
 	public URI getLink();
 

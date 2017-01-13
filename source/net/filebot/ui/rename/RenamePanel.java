@@ -491,13 +491,10 @@ public class RenamePanel extends JComponent {
 			// restore current preference values
 			try {
 				modeCombo.setSelectedItem(persistentPreferredMatchMode.getValue());
-				for (Language language : languages) {
-					if (language.getCode().equals(persistentPreferredLanguage.getValue())) {
-						languageList.setSelectedValue(language, true);
-						break;
-					}
-				}
 				orderCombo.setSelectedItem(SortOrder.forName(persistentPreferredEpisodeOrder.getValue()));
+
+				String selectedLanguage = persistentPreferredLanguage.getValue();
+				languages.stream().filter(l -> l.getCode().equals(selectedLanguage)).findFirst().ifPresent(l -> languageList.setSelectedValue(l, true));
 			} catch (Exception e) {
 				debug.log(Level.WARNING, e.getMessage(), e);
 			}
@@ -846,7 +843,7 @@ public class RenamePanel extends JComponent {
 		}
 
 		public Locale getLocale(ActionEvent evt) {
-			return new Locale(persistentPreferredLanguage.getValue());
+			return Language.getLanguage(persistentPreferredLanguage.getValue()).getLocale();
 		}
 
 		private boolean isAutoDetectionEnabled(ActionEvent evt) {

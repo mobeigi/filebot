@@ -45,7 +45,10 @@ public class LanguageComboBox extends JComboBox {
 
 		// restore favorite languages
 		for (String favoriteLanguage : persistentFavoriteLanguages) {
-			getModel().favorites().add(getModel().favorites().size(), getLanguage(favoriteLanguage));
+			Language language = getLanguage(favoriteLanguage);
+			if (language != null) {
+				getModel().favorites().add(getModel().favorites().size(), language);
+			}
 		}
 
 		// guess favorite languages

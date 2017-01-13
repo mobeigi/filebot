@@ -686,7 +686,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 			try {
 				log.fine("Looking up subtitles by hash via " + service.getName());
-				Map<File, List<SubtitleDescriptor>> options = lookupSubtitlesByHash(service, remainingVideos, language.getName(), false, strict);
+				Map<File, List<SubtitleDescriptor>> options = lookupSubtitlesByHash(service, remainingVideos, language.getLocale(), false, strict);
 				Map<File, File> downloads = downloadSubtitleBatch(service, options, output, encoding, format);
 				remainingVideos.removeAll(downloads.keySet());
 				subtitleFiles.addAll(downloads.values());
@@ -702,7 +702,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 			try {
 				log.fine(format("Looking up subtitles by name via %s", service.getName()));
-				Map<File, List<SubtitleDescriptor>> options = findSubtitlesByName(service, remainingVideos, language.getName(), query, false, strict);
+				Map<File, List<SubtitleDescriptor>> options = findSubtitlesByName(service, remainingVideos, language.getLocale(), query, false, strict);
 				Map<File, File> downloads = downloadSubtitleBatch(service, options, output, encoding, format);
 				remainingVideos.removeAll(downloads.keySet());
 				subtitleFiles.addAll(downloads.values());

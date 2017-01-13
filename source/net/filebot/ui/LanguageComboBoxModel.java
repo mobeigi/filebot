@@ -13,7 +13,7 @@ import net.filebot.Language;
 
 public class LanguageComboBoxModel extends AbstractListModel implements ComboBoxModel {
 
-	public static final Language ALL_LANGUAGES = new Language("undefined", "undefined", "undefined", new String[] { "All Languages" });
+	public static final Language ALL_LANGUAGES = new Language("undefined", "und", "und", "und", new String[] { "All Languages" });
 
 	private Language defaultLanguage;
 	private Language selection;
