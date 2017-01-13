@@ -84,17 +84,7 @@ public class Language implements Serializable {
 	}
 
 	public boolean matches(String code) {
-		if (Stream.of(iso_639_1, iso_639_2B, iso_639_3, tag).anyMatch(c -> c.equalsIgnoreCase(code))) {
-			return true;
-		}
-
-		for (String c : names) {
-			if (c.equalsIgnoreCase(code) || code.toLowerCase().contains(c.toLowerCase())) {
-				return true;
-			}
-		}
-
-		return false;
+		return Stream.concat(Stream.of(iso_639_1, iso_639_2B, iso_639_3, tag), Stream.of(names)).anyMatch(c -> c.equalsIgnoreCase(code));
 	}
 
 	@Override
