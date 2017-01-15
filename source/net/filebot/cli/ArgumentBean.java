@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.nio.file.LinkOption;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -169,14 +170,16 @@ public class ArgumentBean {
 
 		for (String it : arguments) {
 			// ignore empty arguments
-			if (it.trim().isEmpty())
+			if (it.trim().isEmpty()) {
 				continue;
+			}
 
 			// resolve relative paths
 			File file = new File(it);
 
+			// since we don't want to follow symlinks, we need to take the scenic route through the Path class
 			try {
-				file = file.getCanonicalFile();
+				file = file.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS).toFile();
 			} catch (Exception e) {
 				debug.warning(format("Illegal Argument: %s (%s)", e, file));
 			}
