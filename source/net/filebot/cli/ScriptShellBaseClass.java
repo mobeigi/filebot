@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -341,18 +340,19 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public List<File> rename(Map<String, ?> parameters) throws Exception {
+		// consume all parameters
 		List<File> files = getInputFileList(parameters);
+		Map<File, File> map = files.isEmpty() ? getInputFileMap(parameters) : emptyMap(); // check map parameter if file/folder is not set
 		RenameAction action = getRenameAction(parameters);
 		ArgumentBean args = getArgumentBean(parameters);
 
 		try {
 			if (files.size() > 0) {
 				return getCLI().rename(files, args.getRenameAction(), args.getConflictAction(), args.getAbsoluteOutputFolder(), args.getExpressionFormat(), args.getDatasource(), args.getSearchQuery(), args.getSortOrder(), args.getExpressionFilter(), args.getLanguage().getLocale(), args.isStrict());
-			} else {
-				Map<File, File> map = getInputFileMap(parameters);
-				if (map.size() > 0) {
-					return getCLI().rename(map, action, args.getConflictAction());
-				}
+			}
+
+			if (map.size() > 0) {
+				return getCLI().rename(map, action, args.getConflictAction());
 			}
 		} catch (Exception e) {
 			printException(e);
@@ -484,9 +484,17 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	private Map<File, File> getInputFileMap(Map<String, ?> parameters) {
 		// convert keys and values to files
-		Function<Object, File> mapping = f -> asFileList(f).iterator().next();
+		Map<File, File> map = new LinkedHashMap<File, File>();
 
-		return consumeParameter(parameters, "map").map(Map.class::cast).collect(toMap(mapping, mapping, (a, b) -> a, LinkedHashMap::new));
+		consumeParameter(parameters, "map").map(Map.class::cast).forEach(m -> {
+			m.forEach((k, v) -> {
+				File from = asFileList(k).get(0);
+				File to = asFileList(v).get(0);
+				map.put(from, to);
+			});
+		});
+
+		return map;
 	}
 
 	private RenameAction getRenameAction(Map<String, ?> parameters) {
