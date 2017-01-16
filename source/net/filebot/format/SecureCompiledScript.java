@@ -15,6 +15,7 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
 import java.util.PropertyPermission;
+import java.util.concurrent.Callable;
 import java.util.logging.LoggingPermission;
 
 import javax.script.CompiledScript;
@@ -76,13 +77,23 @@ public class SecureCompiledScript extends CompiledScript {
 	}
 
 	@Override
-	public Object eval(final ScriptContext context) throws ScriptException {
+	public Object eval(ScriptContext context) throws ScriptException {
 		try {
 			return AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
 
 				@Override
 				public Object run() throws ScriptException {
-					return compiledScript.eval(context);
+					Object value = compiledScript.eval(context);
+
+					if (value instanceof Callable<?>) {
+						try {
+							return ((Callable<?>) value).call();
+						} catch (Exception e) {
+							throw new ScriptException(e);
+						}
+					}
+
+					return value;
 				}
 			}, sandbox);
 		} catch (PrivilegedActionException e) {
