@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.concurrent.CancellationException;
 
 import com.sun.jna.Platform;
-import com.sun.jna.WString;
 import com.sun.jna.platform.win32.Shell32;
 import com.sun.jna.platform.win32.ShellAPI;
 import com.sun.jna.platform.win32.ShellAPI.SHFILEOPSTRUCT;
@@ -46,8 +45,8 @@ public enum NativeRenameAction implements RenameAction {
 		op.wFunc = (action == MOVE) ? ShellAPI.FO_MOVE : ShellAPI.FO_COPY;
 		op.fFlags = Shell32.FOF_MULTIDESTFILES | Shell32.FOF_NOCOPYSECURITYATTRIBS | Shell32.FOF_NOCONFIRMATION | Shell32.FOF_NOCONFIRMMKDIR;
 
-		op.pFrom = new WString(op.encodePaths(src));
-		op.pTo = new WString(op.encodePaths(dst));
+		op.pFrom = op.encodePaths(src);
+		op.pTo = op.encodePaths(dst);
 
 		Shell32.INSTANCE.SHFileOperation(op);
 
