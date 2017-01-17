@@ -142,6 +142,27 @@ public enum StandardRenameAction implements RenameAction {
 		}
 	}
 
+	public String getDisplayVerb() {
+		switch (this) {
+		case MOVE:
+			return "Moving";
+		case COPY:
+			return "Copying";
+		case KEEPLINK:
+			return "Moving and symlinking";
+		case SYMLINK:
+			return "Symlinking";
+		case HARDLINK:
+			return "Hardlinking";
+		case DUPLICATE:
+			return "Duplicating";
+		case REFLINK:
+			return "Reflinking";
+		default:
+			return "Testing";
+		}
+	}
+
 	public static StandardRenameAction forName(String action) {
 		for (StandardRenameAction it : values()) {
 			if (it.name().equalsIgnoreCase(action))
