@@ -64,7 +64,7 @@ public class ExpressionFormatFunctions {
 		return stream(c1, null, cN).map(Objects::toString).map(s -> q + s.replace(q, r) + q).collect(joining(" "));
 	}
 
-	public static Map<String, String> csv(String path) throws IOException {
+	public static Map<String, String> csv(Object path) throws IOException {
 		Pattern[] delimiter = { TAB, SEMICOLON };
 		Map<String, String> map = new LinkedHashMap<String, String>();
 		for (String line : readLines(path)) {
@@ -79,19 +79,19 @@ public class ExpressionFormatFunctions {
 		return map;
 	}
 
-	public static List<String> readLines(String path) throws IOException {
+	public static List<String> readLines(Object path) throws IOException {
 		return FileUtilities.readLines(getUserFile(path));
 	}
 
-	public static Object readXml(String path) throws Exception {
+	public static Object readXml(Object path) throws Exception {
 		return new XmlSlurper().parse(getUserFile(path));
 	}
 
-	public static File getUserFile(String path) {
-		File f = new File(path);
+	public static File getUserFile(Object path) {
+		File f = new File(path.toString());
 
 		if (!f.isAbsolute()) {
-			f = ApplicationFolder.UserHome.resolve(path);
+			f = ApplicationFolder.UserHome.resolve(f.getPath());
 		}
 
 		if (isMacSandbox()) {
