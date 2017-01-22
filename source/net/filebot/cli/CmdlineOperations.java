@@ -595,14 +595,17 @@ public class CmdlineOperations implements CmdlineInterface {
 						destination = resolve(source, destination);
 					}
 
-					if (!destination.equals(source) && destination.exists() && renameAction.canRevert()) {
+					if (!destination.equals(source) && destination.exists()) {
 						if (conflictAction == ConflictAction.FAIL) {
 							throw new CmdlineException("File already exists: " + destination);
 						}
 
 						if (conflictAction == ConflictAction.OVERRIDE || (conflictAction == ConflictAction.AUTO && VideoQuality.isBetter(source, destination))) {
-							if (!destination.delete()) {
-								log.log(Level.SEVERE, "Failed to override file: " + destination);
+							// do not delete files in test mode
+							if (renameAction.canRevert() && destination.delete()) {
+								log.info(format("[%s] Delete [%s]", conflictAction, destination));
+							} else {
+								log.warning(format("[%s] Unable to delete [%s]", conflictAction, destination));
 							}
 						} else if (conflictAction == ConflictAction.INDEX) {
 							destination = nextAvailableIndexedName(destination);
