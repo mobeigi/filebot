@@ -207,7 +207,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 					episodes.add(new Episode(info.getName(), seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate, id, new SeriesInfo(info)));
 				} else {
 					// handle as special episode
-					specials.add(new Episode(info.getName(), null, null, episodeName, null, episodeNumber, airdate, id, new SeriesInfo(info)));
+					specials.add(new Episode(info.getName(), null, null, episodeName, absoluteNumber, episodeNumber, airdate, id, new SeriesInfo(info)));
 				}
 			});
 		}

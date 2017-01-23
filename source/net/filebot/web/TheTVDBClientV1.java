@@ -177,7 +177,7 @@ public class TheTVDBClientV1 extends AbstractEpisodeListProvider implements Artw
 
 				// use given episode number as special number or count specials by ourselves
 				Integer specialNumber = (episodeNumber != null) ? episodeNumber : filterBySeason(specials, seasonNumber).size() + 1;
-				specials.add(new Episode(seriesInfo.getName(), seasonNumber, null, episodeName, null, specialNumber, airdate, id, new SeriesInfo(seriesInfo)));
+				specials.add(new Episode(seriesInfo.getName(), seasonNumber, null, episodeName, absoluteNumber, specialNumber, airdate, id, new SeriesInfo(seriesInfo)));
 			} else {
 				// adjust for absolute numbering if possible
 				if (sortOrder == SortOrder.Absolute) {
