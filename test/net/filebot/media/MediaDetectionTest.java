@@ -34,6 +34,8 @@ public class MediaDetectionTest {
 	@Test
 	public void grepTheTvdbId() throws Exception {
 		assertEquals("[78874]", MediaDetection.grepTheTvdbId("@see http://www.thetvdb.com/?tab=series&id=78874&lid=14").toString());
+		assertEquals("[78874]", MediaDetection.grepTheTvdbId("@see http://thetvdb.com/?tab=series&id=78874&lid=14").toString());
+		assertEquals("[78874]", MediaDetection.grepTheTvdbId("@see https://www.thetvdb.com/?tab=seasonall&id=78874&lid=14").toString());
 	}
 
 }
