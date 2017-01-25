@@ -1276,7 +1276,7 @@ public class MediaDetection {
 
 	public static List<Integer> grepTheTvdbId(CharSequence text) {
 		// scan for thetvdb id patterns like http://www.thetvdb.com/?tab=series&id=78874&lid=14
-		Pattern tvdbUrl = Pattern.compile("\\w+://(?:\\w+[.])?thetvdb.com/[?]tab=\\w+&id=(\\d+)", Pattern.CASE_INSENSITIVE);
+		Pattern tvdbUrl = Pattern.compile("thetvdb.com[\\p{Graph}]*?[\\p{Punct}]id=(\\d+)", Pattern.CASE_INSENSITIVE);
 		return streamMatches(text, tvdbUrl, m -> m.group(1)).map(Integer::new).collect(toList());
 	}
 
