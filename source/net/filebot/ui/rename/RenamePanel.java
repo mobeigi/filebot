@@ -83,6 +83,7 @@ import net.filebot.web.AudioTrackFormat;
 import net.filebot.web.Episode;
 import net.filebot.web.EpisodeFormat;
 import net.filebot.web.EpisodeListProvider;
+import net.filebot.web.InvalidResponseException;
 import net.filebot.web.Movie;
 import net.filebot.web.MovieFormat;
 import net.filebot.web.MovieIdentificationService;
@@ -904,8 +905,21 @@ public class RenamePanel extends JComponent {
 						// add remaining file entries
 						renameModel.files().addAll(remainingFiles);
 					} catch (Exception e) {
+						// ignore cancellation exception
+						if (findCause(e, CancellationException.class) != null) {
+							return;
+						}
+
+						// common error message
+						if (findCause(e, InvalidResponseException.class) != null) {
+							log.log(Level.WARNING, findCause(e, InvalidResponseException.class).getMessage());
+							return;
+						}
+
+						// generic error message
 						if (findCause(e, CancellationException.class) == null) {
 							log.log(Level.WARNING, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
+							return;
 						}
 					} finally {
 						// auto-match finished

@@ -25,6 +25,7 @@ import org.w3c.dom.Document;
 import net.filebot.util.ByteBufferInputStream;
 import net.filebot.util.ByteBufferOutputStream;
 import net.filebot.util.JsonUtilities;
+import net.filebot.web.InvalidResponseException;
 import net.filebot.web.WebRequest;
 
 public class CachedResource<K, R> implements Resource<R> {
@@ -98,12 +99,13 @@ public class CachedResource<K, R> implements Resource<R> {
 
 				return parse.transform(data);
 			} catch (Exception e) {
-				debug.severe(format("Fetch failed: %s [%s]", e, url));
+				debug.log(Level.SEVERE, "Fetch failed: " + url, e);
 
 				// use previously cached data if possible
 				if (element == null || element.getObjectValue() == null) {
 					throw e;
 				}
+
 				return element.getObjectValue();
 			}
 		});
@@ -169,8 +171,7 @@ public class CachedResource<K, R> implements Resource<R> {
 				WebRequest.validateXml(xml);
 				return xml;
 			} catch (Exception e) {
-				debug.log(Level.WARNING, xml, e);
-				throw e;
+				throw new InvalidResponseException("Invalid XML", xml, e);
 			}
 		};
 	}
@@ -182,8 +183,7 @@ public class CachedResource<K, R> implements Resource<R> {
 				JsonUtilities.readJson(json);
 				return json;
 			} catch (Exception e) {
-				debug.log(Level.WARNING, json, e);
-				throw e;
+				throw new InvalidResponseException("Invalid JSON", json, e);
 			}
 		};
 	}
