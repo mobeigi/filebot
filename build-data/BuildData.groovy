@@ -225,7 +225,7 @@ tvdb_updates.values().each{ update ->
 				def year = any{ xml.Series.FirstAired.text().match(/\d{4}/) as Integer }{ 0 }
 
 				// only retrieve additional data for reasonably popular shows
-				if (imdbid && votes >= 5 && rating >= 4) {
+				if (imdbid && votes >= 3 && rating >= 4) {
 					tryLogCatch{
 						seriesNames += OMDb.getMovieDescriptor(new Movie(imdbid.match(/tt(\d+)/) as int), Locale.ENGLISH).getName()
 					}
