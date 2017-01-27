@@ -13,9 +13,7 @@ import static net.filebot.util.ui.SwingUI.*;
 import java.awt.Dialog.ModalityType;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URL;
-import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
 import java.security.CodeSource;
@@ -52,7 +50,6 @@ import net.filebot.ui.SinglePanelFrame;
 import net.filebot.ui.SupportDialog;
 import net.filebot.ui.transfer.FileTransferable;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
-import net.filebot.util.TeePrintStream;
 import net.filebot.util.ui.SwingEventBus;
 import net.filebot.win.WinAppUtilities;
 import net.miginfocom.swing.MigLayout;
@@ -387,9 +384,9 @@ public class Main {
 
 			// log errors to file
 			try {
-				Handler error = createSimpleFileHandler(ApplicationFolder.AppData.resolve("error.log"), Level.WARNING);
-				log.addHandler(error);
-				debug.addHandler(error);
+				Handler errorLogHandler = createSimpleFileHandler(ApplicationFolder.AppData.resolve("error.log"), Level.WARNING);
+				log.addHandler(errorLogHandler);
+				debug.addHandler(errorLogHandler);
 			} catch (Exception e) {
 				log.log(Level.WARNING, "Failed to initialize error log", e);
 			}
@@ -416,9 +413,9 @@ public class Main {
 				}
 			}
 
-			OutputStream out = Channels.newOutputStream(logChannel);
-			System.setOut(new TeePrintStream(out, true, "UTF-8", System.out));
-			System.setErr(new TeePrintStream(out, true, "UTF-8", System.err));
+			Handler logFileHandler = createLogFileHandler(logChannel, Level.ALL);
+			log.addHandler(logFileHandler);
+			debug.addHandler(logFileHandler);
 		}
 	}
 
