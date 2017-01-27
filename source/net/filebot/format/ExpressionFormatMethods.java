@@ -468,6 +468,10 @@ public class ExpressionFormatMethods {
 		return FileUtilities.listPath(self).get(0);
 	}
 
+	public static File getTail(File self) {
+		return FileUtilities.getRelativePathTail(self, FileUtilities.listPath(self).size() - 1);
+	}
+
 	public static List<File> listPath(File self) {
 		return FileUtilities.listPath(self);
 	}
