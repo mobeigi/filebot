@@ -623,7 +623,7 @@ public class CmdlineOperations implements CmdlineInterface {
 						log.info(format("Skipped [%s] because [%s] already exists", source, destination));
 					}
 				} catch (IOException e) {
-					log.warning(format("[%s] Failed to rename [%s]", renameAction, it.getKey()));
+					log.warning(format("[%s] Failed to rename [%s] due to [%s]", renameAction, it.getKey(), e));
 					throw e;
 				}
 			}
