@@ -14,8 +14,6 @@ import java.awt.Dialog.ModalityType;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.channels.FileChannel;
-import java.nio.file.StandardOpenOption;
 import java.security.CodeSource;
 import java.security.Permission;
 import java.security.PermissionCollection;
@@ -392,28 +390,12 @@ public class Main {
 			}
 		}
 
-		// tee stdout and stderr to log file if set
+		// tee stdout and stderr to log file if --log-file is set
 		if (args.logFile != null) {
-			File logFile = new File(args.logFile);
-			if (!logFile.isAbsolute()) {
-				logFile = new File(ApplicationFolder.AppData.resolve("logs"), logFile.getPath()).getAbsoluteFile(); // by default resolve relative paths against {applicationFolder}/logs/{logFile}
-			}
-			if (!logFile.exists() && !logFile.getParentFile().mkdirs() && !logFile.createNewFile()) {
-				throw new IOException("Failed to create log file: " + logFile);
-			}
-
-			// open file channel and lock
-			FileChannel logChannel = FileChannel.open(logFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
 			if (args.logLock) {
-				try {
-					log.config("Locking " + logFile);
-					logChannel.lock();
-				} catch (Exception e) {
-					throw new IOException("Failed to acquire lock: " + logFile, e);
-				}
+				log.config("Locking " + log);
 			}
-
-			Handler logFileHandler = createLogFileHandler(logChannel, Level.ALL);
+			Handler logFileHandler = createLogFileHandler(args.getLogFile(), args.logLock, Level.ALL);
 			log.addHandler(logFileHandler);
 			debug.addHandler(logFileHandler);
 		}

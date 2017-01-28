@@ -9,6 +9,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.channels.FileChannel;
+import java.nio.file.StandardOpenOption;
 import java.util.function.Supplier;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
@@ -48,7 +49,21 @@ public final class Logging {
 		return handler;
 	}
 
-	public static StreamHandler createLogFileHandler(FileChannel channel, Level level) throws IOException {
+	public static StreamHandler createLogFileHandler(File file, boolean lock, Level level) throws IOException {
+		if (!file.exists() && !file.getParentFile().mkdirs() && !file.createNewFile()) {
+			throw new IOException("Failed to create log file: " + file);
+		}
+
+		// open file channel and lock
+		FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
+		if (lock) {
+			try {
+				channel.lock();
+			} catch (Exception e) {
+				throw new IOException("Failed to acquire lock: " + file, e);
+			}
+		}
+
 		StreamHandler handler = new StreamHandler(newOutputStream(channel), new ConsoleFormatter(anonymizePattern.get(), false));
 		handler.setEncoding("UTF-8");
 		handler.setLevel(level);

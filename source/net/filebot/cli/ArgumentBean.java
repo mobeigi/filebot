@@ -26,6 +26,7 @@ import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.ParserProperties;
 import org.kohsuke.args4j.spi.ExplicitBooleanOptionHandler;
 
+import net.filebot.ApplicationFolder;
 import net.filebot.Language;
 import net.filebot.StandardRenameAction;
 import net.filebot.WebServices;
@@ -261,6 +262,17 @@ public class ArgumentBean {
 	public Language getLanguage() {
 		// find language code for any input (en, eng, English, etc)
 		return optional(lang).map(Language::findLanguage).orElseThrow(error("Illegal language code", lang));
+	}
+
+	public File getLogFile() {
+		File file = new File(logFile);
+
+		if (file.isAbsolute()) {
+			return file;
+		}
+
+		// by default resolve relative paths against {applicationFolder}/logs/{logFile}
+		return ApplicationFolder.AppData.resolve("logs/" + logFile);
 	}
 
 	public boolean isStrict() {
