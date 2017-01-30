@@ -153,7 +153,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		if (severe) {
 			log.log(Level.SEVERE, trace(t));
 		} else {
-			log.log(Level.WARNING, t::getMessage);
+			log.log(Level.WARNING, format("%s: %s", t.getClass().getSimpleName(), t.getMessage()));
 		}
 	}
 
