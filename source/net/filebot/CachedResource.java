@@ -25,7 +25,6 @@ import org.w3c.dom.Document;
 import net.filebot.util.ByteBufferInputStream;
 import net.filebot.util.ByteBufferOutputStream;
 import net.filebot.util.JsonUtilities;
-import net.filebot.web.InvalidResponseException;
 import net.filebot.web.WebRequest;
 
 public class CachedResource<K, R> implements Resource<R> {

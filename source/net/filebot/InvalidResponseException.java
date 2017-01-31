@@ -1,4 +1,4 @@
-package net.filebot.web;
+package net.filebot;
 
 import java.io.IOException;
 
