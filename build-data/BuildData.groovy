@@ -93,7 +93,7 @@ def getNamePermutations(names) {
 		return [original, s]
 	}.unique{ normalize(it) }.findAll{ it.length() > 0 }
 
-	out = out.findAll{ it.length() >= 2 && !(it ==~ /[1][0-9][1-9]/) && !(it =~ /^[a-z]/) && it =~ /^[@.\p{L}\p{Digit}]/ } // MUST START WITH UNICODE LETTER
+	out = out.findAll{ it.length() >= 2 && !(it ==~ /[1][0-9][1-9]/) && it =~ /^[@.\p{L}\p{Digit}]/ } // MUST START WITH UNICODE LETTER
 	out = out.findAll{ !MediaDetection.releaseInfo.structureRootPattern.matcher(it).matches() } // IGNORE NAMES THAT OVERLAP WITH MEDIA FOLDER NAMES
 
 	return out
