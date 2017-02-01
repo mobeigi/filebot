@@ -23,7 +23,7 @@ def dir_data_master = System.getProperty('net.filebot.data.master', 'https://raw
 	def input = new URL(dir_data_master + '/' + it)
 	def output = dir_data.resolve(it)
 
-	log.fine "Fetch $input"
+	log.finest "Fetch $input"
 	def lines = new TreeSet(String.CASE_INSENSITIVE_ORDER)
 	input.getText('UTF-8').split(/\R/)*.trim().findAll{ it.length() > 0 }.each{
 		lines << Pattern.compile(it).pattern()
@@ -296,7 +296,7 @@ tvdb.values().each{ r ->
 
 	def alias = extraAliasNames[names[0]]
 	if (alias) {
-		log.fine "Add alias ${names[0]} => ${alias}"
+		log.finest "Add alias ${names[0]} => ${alias}"
 		names += alias
 	}
 
