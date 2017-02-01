@@ -1,6 +1,7 @@
 package net.filebot;
 
 import static java.nio.channels.Channels.*;
+import static net.filebot.util.ExceptionUtilities.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -91,6 +92,15 @@ public final class Logging {
 			if (trace != null && trace.length > 0) {
 				s.append(" at ").append(trace[0]);
 			}
+			return s.toString();
+		};
+	}
+
+	public static Supplier<String> cause(Throwable t) {
+		return () -> {
+			StringBuilder s = new StringBuilder();
+			s.append(t.getClass().getSimpleName()).append(": ");
+			s.append(t.getMessage());
 			return s.toString();
 		};
 	}

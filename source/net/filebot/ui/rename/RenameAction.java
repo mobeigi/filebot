@@ -93,7 +93,7 @@ class RenameAction extends AbstractAction {
 			} catch (CancellationException e) {
 				debug.finest(e::toString);
 			} catch (Throwable e) {
-				log.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
+				log.log(Level.SEVERE, e, cause(getRootCause(e)));
 			}
 
 			// abort if nothing happened

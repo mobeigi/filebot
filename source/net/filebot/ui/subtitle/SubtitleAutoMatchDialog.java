@@ -173,21 +173,17 @@ class SubtitleAutoMatchDialog extends JDialog {
 		component.setBorder(BorderFactory.createEmptyBorder());
 		component.setVisible(false);
 
-		service.addPropertyChangeListener(new PropertyChangeListener() {
-
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				if (service.getState() == StateValue.STARTED) {
-					component.setIcon(ResourceManager.getIcon("database.go"));
-				} else {
-					component.setIcon(ResourceManager.getIcon(service.getError() == null ? "database.ok" : "database.error"));
-				}
-
-				component.setVisible(true);
-				component.setToolTipText(String.format("%s: %s", service.getName(), service.getError() == null ? service.getState().toString().toLowerCase() : service.getError().getMessage()));
-				servicePanel.setVisible(true);
-				servicePanel.getParent().revalidate();
+		service.addPropertyChangeListener(evt -> {
+			if (service.getState() == StateValue.STARTED) {
+				component.setIcon(ResourceManager.getIcon("database.go"));
+			} else {
+				component.setIcon(ResourceManager.getIcon(service.getError() == null ? "database.ok" : "database.error"));
 			}
+
+			component.setVisible(true);
+			component.setToolTipText(String.format("%s: %s", service.getName(), service.getError() == null ? service.getState().toString().toLowerCase() : service.getError().getMessage()));
+			servicePanel.setVisible(true);
+			servicePanel.getParent().revalidate();
 		});
 
 		services.add(service);

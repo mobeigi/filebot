@@ -643,7 +643,7 @@ public class RenamePanel extends JComponent {
 			// show and block
 			dialog.setVisible(true);
 		} catch (Exception e) {
-			log.log(Level.WARNING, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
+			log.log(Level.WARNING, e, cause(getRootCause(e)));
 		}
 	});
 
@@ -917,10 +917,7 @@ public class RenamePanel extends JComponent {
 						}
 
 						// generic error message
-						if (findCause(e, CancellationException.class) == null) {
-							log.log(Level.WARNING, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
-							return;
-						}
+						log.log(Level.WARNING, e, cause(getRootCause(e)));
 					} finally {
 						// auto-match finished
 						namesList.firePropertyChange(LOADING_PROPERTY, true, false);
