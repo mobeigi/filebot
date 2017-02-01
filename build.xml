@@ -677,6 +677,12 @@
 				<cmp:tarfileset file="${path.fatjar}" fullpath="FileBot.jar" />
 				<cmp:tarfileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd" />
 				<cmp:tarfileset dir="${dir.installer}/portable" includes="*.sh" filemode="755" />
+
+				<!-- include native libraries for all supported platforms -->
+				<cmp:tarfileset prefix="lib/armv7l" dir="${dir.lib}/native/linux-armv7l" includes="*.so" />
+				<cmp:tarfileset prefix="lib/armv8" dir="${dir.lib}/native/linux-armv8" includes="*.so" />
+				<cmp:tarfileset prefix="lib/i686" dir="${dir.lib}/native/linux-i686" includes="*.so" />
+				<cmp:tarfileset prefix="lib/x86_64" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
 			</cmp:tar>
 		</cmp:xz>
 	</target>

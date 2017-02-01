@@ -17,6 +17,9 @@ WORKING_DIR=`pwd`
 PRG_DIR=`dirname "$PRG"`
 APP_ROOT=`cd "$PRG_DIR" && pwd`
 
+# add package lib folder to library path
+PACKAGE_LIBRARY_PATH="$APP_ROOT/lib/$(uname -m)"
+
 # restore original working dir
 cd "$WORKING_DIR"
 
@@ -29,11 +32,11 @@ fi
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 
-# add APP_ROOT to LD_LIBRARY_PATH
+# add APP_ROOT and PACKAGE_LIBRARY_PATH to LD_LIBRARY_PATH
 if [ ! -z "$LD_LIBRARY_PATH" ]; then
-	export LD_LIBRARY_PATH="$APP_ROOT:$LD_LIBRARY_PATH"
+	export LD_LIBRARY_PATH="$APP_ROOT:$PACKAGE_LIBRARY_PATH:$LD_LIBRARY_PATH"
 else
-	export LD_LIBRARY_PATH="$APP_ROOT"
+	export LD_LIBRARY_PATH="$APP_ROOT:$PACKAGE_LIBRARY_PATH"
 fi
 
 # choose extractor
