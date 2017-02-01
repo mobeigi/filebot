@@ -1,7 +1,6 @@
 package net.filebot;
 
 import static java.nio.channels.Channels.*;
-import static net.filebot.util.ExceptionUtilities.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
