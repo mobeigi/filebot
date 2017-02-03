@@ -92,12 +92,12 @@ public enum SupportDialog {
 		}
 
 		// always lucky if many files are processed in a single session
-		if (sessionRenameCount >= 2000 * Math.pow(2, supportRevisionCount)) {
+		if (sessionRenameCount >= 5000 * Math.pow(2, supportRevisionCount)) {
 			return true;
 		}
 
 		// sometimes lucky if many files have been processed over time
-		return totalRenameCount >= 1000 * Math.pow(4, supportRevisionCount) && Math.random() >= 0.777;
+		return totalRenameCount >= 2000 * Math.pow(4, supportRevisionCount) && Math.random() >= 0.2;
 	}
 
 	public boolean show(int totalRenameCount, boolean first) {
