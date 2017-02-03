@@ -768,6 +768,11 @@ public class MediaBindingBean {
 		return new Double(getMediaInfo(StreamKind.General, 0, "OverallBitRate")).longValue();
 	}
 
+	@Define("kbps")
+	public String getKiloBytesPerSecond() {
+		return String.format("%d kbps", getOverallBitRate() / 1000);
+	}
+
 	@Define("duration")
 	public Long getDuration() {
 		return new Double(getMediaInfo(StreamKind.General, 0, "Duration")).longValue();
