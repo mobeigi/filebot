@@ -97,7 +97,7 @@ public enum SupportDialog {
 		}
 
 		// sometimes lucky if many files have been processed over time
-		return totalRenameCount >= 2000 * Math.pow(4, supportRevisionCount) && Math.random() >= 0.2;
+		return totalRenameCount >= 2000 * Math.pow(4, supportRevisionCount) && Math.random() >= 0.777;
 	}
 
 	public boolean show(int totalRenameCount, boolean first) {
