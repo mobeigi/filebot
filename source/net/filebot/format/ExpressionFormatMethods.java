@@ -461,7 +461,7 @@ public class ExpressionFormatMethods {
 			}
 		}
 
-		return new File(self.getParentFile(), concat(name, concat(tag, null, tagN), extension));
+		return new File(self.getParentFile(), concat(name, slash(concat(tag, null, tagN), ""), extension));
 	}
 
 	public static File getRoot(File self) {
