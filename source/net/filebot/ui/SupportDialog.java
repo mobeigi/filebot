@@ -109,10 +109,10 @@ public enum SupportDialog {
 		// open URI of OK
 		if (pane.getValue() == actions[0]) {
 			openURI(getURI());
-			return true;
 		}
 
-		return false;
+		// don't ask again for this version regardless of user choice
+		return true;
 	}
 
 	abstract String getMessage(int totalRenameCount);
