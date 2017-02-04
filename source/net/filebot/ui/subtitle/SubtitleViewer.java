@@ -121,7 +121,7 @@ public class SubtitleViewer extends JFrame {
 
 			@Override
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				return super.getTableCellRendererComponent(table, timeFormat.format(value), isSelected, hasFocus, row, column);
+				return super.getTableCellRendererComponent(table, value == null ? null : timeFormat.format(value), isSelected, hasFocus, row, column);
 			}
 		});
 
@@ -130,7 +130,7 @@ public class SubtitleViewer extends JFrame {
 
 			@Override
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				return super.getTableCellRendererComponent(table, replaceSpace(value.toString(), " "), isSelected, hasFocus, row, column);
+				return super.getTableCellRendererComponent(table, value == null ? null : replaceSpace(value.toString(), " "), isSelected, hasFocus, row, column);
 			}
 		});
 
