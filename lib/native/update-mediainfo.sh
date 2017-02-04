@@ -1,6 +1,6 @@
 #!/bin/sh
 
-MEDIAINFO_VERSION="0.7.92"
+MEDIAINFO_VERSION="0.7.92.1"
 ZEN_VERSION="0.4.34"
 
 
@@ -34,3 +34,5 @@ cp Staging/*/data/usr/lib/x86_64-linux-gnu/libmediainfo.so.0.0.0 linux-amd64/lib
 cp Staging/*/data/usr/lib/i386-linux-gnu/libmediainfo.so.0.0.0 linux-i686/libmediainfo.so
 cp Staging/*/data/usr/lib/x86_64-linux-gnu/libzen.so.0.0.0 linux-amd64/libzen.so
 cp Staging/*/data/usr/lib/i386-linux-gnu/libzen.so.0.0.0 linux-i686/libzen.so
+
+rm -r Staging
