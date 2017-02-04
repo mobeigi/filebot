@@ -135,9 +135,8 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor, Seri
 			// check download quota
 			String quota = c.getHeaderField("Download-Quota");
 			if (quota != null) {
+				debug.finest("Download-Quota: " + quota);
 				setAndCheckDownloadQuota(Integer.parseInt(quota));
-
-				debug.finest(format("Download-Quota: %d", DOWNLOAD_QUOTA));
 			}
 
 			// read and extract subtitle data
@@ -164,7 +163,7 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor, Seri
 
 	@Override
 	public String toString() {
-		return String.format("%s [%s]", getName(), getLanguageName());
+		return getPath();
 	}
 
 	@Override

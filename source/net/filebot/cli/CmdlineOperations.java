@@ -789,7 +789,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				try {
 					downloads.put(movie, downloadSubtitle(service, subtitle, movie, outputFormat, outputEncoding, naming));
 				} catch (Exception e) {
-					log.warning(format("Failed to download %s: %s", subtitle.getPath(), e.getMessage()));
+					log.warning(format("Failed to download %s: %s", subtitle, e));
 				}
 			}
 		});
