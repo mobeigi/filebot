@@ -1,7 +1,6 @@
 package net.filebot.cli;
 
 import static java.nio.charset.StandardCharsets.*;
-import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
@@ -13,7 +12,6 @@ import static net.filebot.media.MediaDetection.*;
 import static net.filebot.media.XattrMetaInfo.*;
 import static net.filebot.subtitle.SubtitleUtilities.*;
 import static net.filebot.util.FileUtilities.*;
-import static net.filebot.util.RegularExpressions.*;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -176,31 +174,28 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 
 			for (List<File> batch : batchSets) {
-				Collection<String> seriesNames;
-
-				// auto-detect series name if not given
-				if (query == null) {
-					// detect series name by common word sequence
-					seriesNames = detectSeriesNames(batch, db == AniDB, locale);
-					log.config("Auto-detected query: " + seriesNames);
-				} else {
-					// use --q option
-					seriesNames = asList(PIPE.split(query));
-				}
-
-				if (strict && seriesNames.size() > 1) {
-					throw new CmdlineException("Processing multiple shows at once requires -non-strict");
-				}
-
-				if (seriesNames.size() == 0) {
-					log.warning("Failed to detect query for files: " + batch);
-					continue;
-				}
-
 				// fetch episode data
-				List<Episode> episodes = fetchEpisodeSet(db, seriesNames, sortOrder, locale, strict);
-				if (episodes.size() == 0) {
-					log.warning("Failed to fetch episode data: " + seriesNames);
+				List<Episode> episodes;
+
+				if (query == null) {
+					Collection<String> seriesNames = detectSeriesNames(batch, db == AniDB, locale); // detect series name by common word sequence
+					log.config("Auto-detected query: " + seriesNames);
+
+					if (seriesNames.size() == 0) {
+						log.warning("Failed to detect query for files: " + batch);
+						continue;
+					}
+
+					if (strict && seriesNames.size() > 1) {
+						throw new CmdlineException("Multiple queries: Processing multiple shows at once requires -non-strict matching: " + seriesNames);
+					}
+
+					episodes = fetchEpisodeSet(db, seriesNames, sortOrder, locale, strict, 5); // consider episodes of up to N search results for each query
+				} else {
+					episodes = fetchEpisodeSet(db, singleton(query), sortOrder, locale, false, 1); // use --q option and pick first result
+				}
+
+				if (episodes.isEmpty()) {
 					continue;
 				}
 
@@ -273,7 +268,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return validMatches;
 	}
 
-	private List<Episode> fetchEpisodeSet(EpisodeListProvider db, Collection<String> names, SortOrder sortOrder, Locale locale, boolean strict) throws Exception {
+	private List<Episode> fetchEpisodeSet(EpisodeListProvider db, Collection<String> names, SortOrder sortOrder, Locale locale, boolean strict, int limit) throws Exception {
 		Set<SearchResult> shows = new LinkedHashSet<SearchResult>();
 		Set<Episode> episodes = new LinkedHashSet<Episode>();
 
@@ -283,7 +278,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 			// select search result
 			if (results.size() > 0) {
-				List<SearchResult> selectedSearchResults = selectSearchResult(query, results, true, strict);
+				List<SearchResult> selectedSearchResults = selectSearchResult(query, results, true, strict, limit);
 
 				if (selectedSearchResults != null) {
 					for (SearchResult it : selectedSearchResults) {
@@ -298,6 +293,10 @@ public class CmdlineOperations implements CmdlineInterface {
 					}
 				}
 			}
+		}
+
+		if (episodes.isEmpty()) {
+			log.warning("Failed to fetch episode data: " + names);
 		}
 
 		return new ArrayList<Episode>(episodes);
@@ -390,9 +389,9 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 
 			// force all mappings
-			Movie result = (Movie) selectSearchResult(query, options, false, strict).get(0);
+			Movie movie = (Movie) selectSearchResult(query, options);
 			for (File file : files) {
-				movieByFile.put(file, result);
+				movieByFile.put(file, movie);
 			}
 		}
 
@@ -432,7 +431,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				try {
 					// select first element if matches are reliable
 					if (options.size() > 0) {
-						movie = (Movie) selectSearchResult(null, options, false, strict).get(0);
+						movie = (Movie) selectSearchResult(null, options);
 
 						// make sure to get the language-specific movie object for the selected option
 						movie = getLocalizedMovie(service, movie, locale);
@@ -845,7 +844,12 @@ public class CmdlineOperations implements CmdlineInterface {
 		return output;
 	}
 
-	protected List<SearchResult> selectSearchResult(String query, Collection<? extends SearchResult> options, boolean alias, boolean strict) throws Exception {
+	protected SearchResult selectSearchResult(String query, Collection<? extends SearchResult> options) throws Exception {
+		List<SearchResult> matches = selectSearchResult(query, options, false, false, 1);
+		return matches.size() > 0 ? matches.get(0) : null;
+	}
+
+	protected List<SearchResult> selectSearchResult(String query, Collection<? extends SearchResult> options, boolean alias, boolean strict, int limit) throws Exception {
 		List<SearchResult> probableMatches = getProbableMatches(query, options, alias, strict);
 
 		if (probableMatches.isEmpty() || (strict && probableMatches.size() != 1)) {
@@ -855,17 +859,17 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 
 			if (strict) {
-				throw new CmdlineException("Multiple options: Force auto-select requires non-strict matching: " + options);
+				throw new CmdlineException("Multiple options: Advanced auto-selection requires -non-strict matching: " + probableMatches);
 			}
 
-			// just pick the best 5 matches
+			// just pick the best N matches
 			if (query != null) {
 				probableMatches = new ArrayList<SearchResult>(sortBySimilarity(options, singleton(query), getSeriesMatchMetric()));
 			}
 		}
 
 		// return first and only value
-		return probableMatches.size() <= 5 ? probableMatches : probableMatches.subList(0, 5); // trust that the correct match is in the Top 3
+		return probableMatches.size() <= limit ? probableMatches : probableMatches.subList(0, limit); // trust that the correct match is in the Top N
 	}
 
 	@Override
@@ -989,13 +993,13 @@ public class CmdlineOperations implements CmdlineInterface {
 		EpisodeListProvider service = db instanceof EpisodeListProvider ? (EpisodeListProvider) db : TheTVDB;
 
 		// search and select search result
-		List<SearchResult> options = selectSearchResult(query, service.search(query, locale), false, false);
-		if (options.isEmpty()) {
+		SearchResult option = selectSearchResult(query, service.search(query, locale));
+		if (option == null) {
 			throw new CmdlineException(service.getName() + ": no results");
 		}
 
 		// fetch episodes and apply filter
-		List<Episode> episodes = applyExpressionFilter(service.getEpisodeList(options.get(0), order, locale), filter);
+		List<Episode> episodes = applyExpressionFilter(service.getEpisodeList(option, order, locale), filter);
 		Map<File, Episode> context = new EntryList<File, Episode>(null, episodes);
 
 		// lazy format

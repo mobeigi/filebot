@@ -95,7 +95,7 @@ public class CmdlineOperationsTextUI extends CmdlineOperations {
 	}
 
 	@Override
-	protected List<SearchResult> selectSearchResult(String query, Collection<? extends SearchResult> options, boolean alias, boolean strict) throws Exception {
+	protected List<SearchResult> selectSearchResult(String query, Collection<? extends SearchResult> options, boolean alias, boolean strict, int limit) throws Exception {
 		List<SearchResult> matches = getProbableMatches(query, options, alias, false);
 
 		if (matches.size() < 2) {
