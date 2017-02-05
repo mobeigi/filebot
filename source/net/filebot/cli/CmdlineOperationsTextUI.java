@@ -95,15 +95,15 @@ public class CmdlineOperationsTextUI extends CmdlineOperations {
 	}
 
 	@Override
-	protected List<SearchResult> selectSearchResult(String query, Collection<? extends SearchResult> options, boolean alias, boolean strict, int limit) throws Exception {
-		List<SearchResult> matches = getProbableMatches(query, options, alias, false);
+	protected <T extends SearchResult> List<T> selectSearchResult(String query, Collection<T> options, boolean sort, boolean alias, boolean strict, int limit) throws Exception {
+		List<T> matches = getProbableMatches(sort ? query : null, options, alias, false);
 
-		if (matches.size() < 2) {
+		if (matches.size() <= 1) {
 			return matches;
 		}
 
 		// manually select option if there is more than one
-		SearchResult selection = showInputDialog(matches, "Multiple Options", String.format("Select best match for \"%s\"", query));
+		T selection = showInputDialog(matches, "Multiple Options", String.format("Select best match for \"%s\"", query));
 
 		if (selection == null) {
 			return emptyList();

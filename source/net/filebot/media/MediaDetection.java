@@ -1290,16 +1290,16 @@ public class MediaDetection {
 		return tvdbId.isEmpty() ? null : WebServices.TheTVDB.getSeriesInfo(tvdbId.get(0), locale);
 	}
 
-	public static List<SearchResult> getProbableMatches(String query, Collection<? extends SearchResult> options, boolean alias, boolean strict) {
+	public static <T extends SearchResult> List<T> getProbableMatches(String query, Collection<T> options, boolean alias, boolean strict) {
 		if (query == null) {
 			return options.stream().distinct().collect(toList());
 		}
 
 		// check all alias names, or just the primary name
-		Function<SearchResult, Collection<String>> names = alias ? SearchResult::getEffectiveNames : (it) -> singleton(it.getName());
+		Function<SearchResult, Collection<String>> names = alias ? SearchResult::getEffectiveNames : f -> singleton(f.getName());
 
 		// auto-select most probable search result
-		List<SearchResult> probableMatches = new ArrayList<SearchResult>();
+		List<T> probableMatches = new ArrayList<T>();
 
 		// use name similarity metric
 		SimilarityMetric metric = new NameSimilarityMetric();
@@ -1310,7 +1310,7 @@ public class MediaDetection {
 		String q = removeTrailingBrackets(query).toLowerCase();
 
 		// find probable matches using name similarity > 0.8 (or > 0.6 in non-strict mode)
-		for (SearchResult option : options) {
+		for (T option : options) {
 			float f = 0;
 			for (String n : names.apply(option)) {
 				n = removeTrailingBrackets(n).toLowerCase();

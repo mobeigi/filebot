@@ -278,7 +278,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 			// select search result
 			if (results.size() > 0) {
-				List<SearchResult> selectedSearchResults = selectSearchResult(query, results, true, strict, limit);
+				List<SearchResult> selectedSearchResults = selectSearchResult(query, results, true, true, strict, limit);
 
 				if (selectedSearchResults != null) {
 					for (SearchResult it : selectedSearchResults) {
@@ -389,7 +389,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 
 			// force all mappings
-			Movie movie = (Movie) selectSearchResult(query, options);
+			Movie movie = selectSearchResult(query, options);
 			for (File file : files) {
 				movieByFile.put(file, movie);
 			}
@@ -424,6 +424,8 @@ public class CmdlineOperations implements CmdlineInterface {
 
 				// reduce options to perfect matches if possible
 				List<Movie> perfectMatches = matchMovieByWordSequence(getName(file), options, 0);
+
+				// narrow down options if possible
 				if (perfectMatches.size() > 0) {
 					options = perfectMatches;
 				}
@@ -431,13 +433,13 @@ public class CmdlineOperations implements CmdlineInterface {
 				try {
 					// select first element if matches are reliable
 					if (options.size() > 0) {
-						movie = (Movie) selectSearchResult(null, options);
+						movie = selectSearchResult(stripReleaseInfo(getName(file)), options);
 
 						// make sure to get the language-specific movie object for the selected option
 						movie = getLocalizedMovie(service, movie, locale);
 					}
 				} catch (Exception e) {
-					log.log(Level.WARNING, format("%s: [%s] %s", e.getClass().getSimpleName(), getStructurePathTail(file), e.getMessage()));
+					log.warning(cause(e));
 				}
 			}
 
@@ -844,18 +846,18 @@ public class CmdlineOperations implements CmdlineInterface {
 		return output;
 	}
 
-	protected SearchResult selectSearchResult(String query, Collection<? extends SearchResult> options) throws Exception {
-		List<SearchResult> matches = selectSearchResult(query, options, false, false, 1);
+	protected <T extends SearchResult> T selectSearchResult(String query, Collection<T> options) throws Exception {
+		List<T> matches = selectSearchResult(query, options, false, false, false, 1);
 		return matches.size() > 0 ? matches.get(0) : null;
 	}
 
-	protected List<SearchResult> selectSearchResult(String query, Collection<? extends SearchResult> options, boolean alias, boolean strict, int limit) throws Exception {
-		List<SearchResult> probableMatches = getProbableMatches(query, options, alias, strict);
+	protected <T extends SearchResult> List<T> selectSearchResult(String query, Collection<T> options, boolean sort, boolean alias, boolean strict, int limit) throws Exception {
+		List<T> probableMatches = getProbableMatches(sort ? query : null, options, alias, strict);
 
 		if (probableMatches.isEmpty() || (strict && probableMatches.size() != 1)) {
 			// allow single search results to just pass through in non-strict mode even if match confidence is low
 			if (options.size() == 1 && !strict) {
-				return new ArrayList<SearchResult>(options);
+				return options.stream().collect(toList());
 			}
 
 			if (strict) {
@@ -863,8 +865,8 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 
 			// just pick the best N matches
-			if (query != null) {
-				probableMatches = new ArrayList<SearchResult>(sortBySimilarity(options, singleton(query), getSeriesMatchMetric()));
+			if (sort) {
+				probableMatches = sortBySimilarity(options, singleton(query), getSeriesMatchMetric()).stream().collect(toList());
 			}
 		}
 
