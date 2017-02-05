@@ -292,9 +292,9 @@ public abstract class ScriptShellBaseClass extends Script {
 		List<String> cmd = new ArrayList<String>();
 
 		if (Platform.isWindows()) {
-			// normalize file separator for windows and run with cmd so any executable in PATH will just work
-			cmd.add("cmd");
-			cmd.add("/c");
+			// normalize file separator for windows and run with powershell so any executable in PATH will just work
+			cmd.add("powershell");
+			cmd.add("-Command");
 		} else if (args.length == 1) {
 			// make unix shell parse arguments
 			cmd.add("sh");
