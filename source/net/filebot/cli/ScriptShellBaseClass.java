@@ -289,17 +289,17 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public int execute(Object... args) throws Exception {
-		Stream<String> cmd = stream(args).map(Objects::toString);
+		Stream<String> cmd = stream(args).filter(Objects::nonNull).map(Objects::toString);
 
 		if (Platform.isWindows()) {
 			// normalize file separator for windows and run with powershell so any executable in PATH will just work
-			cmd = Stream.concat(Stream.of("powershell", "-Command"), cmd);
+			cmd = Stream.concat(Stream.of("powershell", "-NonInteractive", "-NoProfile", "-NoLogo", "-ExecutionPolicy", "Bypass", "-Command"), cmd);
 		} else if (args.length == 1) {
 			// make Unix shell parse arguments
 			cmd = Stream.concat(Stream.of("sh", "-c"), cmd);
 		}
 
-		ProcessBuilder process = new ProcessBuilder(cmd.toArray(String[]::new)).inheritIO();
+		ProcessBuilder process = new ProcessBuilder(cmd.collect(toList())).inheritIO();
 		return process.start().waitFor();
 	}
 
