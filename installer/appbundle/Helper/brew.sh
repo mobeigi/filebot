@@ -1,10 +1,10 @@
-#!/bin/sh -x
+#!/bin/sh -xu
 
 # brew requires Command Line Tools for Xcode
 xcode-select --print-path || sudo xcode-select --install
 
 # install brew if necessary
-brew info || /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+brew info || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
 # update brew package index and update all packages
 brew update && brew upgrade
