@@ -21,6 +21,7 @@ import java.io.File;
 import java.text.Format;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
@@ -138,6 +139,20 @@ public class FormatDialog extends JDialog {
 
 		public PreferencesList<String> persistentFormatHistory() {
 			return Settings.forPackage(FormatDialog.class).node("format.recent." + key()).asList();
+		}
+
+		public Object getDefaultSampleObject() {
+			try {
+				ResourceBundle bundle = ResourceBundle.getBundle(FormatDialog.class.getName());
+				String json = bundle.getString(key() + ".sample");
+				return MetaAttributes.toObject(json);
+			} catch (MissingResourceException e) {
+				// ignore
+			} catch (Exception e) {
+				debug.log(Level.SEVERE, "Illegal Sample", e);
+			}
+
+			return null;
 		}
 
 		public String getDefaultFormatExpression() {
@@ -405,18 +420,13 @@ public class FormatDialog extends JDialog {
 			// restore sample from user preferences
 			String sample = mode.persistentSample().getValue();
 			info = MetaAttributes.toObject(sample);
+
 			if (info == null) {
 				throw new NullPointerException();
 			}
 		} catch (Exception e) {
-			try {
-				// restore sample from application properties
-				ResourceBundle bundle = ResourceBundle.getBundle(getClass().getName());
-				String sample = bundle.getString(mode.key() + ".sample");
-				info = MetaAttributes.toObject(sample);
-			} catch (Exception illegalSample) {
-				debug.log(Level.SEVERE, "Illegal Sample", e);
-			}
+			// restore sample from application properties
+			info = mode.getDefaultSampleObject();
 		}
 
 		// restore media file

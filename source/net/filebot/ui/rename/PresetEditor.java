@@ -302,16 +302,19 @@ public class PresetEditor extends JDialog {
 
 	private final Action editFormatExpression = newAction("Open Format Editor", ResourceManager.getIcon("action.format"), evt -> {
 		FormatDialog.Mode mode = FormatDialog.Mode.getMode((Datasource) providerCombo.getSelectedItem());
-		MediaBindingBean lockOnBinding = null;
+
+		Object sample = mode.getDefaultSampleObject();
+		File file = null;
+
 		if (mode == FormatDialog.Mode.File) {
 			List<File> files = UserFiles.showLoadDialogSelectFiles(false, false, null, new ExtensionFileFilter(ExtensionFileFilter.WILDCARD), "Select Sample File", evt);
 			if (files.isEmpty()) {
 				return;
 			}
-			lockOnBinding = new MediaBindingBean(files.get(0), files.get(0));
+			sample = file = files.get(0);
 		}
 
-		FormatDialog dialog = new FormatDialog(getWindow(evt.getSource()), mode, lockOnBinding);
+		FormatDialog dialog = new FormatDialog(getWindow(evt.getSource()), mode, new MediaBindingBean(sample, file, singletonMap(file, sample)));
 		dialog.setFormatCode(formatEditor.getText());
 		dialog.setLocation(getOffsetLocation(dialog.getOwner()));
 		dialog.setVisible(true);

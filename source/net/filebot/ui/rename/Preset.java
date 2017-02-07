@@ -135,7 +135,7 @@ public class Preset {
 	public static final PlainFileMatcher PLAIN_FILE_MATCHER = new PlainFileMatcher();
 
 	public static Datasource[] getSupportedServices() {
-		Stream<Datasource> services = Stream.of(getMovieIdentificationServices(), getEpisodeListProviders(), getMusicIdentificationServices()).flatMap(Stream::of);
+		Stream<Datasource> services = Stream.of(getEpisodeListProviders(), getMovieIdentificationServices(), getMusicIdentificationServices()).flatMap(Stream::of);
 		services = Stream.concat(services, Stream.of(XATTR_FILE_MATCHER, PLAIN_FILE_MATCHER));
 		return services.toArray(Datasource[]::new);
 	}
