@@ -1,2 +1,2 @@
 #!/bin/sh
-rm -f @{deb.prefix}/bin/filebot
+rm -f /usr/bin/filebot

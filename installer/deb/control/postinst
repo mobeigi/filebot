@@ -1,2 +1,2 @@
 #!/bin/sh
-ln -sf @{deb.prefix}/share/filebot/filebot.sh @{deb.prefix}/bin/filebot
+ln -sf /usr/share/filebot/filebot.sh /usr/bin/filebot
