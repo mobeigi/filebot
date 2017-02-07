@@ -548,47 +548,38 @@
 		<antcall target="deb-arch">
 			<param name="arch" value="amd64" />
 			<param name="deb.arch" value="amd64" />
-			<param name="deb.pkg" value="deb" />
-			<param name="deb.prefix" value="/usr" />
 		</antcall>
 
 		<!-- arch i686 not allowed by deb specification, must be i386 for 32-bit x86 systems -->
 		<antcall target="deb-arch">
 			<param name="arch" value="i686" />
 			<param name="deb.arch" value="i386" />
-			<param name="deb.pkg" value="deb" />
-			<param name="deb.prefix" value="/usr" />
 		</antcall>
-	</target>
 
-
-	<target name="ipkg" description="Build embedded Linux packages" depends="revision">
+		<!-- arch armv7l not allowed by deb specification, must be armhf for 32-bit armv7l systems -->
 		<antcall target="deb-arch">
-			<param name="arch" value="noarch" />
-			<param name="deb.arch" value="noarch" />
-			<param name="deb.pkg" value="ipk" />
-			<param name="deb.prefix" value="/opt" />
+			<param name="arch" value="armv7l" />
+			<param name="deb.arch" value="armhf" />
 		</antcall>
 	</target>
 
 
 	<target name="deb-arch">
-		<property name="dir.staging" location="${dir.dist}/${deb.pkg}/${arch}" />
+		<property name="dir.staging" location="${dir.dist}/deb/${arch}" />
 
 		<copy-replace todir="${dir.staging}">
-			<fileset dir="${dir.installer}/deb/${deb.pkg}" />
-			<fileset dir="${dir.installer}/deb" includes="control/**" />
+			<fileset dir="${dir.installer}/deb" />
 		</copy-replace>
-		<copy todir="${dir.staging}" verbose="true" failonerror="false">
+		<copy todir="${dir.staging}">
 			<fileset dir="${dir.lib}/native/linux-${arch}" />
 			<fileset file="${dir.installer}/icons/icon.svg" />
 		</copy>
-		<copy file="${path.fatjar}" tofile="${dir.staging}/FileBot.jar" verbose="true" />
+		<copy file="${path.fatjar}" tofile="${dir.staging}/FileBot.jar" />
 
-		<jdeb destfile="${dir.dist}/${package.name}_${version}_${deb.arch}.${deb.pkg}" control="${dir.staging}/control" compression="xz" changesIn="${dir.staging}/changes.txt" changesOut="${dir.dist}/${package.name}_${version}_${deb.arch}.${deb.pkg}.changes" verbose="true">
-			<tarfileset prefix="${deb.prefix}/share/filebot" dir="${dir.staging}" includes="*.sh, fpcalc" filemode="755" />
-			<tarfileset prefix="${deb.prefix}/share/filebot" dir="${dir.staging}" includes="*.jar, *.so, *.svg" />
-			<tarfileset prefix="${deb.prefix}/share/applications" dir="${dir.staging}" includes="*.desktop" />
+		<jdeb destfile="${dir.dist}/${package.name}_${version}_${deb.arch}.deb" control="${dir.staging}/control" compression="xz" changesIn="${dir.staging}/changes.txt" changesOut="${dir.dist}/${package.name}_${version}_${deb.arch}.deb.changes" verbose="true">
+			<tarfileset prefix="/usr/share/filebot" dir="${dir.staging}" includes="*.sh, fpcalc" filemode="755" />
+			<tarfileset prefix="/usr/share/filebot" dir="${dir.staging}" includes="*.jar, *.so, *.svg" />
+			<tarfileset prefix="/usr/share/applications" dir="${dir.staging}" includes="*.desktop" />
 		</jdeb>
 	</target>
 
@@ -780,7 +771,7 @@
 	</target>
 
 
-	<target name="stage-release" depends="fatjar, spk, deb, ipkg, portable, appbundle, msi">
+	<target name="stage-release" depends="fatjar, spk, deb, portable, appbundle, msi">
 		<!-- ensure clean release dir -->
 		<delete dir="${dir.release}" />
 		<mkdir dir="${dir.release}" />
@@ -792,7 +783,6 @@
 				<include name="*.tar.xz" />
 				<include name="*.msi" />
 				<include name="*.deb" />
-				<include name="*.ipk" />
 				<include name="*.spk" />
 			</fileset>
 		</copy>

@@ -22,8 +22,6 @@ if ($type == 'nsis') {
 	$file =  'filebot_'.$version.'_'.$arch.'.deb';
 } else if ($type == 'portable') {
 	$file = 'FileBot_'.$version.'-portable.tar.xz';
-} else if ($type == 'ipkg') {
-	$file = 'filebot_'.$version.'_noarch.ipk';
 } else {
 	$folder = 'https://sourceforge.net/projects/filebot/files/filebot/FileBot_'.$version;	// redirect to latest release folder by default
 }
