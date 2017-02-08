@@ -409,16 +409,25 @@
 					<code><span class="method">matchAll</span>(<span class="regex">pattern</span>)</code>Get a list of substrings matching the given pattern or break.
 					</p>
 					<p>
-					<code><span class="method">space</span>(<span class="string">replacement</span>)</code>Replace all spaces (e.g. "Doctor Who" -> "Doctor_Who").
+					<code><span class="method">space</span>(<span class="string">replacement</span>)</code>Replace all spaces (e.g. "Doctor Who" ➔ "Doctor_Who").
 					</p>
 					<p>
-					<code><span class="method">upperInitial</span>()</code>Upper-case all initials (e.g. "The Day a new Demon was born" -> "The Day A New Demon Was Born").
+					<code><span class="method">colon</span>(<span class="string">replacement</span>)</code>Replace all colons (e.g. "Sissi: The Young Empress" ➔ "Sissi - The Young Empress").
 					</p>
 					<p>
-					<code><span class="method">lowerTrail</span>()</code>Lower-case all letters that are not initials (e.g. "Gundam SEED" -> "Gundam Seed").
+					<code><span class="method">slash</span>(<span class="string">replacement</span>)</code>Replace all slashes (e.g. "V_MPEG4/ISO/AVC" ➔ "V_MPEG4.ISO.AVC").
 					</p>
 					<p>
-					<code><span class="method">acronym</span>()</code>Get acronym, i.e. first letter of each word. (e.g. "Deep Space 9" -> "DS9").
+					<code><span class="method">upperInitial</span>()</code>Upper-case all initials (e.g. "The Day a new Demon was born" ➔ "The Day A New Demon Was Born").
+					</p>
+					<p>
+					<code><span class="method">lowerTrail</span>()</code>Lower-case all letters that are not initials (e.g. "Gundam SEED" ➔ "Gundam Seed").
+					</p>
+					<p>
+					<code><span class="method">acronym</span>()</code>Get acronym, i.e. first letter of each word. (e.g. "Deep Space 9" ➔ "DS9").
+					</p>
+					<p>
+					<code><span class="method">roman</span>()</code>Replace numbers 1..12 with roman numerals (e.g. "Star Wars: Episode 4" ➔ "Star Wars: Episode IV").
 					</p>
 					<p>
 					<code><span class="method">before</span>(<span class="regex">pattern</span>)</code>Get the substring before the given pattern or the original value.
@@ -430,16 +439,16 @@
 					<code><span class="method">replaceAll</span>(<span class="regex">pattern</span>, <span class="string">replacement</span> = <span class="string">""</span>)</code>Replace or remove all occurrences of the pattern.
 					</p>
 					<p>
-					<code><span class="method">replaceTrailingBrackets</span>(<span class="string">replacement</span> = <span class="string">""</span>)</code>Replace trailing parenthesis including any leading whitespace (e.g. "The IT Crowd (UK)" -> "The IT Crowd").
+					<code><span class="method">replaceTrailingBrackets</span>(<span class="string">replacement</span> = <span class="string">""</span>)</code>Replace trailing parenthesis including any leading whitespace (e.g. "The IT Crowd (UK)" ➔ "The IT Crowd").
 					</p>
 					<p>
-					<code><span class="method">replacePart</span>(<span class="string">replacement</span> = <span class="string">""</span>)</code>Replace part identifier (e.g. "Today Is the Day (1)" -> "Today Is the Day, Part 1").
+					<code><span class="method">replacePart</span>(<span class="string">replacement</span> = <span class="string">""</span>)</code>Replace part identifier (e.g. "Today Is the Day (1)" ➔ "Today Is the Day, Part 1").
 					</p>
 					<p>
-					<code><span class="method">ascii</span>()</code>Convert Unicode to ASCII. (e.g. "Österreich" -> "Osterreich" or "カタカナ" -> "katakana").
+					<code><span class="method">ascii</span>()</code>Convert Unicode to ASCII. (e.g. "Österreich" ➔ "Osterreich" or "カタカナ" ➔ "katakana").
 					</p>
 					<p>
-					<code><span class="method">transliterate</span>(<span class="regex">identifier</span>)</code>Apply any <a target="_blank" href="http://userguide.icu-project.org/transforms/general">ICU script transliteration</a>. e.g. "中国".transliterate("han-latin") -> "zhōng guó".
+					<code><span class="method">transliterate</span>(<span class="regex">identifier</span>)</code>Apply any <a target="_blank" href="http://userguide.icu-project.org/transforms/general">ICU script transliteration</a>. e.g. "中国".transliterate("han-latin") ➔ "zhōng guó".
 					</p>
 				</div>
 
