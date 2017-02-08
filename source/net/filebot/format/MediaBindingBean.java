@@ -62,12 +62,12 @@ import net.filebot.web.AudioTrack;
 import net.filebot.web.Episode;
 import net.filebot.web.EpisodeFormat;
 import net.filebot.web.Movie;
+import net.filebot.web.MovieInfo;
 import net.filebot.web.MoviePart;
 import net.filebot.web.MultiEpisode;
 import net.filebot.web.SeriesInfo;
 import net.filebot.web.SimpleDate;
 import net.filebot.web.SortOrder;
-import net.filebot.web.TMDbClient.MovieInfo;
 import net.filebot.web.TheTVDBSeriesInfo;
 
 public class MediaBindingBean {

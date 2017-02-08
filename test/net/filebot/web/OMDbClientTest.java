@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import net.filebot.web.TMDbClient.MovieInfo;
-
 public class OMDbClientTest {
 
 	private final OMDbClient client = new OMDbClient();

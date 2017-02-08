@@ -31,8 +31,6 @@ import javax.swing.Icon;
 import net.filebot.Cache;
 import net.filebot.CacheType;
 import net.filebot.ResourceManager;
-import net.filebot.web.TMDbClient.MovieInfo;
-import net.filebot.web.TMDbClient.MovieProperty;
 
 public class OMDbClient implements MovieIdentificationService {
 
@@ -162,15 +160,15 @@ public class OMDbClient implements MovieIdentificationService {
 			throw new IllegalArgumentException("Movie not found: " + data);
 		}
 
-		Map<MovieProperty, String> fields = new EnumMap<MovieProperty, String>(MovieProperty.class);
-		fields.put(MovieProperty.title, data.get("title"));
-		fields.put(MovieProperty.certification, data.get("rated"));
-		fields.put(MovieProperty.runtime, getRuntimeMinutes(data.get("runtime")));
-		fields.put(MovieProperty.tagline, data.get("plot"));
-		fields.put(MovieProperty.vote_average, data.get("imdbRating"));
-		fields.put(MovieProperty.vote_count, data.get("imdbVotes").replaceAll("\\D", ""));
-		fields.put(MovieProperty.imdb_id, data.get("imdbID"));
-		fields.put(MovieProperty.poster_path, data.get("poster"));
+		Map<MovieInfo.Property, String> fields = new EnumMap<MovieInfo.Property, String>(MovieInfo.Property.class);
+		fields.put(MovieInfo.Property.title, data.get("title"));
+		fields.put(MovieInfo.Property.certification, data.get("rated"));
+		fields.put(MovieInfo.Property.runtime, getRuntimeMinutes(data.get("runtime")));
+		fields.put(MovieInfo.Property.tagline, data.get("plot"));
+		fields.put(MovieInfo.Property.vote_average, data.get("imdbRating"));
+		fields.put(MovieInfo.Property.vote_count, data.get("imdbVotes").replaceAll("\\D", ""));
+		fields.put(MovieInfo.Property.imdb_id, data.get("imdbID"));
+		fields.put(MovieInfo.Property.poster_path, data.get("poster"));
 
 		// convert release date to yyyy-MM-dd
 		SimpleDate release = parsePartialDate(data.get("released"), "d MMM yyyy");
@@ -178,7 +176,7 @@ public class OMDbClient implements MovieIdentificationService {
 			release = parsePartialDate(data.get("released"), "yyyy");
 		}
 		if (release != null) {
-			fields.put(MovieProperty.release_date, release.toString());
+			fields.put(MovieInfo.Property.release_date, release.toString());
 		}
 
 		// convert lists

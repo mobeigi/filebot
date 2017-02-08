@@ -17,7 +17,6 @@ import org.junit.Test;
 import net.filebot.Cache;
 import net.filebot.CacheType;
 import net.filebot.CachedResource;
-import net.filebot.web.TMDbClient.MovieInfo;
 
 public class TMDbClientTest {
 

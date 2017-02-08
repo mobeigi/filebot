@@ -1,6 +1,5 @@
 package net.filebot.web;
 
-import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.CachedResource.*;
@@ -11,12 +10,10 @@ import static net.filebot.util.StringUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
 import java.io.FileNotFoundException;
-import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -35,7 +32,6 @@ import javax.swing.Icon;
 
 import net.filebot.Cache;
 import net.filebot.CacheType;
-import net.filebot.CachedResource.Transform;
 import net.filebot.ResourceManager;
 
 public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
@@ -179,11 +175,11 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		Object response = request("movie/" + id, extendedInfo ? singletonMap("append_to_response", "alternative_titles,releases,casts,trailers") : emptyMap(), locale);
 
 		// read all basic movie properties
-		Map<MovieProperty, String> fields = getEnumMap(response, MovieProperty.class);
+		Map<MovieInfo.Property, String> fields = getEnumMap(response, MovieInfo.Property.class);
 
 		// fix poster path
 		try {
-			fields.computeIfPresent(MovieProperty.poster_path, (k, v) -> extendedInfo ? resolveImage(v).toString() : null);
+			fields.computeIfPresent(MovieInfo.Property.poster_path, (k, v) -> extendedInfo ? resolveImage(v).toString() : null);
 		} catch (Exception e) {
 			// movie does not belong to any collection
 			debug.warning(format("Bad data: poster_path => %s", response));
@@ -191,7 +187,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 
 		try {
 			Map<?, ?> collection = getMap(response, "belongs_to_collection");
-			fields.put(MovieProperty.collection, getString(collection, "name"));
+			fields.put(MovieInfo.Property.collection, getString(collection, "name"));
 		} catch (Exception e) {
 			// movie does not belong to any collection
 			debug.warning(format("Bad data: belongs_to_collection => %s", response));
@@ -243,7 +239,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 				if (certification != null && certificationCountry != null) {
 					// add country specific certification code
 					if (countryCode.equals(certificationCountry)) {
-						fields.put(MovieProperty.certification, certification);
+						fields.put(MovieInfo.Property.certification, certification);
 					}
 
 					// collect all certification codes just in case
@@ -403,210 +399,6 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		}
 
 		return null;
-	}
-
-	public static enum MovieProperty {
-		adult, backdrop_path, budget, homepage, id, imdb_id, original_title, original_language, overview, popularity, poster_path, release_date, revenue, runtime, tagline, title, vote_average, vote_count, certification, collection
-	}
-
-	public static class MovieInfo implements Crew, Serializable {
-
-		protected Map<MovieProperty, String> fields;
-
-		protected String[] alternativeTitles;
-		protected String[] genres;
-		protected String[] spokenLanguages;
-		protected String[] productionCountries;
-		protected String[] productionCompanies;
-		protected Map<String, String> certifications;
-
-		protected Person[] people;
-		protected Trailer[] trailers;
-
-		public MovieInfo() {
-			// used by serializer
-		}
-
-		protected MovieInfo(Map<MovieProperty, String> fields, List<String> alternativeTitles, List<String> genres, Map<String, String> certifications, List<String> spokenLanguages, List<String> productionCountries, List<String> productionCompanies, List<Person> people, List<Trailer> trailers) {
-			this.fields = new EnumMap<MovieProperty, String>(fields);
-			this.alternativeTitles = alternativeTitles.toArray(new String[0]);
-			this.genres = genres.toArray(new String[0]);
-			this.certifications = new LinkedHashMap<String, String>(certifications);
-			this.spokenLanguages = spokenLanguages.toArray(new String[0]);
-			this.productionCountries = productionCountries.toArray(new String[0]);
-			this.productionCompanies = productionCompanies.toArray(new String[0]);
-			this.people = people.toArray(new Person[0]);
-			this.trailers = trailers.toArray(new Trailer[0]);
-		}
-
-		public String get(Object key) {
-			return fields.get(MovieProperty.valueOf(key.toString()));
-		}
-
-		public String get(MovieProperty key) {
-			return fields.get(key);
-		}
-
-		private <T> T get(MovieProperty key, Transform<String, T> cast) {
-			try {
-				String value = fields.get(key);
-				if (value != null && !value.isEmpty()) {
-					return cast.transform(value);
-				}
-			} catch (Exception e) {
-				debug.log(Level.WARNING, format("Failed to parse %s value: %s: %s", key, e, fields));
-			}
-			return null;
-		}
-
-		public String getName() {
-			return get(MovieProperty.title);
-		}
-
-		public String getOriginalName() {
-			return get(MovieProperty.original_title);
-		}
-
-		public String getOriginalLanguage() {
-			return get(MovieProperty.original_language);
-		}
-
-		public String getCollection() {
-			return get(MovieProperty.collection); // e.g. Star Wars Collection
-		}
-
-		public String getCertification() {
-			return get(MovieProperty.certification); // e.g. PG-13
-		}
-
-		public String getTagline() {
-			return get(MovieProperty.tagline);
-		}
-
-		public String getOverview() {
-			return get(MovieProperty.overview);
-		}
-
-		public Integer getId() {
-			return get(MovieProperty.id, Integer::new);
-		}
-
-		public Integer getImdbId() {
-			return get(MovieProperty.imdb_id, s -> new Integer(s.substring(2))); // e.g. tt0379786
-		}
-
-		public Integer getVotes() {
-			return get(MovieProperty.vote_count, Integer::new);
-		}
-
-		public Double getRating() {
-			return get(MovieProperty.vote_average, Double::new);
-		}
-
-		public SimpleDate getReleased() {
-			return get(MovieProperty.release_date, SimpleDate::parse); // e.g. 2005-09-30
-		}
-
-		public Integer getRuntime() {
-			return get(MovieProperty.runtime, Integer::new);
-		}
-
-		public Long getBudget() {
-			return get(MovieProperty.budget, Long::new);
-		}
-
-		public Long getRevenue() {
-			return get(MovieProperty.revenue, Long::new);
-		}
-
-		public Double getPopularity() {
-			return get(MovieProperty.popularity, Double::new);
-		}
-
-		public URL getHomepage() {
-			return get(MovieProperty.homepage, URL::new);
-		}
-
-		public URL getPoster() {
-			return get(MovieProperty.poster_path, URL::new);
-		}
-
-		public List<String> getGenres() {
-			return unmodifiableList(asList(genres));
-		}
-
-		public List<Locale> getSpokenLanguages() {
-			return stream(spokenLanguages).map(Locale::new).collect(toList());
-		}
-
-		public List<Person> getCrew() {
-			return unmodifiableList(asList(people));
-		}
-
-		public Map<String, String> getCertifications() {
-			return unmodifiableMap(certifications); // e.g. ['US': PG-13]
-		}
-
-		public List<String> getProductionCountries() {
-			return unmodifiableList(asList(productionCountries));
-		}
-
-		public List<String> getProductionCompanies() {
-			return unmodifiableList(asList(productionCompanies));
-		}
-
-		public List<Trailer> getTrailers() {
-			return unmodifiableList(asList(trailers));
-		}
-
-		public List<String> getAlternativeTitles() {
-			return unmodifiableList(asList(alternativeTitles));
-		}
-
-		@Override
-		public String toString() {
-			return fields.toString();
-		}
-
-	}
-
-	public static class Trailer implements Serializable {
-
-		protected String type;
-		protected String name;
-		protected Map<String, String> sources;
-
-		public Trailer() {
-			// used by serializer
-		}
-
-		public Trailer(String type, String name, Map<String, String> sources) {
-			this.type = type;
-			this.name = name;
-			this.sources = sources;
-		}
-
-		public String getType() {
-			return type;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public Map<String, String> getSources() {
-			return sources;
-		}
-
-		public String getSource(String size) {
-			return sources.containsKey(size) ? sources.get(size) : sources.values().iterator().next();
-		}
-
-		@Override
-		public String toString() {
-			return String.format("%s %s (%s)", name, sources.keySet(), type);
-		}
-
 	}
 
 }
