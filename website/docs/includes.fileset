@@ -1,9 +1,11 @@
 **/MediaBindingBean.java
-**/Define.java
+
 **/ExpressionFormatMethods.java
 **/ExpressionFormatFunctions.java
-**/ScriptShellBaseClass.java
+
 **/ScriptShellMethods.java
+**/ScriptShellBaseClass.java
+
 **/Episode.java
 **/SeriesInfo.java
 **/EpisodeInfo.java
@@ -13,5 +15,10 @@
 **/AudioTrack.java
 **/Crew.java
 **/Person.java
+**/Trailer.java
 **/SimpleDate.java
 **/Language.java
+
+**/Define.java
+**/AssociativeScriptObject.java
+**/DynamicBindings.java
