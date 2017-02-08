@@ -747,6 +747,17 @@
 	</target>
 
 
+	<target name="website-docs" depends="revision">
+		<javadoc destdir="${dir.dist}/website/docs" linksource="yes" access="public" classpathref="lib.classpath" encoding="UTF-8" charset="UTF-8" windowtitle="${application.name}" noindex="yes" nohelp="yes" notree="yes" nodeprecated="yes" nonavbar="yes">
+			<fileset dir="${dir.source}" includesfile="${dir.website}/docs/includes.fileset" />
+			<doctitle>${application.name} ${application.version}</doctitle>
+			<bottom>${application.name} ${application.version} (r${revision}) built on ${tstamp.date}</bottom>
+			<link href="http://docs.oracle.com/javase/${jre.major}/docs/api/" />
+			<link href="http://docs.groovy-lang.org/latest/html/api/" />
+		</javadoc>
+	</target>
+
+
 	<target name="revision" depends="init">
 		<exec executable="git" outputproperty="revision" failonerror="true">
 			<arg line="rev-list --count master" />
@@ -815,7 +826,10 @@
 	</target>
 
 
-	<target name="deploy-website" description="Upload website resources" depends="init">
+	<target name="deploy-website" description="Upload website resources" depends="revision">
+		<!-- generate docs -->
+		<antcall target="website-docs" />
+
 		<!-- copy image resources -->
 		<copy todir="${dir.dist}/website/resources" preservelastmodified="yes" verbose="yes" flatten="true">
 			<fileset dir="${dir.source}/net/filebot/resources">
