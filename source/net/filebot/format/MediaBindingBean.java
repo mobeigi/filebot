@@ -773,6 +773,11 @@ public class MediaBindingBean {
 		return String.format("%d kbps", getOverallBitRate() / 1000);
 	}
 
+	@Define("khz")
+	public String getSamplingRate() {
+		return getMediaInfo(StreamKind.Audio, 0, "SamplingRate/String");
+	}
+
 	@Define("duration")
 	public Long getDuration() {
 		return new Double(getMediaInfo(StreamKind.General, 0, "Duration")).longValue();
