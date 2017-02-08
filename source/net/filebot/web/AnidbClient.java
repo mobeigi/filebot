@@ -101,6 +101,12 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		// get anime page as xml
 		Document dom = getDocument(url);
 
+		// check for errors (e.g. <error>Banned</error>)
+		String error = selectString("/error", dom);
+		if (error != null && error.length() > 0) {
+			throw new IllegalStateException(String.format("%s error: %s", getName(), error));
+		}
+
 		// parse series info
 		SeriesInfo seriesInfo = new SeriesInfo(this, sortOrder, locale, anime.getId());
 		seriesInfo.setAliasNames(anime.getAliasNames());
