@@ -1,4 +1,5 @@
 **/MediaBindingBean.java
+**/Define.java
 
 **/ExpressionFormatMethods.java
 **/ExpressionFormatFunctions.java
@@ -18,7 +19,3 @@
 **/Trailer.java
 **/SimpleDate.java
 **/Language.java
-
-**/Define.java
-**/AssociativeScriptObject.java
-**/DynamicBindings.java
