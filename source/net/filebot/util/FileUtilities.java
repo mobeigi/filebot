@@ -630,10 +630,10 @@ public final class FileUtilities {
 
 	public static String normalizePathSeparators(String path) {
 		// special handling for UNC paths
-		if (path.startsWith(UNC_PREFIX) && path.length() > 2) {
-			return UNC_PREFIX + path.substring(2).replace('\\', '/');
+		if (path.startsWith(UNC_PREFIX)) {
+			return UNC_PREFIX + replacePathSeparators(path.substring(UNC_PREFIX.length()), "/");
 		}
-		return path.replace('\\', '/');
+		return replacePathSeparators(path, "/");
 	}
 
 	public static String replacePathSeparators(CharSequence path) {

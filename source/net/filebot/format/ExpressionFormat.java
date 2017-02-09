@@ -193,7 +193,11 @@ public class ExpressionFormat extends Format {
 	}
 
 	protected CharSequence normalizeExpressionValue(Object value) {
-		return value == null ? null : value.toString();
+		if (value == null) {
+			return null;
+		}
+
+		return normalizePathSeparators(value.toString());
 	}
 
 	protected String normalizeResult(CharSequence value) {
