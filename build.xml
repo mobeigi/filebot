@@ -827,9 +827,6 @@
 
 
 	<target name="deploy-website" description="Upload website resources" depends="revision">
-		<!-- generate docs -->
-		<antcall target="website-docs" />
-
 		<!-- copy image resources -->
 		<copy todir="${dir.dist}/website/resources" preservelastmodified="yes" verbose="yes" flatten="true">
 			<fileset dir="${dir.source}/net/filebot/resources">
