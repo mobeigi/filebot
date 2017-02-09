@@ -28,16 +28,15 @@
 		<dependency rev="3.0.0-beta3" org="com.googlecode.lanterna" name="lanterna" />
 
 		<!-- FileBot Scripting -->
-		<dependency rev="1.10.0" org="org.apache.ant" name="ant" />
-		<dependency rev="1.10.0" org="org.apache.ant" name="ant-launcher" />
-		<dependency rev="1.10.0" org="org.apache.ant" name="ant-commons-net" />
-		<dependency rev="1.10.0" org="org.apache.ant" name="ant-javamail" />
-		<dependency rev="1.10.0" org="org.apache.ant" name="ant-jsch" />
+		<dependency rev="1.10.1" org="org.apache.ant" name="ant" />
+		<dependency rev="1.10.1" org="org.apache.ant" name="ant-launcher" />
+		<dependency rev="1.10.1" org="org.apache.ant" name="ant-commons-net" />
+		<dependency rev="1.10.1" org="org.apache.ant" name="ant-javamail" />
+		<dependency rev="1.10.1" org="org.apache.ant" name="ant-jsch" />
 		<dependency rev="2.4.0" org="org.apache.ivy" name="ivy" />
 
 		<!-- FileBot Ant Build -->
-		<dependency rev="1.10.0" org="org.apache.ant" name="ant-junit" />
-		<dependency rev="1.13" org="org.apache.commons" name="commons-compress" />
+		<dependency rev="1.10.1" org="org.apache.ant" name="ant-junit" />
 		<dependency rev="0.5" org="net.filebot" name="ant-spk" />
 		<dependency rev="1.5" org="org.vafer" name="jdeb" />
 	</dependencies>

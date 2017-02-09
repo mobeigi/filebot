@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<project name="filebot" default="fatjar" xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:cmp="antlib:org.apache.ant.compress">
+<project name="filebot" default="fatjar" xmlns:ivy="antlib:org.apache.ivy.ant">
 
 	<!-- define source dirs -->
 	<property name="dir.source" location="${basedir}/source" />
@@ -350,16 +350,14 @@
 			<bundledocument role="viewer" handlerRank="none" contentTypes="public.folder" name="Media folder" />
 		</bundleapp>
 
-		<!-- application bundle folder as .tar -->
-		<cmp:xz destfile="${dir.dist}/${release}-darwin.tar.xz">
-			<cmp:tar format="gnu" encoding="utf-8">
-				<cmp:tarfileset dir="${dir.dist}" includes="${application.name}.app/**" excludes="**/MacOS/**" />
-				<cmp:tarfileset dir="${dir.dist}" includes="${application.name}.app/**/**.dylib" />
+		<!-- application bundle folder as tar -->
+		<tar destfile="${dir.dist}/${release}-darwin.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
+			<tarfileset dir="${dir.dist}" includes="${application.name}.app/**" excludes="**/MacOS/**" />
+			<tarfileset dir="${dir.dist}" includes="${application.name}.app/**/**.dylib" />
 
-				<cmp:tarfileset dir="${dir.dist}" includes="${application.name}.app/**/fpcalc" filemode="755" />
-				<cmp:tarfileset dir="${dir.dist}" includes="${application.name}.app/**/**.sh" filemode="755" />
-			</cmp:tar>
-		</cmp:xz>
+			<tarfileset dir="${dir.dist}" includes="${application.name}.app/**/fpcalc" filemode="755" />
+			<tarfileset dir="${dir.dist}" includes="${application.name}.app/**/**.sh" filemode="755" />
+		</tar>
 	</target>
 
 
@@ -663,19 +661,17 @@
 
 
 	<target name="portable" description="Build portable package" depends="revision">
-		<cmp:xz destfile="${dir.dist}/${release}-portable.tar.xz">
-			<cmp:tar format="gnu" encoding="utf-8">
-				<cmp:tarfileset file="${path.fatjar}" fullpath="FileBot.jar" />
-				<cmp:tarfileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd" />
-				<cmp:tarfileset dir="${dir.installer}/portable" includes="*.sh" filemode="755" />
+		<tar destfile="${dir.dist}/${release}-portable.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
+			<tarfileset file="${path.fatjar}" fullpath="FileBot.jar" />
+			<tarfileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd" />
+			<tarfileset dir="${dir.installer}/portable" includes="*.sh" filemode="755" />
 
-				<!-- include native libraries for all supported platforms -->
-				<cmp:tarfileset prefix="lib/armv7l" dir="${dir.lib}/native/linux-armv7l" includes="*.so" />
-				<cmp:tarfileset prefix="lib/armv8" dir="${dir.lib}/native/linux-armv8" includes="*.so" />
-				<cmp:tarfileset prefix="lib/i686" dir="${dir.lib}/native/linux-i686" includes="*.so" />
-				<cmp:tarfileset prefix="lib/x86_64" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
-			</cmp:tar>
-		</cmp:xz>
+			<!-- include native libraries for all supported platforms -->
+			<tarfileset prefix="lib/armv7l" dir="${dir.lib}/native/linux-armv7l" includes="*.so" />
+			<tarfileset prefix="lib/armv8" dir="${dir.lib}/native/linux-armv8" includes="*.so" />
+			<tarfileset prefix="lib/i686" dir="${dir.lib}/native/linux-i686" includes="*.so" />
+			<tarfileset prefix="lib/x86_64" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
+		</tar>
 	</target>
 
 
@@ -775,7 +771,6 @@
 		<path id="lib.classpath">
 			<fileset dir="${dir.lib}" includes="**/*.jar" excludes="**/*-jdk14.jar" />
 		</path>
-		<taskdef uri="antlib:org.apache.ant.compress" resource="org/apache/ant/compress/antlib.xml" classpathref="lib.classpath" />
 		<taskdef resource="net/filebot/ant/spk/antlib.xml" classpathref="lib.classpath" />
 		<taskdef resource="org/vafer/jdeb/ant/antlib.xml" classpathref="lib.classpath" />
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="lib.classpath" />
@@ -935,7 +930,7 @@
 
 
 	<target name="deploy-beta-jar" depends="fatjar" description="Build and deploy the latest jar">
-		<cmp:xz srcfile="${path.fatjar}" destfile="${path.fatjar}.xz" />
+		<xz src="${path.fatjar}" dest="${path.fatjar}.xz" />
 		<scp file="${path.fatjar}.xz" remoteTofile="${deploy.release}/HEAD/filebot-r${revision}.jar.xz" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}" />
 		<scp file="${path.fatjar}.xz" remoteTofile="${deploy.release}/HEAD/FileBot.jar.xz" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}" />
 	</target>
