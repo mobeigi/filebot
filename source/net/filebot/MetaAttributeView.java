@@ -10,8 +10,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
-import java.text.Normalizer;
-import java.text.Normalizer.Form;
 import java.util.AbstractMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -19,7 +17,7 @@ import java.util.Set;
 
 import com.sun.jna.Platform;
 
-import net.filebot.mac.xattr.XAttrUtil;
+import net.filebot.mac.MacXattrView;
 
 public class MetaAttributeView extends AbstractMap<String, String> {
 
@@ -162,32 +160,6 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 		@Override
 		public String toString() {
 			return getKey() + "=" + getValue();
-		}
-	}
-
-	private static class MacXattrView {
-
-		private final String path;
-
-		public MacXattrView(Path path) {
-			// MacOS filesystem may require NFD unicode decomposition
-			this.path = Normalizer.normalize(path.toFile().getAbsolutePath(), Form.NFD);
-		}
-
-		public List<String> list() {
-			return XAttrUtil.listXAttr(path);
-		}
-
-		public String read(String key) {
-			return XAttrUtil.getXAttr(path, key);
-		}
-
-		public void write(String key, String value) {
-			XAttrUtil.setXAttr(path, key, value);
-		}
-
-		public void delete(String key) {
-			XAttrUtil.removeXAttr(path, key);
 		}
 	}
 

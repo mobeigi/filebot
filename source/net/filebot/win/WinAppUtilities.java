@@ -4,8 +4,9 @@ import static net.filebot.Logging.*;
 
 import java.util.logging.Level;
 
-import com.sun.jna.Pointer;
 import com.sun.jna.WString;
+import com.sun.jna.platform.win32.Shell32;
+import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.ptr.PointerByReference;
 
 public class WinAppUtilities {
@@ -20,10 +21,9 @@ public class WinAppUtilities {
 
 	public static String getAppUserModelID() {
 		try {
-			PointerByReference r = new PointerByReference();
-			if (Shell32.INSTANCE.GetCurrentProcessExplicitAppUserModelID(r).longValue() != 0) {
-				Pointer p = r.getPointer();
-				return p.getWideString(0); // LEAK NATIVE MEMORY
+			PointerByReference ppszAppID = new PointerByReference();
+			if (Shell32.INSTANCE.GetCurrentProcessExplicitAppUserModelID(ppszAppID) == WinError.S_OK) {
+				return ppszAppID.getValue().getWideString(0);
 			}
 		} catch (Throwable t) {
 			debug.log(Level.WARNING, t.getMessage(), t);
