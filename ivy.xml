@@ -37,7 +37,7 @@
 
 		<!-- FileBot Ant Build -->
 		<dependency rev="1.10.1" org="org.apache.ant" name="ant-junit" />
-		<dependency rev="0.5" org="net.filebot" name="ant-spk" />
+		<dependency rev="0.6" org="net.filebot" name="ant-spk" />
 		<dependency rev="1.5" org="org.vafer" name="jdeb" />
 	</dependencies>
 </ivy-module>
