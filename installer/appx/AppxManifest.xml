@@ -90,7 +90,7 @@
 							<uap:FileType>.ogm</uap:FileType>
 						</uap:SupportedFileTypes>
 						<uap2:SupportedVerbs>
-							<uap3:Verb MultiSelectModel="Player" Id="FileBotRename" Parameters="--mode Rename &quot;%1&quot;">Rename with @{application.name}</uap3:Verb>
+							<uap3:Verb MultiSelectModel="Player" Id="FileBotRename" Extended="true" Parameters="--mode Rename &quot;%1&quot;">Rename with @{application.name}</uap3:Verb>
 							<uap3:Verb MultiSelectModel="Player" Id="FileBotChecksum" Extended="true" Parameters="--mode SFV &quot;%1&quot;">Calculate Hash with @{application.name}</uap3:Verb>
 						</uap2:SupportedVerbs>
 					</uap3:FileTypeAssociation>
