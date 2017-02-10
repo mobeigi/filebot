@@ -103,8 +103,8 @@ public final class Settings {
 		return isApplicationDeployment("mas");
 	}
 
-	public static boolean isInstalled() {
-		return isApplicationDeployment("mas", "appx", "snap", "msi", "spk", "aur");
+	public static boolean isAutoUpdateEnabled() {
+		return isApplicationDeployment("mas", "appx", "snap", "spk", "aur");
 	}
 
 	private static boolean isApplicationDeployment(String... ids) {
