@@ -930,7 +930,7 @@
 
 
 	<target name="deploy-beta-jar" depends="fatjar" description="Build and deploy the latest jar">
-		<xz src="${path.fatjar}" dest="${path.fatjar}.xz" />
+		<xz src="${path.fatjar}" destfile="${path.fatjar}.xz" />
 		<scp file="${path.fatjar}.xz" remoteTofile="${deploy.release}/HEAD/filebot-r${revision}.jar.xz" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}" />
 		<scp file="${path.fatjar}.xz" remoteTofile="${deploy.release}/HEAD/FileBot.jar.xz" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}" />
 	</target>
