@@ -119,7 +119,7 @@ public final class WebServices {
 
 	public static <T extends Datasource> T getService(String name, T... services) {
 		return stream(services).filter(it -> {
-			return it.getIdentifier().equalsIgnoreCase(name) || it.getName().equalsIgnoreCase(name);
+			return it.getIdentifier().equalsIgnoreCase(name);
 		}).findFirst().orElse(null);
 	}
 
