@@ -29,8 +29,8 @@ if [ -z "$USER" ]; then
 fi
 
 # force JVM language and encoding settings
-export LANG="C.UTF-8"
-export LC_ALL="C.UTF-8"
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
 
 # add APP_ROOT and PACKAGE_LIBRARY_PATH to LD_LIBRARY_PATH
 if [ ! -z "$LD_LIBRARY_PATH" ]; then
