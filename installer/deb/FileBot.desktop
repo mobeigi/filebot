@@ -2,8 +2,8 @@
 Name=@{application.name}
 Comment=@{package.synopsis}
 Type=Application
-Exec=/usr/share/filebot/filebot.sh
-Icon=/usr/share/filebot/icon.svg
+Exec=@{package.name}
+Icon=@{package.name}
 Terminal=false
 StartupNotify=true
 Categories=@{gnome.application.categories}
