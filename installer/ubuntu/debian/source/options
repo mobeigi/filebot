@@ -1,4 +1,0 @@
-tar-ignore = "NULL"
-diff-ignore = "^NULL$"
-extend-diff-ignore = "^NULL$"
-compression = "xz"
