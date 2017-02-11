@@ -1,10 +1,32 @@
 [Desktop Entry]
+Type=Application
 Name=@{application.name}
 Comment=@{package.synopsis}
-Type=Application
-Exec=filebot
+MimeType=inode/directory;video/*;audio/*;text/*;
+Exec=filebot %F
 Icon=${SNAP}/meta/gui/icon.svg
 Terminal=false
 StartupNotify=true
 Categories=@{gnome.application.categories}
+Actions=Rename;Subtitles;SFV;Filter;
 X-Ubuntu-Gettext-Domain=@{package.name}
+
+[Desktop Action Rename]
+Name=Rename
+Exec=filebot --mode Rename %F
+OnlyShowIn=Unity;
+
+[Desktop Action Subtitles]
+Name=Subtitles
+Exec=filebot --mode Subtitles %F
+OnlyShowIn=Unity;
+
+[Desktop Action SFV]
+Name=Checksum
+Exec=filebot --mode SFV %F
+OnlyShowIn=Unity;
+
+[Desktop Action Filter]
+Name=Filter
+Exec=filebot --mode Filter %F
+OnlyShowIn=Unity;
