@@ -51,7 +51,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 	}
 
 	@Override
-	public String getName() {
+	public String getIdentifier() {
 		return "TheMovieDB";
 	}
 

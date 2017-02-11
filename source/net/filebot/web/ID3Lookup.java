@@ -21,13 +21,13 @@ import net.filebot.mediainfo.MediaInfo.StreamKind;
 public class ID3Lookup implements MusicIdentificationService {
 
 	@Override
-	public String getName() {
-		return "ID3 Tags";
+	public String getIdentifier() {
+		return "ID3";
 	}
 
 	@Override
-	public String getIdentifier() {
-		return "ID3";
+	public String getName() {
+		return "ID3 Tags";
 	}
 
 	@Override

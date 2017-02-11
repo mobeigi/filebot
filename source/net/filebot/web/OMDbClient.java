@@ -37,7 +37,7 @@ public class OMDbClient implements MovieIdentificationService {
 	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(20, 10, TimeUnit.SECONDS);
 
 	@Override
-	public String getName() {
+	public String getIdentifier() {
 		return "OMDb";
 	}
 

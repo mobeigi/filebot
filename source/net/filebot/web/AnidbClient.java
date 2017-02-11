@@ -50,7 +50,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
-	public String getName() {
+	public String getIdentifier() {
 		return "AniDB";
 	}
 

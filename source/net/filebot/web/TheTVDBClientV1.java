@@ -49,7 +49,7 @@ public class TheTVDBClientV1 extends AbstractEpisodeListProvider implements Artw
 	}
 
 	@Override
-	public String getName() {
+	public String getIdentifier() {
 		return "TheTVDB";
 	}
 

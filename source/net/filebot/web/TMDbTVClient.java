@@ -26,13 +26,13 @@ public class TMDbTVClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
-	public String getName() {
-		return tmdb.getName();
+	public String getIdentifier() {
+		return "TheMovieDB::TV";
 	}
 
 	@Override
-	public String getIdentifier() {
-		return "TheMovieDB::TV";
+	public String getName() {
+		return tmdb.getName();
 	}
 
 	@Override

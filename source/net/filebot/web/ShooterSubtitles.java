@@ -34,6 +34,11 @@ import net.filebot.ResourceManager;
 public class ShooterSubtitles implements VideoHashSubtitleService {
 
 	@Override
+	public String getIdentifier() {
+		return "Shooter";
+	}
+
+	@Override
 	public String getName() {
 		return "射手网";
 	}
@@ -41,11 +46,6 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("search.shooter");
-	}
-
-	@Override
-	public String getIdentifier() {
-		return "Shooter";
 	}
 
 	@Override

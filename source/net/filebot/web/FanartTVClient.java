@@ -25,7 +25,7 @@ public class FanartTVClient implements Datasource, ArtworkProvider {
 	}
 
 	@Override
-	public String getName() {
+	public String getIdentifier() {
 		return "FanartTV";
 	}
 

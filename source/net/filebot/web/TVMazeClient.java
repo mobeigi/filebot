@@ -20,7 +20,7 @@ import net.filebot.ResourceManager;
 public class TVMazeClient extends AbstractEpisodeListProvider {
 
 	@Override
-	public String getName() {
+	public String getIdentifier() {
 		return "TVmaze";
 	}
 

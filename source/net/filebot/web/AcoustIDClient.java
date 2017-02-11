@@ -40,7 +40,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 	}
 
 	@Override
-	public String getName() {
+	public String getIdentifier() {
 		return "AcoustID";
 	}
 

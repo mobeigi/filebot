@@ -55,7 +55,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	@Override
-	public String getName() {
+	public String getIdentifier() {
 		return "OpenSubtitles";
 	}
 

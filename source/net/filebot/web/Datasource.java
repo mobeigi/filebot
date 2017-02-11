@@ -4,12 +4,12 @@ import javax.swing.Icon;
 
 public interface Datasource {
 
-	String getName();
+	String getIdentifier();
 
 	Icon getIcon();
 
-	default String getIdentifier() {
-		return getName();
+	default String getName() {
+		return getIdentifier();
 	}
 
 }
