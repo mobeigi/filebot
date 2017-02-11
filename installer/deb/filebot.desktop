@@ -2,8 +2,21 @@
 Name=@{application.name}
 Comment=@{package.synopsis}
 Type=Application
-Exec=@{package.name}
-Icon=@{package.name}
+Exec=filebot %F
+Icon=filebot
 Terminal=false
 StartupNotify=true
 Categories=@{gnome.application.categories}
+Actions=Rename;Subtitles;Checksum
+
+[Desktop Action Rename]
+Name=Rename
+Exec=filebot --mode Rename %F
+
+[Desktop Action Subtitles]
+Name=Subtitles
+Exec=filebot --mode Subtitles %F
+
+[Desktop Action Checksum]
+Name=Checksum
+Exec=filebot --mode SFV %F
