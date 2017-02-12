@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -195,7 +196,7 @@ class MovieMatcher implements AutoCompleteMatcher {
 		}
 
 		// map movies to (possibly multiple) files (in natural order)
-		Map<Movie, Set<File>> filesByMovie = movieByFile.entrySet().stream().collect(groupingBy(Entry::getValue, mapping(Entry::getKey, toCollection(TreeSet::new))));
+		Map<Movie, Set<File>> filesByMovie = movieByFile.entrySet().stream().collect(groupingBy(Entry::getValue, LinkedHashMap::new, mapping(Entry::getKey, toCollection(TreeSet::new))));
 
 		// collect all File/MoviePart matches
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();

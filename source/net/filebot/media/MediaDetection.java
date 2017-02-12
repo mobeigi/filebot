@@ -1127,7 +1127,7 @@ public class MediaDetection {
 						}
 					}
 					return emptyList();
-				})).forEach((group, videos) -> groups.add(videos));
+				}, LinkedHashMap::new, toList())).forEach((group, videos) -> groups.add(videos));
 			});
 		});
 

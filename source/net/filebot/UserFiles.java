@@ -16,6 +16,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
@@ -57,7 +58,7 @@ public class UserFiles {
 
 	public static void revealFiles(Collection<File> files) {
 		if (isMacApp()) {
-			files.stream().collect(groupingBy(File::getParentFile)).forEach((parent, children) -> {
+			files.stream().collect(groupingBy(File::getParentFile, LinkedHashMap::new, toList())).forEach((parent, children) -> {
 				try {
 					FileManager.revealInFinder(children.get(children.size() - 1));
 				} catch (Exception e) {

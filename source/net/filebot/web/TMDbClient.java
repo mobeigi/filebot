@@ -328,7 +328,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 
 		return streamJsonObjects(titles, "titles").collect(groupingBy(it -> {
 			return getString(it, "iso_3166_1");
-		}, mapping(it -> {
+		}, LinkedHashMap::new, mapping(it -> {
 			return getString(it, "title");
 		}, toList())));
 	}

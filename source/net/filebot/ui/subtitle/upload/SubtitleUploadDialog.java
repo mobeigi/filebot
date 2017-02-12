@@ -1,6 +1,7 @@
 package net.filebot.ui.subtitle.upload;
 
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.FileUtilities.*;
@@ -13,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -127,7 +129,7 @@ public class SubtitleUploadDialog extends JDialog {
 	}
 
 	private List<SubtitleGroup> getUploadGroups(SubtitleMapping[] table) {
-		return StreamEx.ofValues(StreamEx.of(table).groupingBy(SubtitleMapping::getGroup)).flatMap(this::groupRunsByCD).toList();
+		return StreamEx.ofValues(StreamEx.of(table).groupingBy(SubtitleMapping::getGroup, LinkedHashMap::new, toList())).flatMap(this::groupRunsByCD).toList();
 	}
 
 	private Stream<SubtitleGroup> groupRunsByCD(Collection<SubtitleMapping> group) {
