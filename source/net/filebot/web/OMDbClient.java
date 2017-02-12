@@ -34,7 +34,7 @@ import net.filebot.ResourceManager;
 
 public class OMDbClient implements MovieIdentificationService {
 
-	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(1, 1, TimeUnit.SECONDS);
+	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(2, 1, TimeUnit.SECONDS);
 
 	@Override
 	public String getIdentifier() {
