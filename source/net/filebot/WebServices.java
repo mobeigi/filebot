@@ -8,6 +8,7 @@ import static net.filebot.Settings.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.FileUtilities.*;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -145,13 +146,13 @@ public final class WebServices {
 		}
 
 		@Override
-		public List<SearchResult> fetchSearchResult(final String query, final Locale locale) throws Exception {
+		public List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception {
 			// run local search and API search in parallel
 			Future<List<SearchResult>> apiSearch = requestThreadPool.submit(() -> TheTVDBClientWithLocalSearch.super.fetchSearchResult(query, locale));
 			Future<List<SearchResult>> localSearch = requestThreadPool.submit(() -> localIndex.get().search(query));
 
 			// combine alias names into a single search results, and keep API search name as primary name
-			Map<Integer, SearchResult> results = Stream.concat(apiSearch.get().stream(), localSearch.get().stream()).collect(groupingBy(SearchResult::getId, collectingAndThen(toList(), group -> merge(group.get(0), group))));
+			Map<Integer, SearchResult> results = Stream.of(apiSearch.get(), localSearch.get()).flatMap(List::stream).collect(groupingBy(SearchResult::getId, LinkedHashMap::new, collectingAndThen(toList(), group -> merge(group.get(0), group))));
 
 			return sortBySimilarity(results.values(), singleton(query), getSeriesMatchMetric());
 		}
