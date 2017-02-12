@@ -831,10 +831,10 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	private <T> List<T> applyExpressionFilter(List<T> input, ExpressionFilter filter) throws Exception {
 		if (filter == null) {
-			return new ArrayList<T>(input);
+			return input;
 		}
 
-		log.fine(format("Apply Filter: {%s}", filter.getExpression()));
+		log.fine(format("Apply filter [%s] on [%d] items", filter.getExpression(), input.size()));
 		Map<File, T> context = new EntryList<File, T>(null, input);
 		List<T> output = new ArrayList<T>(input.size());
 		for (T it : input) {
@@ -986,7 +986,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	@Override
-	public List<String> fetchEpisodeList(Datasource db, String query, ExpressionFormat format, ExpressionFilter filter, SortOrder order, Locale locale) throws Exception {
+	public List<String> fetchEpisodeList(Datasource db, String query, ExpressionFormat format, ExpressionFilter filter, SortOrder order, Locale locale, boolean strict) throws Exception {
 		if (query == null) {
 			throw new IllegalArgumentException("query is not defined");
 		}
@@ -995,13 +995,22 @@ public class CmdlineOperations implements CmdlineInterface {
 		EpisodeListProvider service = db instanceof EpisodeListProvider ? (EpisodeListProvider) db : TheTVDB;
 
 		// search and select search result
-		SearchResult option = selectSearchResult(query, service.search(query, locale));
-		if (option == null) {
-			throw new CmdlineException(service.getName() + ": no results");
+		List<SearchResult> results = service.search(query, locale);
+		if (results.isEmpty()) {
+			throw new CmdlineException(String.format("%s: no results", service.getName()));
 		}
 
-		// fetch episodes and apply filter
-		List<Episode> episodes = applyExpressionFilter(service.getEpisodeList(option, order, locale), filter);
+		List<SearchResult> options = selectSearchResult(query, results, false, false, false, strict ? 1 : 5);
+		List<Episode> episodes = new ArrayList<Episode>();
+
+		// fetch episodes
+		for (SearchResult option : options) {
+			episodes.addAll(service.getEpisodeList(option, order, locale));
+		}
+
+		// apply filter
+		episodes = applyExpressionFilter(episodes, filter);
+
 		Map<File, Episode> context = new EntryList<File, Episode>(null, episodes);
 
 		// lazy format

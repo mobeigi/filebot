@@ -55,7 +55,7 @@ public class ArgumentProcessor {
 
 		// print episode info
 		if (args.list) {
-			return print(cli.fetchEpisodeList(args.getDatasource(), args.getSearchQuery(), args.getExpressionFormat(), args.getExpressionFilter(), args.getSortOrder(), args.getLanguage().getLocale()));
+			return print(cli.fetchEpisodeList(args.getDatasource(), args.getSearchQuery(), args.getExpressionFormat(), args.getExpressionFilter(), args.getSortOrder(), args.getLanguage().getLocale(), args.isStrict()));
 		}
 
 		// print media info

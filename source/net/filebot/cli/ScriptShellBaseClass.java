@@ -171,7 +171,7 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	// define global variable: _def
 	public Map<String, String> get_def() {
-		return getArgumentBean().defines;
+		return unmodifiableMap(getArgumentBean().defines);
 	}
 
 	// define global variable: _system
@@ -421,10 +421,10 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public List<String> fetchEpisodeList(Map<String, ?> parameters) throws Exception {
-		ArgumentBean args = getArgumentBean();
+		ArgumentBean args = getArgumentBean(parameters);
 
 		try {
-			return getCLI().fetchEpisodeList(args.getDatasource(), args.getSearchQuery(), args.getExpressionFormat(), args.getExpressionFilter(), args.getSortOrder(), args.getLanguage().getLocale());
+			return getCLI().fetchEpisodeList(args.getDatasource(), args.getSearchQuery(), args.getExpressionFormat(), args.getExpressionFilter(), args.getSortOrder(), args.getLanguage().getLocale(), args.isStrict());
 		} catch (Exception e) {
 			printException(e);
 		}
