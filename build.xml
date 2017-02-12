@@ -135,47 +135,14 @@
 
 
 	<target name="fatjar" depends="jar" description="Build executable jar">
-		<jar destfile="${path.fatjar}" filesetmanifest="merge" duplicate="fail" index="yes" compress="no">
+		<jar destfile="${path.fatjar}" filesetmanifest="merge" duplicate="fail" compress="no">
 			<!-- include main jar -->
 			<zipfileset src="${dir.dist}/filebot.jar" />
 
-			<!-- include libs -->
-			<zipfileset src="${dir.lib}/ivy/bundle/json-io.jar">
-				<include name="com/cedarsoftware/util/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/ivy/jar/glazedlists_java15.jar">
-				<include name="ca/odell/glazedlists/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/ivy/jar/miglayout-core.jar">
-				<include name="net/miginfocom/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/ivy/jar/miglayout-swing.jar">
-				<include name="net/miginfocom/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/ivy/jar/rsyntaxtextarea.jar">
-				<include name="org/fife/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/jars/simmetrics.jar">
-				<include name="uk/ac/shef/wit/simmetrics/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/jars/xmlrpc.jar">
-				<include name="redstone/xmlrpc/**" />
-			</zipfileset>
-
+			<!-- include core libraries -->
 			<zipfileset src="${dir.lib}/ivy/bundle/args4j.jar">
 				<include name="org/kohsuke/args4j/**" />
 			</zipfileset>
-
-			<zipfileset src="${dir.lib}/ivy/jar/xz.jar">
-				<include name="org/tukaani/xz/**" />
-			</zipfileset>
-
 			<zipfileset src="${dir.lib}/ivy/jar/ehcache.jar">
 				<include name="META-INF/services/**" />
 				<include name="net/sf/ehcache/**" />
@@ -184,85 +151,57 @@
 				<include name="build-info.properties" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/ivy/jar/slf4j-api.jar">
-				<include name="org/slf4j/**" />
+			<!-- include UI libraries -->
+			<zipfileset src="${dir.lib}/ivy/jar/miglayout-core.jar">
+				<include name="net/miginfocom/**" />
 			</zipfileset>
-
-			<zipfileset src="${dir.lib}/ivy/jar/slf4j-jdk14.jar">
-				<include name="org/slf4j/**" />
+			<zipfileset src="${dir.lib}/ivy/jar/miglayout-swing.jar">
+				<include name="net/miginfocom/**" />
 			</zipfileset>
-
-			<zipfileset src="${dir.lib}/ivy/jar/commons-io.jar">
-				<include name="org/apache/commons/io/**" />
+			<zipfileset src="${dir.lib}/ivy/jar/glazedlists_java15.jar">
+				<include name="ca/odell/glazedlists/**" />
 			</zipfileset>
-
-			<zipfileset src="${dir.lib}/ivy/jar/icu4j.jar">
-				<include name="com/ibm/icu/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/jars/jacksum.jar">
-				<include name="jonelo/jacksum/adapt/**" />
-				<include name="jonelo/jacksum/algorithm/**" />
-				<include name="jonelo/sugar/util/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/ivy/jar/groovy-all.jar">
-				<include name="groovy*/**" />
-				<include name="org/codehaus/groovy/**" />
-				<include name="META-INF/dgminfo" />
-				<include name="META-INF/services/**" />
-				<include name="META-INF/*.properties" />
-				<!-- filebot already includes it's own extension modules -->
-				<exclude name="META-INF/services/org.codehaus.groovy.runtime.ExtensionModule" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/ivy/jar/sevenzipjbinding.jar">
-				<include name="net/sf/sevenzipjbinding/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/jars/ObjCBridge.jar">
-				<include name="ca/weblite/**" />
-				<include name="com/sun/jna/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/ivy/jar/commons-vfs2.jar">
-				<include name="org/apache/commons/vfs2/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/ivy/jar/commons-logging.jar">
-				<include name="org/apache/commons/logging/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/ivy/jar/junrar.jar">
-				<include name="com/github/junrar/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/ivy/jar/language-detector.jar">
-				<include name="be/frma/langguess/**" />
-				<include name="com/cybozu/labs/langdetect/**" />
-				<include name="com/optimaize/langdetect/**" />
-				<include name="languages/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/ivy/bundle/guava.jar">
-				<include name="com/google/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/ivy/jar/streamex.jar">
-				<include name="one/util/streamex/**" />
-			</zipfileset>
-
 			<zipfileset src="${dir.lib}/ivy/jar/controlsfx.jar">
 				<include name="org/controlsfx/dialog/**" />
 				<include name="impl/org/controlsfx/i18n/**" />
 				<include name="controlsfx.properties" />
 			</zipfileset>
-
+			<zipfileset src="${dir.lib}/ivy/jar/rsyntaxtextarea.jar">
+				<include name="org/fife/**" />
+			</zipfileset>
 			<zipfileset src="${dir.lib}/ivy/jar/lanterna.jar">
 				<include name="com/googlecode/lanterna/**" />
 				<include name="**/*.properties" />
 			</zipfileset>
 
+			<!-- include IO libraries -->
+			<zipfileset src="${dir.lib}/ivy/jar/xz.jar">
+				<include name="org/tukaani/xz/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/ivy/bundle/json-io.jar">
+				<include name="com/cedarsoftware/util/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/jars/xmlrpc.jar">
+				<include name="redstone/xmlrpc/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/ivy/jar/sevenzipjbinding.jar">
+				<include name="net/sf/sevenzipjbinding/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/ivy/jar/commons-io.jar">
+				<include name="org/apache/commons/io/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/ivy/jar/commons-vfs2.jar">
+				<include name="org/apache/commons/vfs2/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/ivy/jar/junrar.jar">
+				<include name="com/github/junrar/**" />
+			</zipfileset>
+
+			<!-- include native libraries -->
+			<zipfileset src="${dir.lib}/jars/ObjCBridge.jar">
+				<include name="ca/weblite/**" />
+				<include name="com/sun/jna/**" />
+			</zipfileset>
 			<zipfileset src="${dir.lib}/ivy/jar/jna.jar">
 				<include name="com/sun/jna/**" />
 
@@ -277,14 +216,60 @@
 				<include name="com/sun/jna/platform/**" />
 			</zipfileset>
 
-			<!-- libraries used in external scripts -->
-			<zipfileset src="${dir.lib}/ivy/jar/jsoup.jar">
-				<include name="org/jsoup/**" />
+			<!-- include extra libraries -->
+			<zipfileset src="${dir.lib}/ivy/bundle/guava.jar">
+				<include name="com/google/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/ivy/jar/streamex.jar">
+				<include name="one/util/streamex/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/ivy/jar/icu4j.jar">
+				<include name="com/ibm/icu/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/jars/simmetrics.jar">
+				<include name="uk/ac/shef/wit/simmetrics/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/ivy/jar/language-detector.jar">
+				<include name="be/frma/langguess/**" />
+				<include name="com/cybozu/labs/langdetect/**" />
+				<include name="com/optimaize/langdetect/**" />
+				<include name="languages/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/jars/jacksum.jar">
+				<include name="jonelo/jacksum/adapt/**" />
+				<include name="jonelo/jacksum/algorithm/**" />
+				<include name="jonelo/sugar/util/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/ivy/jar/commons-logging.jar">
+				<include name="org/apache/commons/logging/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/ivy/jar/slf4j-api.jar">
+				<include name="org/slf4j/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/ivy/jar/slf4j-jdk14.jar">
+				<include name="org/slf4j/**" />
+			</zipfileset>
+
+			<!-- include Groovy libraries -->
+			<zipfileset src="${dir.lib}/ivy/jar/groovy-all.jar">
+				<include name="groovy*/**" />
+				<include name="org/codehaus/groovy/**" />
+				<include name="META-INF/dgminfo" />
+				<include name="META-INF/services/**" />
+				<include name="META-INF/*.properties" />
+
+				<!-- filebot already includes it's own extension modules -->
+				<exclude name="META-INF/services/org.codehaus.groovy.runtime.ExtensionModule" />
 			</zipfileset>
 
 			<!-- Ivy for @Grapes automatic dependency management -->
 			<zipfileset src="${dir.lib}/ivy/jar/ivy.jar">
 				<include name="org/apache/ivy/**" />
+			</zipfileset>
+
+			<!-- libraries used in external scripts -->
+			<zipfileset src="${dir.lib}/ivy/jar/jsoup.jar">
+				<include name="org/jsoup/**" />
 			</zipfileset>
 
 			<!-- AntBuilder including dependencies for ant-javamail, ant-commons-net and ant-jsch -->
