@@ -330,7 +330,7 @@ public final class SubtitleUtilities {
 
 		// decode subtitle file with the first reader that seems to work
 		for (SubtitleFormat format : likelyFormats) {
-			List<SubtitleElement> subtitles = format.getDecoder().decode(content);
+			List<SubtitleElement> subtitles = format.getDecoder().decode(content).collect(toList());
 
 			if (subtitles.size() > 0) {
 				return subtitles;

@@ -1,8 +1,6 @@
 
 package net.filebot.subtitle;
 
-import static java.util.stream.Collectors.*;
-
 import java.util.Scanner;
 
 import net.filebot.MediaTypes;
@@ -14,7 +12,7 @@ public enum SubtitleFormat {
 
 		@Override
 		public SubtitleDecoder getDecoder() {
-			return content -> new SubRipReader(new Scanner(content)).stream().collect(toList());
+			return content -> new SubRipReader(new Scanner(content)).stream();
 		}
 
 		@Override
@@ -27,7 +25,7 @@ public enum SubtitleFormat {
 
 		@Override
 		public SubtitleDecoder getDecoder() {
-			return content -> new MicroDVDReader(new Scanner(content)).stream().collect(toList());
+			return content -> new MicroDVDReader(new Scanner(content)).stream();
 		}
 
 		@Override
@@ -40,7 +38,7 @@ public enum SubtitleFormat {
 
 		@Override
 		public SubtitleDecoder getDecoder() {
-			return content -> new SubViewerReader(new Scanner(content)).stream().collect(toList());
+			return content -> new SubViewerReader(new Scanner(content)).stream();
 		}
 
 		@Override
@@ -53,7 +51,7 @@ public enum SubtitleFormat {
 
 		@Override
 		public SubtitleDecoder getDecoder() {
-			return content -> new SubStationAlphaReader(new Scanner(content)).stream().collect(toList());
+			return content -> new SubStationAlphaReader(new Scanner(content)).stream();
 		}
 
 		@Override

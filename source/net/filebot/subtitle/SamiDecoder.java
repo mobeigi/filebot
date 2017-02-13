@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -16,7 +17,7 @@ import org.jsoup.nodes.Element;
 public class SamiDecoder implements SubtitleDecoder {
 
 	@Override
-	public List<SubtitleElement> decode(String file) {
+	public Stream<SubtitleElement> decode(String file) {
 		List<SubtitleElement> subtitles = new ArrayList<SubtitleElement>();
 
 		Matcher matcher = Pattern.compile("<SYNC(.*?)>", Pattern.CASE_INSENSITIVE).matcher(file);
@@ -63,7 +64,7 @@ public class SamiDecoder implements SubtitleDecoder {
 			}
 		}
 
-		return subtitles;
+		return subtitles.stream();
 	}
 
 	private SubtitleElement getSubtitle(long start, long end, CharSequence fragment) {
