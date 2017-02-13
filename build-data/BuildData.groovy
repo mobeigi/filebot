@@ -387,7 +387,6 @@ def anidb_index = anidb.findResults{
 
 	def names = it.effectiveNames*.replaceAll(/\s+/, ' ')*.trim()*.replaceAll(/['`´‘’ʻ]+/, /'/)
 	names = getNamePermutations(names)
-	names = names.findAll{ stripReleaseInfo(it)?.length() > 0 }
 
 	return names.empty ? null : [it.id.pad(5)] + names.take(4)
 }
