@@ -324,24 +324,16 @@ public final class SubtitleUtilities {
 				likelyFormats.addLast(format);
 		}
 
+		// decode bytes and beware of byte-order marks
+		Reader reader = createTextReader(new ByteBufferInputStream(file.getData()), true, UTF_8);
+		String content = IOUtils.toString(reader);
+
 		// decode subtitle file with the first reader that seems to work
 		for (SubtitleFormat format : likelyFormats) {
-			// decode bytes and beware of byte-order marks
-			Reader reader = createTextReader(new ByteBufferInputStream(file.getData()), true, UTF_8);
+			List<SubtitleElement> subtitles = format.getDecoder().decode(content);
 
-			// reset reader to position 0
-			SubtitleReader parser = format.newReader(reader);
-
-			if (parser.hasNext()) {
-				// correct format found
-				List<SubtitleElement> list = new ArrayList<SubtitleElement>(500);
-
-				// read subtitle file
-				while (parser.hasNext()) {
-					list.add(parser.next());
-				}
-
-				return list;
+			if (subtitles.size() > 0) {
+				return subtitles;
 			}
 		}
 

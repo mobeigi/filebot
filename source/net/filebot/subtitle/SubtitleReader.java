@@ -7,17 +7,19 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public abstract class SubtitleReader implements Iterator<SubtitleElement>, Closeable {
 
-	protected final Scanner scanner;
+	protected Scanner scanner;
 	protected SubtitleElement current;
 
-	public SubtitleReader(Readable source) {
-		this.scanner = new Scanner(source);
+	public SubtitleReader(Scanner scanner) {
+		this.scanner = scanner;
 	}
-
-	public abstract String getFormatName();
 
 	protected abstract SubtitleElement readNext() throws Exception;
 
@@ -28,7 +30,7 @@ public abstract class SubtitleReader implements Iterator<SubtitleElement>, Close
 			try {
 				current = readNext();
 			} catch (Exception e) {
-				debug.warning(format("%s: %s", getFormatName(), e.getMessage())); // log and ignore
+				debug.warning(cause(e)); // log and ignore
 			}
 		}
 
@@ -53,9 +55,8 @@ public abstract class SubtitleReader implements Iterator<SubtitleElement>, Close
 		scanner.close();
 	}
 
-	@Override
-	public void remove() {
-		throw new UnsupportedOperationException();
+	public Stream<SubtitleElement> stream() {
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(this, Spliterator.ORDERED), false);
 	}
 
 }

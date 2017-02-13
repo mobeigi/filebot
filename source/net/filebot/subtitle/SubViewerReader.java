@@ -7,6 +7,7 @@ import static net.filebot.util.StringUtilities.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.InputMismatchException;
+import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class SubViewerReader extends SubtitleReader {
@@ -14,13 +15,8 @@ public class SubViewerReader extends SubtitleReader {
 	private final DateFormat timeFormat = new SubtitleTimeFormat();
 	private final Pattern newline = compile(quote("[br]"), CASE_INSENSITIVE);
 
-	public SubViewerReader(Readable source) {
-		super(source);
-	}
-
-	@Override
-	public String getFormatName() {
-		return "SubViewer";
+	public SubViewerReader(Scanner scanner) {
+		super(scanner);
 	}
 
 	@Override

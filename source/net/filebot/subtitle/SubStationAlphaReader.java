@@ -6,6 +6,7 @@ import static java.util.Arrays.*;
 import java.text.DateFormat;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class SubStationAlphaReader extends SubtitleReader {
@@ -20,13 +21,8 @@ public class SubStationAlphaReader extends SubtitleReader {
 	private int formatIndexEnd;
 	private int formatIndexText;
 
-	public SubStationAlphaReader(Readable source) {
-		super(source);
-	}
-
-	@Override
-	public String getFormatName() {
-		return "SubStationAlpha";
+	public SubStationAlphaReader(Scanner scanner) {
+		super(scanner);
 	}
 
 	private void readFormat() throws Exception {

@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Scanner;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -15,8 +16,8 @@ public class SubRipReader extends SubtitleReader {
 	private final DateFormat timeFormat;
 	private final Pattern tag;
 
-	public SubRipReader(Readable source) {
-		super(source);
+	public SubRipReader(Scanner scanner) {
+		super(scanner);
 
 		// format used to parse time stamps (e.g. 00:02:26,407 --> 00:02:31,356)
 		timeFormat = new SimpleDateFormat("HH:mm:ss,SSS", Locale.ROOT);
@@ -24,11 +25,6 @@ public class SubRipReader extends SubtitleReader {
 
 		// pattern for <b>, <u>, <i>, <font color="#ccffee"> and corresponding end tags
 		tag = Pattern.compile("</?(b|u|i|font[^<>]*)>", Pattern.CASE_INSENSITIVE);
-	}
-
-	@Override
-	public String getFormatName() {
-		return "SubRip";
 	}
 
 	@Override

@@ -1,6 +1,10 @@
 
 package net.filebot.subtitle;
 
+import static java.util.stream.Collectors.*;
+
+import java.util.Scanner;
+
 import net.filebot.MediaTypes;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
 
@@ -9,8 +13,8 @@ public enum SubtitleFormat {
 	SubRip {
 
 		@Override
-		public SubtitleReader newReader(Readable readable) {
-			return new SubRipReader(readable);
+		public SubtitleDecoder getDecoder() {
+			return content -> new SubRipReader(new Scanner(content)).stream().collect(toList());
 		}
 
 		@Override
@@ -22,8 +26,8 @@ public enum SubtitleFormat {
 	MicroDVD {
 
 		@Override
-		public SubtitleReader newReader(Readable readable) {
-			return new MicroDVDReader(readable);
+		public SubtitleDecoder getDecoder() {
+			return content -> new MicroDVDReader(new Scanner(content)).stream().collect(toList());
 		}
 
 		@Override
@@ -35,8 +39,8 @@ public enum SubtitleFormat {
 	SubViewer {
 
 		@Override
-		public SubtitleReader newReader(Readable readable) {
-			return new SubViewerReader(readable);
+		public SubtitleDecoder getDecoder() {
+			return content -> new SubViewerReader(new Scanner(content)).stream().collect(toList());
 		}
 
 		@Override
@@ -48,17 +52,30 @@ public enum SubtitleFormat {
 	SubStationAlpha {
 
 		@Override
-		public SubtitleReader newReader(Readable readable) {
-			return new SubStationAlphaReader(readable);
+		public SubtitleDecoder getDecoder() {
+			return content -> new SubStationAlphaReader(new Scanner(content)).stream().collect(toList());
 		}
 
 		@Override
 		public ExtensionFileFilter getFilter() {
 			return MediaTypes.getTypeFilter("subtitle/SubStationAlpha");
 		}
+	},
+
+	SAMI {
+
+		@Override
+		public SubtitleDecoder getDecoder() {
+			return new SamiDecoder();
+		}
+
+		@Override
+		public ExtensionFileFilter getFilter() {
+			return MediaTypes.getTypeFilter("subtitle/SAMI");
+		}
 	};
 
-	public abstract SubtitleReader newReader(Readable readable);
+	public abstract SubtitleDecoder getDecoder();
 
 	public abstract ExtensionFileFilter getFilter();
 

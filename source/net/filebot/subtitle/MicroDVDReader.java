@@ -5,18 +5,14 @@ import static net.filebot.util.StringUtilities.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class MicroDVDReader extends SubtitleReader {
 
 	private double fps = 23.976;
 
-	public MicroDVDReader(Readable source) {
-		super(source);
-	}
-
-	@Override
-	public String getFormatName() {
-		return "MicroDVD";
+	public MicroDVDReader(Scanner scanner) {
+		super(scanner);
 	}
 
 	@Override

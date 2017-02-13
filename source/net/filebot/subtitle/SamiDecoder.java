@@ -13,9 +13,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-public class SamiReader {
+public class SamiDecoder implements SubtitleDecoder {
 
-	public List<SubtitleElement> decode(CharSequence file) {
+	@Override
+	public List<SubtitleElement> decode(String file) {
 		List<SubtitleElement> subtitles = new ArrayList<SubtitleElement>();
 
 		Matcher matcher = Pattern.compile("<SYNC(.*?)>", Pattern.CASE_INSENSITIVE).matcher(file);
