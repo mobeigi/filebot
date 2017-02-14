@@ -31,4 +31,8 @@ public class WinAppUtilities {
 		return null;
 	}
 
+	private WinAppUtilities() {
+		throw new UnsupportedOperationException();
+	}
+
 }

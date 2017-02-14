@@ -174,4 +174,8 @@ public class MacAppUtilities {
 		return DropToUnlock.showUnlockFoldersDialog(owner, files);
 	}
 
+	private MacAppUtilities() {
+		throw new UnsupportedOperationException();
+	}
+
 }

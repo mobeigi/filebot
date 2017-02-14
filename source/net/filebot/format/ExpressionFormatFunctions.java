@@ -101,4 +101,8 @@ public class ExpressionFormatFunctions {
 		return f;
 	}
 
+	private ExpressionFormatFunctions() {
+		throw new UnsupportedOperationException();
+	}
+
 }

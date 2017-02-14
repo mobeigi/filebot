@@ -476,9 +476,6 @@ public final class SubtitleUtilities {
 		return languageDetector.build();
 	}
 
-	/**
-	 * Dummy constructor to prevent instantiation.
-	 */
 	private SubtitleUtilities() {
 		throw new UnsupportedOperationException();
 	}

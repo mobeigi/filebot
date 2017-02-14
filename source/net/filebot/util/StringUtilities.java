@@ -148,4 +148,8 @@ public final class StringUtilities {
 
 	}
 
+	private StringUtilities() {
+		throw new UnsupportedOperationException();
+	}
+
 }

@@ -569,4 +569,8 @@ public class ExpressionFormatMethods {
 		return null;
 	}
 
+	private ExpressionFormatMethods() {
+		throw new UnsupportedOperationException();
+	}
+
 }

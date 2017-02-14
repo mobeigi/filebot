@@ -432,4 +432,8 @@ public class ScriptShellMethods {
 		return MediaDetection.isMovie(self, true);
 	}
 
+	private ScriptShellMethods() {
+		throw new UnsupportedOperationException();
+	}
+
 }
