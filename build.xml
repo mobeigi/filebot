@@ -563,7 +563,7 @@
 			<tarfileset prefix="/usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="fpcalc" filemode="755" />
 			<tarfileset prefix="/usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="*.so" />
 			<tarfileset prefix="/usr/share/icons/hicolor/scalable/apps" dir="${dir.installer}/icons" includes="filebot.svg" />
-			<tarfileset prefix="/usr/share" dir="${dir.staging}/share" />
+			<tarfileset prefix="/usr/share" dir="${dir.staging}/share" includes="**/*.desktop" />
 		</jdeb>
 	</target>
 
