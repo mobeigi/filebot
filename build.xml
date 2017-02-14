@@ -553,17 +553,14 @@
 		<copy-replace todir="${dir.staging}">
 			<fileset dir="${dir.installer}/deb" />
 		</copy-replace>
-		<copy todir="${dir.staging}">
-			<fileset dir="${dir.lib}/native/linux-${arch}" />
-			<fileset file="${dir.installer}/icons/${package.name}.svg" />
-		</copy>
-		<copy file="${path.fatjar}" tofile="${dir.staging}/FileBot.jar" />
 
 		<jdeb destfile="${dir.dist}/${package.name}_${version}_${deb.arch}.deb" control="${dir.staging}/control" compression="xz" verbose="true">
-			<tarfileset prefix="/usr/share/${package.name}" dir="${dir.staging}" includes="*.sh, fpcalc" filemode="755" />
-			<tarfileset prefix="/usr/share/${package.name}" dir="${dir.staging}" includes="*.jar, *.so" />
-			<tarfileset prefix="/usr/share/applications" dir="${dir.staging}" includes="*.desktop" />
-			<tarfileset prefix="/usr/share/icons/hicolor/scalable/apps" dir="${dir.staging}" includes="*.svg" />
+			<tarfileset fullpath="/usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
+			<tarfileset prefix="/usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="*.so" />
+			<tarfileset prefix="/usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="fpcalc" filemode="755" />
+			<tarfileset prefix="/usr/share/filebot" dir="${dir.staging}" includes="*.sh" filemode="755" />
+			<tarfileset prefix="/usr/share/icons/hicolor/scalable/apps" dir="${dir.installer}/icons" includes="filebot.svg" />
+			<tarfileset prefix="/usr/share" dir="${dir.staging}/share" />
 		</jdeb>
 	</target>
 

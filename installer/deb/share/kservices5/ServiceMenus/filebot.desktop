@@ -1,0 +1,26 @@
+[Desktop Entry]
+Type=Service
+Name=FileBot
+Icon=filebot
+ServiceTypes=KonqPopupMenu/Plugin
+Actions=Rename;Subtitles;Checksum;Import;
+MimeType=inode/directory;video/*;audio/*;text/*;
+X-KDE-Priority=TopLevel
+X-KDE-Submenu=FileBot
+
+[Desktop Action Rename]
+Name=Rename
+Exec=filebot --mode Rename %F
+
+[Desktop Action Subtitles]
+Name=Subtitles
+Exec=filebot --mode Subtitles %F
+
+[Desktop Action Checksum]
+Name=Checksum
+Exec=filebot --mode SFV %F
+
+[Desktop Action Import]
+Name=Import to Media Library
+Icon=utilities-terminal
+Exec=konsole -e filebot -script fn:amc --output "$HOME/Media" --action duplicate -non-strict --log-file import.log --def excludeList=.excludes unsorted=y music=y artwork=y %F
