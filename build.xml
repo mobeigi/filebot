@@ -554,11 +554,14 @@
 			<fileset dir="${dir.installer}/deb" />
 		</copy-replace>
 
+		<!-- jdeb does not support tarfileset fullpath attribute (see https://github.com/tcurdt/jdeb/issues/245) -->
+		<copy file="${path.fatjar}" tofile="${dir.staging}/FileBot.jar" />
+
 		<jdeb destfile="${dir.dist}/${package.name}_${version}_${deb.arch}.deb" control="${dir.staging}/control" compression="xz" verbose="true">
-			<tarfileset fullpath="/usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
-			<tarfileset prefix="/usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="*.so" />
-			<tarfileset prefix="/usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="fpcalc" filemode="755" />
+			<tarfileset prefix="/usr/share/filebot" dir="${dir.staging}" includes="*.jar" />
 			<tarfileset prefix="/usr/share/filebot" dir="${dir.staging}" includes="*.sh" filemode="755" />
+			<tarfileset prefix="/usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="fpcalc" filemode="755" />
+			<tarfileset prefix="/usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="*.so" />
 			<tarfileset prefix="/usr/share/icons/hicolor/scalable/apps" dir="${dir.installer}/icons" includes="filebot.svg" />
 			<tarfileset prefix="/usr/share" dir="${dir.staging}/share" />
 		</jdeb>
