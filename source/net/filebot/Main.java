@@ -392,9 +392,6 @@ public class Main {
 
 		// tee stdout and stderr to log file if --log-file is set
 		if (args.logFile != null) {
-			if (args.logLock) {
-				log.config("Locking " + log);
-			}
 			Handler logFileHandler = createLogFileHandler(args.getLogFile(), args.logLock, Level.ALL);
 			log.addHandler(logFileHandler);
 			debug.addHandler(logFileHandler);

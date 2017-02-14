@@ -58,6 +58,7 @@ public final class Logging {
 		FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
 		if (lock) {
 			try {
+				log.config("Locking " + file);
 				channel.lock();
 			} catch (Exception e) {
 				throw new IOException("Failed to acquire lock: " + file, e);
