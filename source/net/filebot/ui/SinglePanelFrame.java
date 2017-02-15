@@ -1,5 +1,7 @@
 package net.filebot.ui;
 
+import static net.filebot.Settings.*;
+
 import java.awt.Dimension;
 
 import javax.swing.JComponent;
@@ -12,7 +14,7 @@ import net.miginfocom.swing.MigLayout;
 public class SinglePanelFrame extends JFrame {
 
 	public SinglePanelFrame(PanelBuilder builder) {
-		super(builder.getName());
+		super(getApplicationName());
 		JComponent panel = builder.create();
 
 		JComponent c = (JComponent) getContentPane();
