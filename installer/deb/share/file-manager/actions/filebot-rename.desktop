@@ -1,7 +1,6 @@
 [Desktop Entry]
 Name=Rename
 Tooltip=Rename with FileBot
-Icon=edit-rename
 Profiles=Media;
 
 [X-Action-Profile Media]

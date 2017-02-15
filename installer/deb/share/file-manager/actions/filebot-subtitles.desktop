@@ -1,7 +1,6 @@
 [Desktop Entry]
 Name=Subtitles
 Tooltip=Fetch subtitles with FileBot
-Icon=languages
 Profiles=Media;
 
 [X-Action-Profile Media]

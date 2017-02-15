@@ -1,7 +1,6 @@
 [Desktop Entry]
 Name=Import to Media Library
 Tooltip=Import to Media Library with FileBot
-Icon=system-run
 Profiles=Media;
 
 [X-Action-Profile Media]
