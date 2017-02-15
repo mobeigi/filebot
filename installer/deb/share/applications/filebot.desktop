@@ -3,7 +3,6 @@ Type=Application
 Name=@{application.name}
 Comment=@{package.synopsis}
 MimeType=inode/directory;video/*;audio/*;text/*;
-Terminal=false
 Exec=filebot %F
 Icon=filebot
 Categories=@{gnome.application.categories}
