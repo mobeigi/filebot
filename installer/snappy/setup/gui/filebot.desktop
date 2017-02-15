@@ -2,13 +2,13 @@
 Type=Application
 Name=@{application.name}
 Comment=@{package.synopsis}
-MimeType=inode/directory;video/*;audio/*;text/*;
+MimeType=@{deb.application.mimetype}
 Exec=filebot %F
 Icon=${SNAP}/meta/gui/icon.svg
-Terminal=false
+Categories=@{deb.application.categories}
+Actions=Rename;Subtitles;Checksum;
 StartupNotify=true
-Categories=@{gnome.application.categories}
-Actions=Rename;Subtitles;SFV;Filter;
+StartupWMClass=@{deb.application.class}
 X-Ubuntu-Gettext-Domain=@{package.name}
 
 [Desktop Action Rename]
@@ -21,12 +21,7 @@ Name=Subtitles
 Exec=filebot --mode Subtitles %F
 OnlyShowIn=Unity;
 
-[Desktop Action SFV]
+[Desktop Action Checksum]
 Name=Checksum
 Exec=filebot --mode SFV %F
-OnlyShowIn=Unity;
-
-[Desktop Action Filter]
-Name=Filter
-Exec=filebot --mode Filter %F
 OnlyShowIn=Unity;

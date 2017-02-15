@@ -5,5 +5,5 @@ Profiles=Media;
 
 [X-Action-Profile Media]
 Name=Checksum
-MimeTypes=inode/directory;video/*;audio/*;text/*;application/*;
+MimeTypes=@{deb.application.mimetype}
 Exec=filebot --mode SFV %F

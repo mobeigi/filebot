@@ -5,5 +5,5 @@ Profiles=Media;
 
 [X-Action-Profile Media]
 Name=Rename
-MimeTypes=inode/directory;video/*;audio/*;
+MimeTypes=@{deb.application.mimetype}
 Exec=filebot --mode Rename %F

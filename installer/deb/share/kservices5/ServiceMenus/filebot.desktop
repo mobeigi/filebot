@@ -1,12 +1,12 @@
 [Desktop Entry]
 Type=Service
-Name=FileBot
+Name=@{application.name}
 Icon=filebot
 ServiceTypes=KonqPopupMenu/Plugin
 Actions=Rename;Subtitles;Checksum;Import;
-MimeType=inode/directory;video/*;audio/*;text/*;
+MimeType=@{deb.application.mimetype}
 X-KDE-Priority=TopLevel
-X-KDE-Submenu=FileBot
+X-KDE-Submenu=@{application.name}
 
 [Desktop Action Rename]
 Name=Rename

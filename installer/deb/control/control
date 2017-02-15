@@ -7,3 +7,4 @@ Description: @{package.synopsis}
 Homepage: @{package.homepage}
 Section: utils
 Priority: extra
+Suggests: @{deb.control.depends}
