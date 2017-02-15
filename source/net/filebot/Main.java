@@ -217,11 +217,8 @@ public class Main {
 			MacAppUtilities.setDefaultMenuBar(FileBotMenuBar.createHelp());
 			MacAppUtilities.setOpenFileHandler(openFiles -> SwingEventBus.getInstance().post(new FileTransferable(openFiles)));
 		} else if (isUbuntuApp()) {
-			if ("Unity".equals(System.getenv("XDG_CURRENT_DESKTOP"))) {
-				frame.setTitle(Settings.getApplicationUserModelID());
-			} else {
-				frame.setIconImages(ResourceManager.getApplicationIcons());
-			}
+			// Ubuntu/Debian specific configuration
+			// .desktop file will take care of icons and desktop integration
 		} else if (isWindowsApp()) {
 			// Windows specific configuration
 			if (!isAppStore()) {

@@ -3,11 +3,13 @@ Type=Application
 Name=@{application.name}
 Comment=@{package.synopsis}
 MimeType=inode/directory;video/*;audio/*;text/*;
+Terminal=false
 Exec=filebot %F
 Icon=filebot
-StartupNotify=true
 Categories=@{gnome.application.categories}
 Actions=Rename;Subtitles;Checksum;
+StartupNotify=true
+StartupWMClass=net-filebot-Main
 X-Ubuntu-Gettext-Domain=@{package.name}
 
 [Desktop Action Rename]
