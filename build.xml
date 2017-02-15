@@ -533,17 +533,19 @@
 			<param name="deb.arch" value="amd64" />
 		</antcall>
 
-		<!-- arch i686 not allowed by deb specification, must be i386 for 32-bit x86 systems -->
+		<!-- arch i686 not allowed by deb specification, must be i386 for 32-bit x86 systems 
 		<antcall target="deb-arch">
 			<param name="arch" value="i686" />
 			<param name="deb.arch" value="i386" />
 		</antcall>
+		-->
 
-		<!-- arch armv7l not allowed by deb specification, must be armhf for 32-bit armv7l systems -->
+		<!-- arch armv7l not allowed by deb specification, must be armhf for 32-bit armv7l systems 
 		<antcall target="deb-arch">
 			<param name="arch" value="armv7l" />
 			<param name="deb.arch" value="armhf" />
 		</antcall>
+		-->
 	</target>
 
 
@@ -557,7 +559,7 @@
 		<!-- jdeb does not support tarfileset fullpath attribute (see https://github.com/tcurdt/jdeb/issues/245) -->
 		<copy file="${path.fatjar}" tofile="${dir.staging}/FileBot.jar" />
 
-		<jdeb destfile="${dir.dist}/${package.name}_${version}_${deb.arch}.deb" control="${dir.staging}/control" compression="xz" verbose="true">
+		<jdeb destfile="${dir.dist}/${package.name}_${version}_${deb.arch}.deb" control="${dir.staging}/control" compression="none" verbose="true">
 			<tarfileset prefix="/usr/share/filebot" dir="${dir.staging}" includes="*.jar" />
 			<tarfileset prefix="/usr/share/filebot" dir="${dir.staging}" includes="*.sh" filemode="755" />
 			<tarfileset prefix="/usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="fpcalc" filemode="755" />
