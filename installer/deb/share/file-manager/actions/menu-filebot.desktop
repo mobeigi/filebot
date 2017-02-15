@@ -3,4 +3,4 @@ Type=Menu
 Name=FileBot
 Tooltip=Common FileBot Actions
 Icon=filebot
-ItemsList=filebot-rename;filebot-subtitles;filebot-checksum;SEPARATOR;filebot-import;
+ItemsList=filebot-rename;filebot-subtitles;filebot-checksum;filebot-import;

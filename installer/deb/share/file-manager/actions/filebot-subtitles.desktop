@@ -7,5 +7,4 @@ Profiles=Media;
 [X-Action-Profile Media]
 Name=Subtitles
 MimeTypes=inode/directory;video/*;
-StartupNotify=true
 Exec=filebot --mode Subtitles %F
