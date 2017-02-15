@@ -14,7 +14,8 @@ import net.miginfocom.swing.MigLayout;
 public class SinglePanelFrame extends JFrame {
 
 	public SinglePanelFrame(PanelBuilder builder) {
-		super(getApplicationName());
+		super(String.format("%s %s", getApplicationName(), builder.getName()));
+
 		JComponent panel = builder.create();
 
 		JComponent c = (JComponent) getContentPane();
