@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Rename
+Tooltip=Rename with FileBot
+Icon=edit-rename
+Profiles=Media;
+
+[X-Action-Profile Media]
+Name=Rename
+MimeTypes=inode/directory;video/*;audio/*;
+Exec=filebot --mode Rename %F

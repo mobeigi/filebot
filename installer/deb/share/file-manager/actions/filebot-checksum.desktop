@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Checksum
+Tooltip=Calculate checksum with FileBot
+Icon=checkmark
+Profiles=Media;
+
+[X-Action-Profile Media]
+Name=Checksum
+MimeTypes=inode/directory;video/*;audio/*;text/*;application/*;
+Exec=filebot --mode SFV %F
