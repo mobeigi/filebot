@@ -218,7 +218,7 @@ public class Main {
 			MacAppUtilities.setOpenFileHandler(openFiles -> SwingEventBus.getInstance().post(new FileTransferable(openFiles)));
 		} else if (isUbuntuApp()) {
 			// Ubuntu/Debian specific configuration
-			// .desktop file will take care of icons and desktop integration
+			frame.setIconImages(ResourceManager.getApplicationIcons());
 		} else if (isWindowsApp()) {
 			// Windows specific configuration
 			if (!isAppStore()) {
