@@ -7,4 +7,5 @@ Profiles=Media;
 [X-Action-Profile Media]
 Name=Rename
 MimeTypes=inode/directory;video/*;audio/*;
+StartupNotify=true
 Exec=filebot --mode Rename %F

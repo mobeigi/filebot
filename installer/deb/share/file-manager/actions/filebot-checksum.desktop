@@ -7,4 +7,5 @@ Profiles=Media;
 [X-Action-Profile Media]
 Name=Checksum
 MimeTypes=inode/directory;video/*;audio/*;text/*;application/*;
+StartupNotify=true
 Exec=filebot --mode SFV %F
