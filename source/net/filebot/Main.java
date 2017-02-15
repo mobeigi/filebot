@@ -217,13 +217,11 @@ public class Main {
 			MacAppUtilities.setDefaultMenuBar(FileBotMenuBar.createHelp());
 			MacAppUtilities.setOpenFileHandler(openFiles -> SwingEventBus.getInstance().post(new FileTransferable(openFiles)));
 		} else if (isUbuntuApp()) {
-			// Ubuntu specific configuration
-			String options = System.getenv("JAVA_TOOL_OPTIONS");
-			if (options != null && options.contains("jayatanaag.jar")) {
-				// menu should be rendered via JAyatana on Ubuntu 15.04 and higher
-				frame.setJMenuBar(FileBotMenuBar.createHelp());
+			if ("Unity".equals(System.getenv("XDG_CURRENT_DESKTOP"))) {
+				frame.setTitle(Settings.getApplicationUserModelID());
+			} else {
+				frame.setIconImages(ResourceManager.getApplicationIcons());
 			}
-			frame.setIconImages(ResourceManager.getApplicationIcons());
 		} else if (isWindowsApp()) {
 			// Windows specific configuration
 			if (!isAppStore()) {

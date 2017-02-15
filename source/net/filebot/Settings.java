@@ -92,7 +92,7 @@ public final class Settings {
 	}
 
 	public static boolean isUbuntuApp() {
-		return isApplicationDeployment("snap");
+		return isApplicationDeployment("deb", "snap");
 	}
 
 	public static boolean isMacApp() {

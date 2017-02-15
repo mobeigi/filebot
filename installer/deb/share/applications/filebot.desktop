@@ -5,6 +5,7 @@ Comment=@{package.synopsis}
 MimeType=inode/directory;video/*;audio/*;text/*;
 Exec=filebot %F
 Icon=filebot
+StartupNotify=true
 Categories=@{gnome.application.categories}
 Actions=Rename;Subtitles;Checksum;
 X-Ubuntu-Gettext-Domain=@{package.name}
