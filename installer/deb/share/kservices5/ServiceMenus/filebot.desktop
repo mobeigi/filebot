@@ -25,5 +25,5 @@ Exec=filebot --mode SFV %F
 
 [Desktop Action Import]
 Name=Import to Media Library
-Icon=system-run
+Icon=utilities-terminal
 Exec=konsole -e filebot -script fn:amc --output "$HOME/Media" --action duplicate -non-strict --log-file "$HOME/Media/amc.log" --def excludeList="$HOME/Media/amc.excludes" unsorted=y music=y artwork=y %F
