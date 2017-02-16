@@ -164,37 +164,6 @@ h1 .description {
 	letter-spacing: normal;
 }
 
-.social {
-	float: right;
-	position: relative;
-	right: -10px;
-	top: -15px;
-}
-
-.social * {
-	float: right;
-}
-
-.social .twitter {
-	position: relative;
-	top: 3px;
-	right: 5px;
-	width: 75px;
-}
-
-.social .facebook {
-	position: relative;
-	left: -6px;
-	top: 3px;
-	width: 90px;
-}
-
-.social .plusone {
-	position: relative;
-	top: 1px;
-	width: 86px;
-}
-
 .screenshot {
 	float: right;
 	background-color: #E6E6E6;
