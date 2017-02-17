@@ -39,12 +39,9 @@ public class TheTVDBClientV1 extends AbstractEpisodeListProvider implements Artw
 
 	private static final Map<MirrorType, String> mirrors = MirrorType.newMap();
 
-	private final String apikey;
+	private String apikey;
 
 	public TheTVDBClientV1(String apikey) {
-		if (apikey == null)
-			throw new NullPointerException("apikey must not be null");
-
 		this.apikey = apikey;
 	}
 
