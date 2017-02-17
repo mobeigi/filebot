@@ -158,6 +158,12 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 				}
 
 				if (type == 1) {
+					// adjust for forced absolute numbering (if possible)
+					if (sortOrder == SortOrder.AbsoluteAirdate && airdate != null) {
+						// use airdate as absolute episode number
+						number = airdate.getYear() * 1_00_00 + airdate.getMonth() * 1_00 + airdate.getDay();
+					}
+
 					episodes.add(new Episode(animeTitle, null, number, title, number, null, airdate, id, new SeriesInfo(seriesInfo))); // normal episode, no seasons for anime
 				} else {
 					episodes.add(new Episode(animeTitle, null, null, title, null, number, airdate, id, new SeriesInfo(seriesInfo))); // special episode

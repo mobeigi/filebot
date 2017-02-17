@@ -187,7 +187,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 				Integer episodeNumber = getInteger(it, "airedEpisodeNumber");
 				Integer seasonNumber = getInteger(it, "airedSeason");
 
-				// use preferred numbering if possible
+				// adjust for forced absolute numbering (if possible)
 				if (sortOrder == SortOrder.DVD) {
 					Integer dvdSeasonNumber = getInteger(it, "dvdSeason");
 					Integer dvdEpisodeNumber = getInteger(it, "dvdEpisodeNumber");
@@ -198,8 +198,12 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 						episodeNumber = dvdEpisodeNumber;
 					}
 				} else if (sortOrder == SortOrder.Absolute && absoluteNumber != null && absoluteNumber > 0) {
-					episodeNumber = absoluteNumber;
 					seasonNumber = null;
+					episodeNumber = absoluteNumber;
+				} else if (sortOrder == SortOrder.AbsoluteAirdate && airdate != null) {
+					// use airdate as absolute episode number
+					seasonNumber = null;
+					episodeNumber = airdate.getYear() * 1_00_00 + airdate.getMonth() * 1_00 + airdate.getDay();
 				}
 
 				if (seasonNumber == null || seasonNumber > 0) {

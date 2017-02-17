@@ -87,7 +87,7 @@ public class TheTVDBClientTest {
 	}
 
 	@Test
-	public void getEpisodeListNumbering() throws Exception {
+	public void getEpisodeListNumberingDVD() throws Exception {
 		List<Episode> list = db.getEpisodeList(firefly, SortOrder.DVD, Locale.ENGLISH);
 
 		Episode first = list.get(0);
@@ -98,6 +98,20 @@ public class TheTVDBClientTest {
 		assertEquals("1", first.getSeason().toString());
 		assertEquals("1", first.getAbsolute().toString());
 		assertEquals("2002-12-20", first.getAirdate().toString());
+	}
+
+	@Test
+	public void getEpisodeListNumberingAbsoluteAirdate() throws Exception {
+		List<Episode> list = db.getEpisodeList(firefly, SortOrder.AbsoluteAirdate, Locale.ENGLISH);
+
+		Episode first = list.get(0);
+		assertEquals("Firefly", first.getSeriesName());
+		assertEquals("2002-09-20", first.getSeriesInfo().getStartDate().toString());
+		assertEquals("The Train Job", first.getTitle());
+		assertEquals("20020920", first.getEpisode().toString());
+		assertEquals(null, first.getSeason());
+		assertEquals("2", first.getAbsolute().toString());
+		assertEquals("2002-09-20", first.getAirdate().toString());
 	}
 
 	public void getEpisodeListLink() {
