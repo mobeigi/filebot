@@ -179,12 +179,14 @@ public class TheTVDBClientV1 extends AbstractEpisodeListProvider implements Artw
 				Integer specialNumber = (episodeNumber != null) ? episodeNumber : filterBySeason(specials, seasonNumber).size() + 1;
 				specials.add(new Episode(seriesInfo.getName(), seasonNumber, null, episodeName, absoluteNumber, specialNumber, airdate, id, new SeriesInfo(seriesInfo)));
 			} else {
-				// adjust for absolute numbering if possible
-				if (sortOrder == SortOrder.Absolute) {
-					if (absoluteNumber != null && absoluteNumber > 0) {
-						episodeNumber = absoluteNumber;
-						seasonNumber = null;
-					}
+				// adjust for forced absolute numbering (if possible)
+				if (sortOrder == SortOrder.Absolute && absoluteNumber != null && absoluteNumber > 0) {
+					seasonNumber = null;
+					episodeNumber = absoluteNumber;
+				} else if (sortOrder == SortOrder.AbsoluteAirdate && airdate != null) {
+					// use airdate as absolute episode number
+					seasonNumber = null;
+					episodeNumber = airdate.getYear() * 1_00_00 + airdate.getMonth() * 1_00 + airdate.getDay();
 				}
 
 				// handle as normal episode

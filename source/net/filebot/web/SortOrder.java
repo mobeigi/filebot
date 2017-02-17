@@ -7,11 +7,20 @@ import java.util.List;
 
 public enum SortOrder {
 
-	Airdate, DVD, Absolute;
+	Airdate, DVD, Absolute, AbsoluteAirdate;
 
 	@Override
 	public String toString() {
-		return name() + " Order";
+		switch (this) {
+		case Airdate:
+			return "Airdate Order";
+		case DVD:
+			return "DVD Order";
+		case Absolute:
+			return "Absolute Order";
+		default:
+			return "Absolute Airdate Order";
+		}
 	}
 
 	public static List<String> names() {
@@ -25,7 +34,7 @@ public enum SortOrder {
 			}
 		}
 
-		throw new IllegalArgumentException("Illegal SortOrder: " + name);
+		throw new IllegalArgumentException(String.format("%s not in %s", name, names()));
 	}
 
 }
