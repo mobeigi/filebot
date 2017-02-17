@@ -52,14 +52,13 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				return emptySet();
 			}
 
-			return transformCache.computeIfAbsent(object, key -> {
-				if (object instanceof Episode) {
-					Episode episode = (Episode) object;
-					return parse(episode);
-				}
+			// SxE sets for Episode objects cannot be cached because the same Episode (by ID) may have different episode numbers depending on the order (e.g. Airdate VS DVD order)
+			if (object instanceof Episode) {
+				Episode episode = (Episode) object;
+				return parse(episode);
+			}
 
-				return super.parse(object);
-			});
+			return transformCache.computeIfAbsent(object, super::parse);
 		}
 
 		private Set<SxE> parse(Episode e) {
@@ -173,7 +172,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		public Object getTitle(Object o) {
 			if (o instanceof Episode) {
 				Episode e = (Episode) o;
-				return String.format("%s %s", e.getSeriesName(), e.getTitle());
+				return e.getSeriesName() + " " + e.getTitle();
 			}
 			return o;
 		}
