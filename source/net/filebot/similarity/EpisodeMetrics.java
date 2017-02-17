@@ -48,14 +48,14 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 		@Override
 		protected Collection<SxE> parse(Object object) {
-			if (object instanceof Movie) {
-				return emptySet();
-			}
-
 			// SxE sets for Episode objects cannot be cached because the same Episode (by ID) may have different episode numbers depending on the order (e.g. Airdate VS DVD order)
 			if (object instanceof Episode) {
 				Episode episode = (Episode) object;
 				return parse(episode);
+			}
+
+			if (object instanceof Movie) {
+				return emptySet();
 			}
 
 			return transformCache.computeIfAbsent(object, super::parse);
