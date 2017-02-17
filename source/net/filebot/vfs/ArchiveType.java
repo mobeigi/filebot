@@ -1,8 +1,11 @@
 package net.filebot.vfs;
 
+import static java.util.Collections.*;
+import static net.filebot.Logging.*;
+
 import java.nio.ByteBuffer;
-import java.util.Collections;
 import java.util.EnumSet;
+import java.util.logging.Level;
 
 public enum ArchiveType {
 
@@ -25,12 +28,12 @@ public enum ArchiveType {
 						return files;
 					}
 				} catch (Exception e) {
-					// ignore
+					debug.log(Level.WARNING, e, e::toString);
 				}
 			}
 
 			// cannot extract data, return empty archive
-			return Collections.emptySet();
+			return emptySet();
 		}
 	},
 
@@ -39,9 +42,11 @@ public enum ArchiveType {
 		@Override
 		public Iterable<MemoryFile> fromData(ByteBuffer data) {
 			// cannot extract data, return empty archive
-			return Collections.emptySet();
+			return emptySet();
 		}
 	};
+
+	public abstract Iterable<MemoryFile> fromData(ByteBuffer data);
 
 	public static ArchiveType forName(String name) {
 		if (name == null)
@@ -52,7 +57,5 @@ public enum ArchiveType {
 
 		return UNKOWN;
 	}
-
-	public abstract Iterable<MemoryFile> fromData(ByteBuffer data);
 
 }

@@ -1,5 +1,7 @@
 package net.filebot;
 
+import static java.util.Arrays.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.UserFiles.*;
 
 import java.io.File;
@@ -7,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 
 import net.filebot.util.FileUtilities;
 
@@ -163,12 +166,18 @@ public enum StandardRenameAction implements RenameAction {
 		}
 	}
 
-	public static StandardRenameAction forName(String action) {
-		for (StandardRenameAction it : values()) {
-			if (it.name().equalsIgnoreCase(action))
-				return it;
+	public static List<String> names() {
+		return stream(values()).map(Enum::name).collect(toList());
+	}
+
+	public static StandardRenameAction forName(String name) {
+		for (StandardRenameAction action : values()) {
+			if (action.name().equalsIgnoreCase(name)) {
+				return action;
+			}
 		}
-		throw new IllegalArgumentException("Illegal rename action: " + action);
+
+		throw new IllegalArgumentException(String.format("%s not in %s", name, names()));
 	}
 
 	public static File revert(File current, File original) throws IOException {

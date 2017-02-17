@@ -6,6 +6,7 @@ import java.util.Locale;
 public class SubtitleSearchResult extends Movie {
 
 	public enum Kind {
+
 		Movie, Series, Other, Unkown;
 
 		public static Kind forName(String s) {

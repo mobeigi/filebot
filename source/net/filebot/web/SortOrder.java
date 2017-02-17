@@ -24,7 +24,7 @@ public enum SortOrder {
 	}
 
 	public static List<String> names() {
-		return stream(values()).map(SortOrder::name).collect(toList());
+		return stream(values()).map(Enum::name).collect(toList());
 	}
 
 	public static SortOrder forName(String name) {

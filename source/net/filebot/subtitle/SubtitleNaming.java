@@ -1,8 +1,11 @@
 package net.filebot.subtitle;
 
+import static java.util.Arrays.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
+import java.util.List;
 
 import net.filebot.web.SubtitleDescriptor;
 
@@ -49,13 +52,18 @@ public enum SubtitleNaming {
 
 	public abstract String format(File video, SubtitleDescriptor subtitle, String ext);
 
-	public static SubtitleNaming forName(String s) {
-		for (SubtitleNaming it : values()) {
-			if (it.name().equalsIgnoreCase(s) || it.toString().equalsIgnoreCase(s)) {
-				return it;
+	public static List<String> names() {
+		return stream(values()).map(Enum::name).collect(toList());
+	}
+
+	public static SubtitleNaming forName(String name) {
+		for (SubtitleNaming naming : values()) {
+			if (naming.name().equalsIgnoreCase(name)) {
+				return naming;
 			}
 		}
-		return null;
+
+		throw new IllegalArgumentException(String.format("%s not in %s", name, names()));
 	}
 
 }
