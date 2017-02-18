@@ -92,25 +92,16 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 		@Override
 		public SimpleDate parse(Object object) {
+			if (object instanceof Episode) {
+				Episode episode = (Episode) object;
+				return episode.getAirdate();
+			}
+
 			if (object instanceof Movie) {
 				return null;
 			}
 
-			if (object instanceof Episode) {
-				Episode episode = (Episode) object;
-
-				// use airdate from episode
-				return episode.getAirdate();
-			}
-
-			SimpleDate result = transformCache.get(object);
-			if (result != null) {
-				return result;
-			}
-
-			result = super.parse(object);
-			transformCache.put(object, result);
-			return result;
+			return transformCache.computeIfAbsent(object, super::parse);
 		}
 	}),
 
@@ -717,38 +708,31 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			return "";
 		}
 
-		String result = transformCache.get(object);
-		if (result != null) {
-			return result;
-		}
+		return transformCache.computeIfAbsent(object, o -> {
+			String name = normalizeFileName(o);
 
-		String name;
+			// remove checksums, any [...] or (...)
+			name = removeEmbeddedChecksum(name);
+
+			// remove obvious release info
+			name = stripFormatInfo(name);
+
+			synchronized (transliterator) {
+				name = transliterator.transform(name);
+			}
+
+			// remove or normalize special characters
+			return normalizePunctuation(name).toLowerCase();
+		});
+	}
+
+	private static String normalizeFileName(Object object) {
 		if (object instanceof File) {
-			name = getName((File) object);
+			return getName((File) object);
 		} else if (object instanceof FileInfo) {
-			name = ((FileInfo) object).getName();
-		} else {
-			name = object.toString();
+			return ((FileInfo) object).getName();
 		}
-
-		// remove checksums, any [...] or (...)
-		name = removeEmbeddedChecksum(name);
-
-		// remove obvious release info
-		name = stripFormatInfo(name);
-
-		synchronized (transliterator) {
-			name = transliterator.transform(name);
-		}
-
-		// remove or normalize special characters
-		name = normalizePunctuation(name);
-
-		// normalize to lower case
-		name = name.toLowerCase();
-
-		transformCache.put(object, name);
-		return name;
+		return object.toString();
 	}
 
 	public static SimilarityMetric[] defaultSequence(boolean includeFileMetrics) {
