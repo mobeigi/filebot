@@ -63,6 +63,7 @@ public class MediaTypes {
 	public static final ExtensionFileFilter AUDIO_FILES = getCategoryFilter("audio");
 	public static final ExtensionFileFilter VIDEO_FILES = getCategoryFilter("video");
 	public static final ExtensionFileFilter SUBTITLE_FILES = getCategoryFilter("subtitle");
+	public static final ExtensionFileFilter IMAGE_FILES = getCategoryFilter("image");
 	public static final ExtensionFileFilter ARCHIVE_FILES = getCategoryFilter("archive");
 	public static final ExtensionFileFilter VERIFICATION_FILES = getCategoryFilter("verification");
 

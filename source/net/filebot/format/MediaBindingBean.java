@@ -1008,13 +1008,15 @@ public class MediaBindingBean {
 	}
 
 	public File getInferredMediaFile() {
-		if (getMediaFile().isDirectory()) {
+		File file = getMediaFile();
+
+		if (file.isDirectory()) {
 			// just select the first video file in the folder as media sample
-			List<File> videos = listFiles(getMediaFile(), VIDEO_FILES, CASE_INSENSITIVE_PATH_ORDER);
+			List<File> videos = listFiles(file, VIDEO_FILES, CASE_INSENSITIVE_PATH_ORDER);
 			if (videos.size() > 0) {
 				return videos.get(0);
 			}
-		} else if (SUBTITLE_FILES.accept(getMediaFile()) || ((infoObject instanceof Episode || infoObject instanceof Movie) && !VIDEO_FILES.accept(getMediaFile()))) {
+		} else if ((SUBTITLE_FILES.accept(file) || IMAGE_FILES.accept(file)) || ((infoObject instanceof Episode || infoObject instanceof Movie) && !VIDEO_FILES.accept(file))) {
 			// prefer equal match from current context if possible
 			if (context != null) {
 				for (Entry<File, ?> it : context.entrySet()) {
@@ -1025,8 +1027,8 @@ public class MediaBindingBean {
 			}
 
 			// file is a subtitle, or nfo, etc
-			String baseName = stripReleaseInfo(FileUtilities.getName(getMediaFile())).toLowerCase();
-			List<File> videos = getChildren(getMediaFile().getParentFile(), VIDEO_FILES);
+			String baseName = stripReleaseInfo(FileUtilities.getName(file)).toLowerCase();
+			List<File> videos = getChildren(file.getParentFile(), VIDEO_FILES);
 
 			// find corresponding movie file
 			for (File movieFile : videos) {
@@ -1037,12 +1039,12 @@ public class MediaBindingBean {
 
 			// still no good match found -> just take the most probable video from the same folder
 			if (videos.size() > 0) {
-				sort(videos, SimilarityComparator.compareTo(FileUtilities.getName(getMediaFile()), FileUtilities::getName));
+				sort(videos, SimilarityComparator.compareTo(FileUtilities.getName(file), FileUtilities::getName));
 				return videos.get(0);
 			}
 		}
 
-		return getMediaFile();
+		return file;
 	}
 
 	public Episode getSeasonEpisode() {
