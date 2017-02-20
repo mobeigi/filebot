@@ -403,6 +403,10 @@
 			</tarfileset>
 		</copy>
 
+		<!-- MAS validation is a bit buggy and requires even libraries and frameworks to have a unique CFBundleIdentifier Collision -->
+		<replace file="${jre.path}/../Info.plist" token="com.oracle.java.${jre.major}u${jre.build}.jre" value="com.oracle.java.${jre.major}u${jre.build}.jre.${application.identifier}.r${revision}" summary="yes" failOnNoReplacements="yes" encoding="UTF-8" />
+
+
 		<bundleapp jvmrequired="${jvm.version}" minimumsystemversion="${mac.version}" outputdirectory="${dir.dist}" executablename="${application.executable}" name="${application.name}" displayname="${application.name}" version="${revision}" shortversion="${version}" identifier="${application.identifier}" mainclassname="${main.class}" icon="${application.icon}" copyright="${tstamp.year} ${package.company}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
