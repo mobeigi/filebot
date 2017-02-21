@@ -267,10 +267,10 @@ public class ScriptShellMethods {
 		return FileUtilities.copyAs(self, new File(destination, self.getName()));
 	}
 
-	public static void createFileIfNotExists(File self) throws IOException {
+	public static void createIfNotExists(File self) throws IOException {
 		if (!self.isFile()) {
 			// create parent folder structure if necessary & create file
-			Files.createDirectories(self.getParentFile().toPath());
+			Files.createDirectories(self.toPath().getParent());
 			Files.createFile(self.toPath());
 		}
 	}
