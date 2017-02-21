@@ -86,18 +86,34 @@ public enum SupportDialog {
 	};
 
 	public boolean feelingLucky(int sessionRenameCount, int totalRenameCount, int currentRevision, int lastSupportRevision, int supportRevisionCount) {
-		// ask for reviews only once per revision
-		if (currentRevision <= lastSupportRevision && isAppStore()) {
-			return false;
+		if (isAppStore()) {
+			// ask for reviews at most once per revision
+			if (currentRevision <= lastSupportRevision) {
+				return false;
+			}
+
+			// ask for reviews only when a significant number of files have been processed
+			if (sessionRenameCount <= 10 || totalRenameCount <= 5000) {
+				return false;
+			}
+
+			// ask for reviews at most every once in a while
+			if (Math.random() <= 0.777) {
+				return false;
+			}
 		}
 
-		// always lucky if many files are processed in a single session
-		if (sessionRenameCount >= 5000 * Math.pow(2, supportRevisionCount)) {
+		// lucky if many files are processed in a single session
+		if (sessionRenameCount >= 2000 * Math.pow(2, supportRevisionCount)) {
 			return true;
 		}
 
-		// sometimes lucky if many files have been processed over time
-		return totalRenameCount >= 2000 * Math.pow(4, supportRevisionCount) && Math.random() >= 0.777;
+		// lucky if many many files have been processed over time
+		if (totalRenameCount >= 2000 * Math.pow(4, supportRevisionCount)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	public boolean show(int totalRenameCount, boolean first) {
