@@ -104,6 +104,10 @@ public class ScriptShellMethods {
 		return ARCHIVE_FILES.accept(self);
 	}
 
+	public static boolean isImage(File self) {
+		return IMAGE_FILES.accept(self);
+	}
+
 	public static boolean isDisk(File self) {
 		// check disk folder
 		if (self.isDirectory() && MediaDetection.isDiskFolder(self)) {
