@@ -103,7 +103,6 @@ public class Language implements Serializable {
 			String[] values = TAB.split(getProperty(code), 4);
 			return new Language(code, values[0], values[1], values[2], TAB.split(values[3]));
 		} catch (Exception e) {
-			e.printStackTrace();
 			debug.warning("Illegal language code: " + code);
 		}
 
