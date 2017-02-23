@@ -996,20 +996,25 @@ public class CmdlineOperations implements CmdlineInterface {
 			throw new CmdlineException(String.format("%s: query parameter is required", db.getName()));
 		}
 
-		// search and select search result
-		List<SearchResult> results = db.search(query, locale);
+		// collect all episode objects first
+		List<Episode> episodes = new ArrayList<Episode>();
 
-		// sanity check
-		if (results.isEmpty()) {
-			throw new CmdlineException(String.format("%s: no results", db.getName()));
+		if (query.matches("\\d{5,9}")) {
+			// lookup by id
+			episodes.addAll(db.getEpisodeList(Integer.parseInt(query), order, locale));
+		} else {
+			// search by name and select search result
+			List<SearchResult> options = selectSearchResult(query, db.search(query, locale), false, false, false, strict ? 1 : 5);
+
+			// fetch episodes
+			for (SearchResult option : options) {
+				episodes.addAll(db.getEpisodeList(option, order, locale));
+			}
 		}
 
-		List<SearchResult> options = selectSearchResult(query, results, false, false, false, strict ? 1 : 5);
-
-		// fetch episodes
-		List<Episode> episodes = new ArrayList<Episode>();
-		for (SearchResult option : options) {
-			episodes.addAll(db.getEpisodeList(option, order, locale));
+		// sanity check
+		if (episodes.isEmpty()) {
+			throw new CmdlineException(String.format("%s: no results", db.getName()));
 		}
 
 		// apply filter
