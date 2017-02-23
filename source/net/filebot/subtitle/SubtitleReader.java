@@ -30,7 +30,7 @@ public abstract class SubtitleReader implements Iterator<SubtitleElement>, Close
 			try {
 				current = readNext();
 			} catch (Exception e) {
-				debug.warning(cause(e)); // log and ignore
+				debug.finest(cause(e)); // log and ignore
 			}
 		}
 
