@@ -1030,11 +1030,6 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	@Override
 	public Stream<String> getMediaInfo(Collection<File> files, FileFilter filter, ExpressionFormat format) throws Exception {
-		// use default file filter
-		if (filter == null) {
-			return getMediaInfo(files, FILES, format);
-		}
-
 		// use default expression format if not set
 		if (format == null) {
 			return getMediaInfo(files, filter, new ExpressionFormat("{fn} [{resolution} {vc} {channels} {ac} {minutes}m]"));
@@ -1062,7 +1057,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return history.entrySet().stream().filter(it -> {
 			File original = it.getKey();
 			File current = it.getValue();
-			return Stream.of(current, original).flatMap(f -> listPath(f).stream()).anyMatch(whitelist::contains) && current.exists() && (filter == null || filter.accept(current));
+			return Stream.of(current, original).flatMap(f -> listPath(f).stream()).anyMatch(whitelist::contains) && current.exists() && filter.accept(current);
 		}).map(it -> {
 			File original = it.getKey();
 			File current = it.getValue();

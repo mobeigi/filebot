@@ -60,12 +60,12 @@ public class ArgumentProcessor {
 
 		// print media info
 		if (args.mediaInfo) {
-			return print(cli.getMediaInfo(args.getFiles(true), args.getExpressionFileFilter(), args.getExpressionFormat()));
+			return print(cli.getMediaInfo(args.getFiles(true), args.getFileFilter(), args.getExpressionFormat()));
 		}
 
 		// revert files
 		if (args.revert) {
-			return cli.revert(args.getFiles(false), args.getExpressionFileFilter(), args.getRenameAction()).isEmpty() ? 1 : 0;
+			return cli.revert(args.getFiles(false), args.getFileFilter(), args.getRenameAction()).isEmpty() ? 1 : 0;
 		}
 
 		// file operations

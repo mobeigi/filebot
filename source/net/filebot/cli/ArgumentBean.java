@@ -220,8 +220,8 @@ public class ArgumentBean {
 		return filter == null ? null : new ExpressionFilter(filter);
 	}
 
-	public FileFilter getExpressionFileFilter() throws Exception {
-		return filter == null ? null : new ExpressionFileFilter(filter);
+	public FileFilter getFileFilter() throws Exception {
+		return filter == null ? FILES : new ExpressionFileFilter(filter);
 	}
 
 	public Datasource getDatasource() {

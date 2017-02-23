@@ -437,7 +437,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		ArgumentBean args = getArgumentBean(parameters);
 
 		try {
-			return getCLI().getMediaInfo(files, args.getExpressionFileFilter(), args.getExpressionFormat());
+			return getCLI().getMediaInfo(files, args.getFileFilter(), args.getExpressionFormat());
 		} catch (Exception e) {
 			printException(e);
 		}
