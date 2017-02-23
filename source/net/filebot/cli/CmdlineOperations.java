@@ -62,7 +62,6 @@ import net.filebot.subtitle.SubtitleFormat;
 import net.filebot.subtitle.SubtitleNaming;
 import net.filebot.util.EntryList;
 import net.filebot.util.FileUtilities.ParentFilter;
-import net.filebot.util.FunctionList;
 import net.filebot.vfs.FileInfo;
 import net.filebot.vfs.MemoryFile;
 import net.filebot.vfs.SimpleFileInfo;
@@ -986,55 +985,69 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	@Override
-	public List<String> fetchEpisodeList(Datasource db, String query, ExpressionFormat format, ExpressionFilter filter, SortOrder order, Locale locale, boolean strict) throws Exception {
-		if (query == null) {
-			throw new IllegalArgumentException("query is not defined");
+	public Stream<String> fetchEpisodeList(EpisodeListProvider db, String query, ExpressionFormat format, ExpressionFilter filter, SortOrder order, Locale locale, boolean strict) throws Exception {
+		// default episode format
+		if (format == null) {
+			return fetchEpisodeList(db, query, new ExpressionFormat("{episode}"), filter, order, locale, strict);
 		}
 
-		// find series on the web and fetch episode list
-		EpisodeListProvider service = db instanceof EpisodeListProvider ? (EpisodeListProvider) db : TheTVDB;
+		// sanity check
+		if (query == null) {
+			throw new CmdlineException(String.format("%s: query parameter is required", db.getName()));
+		}
 
 		// search and select search result
-		List<SearchResult> results = service.search(query, locale);
+		List<SearchResult> results = db.search(query, locale);
+
+		// sanity check
 		if (results.isEmpty()) {
-			throw new CmdlineException(String.format("%s: no results", service.getName()));
+			throw new CmdlineException(String.format("%s: no results", db.getName()));
 		}
 
 		List<SearchResult> options = selectSearchResult(query, results, false, false, false, strict ? 1 : 5);
-		List<Episode> episodes = new ArrayList<Episode>();
 
 		// fetch episodes
+		List<Episode> episodes = new ArrayList<Episode>();
 		for (SearchResult option : options) {
-			episodes.addAll(service.getEpisodeList(option, order, locale));
+			episodes.addAll(db.getEpisodeList(option, order, locale));
 		}
 
 		// apply filter
 		episodes = applyExpressionFilter(episodes, filter);
 
+		// lazy format
 		Map<File, Episode> context = new EntryList<File, Episode>(null, episodes);
 
-		// lazy format
-		return new FunctionList<Episode, String>(episodes, e -> {
-			return format != null ? format.format(new MediaBindingBean(e, null, context)) : EpisodeFormat.SeasonEpisode.format(e);
-		});
+		return episodes.stream().map(episode -> {
+			try {
+				return format.format(new MediaBindingBean(episode, null, context));
+			} catch (Exception e) {
+				debug.warning(e::getMessage);
+			}
+			return null;
+		}).filter(Objects::nonNull);
 	}
 
 	@Override
-	public List<String> getMediaInfo(Collection<File> files, FileFilter filter, ExpressionFormat format) throws Exception {
-		List<File> selection = filter(files, FILES);
-
-		// apply custom filter
-		if (filter != null) {
-			selection = filter(selection, filter);
+	public Stream<String> getMediaInfo(Collection<File> files, FileFilter filter, ExpressionFormat format) throws Exception {
+		// use default file filter
+		if (filter == null) {
+			return getMediaInfo(files, FILES, format);
 		}
 
-		// default expression format if not set
-		ExpressionFormat formatter = format != null ? format : new ExpressionFormat("{fn} [{resolution} {vc} {channels} {ac} {minutes}m]");
+		// use default expression format if not set
+		if (format == null) {
+			return getMediaInfo(files, filter, new ExpressionFormat("{fn} [{resolution} {vc} {channels} {ac} {minutes}m]"));
+		}
 
-		// lazy format
-		return new FunctionList<File, String>(selection, f -> {
-			return formatter.format(new MediaBindingBean(xattr.getMetaInfo(f), f));
-		});
+		return files.stream().filter(filter::accept).map(f -> {
+			try {
+				return format.format(new MediaBindingBean(xattr.getMetaInfo(f), f));
+			} catch (Exception e) {
+				debug.warning(e::getMessage);
+			}
+			return null;
+		}).filter(Objects::nonNull);
 	}
 
 	@Override

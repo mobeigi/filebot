@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import net.filebot.Language;
 import net.filebot.RenameAction;
@@ -16,6 +17,7 @@ import net.filebot.hash.HashType;
 import net.filebot.subtitle.SubtitleFormat;
 import net.filebot.subtitle.SubtitleNaming;
 import net.filebot.web.Datasource;
+import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.SortOrder;
 
 public interface CmdlineInterface {
@@ -34,9 +36,9 @@ public interface CmdlineInterface {
 
 	File compute(Collection<File> files, File output, HashType hash, Charset encoding) throws Exception;
 
-	List<String> fetchEpisodeList(Datasource db, String query, ExpressionFormat format, ExpressionFilter filter, SortOrder order, Locale locale, boolean strict) throws Exception;
+	Stream<String> fetchEpisodeList(EpisodeListProvider db, String query, ExpressionFormat format, ExpressionFilter filter, SortOrder order, Locale locale, boolean strict) throws Exception;
 
-	List<String> getMediaInfo(Collection<File> files, FileFilter filter, ExpressionFormat format) throws Exception;
+	Stream<String> getMediaInfo(Collection<File> files, FileFilter filter, ExpressionFormat format) throws Exception;
 
 	List<File> extract(Collection<File> files, File output, ConflictAction conflict, FileFilter filter, boolean forceExtractAll) throws Exception;
 

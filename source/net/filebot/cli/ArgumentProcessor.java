@@ -7,9 +7,9 @@ import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
@@ -55,7 +55,7 @@ public class ArgumentProcessor {
 
 		// print episode info
 		if (args.list) {
-			return print(cli.fetchEpisodeList(args.getDatasource(), args.getSearchQuery(), args.getExpressionFormat(), args.getExpressionFilter(), args.getSortOrder(), args.getLanguage().getLocale(), args.isStrict()));
+			return print(cli.fetchEpisodeList(args.getEpisodeListProvider(), args.getSearchQuery(), args.getExpressionFormat(), args.getExpressionFilter(), args.getSortOrder(), args.getLanguage().getLocale(), args.isStrict()));
 		}
 
 		// print media info
@@ -97,19 +97,11 @@ public class ArgumentProcessor {
 		return 0;
 	}
 
-	private int print(List<?> values) {
-		int lines = 0;
-
-		for (int i = 0; i < values.size(); i++) {
-			try {
-				System.out.println(values.get(i));
-				lines++;
-			} catch (Exception e) {
-				debug.warning(e::getMessage);
-			}
-		}
-
-		return lines == 0 ? 1 : 0;
+	private int print(Stream<?> values) {
+		return values.mapToInt(v -> {
+			System.out.println(v);
+			return 1;
+		}).sum() == 0 ? 1 : 0;
 	}
 
 	public void runScript(CmdlineInterface cli, ArgumentBean args) throws Throwable {

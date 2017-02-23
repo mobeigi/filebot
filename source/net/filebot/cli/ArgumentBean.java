@@ -37,6 +37,7 @@ import net.filebot.hash.HashType;
 import net.filebot.subtitle.SubtitleFormat;
 import net.filebot.subtitle.SubtitleNaming;
 import net.filebot.web.Datasource;
+import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.SortOrder;
 
 public class ArgumentBean {
@@ -225,6 +226,10 @@ public class ArgumentBean {
 
 	public Datasource getDatasource() {
 		return db == null ? null : WebServices.getService(db);
+	}
+
+	public EpisodeListProvider getEpisodeListProvider() {
+		return db == null ? WebServices.TheTVDB : WebServices.getEpisodeListProvider(db); // default to TheTVDB if --db is not set
 	}
 
 	public String getSearchQuery() {

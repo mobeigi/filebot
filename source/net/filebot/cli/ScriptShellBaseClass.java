@@ -424,7 +424,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		ArgumentBean args = getArgumentBean(parameters);
 
 		try {
-			return getCLI().fetchEpisodeList(args.getDatasource(), args.getSearchQuery(), args.getExpressionFormat(), args.getExpressionFilter(), args.getSortOrder(), args.getLanguage().getLocale(), args.isStrict());
+			return getCLI().fetchEpisodeList(args.getEpisodeListProvider(), args.getSearchQuery(), args.getExpressionFormat(), args.getExpressionFilter(), args.getSortOrder(), args.getLanguage().getLocale(), args.isStrict()).collect(toList());
 		} catch (Exception e) {
 			printException(e);
 		}
