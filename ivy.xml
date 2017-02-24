@@ -26,6 +26,7 @@
 		<dependency rev="0.6.4" org="one.util" name="streamex" />
 		<dependency rev="8.40.12" org="org.controlsfx" name="controlsfx" />
 		<dependency rev="3.0.0-beta3" org="com.googlecode.lanterna" name="lanterna" />
+		<dependency rev="2.10.1" org="com.drewnoakes" name="metadata-extractor" />
 
 		<!-- FileBot Scripting -->
 		<dependency rev="1.10.1" org="org.apache.ant" name="ant" />

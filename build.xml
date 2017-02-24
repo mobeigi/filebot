@@ -235,6 +235,12 @@
 				<include name="com/optimaize/langdetect/**" />
 				<include name="languages/**" />
 			</zipfileset>
+			<zipfileset src="${dir.lib}/ivy/jar/metadata-extractor.jar">
+				<include name="com/drew/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/ivy/jar/xmpcore.jar">
+				<include name="com/adobe/xmp/**" />
+			</zipfileset>
 			<zipfileset src="${dir.lib}/jars/jacksum.jar">
 				<include name="jonelo/jacksum/adapt/**" />
 				<include name="jonelo/jacksum/algorithm/**" />
