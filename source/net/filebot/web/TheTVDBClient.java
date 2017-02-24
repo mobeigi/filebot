@@ -125,7 +125,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 
 	@Override
 	public TheTVDBSeriesInfo getSeriesInfo(int id, Locale language) throws Exception {
-		return getSeriesInfo(new SearchResult(id, null), language);
+		return getSeriesInfo(new SearchResult(id), language);
 	}
 
 	@Override
@@ -230,7 +230,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 			throw new IllegalArgumentException("Illegal TheTVDB ID: " + id);
 		}
 
-		SeriesInfo info = getSeriesInfo(new SearchResult(id, null), locale);
+		SeriesInfo info = getSeriesInfo(new SearchResult(id), locale);
 		return new SearchResult(id, info.getName(), info.getAliasNames());
 	}
 

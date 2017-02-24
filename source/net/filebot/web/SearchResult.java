@@ -17,6 +17,10 @@ public class SearchResult implements Serializable {
 		// used by serializer
 	}
 
+	public SearchResult(int id) {
+		this(id, null, EMPTY_STRING_ARRAY);
+	}
+
 	public SearchResult(int id, String name) {
 		this(id, name, EMPTY_STRING_ARRAY);
 	}
@@ -79,7 +83,7 @@ public class SearchResult implements Serializable {
 
 	@Override
 	public String toString() {
-		return name;
+		return name != null ? name : String.valueOf(id);
 	}
 
 	@Override

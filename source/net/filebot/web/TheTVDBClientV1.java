@@ -319,7 +319,7 @@ public class TheTVDBClientV1 extends AbstractEpisodeListProvider implements Artw
 
 	@Override
 	public TheTVDBSeriesInfo getSeriesInfo(int id, Locale language) throws Exception {
-		return getSeriesInfo(new SearchResult(id, null), language);
+		return getSeriesInfo(new SearchResult(id), language);
 	}
 
 	public TheTVDBSeriesInfo getSeriesInfoByIMDbID(int imdbid, Locale locale) throws Exception {

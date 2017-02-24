@@ -38,7 +38,7 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 
 	@Override
 	public List<Episode> getEpisodeList(int id, SortOrder order, Locale language) throws Exception {
-		return getEpisodeList(new SearchResult(id, null), order, language);
+		return getEpisodeList(new SearchResult(id), order, language);
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 
 	@Override
 	public SeriesInfo getSeriesInfo(int id, Locale language) throws Exception {
-		return getSeriesInfo(new SearchResult(id, null), language);
+		return getSeriesInfo(new SearchResult(id), language);
 	}
 
 	protected SeriesData getSeriesData(SearchResult searchResult, SortOrder order, Locale language) throws Exception {
