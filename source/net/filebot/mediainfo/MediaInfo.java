@@ -1,8 +1,6 @@
 package net.filebot.mediainfo;
 
 import static java.nio.charset.StandardCharsets.*;
-import static net.filebot.Logging.*;
-import static net.filebot.similarity.Normalization.*;
 
 import java.io.Closeable;
 import java.io.File;
@@ -153,12 +151,8 @@ public class MediaInfo implements Closeable {
 
 		// MediaInfo does not support EXIF image metadata natively so we use the metadata-extractor library and implicitly merge that information in
 		if (streamKind == StreamKind.Image && streamNumber == 0) {
-			try {
-				ImageMetadata exif = new ImageMetadata(new File(get(StreamKind.General, 0, "CompleteName")));
-				exif.forEach((k, v) -> streamInfo.putIfAbsent(normalizeSpace(normalizePunctuation(k), "_"), v));
-			} catch (Throwable e) {
-				debug.warning(e::toString);
-			}
+			ImageMetadata exif = new ImageMetadata(new File(get(StreamKind.General, 0, "CompleteName")));
+			exif.forEach(streamInfo::putIfAbsent);
 		}
 
 		return streamInfo;
