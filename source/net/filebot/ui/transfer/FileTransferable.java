@@ -7,7 +7,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.CharBuffer;
@@ -93,33 +92,34 @@ public class FileTransferable implements Transferable {
 		if (useGVFS()) {
 			if (tr.isDataFlavorSupported(FileTransferable.uriListFlavor)) {
 				// file URI list flavor (Linux)
-				Readable transferData = (Readable) tr.getTransferData(FileTransferable.uriListFlavor);
+				try {
+					Readable transferData = (Readable) tr.getTransferData(FileTransferable.uriListFlavor);
 
-				try (Scanner scanner = new Scanner(transferData)) {
-					List<File> files = new ArrayList<File>();
+					try (Scanner scanner = new Scanner(transferData)) {
+						List<File> files = new ArrayList<File>();
 
-					while (scanner.hasNextLine()) {
-						String line = scanner.nextLine();
+						while (scanner.hasNextLine()) {
+							String line = scanner.nextLine();
 
-						if (line.startsWith("#")) {
-							// the line is a comment (as per RFC 2483)
-							continue;
-						}
-
-						try {
-							File file = GVFS.getDefaultVFS().getPathForURI(new URI(line));
-
-							if (file == null || !file.exists()) {
-								throw new FileNotFoundException(line);
+							if (line.startsWith("#")) {
+								// the line is a comment (as per RFC 2483)
+								continue;
 							}
 
-							files.add(file);
-						} catch (Throwable e) {
-							debug.warning(e::toString);
-						}
-					}
+							File file = GVFS.getDefaultVFS().getPathForURI(new URI(line));
 
-					return files;
+							if (file != null && file.exists()) {
+								files.add(file);
+							} else {
+								debug.warning(format("GVFS: %s => %s", line, file));
+							}
+
+						}
+
+						return files;
+					}
+				} catch (Throwable e) {
+					debug.warning(cause(e));
 				}
 			}
 		}
