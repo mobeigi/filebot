@@ -1,8 +1,12 @@
 
 package net.filebot.gio;
 
+import static java.util.Arrays.*;
+import static java.util.stream.Collectors.*;
+
 import java.io.File;
 import java.net.URI;
+import java.util.List;
 
 public class PlatformGVFS implements GVFS {
 
@@ -13,7 +17,7 @@ public class PlatformGVFS implements GVFS {
 	}
 
 	public File getPathForURI(URI uri) {
-		return Protocol.valueOf(uri.getScheme().toUpperCase()).getFile(gvfs, uri);
+		return Protocol.forName(uri.getScheme()).getFile(gvfs, uri);
 	}
 
 	public static enum Protocol {
@@ -80,6 +84,20 @@ public class PlatformGVFS implements GVFS {
 
 		public File getFile(File gvfs, URI uri) {
 			return new File(gvfs, getPath(uri));
+		}
+
+		public static List<String> names() {
+			return stream(values()).map(Enum::name).collect(toList());
+		}
+
+		public static Protocol forName(String name) {
+			for (Protocol protocol : values()) {
+				if (protocol.name().equalsIgnoreCase(name)) {
+					return protocol;
+				}
+			}
+
+			throw new IllegalArgumentException(String.format("%s not in %s", name, names()));
 		}
 
 	}

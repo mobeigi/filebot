@@ -92,20 +92,21 @@ public class FileTransferable implements Transferable {
 		if (useGVFS()) {
 			if (tr.isDataFlavorSupported(FileTransferable.uriListFlavor)) {
 				// file URI list flavor (Linux)
-				try {
-					Readable transferData = (Readable) tr.getTransferData(FileTransferable.uriListFlavor);
 
-					try (Scanner scanner = new Scanner(transferData)) {
-						List<File> files = new ArrayList<File>();
+				Readable transferData = (Readable) tr.getTransferData(FileTransferable.uriListFlavor);
 
-						while (scanner.hasNextLine()) {
-							String line = scanner.nextLine();
+				try (Scanner scanner = new Scanner(transferData)) {
+					List<File> files = new ArrayList<File>();
 
-							if (line.startsWith("#")) {
-								// the line is a comment (as per RFC 2483)
-								continue;
-							}
+					while (scanner.hasNextLine()) {
+						String line = scanner.nextLine();
 
+						if (line.startsWith("#")) {
+							// the line is a comment (as per RFC 2483)
+							continue;
+						}
+
+						try {
 							File file = GVFS.getDefaultVFS().getPathForURI(new URI(line));
 
 							if (file != null && file.exists()) {
@@ -113,13 +114,12 @@ public class FileTransferable implements Transferable {
 							} else {
 								debug.warning(format("GVFS: %s => %s", line, file));
 							}
-
+						} catch (Throwable e) {
+							debug.warning(format("GVFS: %s => %s", line, e));
 						}
-
-						return files;
 					}
-				} catch (Throwable e) {
-					debug.warning(cause(e));
+
+					return files;
 				}
 			}
 		}
