@@ -13,7 +13,7 @@ import org.junit.Test;
 public class PlatformGVFSTest {
 
 	static File gvfsRoot = new File("gvfs");
-	static String[] shares = { "smb-share:server=10.0.1.5,share=data", "afp-volume:host=10.0.1.5,user=reinhard,volume=data", "sftp:host=myserver.org,user=nico" };
+	static String[] shares = { "smb-share:server=10.0.1.5,share=data", "afp-volume:host=10.0.1.5,user=reinhard,volume=data", "sftp:host=myserver.org,user=nico", "smb-share:server=192.168.0.1,share=test" };
 
 	GVFS gvfs = new PlatformGVFS(gvfsRoot);
 
@@ -29,6 +29,7 @@ public class PlatformGVFSTest {
 	@Test
 	public void smb() throws Exception {
 		assertEquals("gvfs/smb-share:server=10.0.1.5,share=data/Movies/Avatar.mp4", gvfs.getPathForURI(new URI("smb://10.0.1.5/data/Movies/Avatar.mp4")).getPath());
+		assertEquals("gvfs/smb-share:server=192.168.0.1,share=test/a file with spaces.txt", gvfs.getPathForURI(new URI("smb://192.168.0.1/test/a%20file%20with%20spaces.txt")).getPath());
 	}
 
 	@Test
