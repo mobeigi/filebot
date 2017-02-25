@@ -207,15 +207,14 @@ public class MediaBindingBean {
 		if (infoObject instanceof File) {
 			File f = (File) infoObject;
 
-			ZonedDateTime d = ImageMetadata.getDateTaken(f);
-			if (d != null) {
-				return new SimpleDate(d);
-			}
-
-			long t = getCreationDate(f);
-			if (t > 0) {
-				return new SimpleDate(t);
-			}
+			return new ImageMetadata(f).getDateTaken().map(SimpleDate::new).orElseGet(() -> {
+				try {
+					return new SimpleDate(getCreationDate(f));
+				} catch (Exception e) {
+					debug.warning(e::toString);
+				}
+				return null;
+			});
 		}
 
 		return null;
@@ -842,7 +841,12 @@ public class MediaBindingBean {
 
 	@Define("exif")
 	public AssociativeScriptObject getImageMetadata() throws Exception {
-		return new AssociativeScriptObject(new ImageMetadata(getMediaFile()));
+		return new AssociativeScriptObject(new ImageMetadata(getMediaFile()).snapshot(t -> t.getTagName()));
+	}
+
+	@Define("location")
+	public List<String> getLocation() throws Exception {
+		return new ImageMetadata(getMediaFile()).getLocationTaken().orElse(null);
 	}
 
 	@Define("artist")

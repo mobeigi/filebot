@@ -10,6 +10,7 @@ import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.RegularExpressions.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -496,17 +497,13 @@ public class ExpressionFormatMethods {
 		return 0;
 	}
 
-	public static long getCreationDate(File self) {
-		try {
-			BasicFileAttributes attr = Files.getFileAttributeView(self.toPath(), BasicFileAttributeView.class).readAttributes();
-			long creationDate = attr.creationTime().toMillis();
-			if (creationDate > 0) {
-				return creationDate;
-			}
-			return attr.lastModifiedTime().toMillis();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+	public static long getCreationDate(File self) throws IOException {
+		BasicFileAttributes attr = Files.getFileAttributeView(self.toPath(), BasicFileAttributeView.class).readAttributes();
+		long creationDate = attr.creationTime().toMillis();
+		if (creationDate > 0) {
+			return creationDate;
 		}
+		return attr.lastModifiedTime().toMillis();
 	}
 
 	public static File toFile(String self) {
