@@ -51,6 +51,7 @@ import net.filebot.Settings;
 import net.filebot.hash.HashType;
 import net.filebot.media.MetaAttributes;
 import net.filebot.media.NamingStandard;
+import net.filebot.mediainfo.ImageMetadata;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.mediainfo.MediaInfoException;
@@ -465,7 +466,7 @@ public class MediaBindingBean {
 
 		// calculate checksum from file
 		Cache cache = Cache.getCache("crc32", CacheType.Ephemeral);
-		return (String) cache.computeIfAbsent(inferredMediaFile.getCanonicalPath(), it -> crc32(inferredMediaFile));
+		return (String) cache.computeIfAbsent(inferredMediaFile, it -> crc32(inferredMediaFile));
 	}
 
 	@Define("fn")
@@ -826,6 +827,11 @@ public class MediaBindingBean {
 	@Define("chapters")
 	public List<AssociativeScriptObject> getChaptersInfoList() {
 		return createMediaInfoBindings(StreamKind.Chapters);
+	}
+
+	@Define("exif")
+	public AssociativeScriptObject getImageMetadata() throws Exception {
+		return new AssociativeScriptObject(new ImageMetadata(getMediaFile()));
 	}
 
 	@Define("artist")
