@@ -154,8 +154,7 @@ public class MediaInfo implements Closeable {
 		if (streamKind == StreamKind.Image && streamNumber == 0) {
 			String path = get(StreamKind.General, 0, "CompleteName");
 			try {
-				ImageMetadata exif = new ImageMetadata(new File(path));
-				exif.forEach(streamInfo::putIfAbsent);
+				streamInfo.putAll(new ImageMetadata(new File(path)));
 			} catch (Throwable e) {
 				debug.warning(format("%s: %s", e, path));
 			}
