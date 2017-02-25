@@ -10,7 +10,6 @@ import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.RegularExpressions.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -505,7 +504,7 @@ public class ExpressionFormatMethods {
 				return creationDate;
 			}
 			return attr.lastModifiedTime().toMillis();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}

@@ -125,10 +125,8 @@ public class MediaBindingBean {
 			return getEpisode().getSeriesInfo().getStartDate().getYear();
 		if (infoObject instanceof Movie)
 			return getMovie().getYear();
-		if (infoObject instanceof AudioTrack)
-			return getMusic().getAlbumReleaseDate().getYear();
 
-		return null;
+		return getReleaseDate().getYear();
 	}
 
 	@Define("ny")
@@ -204,8 +202,21 @@ public class MediaBindingBean {
 			return getMovieInfo().getReleased();
 		if (infoObject instanceof AudioTrack)
 			return getMusic().getAlbumReleaseDate();
-		if (infoObject instanceof File)
-			return new SimpleDate(getCreationDate(((File) infoObject)));
+
+		// try EXIF Date-Taken for image files or File Last-Modified for generic files
+		if (infoObject instanceof File) {
+			File f = (File) infoObject;
+
+			ZonedDateTime d = ImageMetadata.getDateTaken(f);
+			if (d != null) {
+				return new SimpleDate(d);
+			}
+
+			long t = getCreationDate(f);
+			if (t > 0) {
+				return new SimpleDate(t);
+			}
+		}
 
 		return null;
 	}
