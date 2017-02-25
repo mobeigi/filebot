@@ -7,6 +7,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.CharBuffer;
@@ -109,11 +110,11 @@ public class FileTransferable implements Transferable {
 						try {
 							File file = GVFS.getDefaultVFS().getPathForURI(new URI(line));
 
-							if (file != null && file.exists()) {
-								files.add(file);
-							} else {
-								debug.warning(format("GVFS: %s => %s", line, file));
+							if (file == null || !file.exists()) {
+								throw new FileNotFoundException(file.getPath());
 							}
+
+							files.add(file);
 						} catch (Throwable e) {
 							debug.warning(format("GVFS: %s => %s", line, e));
 						}
