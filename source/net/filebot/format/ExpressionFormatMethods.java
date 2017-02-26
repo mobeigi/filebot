@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -546,6 +548,10 @@ public class ExpressionFormatMethods {
 
 	public static List<?> bounds(Iterable<?> self) {
 		return Stream.of(DefaultGroovyMethods.min(self), DefaultGroovyMethods.max(self)).filter(Objects::nonNull).distinct().collect(toList());
+	}
+
+	public static String format(Temporal self, String pattern) {
+		return DateTimeFormatter.ofPattern(pattern).format(self);
 	}
 
 	/**

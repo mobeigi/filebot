@@ -202,22 +202,27 @@ public class MediaBindingBean {
 			return getMovieInfo().getReleased();
 		if (infoObject instanceof AudioTrack)
 			return getMusic().getAlbumReleaseDate();
+		if (infoObject instanceof File)
+			return new SimpleDate(getTimeStamp());
+
+		return null;
+	}
+
+	@Define("dt")
+	public ZonedDateTime getTimeStamp() {
+		File f = getMediaFile();
 
 		// try EXIF Date-Taken for image files or File Last-Modified for generic files
-		if (infoObject instanceof File) {
-			File f = (File) infoObject;
+		try {
+			return new ImageMetadata(f).getDateTaken().get();
+		} catch (Exception e) {
+			// ignore and default to file creation date
+		}
 
-			try {
-				return new ImageMetadata(f).getDateTaken().map(SimpleDate::new).get();
-			} catch (Exception e) {
-				// ignore and default to file creation date
-			}
-
-			try {
-				return new SimpleDate(getCreationDate(f));
-			} catch (Exception e) {
-				debug.warning(e::toString);
-			}
+		try {
+			return Instant.ofEpochMilli(getCreationDate(f)).atZone(ZoneOffset.systemDefault());
+		} catch (Exception e) {
+			debug.warning(e::toString);
 		}
 
 		return null;
