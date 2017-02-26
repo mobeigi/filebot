@@ -32,28 +32,24 @@ import net.filebot.util.FileUtilities.ExtensionFileFilter;
 
 public class ImageMetadata {
 
-	private File file;
-	private Metadata metadata;
+	private final Metadata metadata;
 
-	public ImageMetadata(File file) {
-		this.file = file;
-	}
-
-	protected synchronized Metadata getMetadata() throws ImageProcessingException, IOException {
-		if (metadata == null) {
-			metadata = ImageMetadataReader.readMetadata(file);
+	public ImageMetadata(File file) throws ImageProcessingException, IOException {
+		if (SUPPORTED_FILE_TYPES.accept(file)) {
+			throw new IllegalArgumentException("Image type not supported: " + file);
 		}
-		return metadata;
+
+		metadata = ImageMetadataReader.readMetadata(file);
 	}
 
 	protected boolean accept(Directory directory) {
 		return !directory.getName().matches("JPEG|JFIF|Interoperability|Huffman|File");
 	}
 
-	public Map<String, String> snapshot(Function<Tag, String> key) throws ImageProcessingException, IOException {
+	public Map<String, String> snapshot(Function<Tag, String> key) {
 		Map<String, String> values = new LinkedHashMap<String, String>();
 
-		for (Directory directory : getMetadata().getDirectories()) {
+		for (Directory directory : metadata.getDirectories()) {
 			if (accept(directory)) {
 				for (Tag tag : directory.getTags()) {
 					String v = tag.getDescription();
@@ -131,17 +127,15 @@ public class ImageMetadata {
 		country, administrative_area_level_1, administrative_area_level_2, administrative_area_level_3, administrative_area_level_4, sublocality, neighborhood, route;
 	}
 
-	protected <T> Optional<T> extract(Function<Metadata, T> extract) {
-		if (SUPPORTED_FILE_TYPES.accept(file)) {
-			try {
-				return Optional.ofNullable(extract.apply(getMetadata()));
-			} catch (Exception e) {
-				debug.warning(e::toString);
-			}
+	public <T> Optional<T> extract(Function<Metadata, T> extract) {
+		try {
+			return Optional.ofNullable(extract.apply(metadata));
+		} catch (Exception e) {
+			debug.warning(e::toString);
 		}
 		return Optional.empty();
 	}
 
-	public static final FileFilter SUPPORTED_FILE_TYPES = new ExtensionFileFilter("jpg", "jpeg", "png", "webp", "gif", "ico", "bmp", "tiff", "psd", "pcx", "raw", "crw", "cr2", "nef", "orf", "raf", "rw2", "rwl", "srw", "arw", "dng", "x3f", "mov", "mp4", "m4v", "3g2", "3gp", "3gp");
+	public static final FileFilter SUPPORTED_FILE_TYPES = new ExtensionFileFilter("jpg", "jpeg", "png", "webp", "gif", "ico", "bmp", "tif", "tiff", "psd", "pcx", "raw", "crw", "cr2", "nef", "orf", "raf", "rw2", "rwl", "srw", "arw", "dng", "x3f", "mov", "mp4", "m4v", "3g2", "3gp", "3gp");
 
 }

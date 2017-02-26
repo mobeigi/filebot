@@ -207,14 +207,17 @@ public class MediaBindingBean {
 		if (infoObject instanceof File) {
 			File f = (File) infoObject;
 
-			return new ImageMetadata(f).getDateTaken().map(SimpleDate::new).orElseGet(() -> {
-				try {
-					return new SimpleDate(getCreationDate(f));
-				} catch (Exception e) {
-					debug.warning(e::toString);
-				}
-				return null;
-			});
+			try {
+				return new ImageMetadata(f).getDateTaken().map(SimpleDate::new).get();
+			} catch (Exception e) {
+				// ignore and default to file creation date
+			}
+
+			try {
+				return new SimpleDate(getCreationDate(f));
+			} catch (Exception e) {
+				debug.warning(e::toString);
+			}
 		}
 
 		return null;
