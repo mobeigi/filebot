@@ -5,12 +5,11 @@ import static net.filebot.util.RegularExpressions.*;
 
 import java.util.AbstractMap;
 import java.util.AbstractSet;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeSet;
 
 import groovy.lang.GroovyObjectSupport;
 
@@ -22,22 +21,20 @@ public class AssociativeScriptObject extends GroovyObjectSupport implements Iter
 		this.properties = new LenientLookup(properties);
 	}
 
-	/**
-	 * Get the property with the given name.
-	 *
-	 * @param name
-	 *            the property name
-	 * @param start
-	 *            the object where the lookup began
-	 */
 	@Override
 	public Object getProperty(String name) {
-		return properties.get(name);
+		Object value = properties.get(name);
+
+		if (value != null) {
+			return value;
+		}
+
+		return super.getProperty(name);
 	}
 
 	@Override
 	public void setProperty(String name, Object value) {
-		// ignore, object is immutable
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -48,7 +45,7 @@ public class AssociativeScriptObject extends GroovyObjectSupport implements Iter
 	@Override
 	public String toString() {
 		// all the properties in alphabetic order
-		return new TreeSet<Object>(properties.keySet()).toString();
+		return properties.keySet().toString();
 	}
 
 	/**
@@ -57,7 +54,7 @@ public class AssociativeScriptObject extends GroovyObjectSupport implements Iter
 	 */
 	private static class LenientLookup extends AbstractMap<Object, Object> {
 
-		private final Map<String, Entry<?, ?>> lookup = new HashMap<String, Entry<?, ?>>();
+		private final Map<String, Entry<?, ?>> lookup = new LinkedHashMap<String, Entry<?, ?>>();
 
 		public LenientLookup(Map<?, ?> source) {
 			// populate lookup map
