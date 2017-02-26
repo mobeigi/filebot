@@ -844,9 +844,14 @@ public class MediaBindingBean {
 		return new AssociativeScriptObject(new ImageMetadata(getMediaFile()).snapshot(t -> t.getTagName()));
 	}
 
+	@Define("camera")
+	public AssociativeEnumObject getCamera() throws Exception {
+		return new ImageMetadata(getMediaFile()).getCameraModel().map(AssociativeEnumObject::new).orElse(null);
+	}
+
 	@Define("location")
-	public List<String> getLocation() throws Exception {
-		return new ImageMetadata(getMediaFile()).getLocationTaken().orElse(null);
+	public AssociativeEnumObject getLocation() throws Exception {
+		return new ImageMetadata(getMediaFile()).getLocationTaken().map(AssociativeEnumObject::new).orElse(null);
 	}
 
 	@Define("artist")

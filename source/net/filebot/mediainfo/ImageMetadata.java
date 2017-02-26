@@ -1,8 +1,6 @@
 package net.filebot.mediainfo;
 
 import static java.util.Arrays.*;
-import static java.util.Collections.*;
-import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
 import static net.filebot.util.JsonUtilities.*;
 
@@ -14,9 +12,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -77,39 +73,62 @@ public class ImageMetadata {
 		});
 	}
 
-	public Optional<List<String>> getLocationTaken() {
+	public Optional<Map<CameraProperty, String>> getCameraModel() {
+		return extract(m -> {
+			ExifIFD0Directory directory = m.getFirstDirectoryOfType(ExifIFD0Directory.class);
+			String maker = directory.getDescription(ExifIFD0Directory.TAG_MAKE);
+			String model = directory.getDescription(ExifIFD0Directory.TAG_MODEL);
+
+			Map<CameraProperty, String> camera = new EnumMap<CameraProperty, String>(CameraProperty.class);
+			if (maker != null) {
+				camera.put(CameraProperty.maker, maker);
+			}
+			if (model != null) {
+				camera.put(CameraProperty.model, model);
+			}
+			return camera;
+		}).filter(m -> m.size() > 0);
+	}
+
+	public enum CameraProperty {
+		maker, model;
+	}
+
+	public Optional<Map<AddressComponent, String>> getLocationTaken() {
 		return extract(m -> m.getFirstDirectoryOfType(GpsDirectory.class).getGeoLocation()).map(this::locate);
 	}
 
-	protected List<String> locate(GeoLocation location) {
+	protected Map<AddressComponent, String> locate(GeoLocation location) {
 		try {
 			// e.g. https://maps.googleapis.com/maps/api/geocode/json?latlng=40.7470444,-073.9411611
 			Cache cache = Cache.getCache("geocode", CacheType.Monthly);
 			Object json = cache.json(location.getLatitude() + "," + location.getLongitude(), pos -> new URL("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + pos)).get();
 
-			Map<AddressComponents, String> address = new EnumMap<AddressComponents, String>(AddressComponents.class);
+			Map<AddressComponent, String> address = new EnumMap<AddressComponent, String>(AddressComponent.class);
 
 			streamJsonObjects(json, "results").limit(1).forEach(r -> {
 				streamJsonObjects(r, "address_components").forEach(a -> {
 					String name = getString(a, "long_name");
-					for (Object type : getArray(a, "types")) {
-						stream(AddressComponents.values()).filter(c -> c.name().equals(type)).findFirst().ifPresent(c -> {
-							address.putIfAbsent(c, name);
-						});
+					if (name != null) {
+						for (Object type : getArray(a, "types")) {
+							stream(AddressComponent.values()).filter(c -> c.name().equals(type)).findFirst().ifPresent(c -> {
+								address.putIfAbsent(c, name);
+							});
+						}
 					}
 				});
 			});
 
-			return address.values().stream().filter(Objects::nonNull).collect(toList()); // enum set is always in natural order
+			return address;
 		} catch (Exception e) {
 			debug.warning(e::toString);
 		}
 
-		return emptyList();
+		return null;
 	}
 
-	private enum AddressComponents {
-		country, administrative_area_level_1, administrative_area_level_2, administrative_area_level_3, administrative_area_level_4, sublocality, neighborhood;
+	public enum AddressComponent {
+		country, administrative_area_level_1, administrative_area_level_2, administrative_area_level_3, administrative_area_level_4, sublocality, neighborhood, route;
 	}
 
 	protected <T> Optional<T> extract(Function<Metadata, T> extract) {

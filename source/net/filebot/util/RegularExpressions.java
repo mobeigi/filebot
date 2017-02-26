@@ -8,6 +8,7 @@ public class RegularExpressions {
 
 	public static final Pattern DIGIT = compile("\\d+");
 	public static final Pattern NON_DIGIT = compile("\\D+");
+	public static final Pattern NON_WORD = compile("[\\P{Alnum}]+");
 
 	public static final Pattern PIPE = compile("|", LITERAL);
 	public static final Pattern EQUALS = compile("=", LITERAL);
