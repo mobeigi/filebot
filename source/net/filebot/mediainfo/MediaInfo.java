@@ -1,10 +1,9 @@
 package net.filebot.mediainfo;
 
 import static java.nio.charset.StandardCharsets.*;
-import static java.util.regex.Pattern.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.Logging.*;
-import static net.filebot.util.StringUtilities.*;
+import static net.filebot.util.RegularExpressions.*;
 
 import java.io.Closeable;
 import java.io.File;
@@ -158,9 +157,10 @@ public class MediaInfo implements Closeable {
 		if (streamKind == StreamKind.Image && streamNumber == 0) {
 			String path = get(StreamKind.General, 0, "CompleteName");
 			try {
-				streamInfo.putAll(new ImageMetadata(new File(path)).snapshot(t -> {
-					return Stream.of(t.getDirectoryName(), t.getTagName()).flatMap(s -> tokenize(s, compile("\\W+"))).distinct().collect(joining("_"));
-				}));
+				Map<String, String> values = new ImageMetadata(new File(path)).snapshot(t -> {
+					return Stream.of(t.getDirectoryName(), t.getTagName()).flatMap(NON_WORD::splitAsStream).distinct().collect(joining("_"));
+				});
+				streamInfo.putAll(values);
 			} catch (Throwable e) {
 				debug.warning(format("%s: %s", e, path));
 			}

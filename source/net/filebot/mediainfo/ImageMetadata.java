@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
@@ -35,22 +36,26 @@ public class ImageMetadata {
 	private final Metadata metadata;
 
 	public ImageMetadata(File file) throws ImageProcessingException, IOException {
-		if (SUPPORTED_FILE_TYPES.accept(file)) {
+		if (!SUPPORTED_FILE_TYPES.accept(file)) {
 			throw new IllegalArgumentException("Image type not supported: " + file);
 		}
 
 		metadata = ImageMetadataReader.readMetadata(file);
 	}
 
-	protected boolean accept(Directory directory) {
-		return !directory.getName().matches("JPEG|JFIF|Interoperability|Huffman|File");
+	public Map<String, String> snapshot() {
+		return snapshot(Tag::getTagName);
 	}
 
 	public Map<String, String> snapshot(Function<Tag, String> key) {
+		return snapshot(key, d -> !d.getName().matches("JPEG|JFIF|Interoperability|Huffman|File"));
+	}
+
+	public Map<String, String> snapshot(Function<Tag, String> key, Predicate<Directory> accept) {
 		Map<String, String> values = new LinkedHashMap<String, String>();
 
 		for (Directory directory : metadata.getDirectories()) {
-			if (accept(directory)) {
+			if (accept.test(directory)) {
 				for (Tag tag : directory.getTags()) {
 					String v = tag.getDescription();
 					if (v != null && v.length() > 0) {

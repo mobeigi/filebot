@@ -844,7 +844,7 @@ public class MediaBindingBean {
 
 	@Define("exif")
 	public AssociativeScriptObject getImageMetadata() throws Exception {
-		return new AssociativeScriptObject(new ImageMetadata(getMediaFile()).snapshot(t -> t.getTagName()));
+		return new AssociativeScriptObject(new ImageMetadata(getMediaFile()).snapshot());
 	}
 
 	@Define("camera")
