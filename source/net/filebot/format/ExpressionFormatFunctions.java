@@ -14,6 +14,8 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import com.sun.jna.Platform;
+
 import groovy.lang.Closure;
 import groovy.util.XmlSlurper;
 import net.filebot.ApplicationFolder;
@@ -59,9 +61,15 @@ public class ExpressionFormatFunctions {
 	}
 
 	public static String quote(Object c1, Object... cN) {
-		String q = String.valueOf('"');
-		String r = "\\" + q;
-		return stream(c1, null, cN).map(Objects::toString).map(s -> q + s.replace(q, r) + q).collect(joining(" "));
+		return Platform.isWindows() ? quote_ps(c1, cN) : quote_sh(c1, cN);
+	}
+
+	public static String quote_sh(Object c1, Object... cN) {
+		return stream(c1, null, cN).map(Objects::toString).map(s -> "'" + s.replace("'", "'\"'\"'") + "'").collect(joining(" "));
+	}
+
+	public static String quote_ps(Object c1, Object... cN) {
+		return stream(c1, null, cN).map(Objects::toString).map(s -> "@'\n" + s + "\n'@").collect(joining(" "));
 	}
 
 	public static Map<String, String> csv(Object path) throws IOException {
