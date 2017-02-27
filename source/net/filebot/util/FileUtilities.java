@@ -629,10 +629,11 @@ public final class FileUtilities {
 	}
 
 	public static String normalizePathSeparators(String path) {
-		// special handling for UNC paths
+		// special handling for UNC paths (e.g. \\server\share\path)
 		if (path.startsWith(UNC_PREFIX)) {
-			return UNC_PREFIX + replacePathSeparators(path.substring(UNC_PREFIX.length()), "/");
+			return UNC_PREFIX + normalizePathSeparators(path.substring(UNC_PREFIX.length()));
 		}
+
 		return replacePathSeparators(path, "/");
 	}
 

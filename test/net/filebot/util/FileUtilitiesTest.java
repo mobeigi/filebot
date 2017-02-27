@@ -48,4 +48,14 @@ public class FileUtilitiesTest {
 		assertFalse(FileUtilities.isDerived(new File("10.z"), new File("1.mp4")));
 	}
 
+	@Test
+	public void normalizePathSeparators() {
+		assertEquals("C:/file.txt", FileUtilities.normalizePathSeparators("C:\\file.txt"));
+		assertEquals("/Volume/USB/file.txt", FileUtilities.normalizePathSeparators("/Volume\\USB/file.txt"));
+
+		assertEquals("\\\\server/share/data/file.txt", FileUtilities.normalizePathSeparators("\\\\server\\share\\data\\file.txt"));
+		assertEquals("\\\\server/share/data/file.txt", FileUtilities.normalizePathSeparators("\\\\server\\share\\data\\file.txt"));
+		assertEquals("/server/share/data/file.txt", FileUtilities.normalizePathSeparators("//server/share/data/file.txt"));
+	}
+
 }
