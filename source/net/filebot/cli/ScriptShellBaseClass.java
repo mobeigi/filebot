@@ -222,7 +222,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		try {
 			return formatter.format(new MediaBindingBean(xattr.getMetaInfo(file), file));
 		} catch (SuppressedThrowables e) {
-			debug.finest(format("%s => %s", format, e.getMessage()));
+			debug.finest(format("%s => %s", format, e));
 		}
 
 		return null;

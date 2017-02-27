@@ -147,7 +147,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return renameAll(renameMap, renameAction, conflict, null);
 	}
 
-	public List<File> renameSeries(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, EpisodeListProvider db, String query, SortOrder sortOrder, ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
+	public List<File> renameSeries(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFileFormat format, EpisodeListProvider db, String query, SortOrder sortOrder, ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
 		log.config(format("Rename episodes using [%s]", db.getName()));
 
 		// ignore sample files
@@ -302,7 +302,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return new ArrayList<Episode>(episodes);
 	}
 
-	public List<File> renameMovie(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, MovieIdentificationService service, String query, ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
+	public List<File> renameMovie(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFileFormat format, MovieIdentificationService service, String query, ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
 		log.config(format("Rename movies using [%s]", service.getName()));
 
 		// ignore sample files
@@ -493,7 +493,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return renameAll(renameMap, renameAction, conflictAction, matches);
 	}
 
-	public List<File> renameMusic(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, MusicIdentificationService... services) throws Exception {
+	public List<File> renameMusic(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFileFormat format, MusicIdentificationService... services) throws Exception {
 		List<File> audioFiles = sortByUniquePath(filter(files, AUDIO_FILES, VIDEO_FILES));
 
 		// check audio files against all services if necessary
@@ -529,7 +529,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return renameAll(renameMap, renameAction, conflictAction, null);
 	}
 
-	public List<File> renameFiles(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, XattrMetaInfoProvider service, ExpressionFilter filter, boolean strict) throws Exception {
+	public List<File> renameFiles(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFileFormat format, XattrMetaInfoProvider service, ExpressionFilter filter, boolean strict) throws Exception {
 		log.config(format("Rename files using [%s]", service.getName()));
 
 		// match to xattr metadata object or the file itself
