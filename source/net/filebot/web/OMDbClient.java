@@ -125,7 +125,7 @@ public class OMDbClient implements MovieIdentificationService {
 	}
 
 	public Object request(Map<String, Object> parameters) throws Exception {
-		Cache cache = Cache.getCache(getName(), CacheType.Weekly);
+		Cache cache = Cache.getCache(getName(), CacheType.Monthly);
 		String key = '?' + encodeParameters(parameters, true);
 
 		return cache.json(key, s -> getResource(s)).fetch(withPermit(fetchIfModified(), r -> REQUEST_LIMIT.acquirePermit())).expire(Cache.ONE_WEEK).get();
