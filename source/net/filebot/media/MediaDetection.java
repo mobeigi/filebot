@@ -81,12 +81,7 @@ public class MediaDetection {
 	}
 
 	public static FileFilter getClutterFileFilter() {
-		try {
-			return releaseInfo.getClutterFileFilter();
-		} catch (Exception e) {
-			debug.log(Level.SEVERE, "Failed to load clutter file filter: " + e.getMessage(), e);
-		}
-		return f -> false;
+		return releaseInfo.getClutterFileFilter();
 	}
 
 	public static boolean isDiskFolder(File folder) {

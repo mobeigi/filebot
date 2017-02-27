@@ -318,6 +318,10 @@ public class ReleaseInfo {
 		return compileWordPattern(getProperty("pattern.video.repack"));
 	}
 
+	public Pattern getExcludePattern() {
+		return compileWordPattern(getProperty("pattern.clutter.excludes"));
+	}
+
 	public Pattern getClutterBracketPattern(boolean strict) {
 		// match patterns like [Action, Drama] or {ENG-XViD-MP3-DVDRiP} etc
 		String brackets = "()[]{}";
@@ -348,10 +352,6 @@ public class ReleaseInfo {
 
 	public Pattern getBlacklistPattern() throws Exception {
 		return compileWordPattern(queryBlacklist.get()); // pattern matching any release group name enclosed in separators
-	}
-
-	public Pattern getExcludePattern() throws Exception {
-		return compile(or(excludeBlacklist.get()), CASE_INSENSITIVE);
 	}
 
 	private Pattern compileWordPattern(String[] patterns) {
@@ -402,7 +402,7 @@ public class ReleaseInfo {
 
 	private static ClutterFileFilter clutterFileFilter;
 
-	public FileFilter getClutterFileFilter() throws Exception {
+	public FileFilter getClutterFileFilter() {
 		if (clutterFileFilter == null) {
 			clutterFileFilter = new ClutterFileFilter(getExcludePattern(), Long.parseLong(getProperty("number.clutter.maxfilesize"))); // only files smaller than 250 MB may be considered clutter
 		}
@@ -439,7 +439,6 @@ public class ReleaseInfo {
 
 	private final Resource<String[]> releaseGroup = lines("url.release-groups", Cache.ONE_WEEK);
 	private final Resource<String[]> queryBlacklist = lines("url.query-blacklist", Cache.ONE_WEEK);
-	private final Resource<String[]> excludeBlacklist = lines("url.exclude-blacklist", Cache.ONE_WEEK);
 
 	private final Resource<SearchResult[]> tvdbIndex = tsv("url.thetvdb-index", Cache.ONE_WEEK, this::parseSeries, SearchResult[]::new);
 	private final Resource<SearchResult[]> anidbIndex = tsv("url.anidb-index", Cache.ONE_WEEK, this::parseSeries, SearchResult[]::new);
