@@ -12,14 +12,14 @@ import java.util.logging.Level;
 import javax.script.ScriptException;
 
 import net.filebot.ApplicationFolder;
-import net.filebot.format.ExpressionFormat;
+import net.filebot.format.ExpressionFileFormat;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.similarity.Match;
 
 class ExpressionFormatter implements MatchFormatter {
 
 	private final String expression;
-	private ExpressionFormat format;
+	private ExpressionFileFormat format;
 
 	private Format preview;
 	private Class<?> target;
@@ -34,7 +34,7 @@ class ExpressionFormatter implements MatchFormatter {
 		this.target = target;
 	}
 
-	public ExpressionFormatter(ExpressionFormat format, Format preview, Class<?> target) {
+	public ExpressionFormatter(ExpressionFileFormat format, Format preview, Class<?> target) {
 		this(format.getExpression(), preview, target);
 
 		// use compiled format expression right away
@@ -60,7 +60,7 @@ class ExpressionFormatter implements MatchFormatter {
 	public synchronized String format(Match<?, ?> match, boolean extension, Map<?, ?> context) throws ScriptException {
 		// lazy initialize script engine
 		if (format == null) {
-			format = new ExpressionFormat(expression);
+			format = new ExpressionFileFormat(expression);
 		}
 
 		// evaluate the expression using the given bindings

@@ -1,9 +1,6 @@
 package net.filebot.format;
 
-import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.ExceptionUtilities.*;
-import static net.filebot.util.FileUtilities.*;
-import static net.filebot.util.RegularExpressions.*;
 
 import java.security.AccessController;
 import java.text.FieldPosition;
@@ -66,7 +63,7 @@ public class ExpressionFormat extends Format {
 			if (c == open) {
 				if (level == 0) {
 					if (token.length() > 0) {
-						compilation.add(NEWLINE.matcher(token).replaceAll(""));
+						compilation.add(token.toString());
 						token.setLength(0);
 					}
 				} else {
@@ -124,13 +121,7 @@ public class ExpressionFormat extends Format {
 	}
 
 	public Bindings getBindings(Object value) {
-		return new ExpressionBindings(value) {
-
-			@Override
-			public Object get(Object key) {
-				return normalizeBindingValue(super.get(key));
-			}
-		};
+		return new ExpressionBindings(value);
 	}
 
 	@Override
@@ -183,26 +174,15 @@ public class ExpressionFormat extends Format {
 	}
 
 	protected Object normalizeBindingValue(Object value) {
-		// if the binding value is a String, remove illegal characters
-		if (value instanceof CharSequence) {
-			return replacePathSeparators((CharSequence) value, " ").trim();
-		}
-
-		// if the binding value is an Object, just leave it
 		return value;
 	}
 
 	protected CharSequence normalizeExpressionValue(Object value) {
-		if (value == null) {
-			return null;
-		}
-
-		return normalizePathSeparators(value.toString());
+		return value == null ? null : value.toString();
 	}
 
 	protected String normalizeResult(CharSequence value) {
-		// normalize unicode space characters and remove newline characters
-		return replaceSpace(value, " ").trim();
+		return value.toString();
 	}
 
 	protected Throwable normalizeExpressionException(ScriptException exception) {

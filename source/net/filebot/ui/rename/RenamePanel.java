@@ -64,7 +64,7 @@ import net.filebot.Settings;
 import net.filebot.StandardRenameAction;
 import net.filebot.UserFiles;
 import net.filebot.WebServices;
-import net.filebot.format.ExpressionFormat;
+import net.filebot.format.ExpressionFileFormat;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.media.MetaAttributes;
@@ -741,7 +741,7 @@ public class RenamePanel extends JComponent {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			SwingWorker<ExpressionFormatter, Void> worker = newSwingWorker(() -> {
-				ExpressionFormat format = preset.getFormat();
+				ExpressionFileFormat format = preset.getFormat();
 
 				if (format != null && preset.getDatasource() != null) {
 					switch (Mode.getMode(preset.getDatasource())) {

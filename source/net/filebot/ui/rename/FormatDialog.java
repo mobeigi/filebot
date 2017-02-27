@@ -61,6 +61,7 @@ import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.UserFiles;
 import net.filebot.format.BindingException;
+import net.filebot.format.ExpressionFileFormat;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.format.SuppressedThrowables;
@@ -87,7 +88,7 @@ import net.miginfocom.swing.MigLayout;
 public class FormatDialog extends JDialog {
 
 	private boolean submit = false;
-	private ExpressionFormat format;
+	private ExpressionFileFormat format;
 
 	private Mode mode;
 	private boolean locked = false;
@@ -398,7 +399,7 @@ public class FormatDialog extends JDialog {
 			// bind text to preview
 			addPropertyChangeListener("sample", evt -> {
 				newSwingWorker(() -> {
-					return new ExpressionFormat(format).format(sample);
+					return new ExpressionFileFormat(format).format(sample);
 				}, s -> {
 					formatExample.setText(s);
 				}).execute();
@@ -449,7 +450,7 @@ public class FormatDialog extends JDialog {
 	private void checkFormatInBackground() {
 		try {
 			// check syntax in foreground
-			ExpressionFormat format = new ExpressionFormat(editor.getText().trim());
+			ExpressionFileFormat format = new ExpressionFileFormat(editor.getText().trim());
 
 			// activate delayed to avoid flickering when formatting takes only a couple of milliseconds
 			Timer progressIndicatorTimer = invokeLater(400, () -> progressIndicator.setVisible(true));
@@ -666,7 +667,7 @@ public class FormatDialog extends JDialog {
 	protected final Action approveFormatAction = newAction("Use Format", ResourceManager.getIcon("dialog.continue"), evt -> {
 		try {
 			// check syntax
-			format = new ExpressionFormat(editor.getText().trim());
+			format = new ExpressionFileFormat(editor.getText().trim());
 
 			if (format.getExpression().isEmpty()) {
 				throw new ScriptException("Expression is empty");

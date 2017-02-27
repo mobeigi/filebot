@@ -219,11 +219,8 @@ public abstract class ScriptShellBaseClass extends Script {
 	public String getMediaInfo(File file, String format) throws Exception {
 		ExpressionFormat formatter = new ExpressionFormat(format);
 
-		Object o = xattr.getMetaInfo(file);
-		File f = file.getCanonicalFile();
-
 		try {
-			return formatter.format(new MediaBindingBean(o, f));
+			return formatter.format(new MediaBindingBean(xattr.getMetaInfo(file), file));
 		} catch (SuppressedThrowables e) {
 			debug.finest(format("%s => %s", format, e.getMessage()));
 		}
@@ -342,7 +339,7 @@ public abstract class ScriptShellBaseClass extends Script {
 
 		try {
 			if (files.size() > 0) {
-				return getCLI().rename(files, args.getRenameAction(), args.getConflictAction(), args.getAbsoluteOutputFolder(), args.getExpressionFormat(), args.getDatasource(), args.getSearchQuery(), args.getSortOrder(), args.getExpressionFilter(), args.getLanguage().getLocale(), args.isStrict());
+				return getCLI().rename(files, args.getRenameAction(), args.getConflictAction(), args.getAbsoluteOutputFolder(), args.getExpressionFileFormat(), args.getDatasource(), args.getSearchQuery(), args.getSortOrder(), args.getExpressionFilter(), args.getLanguage().getLocale(), args.isStrict());
 			}
 
 			if (map.size() > 0) {

@@ -15,6 +15,7 @@ import net.filebot.CachedResource.Transform;
 import net.filebot.Language;
 import net.filebot.StandardRenameAction;
 import net.filebot.format.ExpressionFileFilter;
+import net.filebot.format.ExpressionFileFormat;
 import net.filebot.format.ExpressionFilter;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.media.XattrMetaInfoProvider;
@@ -60,8 +61,8 @@ public class Preset {
 		return getInputFolder() == null ? null : getValue(includes, expression -> new ExpressionFileFilter(expression));
 	}
 
-	public ExpressionFormat getFormat() {
-		return getValue(format, ExpressionFormat::new);
+	public ExpressionFileFormat getFormat() {
+		return getValue(format, ExpressionFileFormat::new);
 	}
 
 	public String getMatchMode() {

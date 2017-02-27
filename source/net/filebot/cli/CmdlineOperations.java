@@ -44,6 +44,7 @@ import net.filebot.RenameAction;
 import net.filebot.StandardRenameAction;
 import net.filebot.archive.Archive;
 import net.filebot.archive.FileMapper;
+import net.filebot.format.ExpressionFileFormat;
 import net.filebot.format.ExpressionFilter;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
@@ -85,7 +86,7 @@ import net.filebot.web.VideoHashSubtitleService;
 public class CmdlineOperations implements CmdlineInterface {
 
 	@Override
-	public List<File> rename(Collection<File> files, RenameAction action, ConflictAction conflict, File output, ExpressionFormat format, Datasource db, String query, SortOrder order, ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
+	public List<File> rename(Collection<File> files, RenameAction action, ConflictAction conflict, File output, ExpressionFileFormat format, Datasource db, String query, SortOrder order, ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
 		// movie mode
 		if (db instanceof MovieIdentificationService) {
 			return renameMovie(files, action, conflict, output, format, (MovieIdentificationService) db, query, filter, locale, strict);
