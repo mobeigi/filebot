@@ -351,7 +351,7 @@ public class ReleaseInfo {
 	}
 
 	public Pattern getExcludePattern() throws Exception {
-		return compileWordPattern(excludeBlacklist.get()); // pattern matching any release group name enclosed in separators
+		return compile(or(excludeBlacklist.get()), CASE_INSENSITIVE);
 	}
 
 	private Pattern compileWordPattern(String[] patterns) {
