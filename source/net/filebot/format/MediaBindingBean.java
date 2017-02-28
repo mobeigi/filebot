@@ -736,7 +736,7 @@ public class MediaBindingBean {
 	@Define("az")
 	public String getSortInitial() {
 		try {
-			return sortInitial(getCollection().toString());
+			return sortInitial(getCollection());
 		} catch (Exception e) {
 			return sortInitial(getName());
 		}
