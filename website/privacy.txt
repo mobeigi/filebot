@@ -1,0 +1,15 @@
+The FileBot (Desktop Application) Privacy Policy
+----------------------
+
+The FileBot (Desktop Application) does not collect or share any information. Static resources hosted at app.filebot.net are accessed anonymously. No data (other than connection data such as HTTP headers) is sent to app.filebot.net requests are not tracked server-side.
+
+Requests to 3rd party services are only made when related features (e.g. fetch episode list) are invoked. When accessing 3rd party services (e.g. TheTVDB, TheMovieDB, OpenSubtitles, AcoustID, ...) their respective privacy policies apply.
+
+
+Contacting Us
+-------------
+
+FileBot
+support@filebot.net
+
+Last Edited on 2017-03-01
