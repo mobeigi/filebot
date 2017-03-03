@@ -18,7 +18,6 @@ import net.filebot.format.ExpressionFileFilter;
 import net.filebot.format.ExpressionFileFormat;
 import net.filebot.format.ExpressionFilter;
 import net.filebot.format.ExpressionFormat;
-import net.filebot.media.XattrMetaInfoProvider;
 import net.filebot.web.Datasource;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.MovieIdentificationService;
@@ -120,11 +119,12 @@ public class Preset {
 			return new MusicMatcher((MusicIdentificationService) db);
 		}
 
-		if (db instanceof XattrMetaInfoProvider) {
-			return XATTR_FILE_MATCHER;
+		// PhotoFileMatcher / XattrFileMatcher / PlainFileMatcher
+		if (db instanceof AutoCompleteMatcher) {
+			return (AutoCompleteMatcher) db;
 		}
 
-		return PLAIN_FILE_MATCHER; // default to plain file matcher
+		throw new IllegalStateException("Illegal datasource: " + db);
 	}
 
 	@Override
@@ -132,13 +132,12 @@ public class Preset {
 		return name;
 	}
 
-	public static final XattrFileMatcher XATTR_FILE_MATCHER = new XattrFileMatcher();
-	public static final PlainFileMatcher PLAIN_FILE_MATCHER = new PlainFileMatcher();
-
 	public static Datasource[] getSupportedServices() {
-		Stream<Datasource> services = Stream.of(getEpisodeListProviders(), getMovieIdentificationServices(), getMusicIdentificationServices()).flatMap(Stream::of);
-		services = Stream.concat(services, Stream.of(XATTR_FILE_MATCHER, PLAIN_FILE_MATCHER));
-		return services.toArray(Datasource[]::new);
+		return Stream.of(getEpisodeListProviders(), getMovieIdentificationServices(), getMusicIdentificationServices(), getGenericFileMatcherServices()).flatMap(Stream::of).toArray(Datasource[]::new);
+	}
+
+	public static Datasource[] getGenericFileMatcherServices() {
+		return new Datasource[] { PhotoFileMatcher.INSTANCE, XattrFileMatcher.INSTANCE, PlainFileMatcher.INSTANCE };
 	}
 
 	public static StandardRenameAction[] getSupportedActions() {

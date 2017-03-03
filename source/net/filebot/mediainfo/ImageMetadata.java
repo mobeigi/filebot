@@ -136,7 +136,7 @@ public class ImageMetadata {
 		try {
 			return Optional.ofNullable(extract.apply(metadata));
 		} catch (Exception e) {
-			debug.warning(e::toString);
+			debug.finest(format("Failed to extract image metadata: %s", e));
 		}
 		return Optional.empty();
 	}
