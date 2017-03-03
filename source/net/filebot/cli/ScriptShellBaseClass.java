@@ -339,7 +339,7 @@ public abstract class ScriptShellBaseClass extends Script {
 
 		try {
 			if (files.size() > 0) {
-				return getCLI().rename(files, args.getRenameAction(), args.getConflictAction(), args.getAbsoluteOutputFolder(), args.getExpressionFileFormat(), args.getDatasource(), args.getSearchQuery(), args.getSortOrder(), args.getExpressionFilter(), args.getLanguage().getLocale(), args.isStrict());
+				return getCLI().rename(files, action, args.getConflictAction(), args.getAbsoluteOutputFolder(), args.getExpressionFileFormat(), args.getDatasource(), args.getSearchQuery(), args.getSortOrder(), args.getExpressionFilter(), args.getLanguage().getLocale(), args.isStrict());
 			}
 
 			if (map.size() > 0) {
