@@ -101,7 +101,7 @@ public class SelectDialog<T> extends JDialog {
 		return value.toString();
 	}
 
-	protected void configureValue(JComponent render, Object value) {
+	protected void configureValue(DefaultFancyListCellRenderer render, Object value) {
 		if (value instanceof SearchResult) {
 			render.setToolTipText(getTooltipText((SearchResult) value));
 		} else if (value instanceof File) {

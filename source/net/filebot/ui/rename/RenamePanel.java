@@ -2,7 +2,7 @@ package net.filebot.ui.rename;
 
 import static java.awt.event.KeyEvent.*;
 import static java.util.Collections.*;
-import static javax.swing.JOptionPane.*;
+import static java.util.Comparator.*;
 import static javax.swing.KeyStroke.*;
 import static javax.swing.SwingUtilities.*;
 import static net.filebot.Logging.*;
@@ -15,7 +15,9 @@ import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.Window;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -69,13 +71,16 @@ import net.filebot.format.MediaBindingBean;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.media.MetaAttributes;
 import net.filebot.similarity.Match;
+import net.filebot.ui.SelectDialog;
 import net.filebot.ui.rename.FormatDialog.Mode;
 import net.filebot.ui.rename.RenameModel.FormattedFuture;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 import net.filebot.ui.transfer.TransferablePolicy;
 import net.filebot.ui.transfer.TransferablePolicy.TransferAction;
+import net.filebot.util.AlphanumComparator;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.ui.ActionPopup;
+import net.filebot.util.ui.DefaultFancyListCellRenderer;
 import net.filebot.util.ui.LoadingOverlayPane;
 import net.filebot.vfs.FileInfo;
 import net.filebot.vfs.SimpleFileInfo;
@@ -378,55 +383,56 @@ public class RenamePanel extends JComponent {
 	private ActionPopup createPresetsPopup() {
 		ActionPopup actionPopup = new ActionPopup("Presets", ResourceManager.getIcon("action.script"));
 
-		try {
-			if (persistentPresets.size() > 0) {
-				for (Preset preset : persistentPresets.values()) {
-					actionPopup.add(new ApplyPresetAction(preset));
-				}
-				actionPopup.addSeparator();
+		List<Preset> presets = new ArrayList<Preset>(persistentPresets.values());
+		presets.sort(comparing(Preset::getName, new AlphanumComparator(Locale.getDefault())));
+
+		if (presets.size() > 0) {
+			for (Preset preset : presets) {
+				actionPopup.add(new ApplyPresetAction(preset));
 			}
-		} catch (Exception e) {
-			debug.log(Level.WARNING, e, e::toString);
+			actionPopup.addSeparator();
 		}
 
 		actionPopup.add(newAction("Edit Presets", ResourceManager.getIcon("script.add"), evt -> {
-			try {
-				String newPreset = "New Preset …";
-				List<String> presetNames = new ArrayList<String>(persistentPresets.keySet());
-				presetNames.add(newPreset);
+			Window window = getWindow(evt.getSource());
 
-				String selection = (String) showInputDialog(getWindow(evt.getSource()), "Edit or create a preset:", "Edit Preset", PLAIN_MESSAGE, null, presetNames.toArray(), newPreset);
-				if (selection == null) {
-					return;
-				}
+			Action newPreset = newAction("New Preset …", ResourceManager.getIcon("script.add"), a -> {
+				Optional.ofNullable(JOptionPane.showInputDialog(window, "Preset Name:", a.getActionCommand(), JOptionPane.PLAIN_MESSAGE, null, null, "My Preset")).map(Object::toString).map(String::trim).filter(s -> s.length() > 0).ifPresent(n -> {
+					showPresetEditor(new Preset(n, null, null, null, null, null, null, null, null), window);
+				});
+			});
 
-				PresetEditor presetEditor = new PresetEditor(getWindow(evt.getSource()));
+			List<Object> options = new ArrayList<Object>(presets);
+			options.add(newPreset);
 
-				if (selection == newPreset) {
-					selection = (String) showInputDialog(getWindow(evt.getSource()), "Preset Name:", newPreset, PLAIN_MESSAGE, null, null, "My Preset");
-					if (selection == null || selection.trim().isEmpty()) {
-						return;
+			SelectDialog<Object> selectDialog = new SelectDialog<Object>(window, options) {
+
+				@Override
+				protected void configureValue(DefaultFancyListCellRenderer render, Object value) {
+					if (value instanceof Preset) {
+						Preset preset = (Preset) value;
+						render.setIcon(preset.getIcon());
+					} else if (value instanceof Action) {
+						Action action = (Action) value;
+						render.setText((String) action.getValue(Action.NAME));
+						render.setIcon((Icon) action.getValue(Action.SMALL_ICON));
 					}
-					presetEditor.setPreset(new Preset(selection.trim(), null, null, null, null, null, null, null, null));
-				} else {
-					presetEditor.setPreset(persistentPresets.get(selection));
 				}
+			};
 
-				presetEditor.setLocation(getOffsetLocation(presetEditor.getOwner()));
-				presetEditor.setVisible(true);
+			selectDialog.setTitle("Edit Presets");
+			selectDialog.setLocation(getOffsetLocation(selectDialog.getOwner()));
+			selectDialog.setMinimumSize(new Dimension(250, 250));
+			selectDialog.pack();
+			selectDialog.setVisible(true);
 
-				switch (presetEditor.getResult()) {
-				case SET:
-					persistentPresets.put(selection, presetEditor.getPreset());
-					break;
-				case DELETE:
-					persistentPresets.remove(selection);
-					break;
-				case CANCEL:
-					break;
-				}
-			} catch (Exception e) {
-				debug.log(Level.WARNING, e, e::toString);
+			Object selection = selectDialog.getSelectedValue();
+			if (selection instanceof Preset) {
+				Preset preset = (Preset) selection;
+				showPresetEditor(preset, window);
+			} else if (selection instanceof Action) {
+				Action action = (Action) selection;
+				action.actionPerformed(new ActionEvent(newPreset, ActionEvent.ACTION_PERFORMED, "New Preset …"));
 			}
 		}));
 
@@ -516,10 +522,10 @@ public class RenamePanel extends JComponent {
 			message.add(spModeCombo, "grow, hmin 24px");
 			message.add(spLanguageList, "grow, hmin 50px");
 			message.add(spOrderCombo, "grow, hmin 24px");
-			JOptionPane pane = new JOptionPane(message, PLAIN_MESSAGE, OK_CANCEL_OPTION);
+			JOptionPane pane = new JOptionPane(message, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
 			pane.createDialog(getWindowAncestor(RenamePanel.this), "Preferences").setVisible(true);
 
-			if (pane.getValue() != null && pane.getValue().equals(OK_OPTION)) {
+			if (pane.getValue() != null && pane.getValue().equals(JOptionPane.OK_OPTION)) {
 				persistentPreferredMatchMode.setValue((String) modeCombo.getSelectedItem());
 				persistentPreferredLanguage.setValue(((Language) languageList.getSelectedValue()).getCode());
 				persistentPreferredEpisodeOrder.setValue(((SortOrder) orderCombo.getSelectedItem()).name());
@@ -606,6 +612,29 @@ public class RenamePanel extends JComponent {
 		});
 	}
 
+	private void showPresetEditor(Preset preset, Window owner) {
+		try {
+			PresetEditor presetEditor = new PresetEditor(owner);
+			presetEditor.setPreset(preset);
+
+			presetEditor.setLocation(getOffsetLocation(presetEditor.getOwner()));
+			presetEditor.setVisible(true);
+
+			switch (presetEditor.getResult()) {
+			case SET:
+				persistentPresets.put(preset.getName(), presetEditor.getPreset());
+				break;
+			case DELETE:
+				persistentPresets.remove(preset.getName());
+				break;
+			case CANCEL:
+				break;
+			}
+		} catch (Exception e) {
+			debug.log(Level.WARNING, e, e::toString);
+		}
+	}
+
 	private String getDebugInfo() throws Exception {
 		StringBuilder sb = new StringBuilder();
 
@@ -678,8 +707,12 @@ public class RenamePanel extends JComponent {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
-			JComponent source = (JComponent) evt.getSource();
-			createPresetsPopup().show(source, -3, source.getHeight() + 4);
+			try {
+				JComponent source = (JComponent) evt.getSource();
+				createPresetsPopup().show(source, -3, source.getHeight() + 4);
+			} catch (Exception e) {
+				debug.log(Level.WARNING, e, e::toString);
+			}
 		}
 	};
 
