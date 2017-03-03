@@ -426,12 +426,20 @@ public class MediaBindingBean {
 		return (float) dim.get(0) / dim.get(1) > 1.37f ? "WS" : null;
 	}
 
-	@Define("sdhd")
+	@Define("hd")
 	public String getVideoDefinitionCategory() {
 		List<Integer> dim = getDimension();
 
-		// SD (less than 720 lines) or HD (more than 720 lines)
-		return dim.get(0) >= 1280 || dim.get(1) >= 720 ? "HD" : "SD";
+		// UHD
+		if (dim.get(0) >= 3840 || dim.get(1) >= 2160)
+			return "UHD";
+
+		// HD
+		if (dim.get(0) >= 1280 || dim.get(1) >= 720)
+			return "HD";
+
+		// SD
+		return "SD";
 	}
 
 	@Define("dim")
