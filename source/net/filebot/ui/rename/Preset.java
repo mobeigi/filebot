@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
+import javax.swing.Icon;
+
 import net.filebot.CachedResource.Transform;
 import net.filebot.Language;
 import net.filebot.StandardRenameAction;
@@ -82,6 +84,10 @@ public class Preset {
 
 	public Datasource getDatasource() {
 		return getValue(database, id -> getService(id, getSupportedServices()));
+	}
+
+	public Icon getIcon() {
+		return getValue(database, id -> getService(id, getSupportedServices()).getIcon());
 	}
 
 	private <T> T getValue(String s, Transform<String, T> t) {

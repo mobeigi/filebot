@@ -688,7 +688,7 @@ public class RenamePanel extends JComponent {
 		private Preset preset;
 
 		public ApplyPresetAction(Preset preset) {
-			super(preset.getName(), preset.getDatasource().getIcon(), preset::getAutoCompleteMatcher);
+			super(preset.getName(), preset.getIcon(), preset::getAutoCompleteMatcher);
 			this.preset = preset;
 		}
 
