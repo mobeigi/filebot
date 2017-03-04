@@ -122,7 +122,6 @@
 
 
 	<target name="jar" depends="build">
-		<!-- main jar -->
 		<jar destfile="${dir.dist}/filebot.jar">
 			<fileset dir="${dir.build}" />
 			<manifest>
@@ -140,10 +139,10 @@
 			<zipfileset src="${dir.dist}/filebot.jar" />
 
 			<!-- include core libraries -->
-			<zipfileset src="${dir.lib}/ivy/bundle/args4j.jar">
+			<zipfileset src="${dir.dist}/lib/args4j.jar">
 				<include name="org/kohsuke/args4j/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/ehcache.jar">
+			<zipfileset src="${dir.dist}/lib/ehcache.jar">
 				<include name="META-INF/services/**" />
 				<include name="net/sf/ehcache/**" />
 				<include name="org/terracotta/**" />
@@ -152,57 +151,57 @@
 			</zipfileset>
 
 			<!-- include UI libraries -->
-			<zipfileset src="${dir.lib}/ivy/jar/miglayout-core.jar">
+			<zipfileset src="${dir.dist}/lib/miglayout-core.jar">
 				<include name="net/miginfocom/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/miglayout-swing.jar">
+			<zipfileset src="${dir.dist}/lib/miglayout-swing.jar">
 				<include name="net/miginfocom/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/glazedlists_java15.jar">
+			<zipfileset src="${dir.dist}/lib/glazedlists_java15.jar">
 				<include name="ca/odell/glazedlists/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/controlsfx.jar">
+			<zipfileset src="${dir.dist}/lib/controlsfx.jar">
 				<include name="org/controlsfx/dialog/**" />
 				<include name="impl/org/controlsfx/i18n/**" />
 				<include name="controlsfx.properties" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/rsyntaxtextarea.jar">
+			<zipfileset src="${dir.dist}/lib/rsyntaxtextarea.jar">
 				<include name="org/fife/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/lanterna.jar">
+			<zipfileset src="${dir.dist}/lib/lanterna.jar">
 				<include name="com/googlecode/lanterna/**" />
 				<include name="**/*.properties" />
 			</zipfileset>
 
 			<!-- include IO libraries -->
-			<zipfileset src="${dir.lib}/ivy/jar/xz.jar">
+			<zipfileset src="${dir.dist}/lib/xz.jar">
 				<include name="org/tukaani/xz/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/bundle/json-io.jar">
+			<zipfileset src="${dir.dist}/lib/json-io.jar">
 				<include name="com/cedarsoftware/util/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/jars/xmlrpc.jar">
+			<zipfileset src="${dir.dist}/lib/xmlrpc.jar">
 				<include name="redstone/xmlrpc/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/sevenzipjbinding.jar">
+			<zipfileset src="${dir.dist}/lib/sevenzipjbinding.jar">
 				<include name="net/sf/sevenzipjbinding/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/commons-io.jar">
+			<zipfileset src="${dir.dist}/lib/commons-io.jar">
 				<include name="org/apache/commons/io/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/commons-vfs2.jar">
+			<zipfileset src="${dir.dist}/lib/commons-vfs2.jar">
 				<include name="org/apache/commons/vfs2/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/junrar.jar">
+			<zipfileset src="${dir.dist}/lib/junrar.jar">
 				<include name="com/github/junrar/**" />
 			</zipfileset>
 
 			<!-- include native libraries -->
-			<zipfileset src="${dir.lib}/jars/ObjCBridge.jar">
+			<zipfileset src="${dir.dist}/lib/ObjCBridge.jar">
 				<include name="ca/weblite/**" />
 				<include name="com/sun/jna/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/jna.jar">
+			<zipfileset src="${dir.dist}/lib/jna.jar">
 				<include name="com/sun/jna/**" />
 
 				<!-- exclude native libraries -->
@@ -212,52 +211,52 @@
 				<exclude name="**/*.dylib" />
 				<exclude name="**/*.jnilib" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/jna-platform.jar">
+			<zipfileset src="${dir.dist}/lib/jna-platform.jar">
 				<include name="com/sun/jna/platform/**" />
 			</zipfileset>
 
 			<!-- include extra libraries -->
-			<zipfileset src="${dir.lib}/ivy/bundle/guava.jar">
+			<zipfileset src="${dir.dist}/lib/guava.jar">
 				<include name="com/google/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/streamex.jar">
+			<zipfileset src="${dir.dist}/lib/streamex.jar">
 				<include name="one/util/streamex/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/icu4j.jar">
+			<zipfileset src="${dir.dist}/lib/icu4j.jar">
 				<include name="com/ibm/icu/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/jars/simmetrics.jar">
+			<zipfileset src="${dir.dist}/lib/simmetrics.jar">
 				<include name="uk/ac/shef/wit/simmetrics/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/language-detector.jar">
+			<zipfileset src="${dir.dist}/lib/language-detector.jar">
 				<include name="be/frma/langguess/**" />
 				<include name="com/cybozu/labs/langdetect/**" />
 				<include name="com/optimaize/langdetect/**" />
 				<include name="languages/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/metadata-extractor.jar">
+			<zipfileset src="${dir.dist}/lib/metadata-extractor.jar">
 				<include name="com/drew/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/xmpcore.jar">
+			<zipfileset src="${dir.dist}/lib/xmpcore.jar">
 				<include name="com/adobe/xmp/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/jars/jacksum.jar">
+			<zipfileset src="${dir.dist}/lib/jacksum.jar">
 				<include name="jonelo/jacksum/adapt/**" />
 				<include name="jonelo/jacksum/algorithm/**" />
 				<include name="jonelo/sugar/util/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/commons-logging.jar">
+			<zipfileset src="${dir.dist}/lib/commons-logging.jar">
 				<include name="org/apache/commons/logging/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/slf4j-api.jar">
+			<zipfileset src="${dir.dist}/lib/slf4j-api.jar">
 				<include name="org/slf4j/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/slf4j-jdk14.jar">
+			<zipfileset src="${dir.dist}/lib/slf4j-jdk14.jar">
 				<include name="org/slf4j/**" />
 			</zipfileset>
 
 			<!-- include Groovy libraries -->
-			<zipfileset src="${dir.lib}/ivy/jar/groovy-all.jar">
+			<zipfileset src="${dir.dist}/lib/groovy-all.jar">
 				<include name="groovy*/**" />
 				<include name="org/codehaus/groovy/**" />
 				<include name="META-INF/dgminfo" />
@@ -269,38 +268,38 @@
 			</zipfileset>
 
 			<!-- Ivy for @Grapes automatic dependency management -->
-			<zipfileset src="${dir.lib}/ivy/jar/ivy.jar">
+			<zipfileset src="${dir.dist}/lib/ivy.jar">
 				<include name="org/apache/ivy/**" />
 			</zipfileset>
 
 			<!-- libraries used in external scripts -->
-			<zipfileset src="${dir.lib}/ivy/jar/jsoup.jar">
+			<zipfileset src="${dir.dist}/lib/jsoup.jar">
 				<include name="org/jsoup/**" />
 			</zipfileset>
 
 			<!-- AntBuilder including dependencies for ant-javamail, ant-commons-net and ant-jsch -->
-			<zipfileset src="${dir.lib}/ivy/jar/ant.jar">
+			<zipfileset src="${dir.dist}/lib/ant.jar">
 				<include name="org/apache/tools/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/ant-launcher.jar">
+			<zipfileset src="${dir.dist}/lib/ant-launcher.jar">
 				<include name="org/apache/tools/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/ant-commons-net.jar">
+			<zipfileset src="${dir.dist}/lib/ant-commons-net.jar">
 				<include name="org/apache/tools/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/ant-jsch.jar">
+			<zipfileset src="${dir.dist}/lib/ant-jsch.jar">
 				<include name="org/apache/tools/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/ant-javamail.jar">
+			<zipfileset src="${dir.dist}/lib/ant-javamail.jar">
 				<include name="org/apache/tools/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/commons-net.jar">
+			<zipfileset src="${dir.dist}/lib/commons-net.jar">
 				<include name="org/apache/commons/net/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/jsch.jar">
+			<zipfileset src="${dir.dist}/lib/jsch.jar">
 				<include name="com/jcraft/jsch/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/mail.jar">
+			<zipfileset src="${dir.dist}/lib/mail.jar">
 				<include name="javax/mail/**" />
 				<include name="com/sun/mail/**" />
 				<include name="META-INF/*mail*" />
@@ -711,12 +710,70 @@
 
 
 	<target name="build" depends="revision">
+		<!-- copy dependencies -->
+		<copy todir="${dir.dist}/lib" flatten="yes" verbose="yes">
+			<fileset dir="${dir.lib}/ivy/jar">
+				<include name="ehcache.jar" />
+				<include name="miglayout-core.jar" />
+				<include name="miglayout-swing.jar" />
+				<include name="glazedlists_java15.jar" />
+				<include name="controlsfx.jar" />
+				<include name="rsyntaxtextarea.jar" />
+				<include name="lanterna.jar" />
+				<include name="xz.jar" />
+				<include name="sevenzipjbinding.jar" />
+				<include name="commons-io.jar" />
+				<include name="commons-vfs2.jar" />
+				<include name="junrar.jar" />
+				<include name="jna.jar" />
+				<include name="jna-platform.jar" />
+				<include name="streamex.jar" />
+				<include name="icu4j.jar" />
+				<include name="language-detector.jar" />
+				<include name="metadata-extractor.jar" />
+				<include name="xmpcore.jar" />
+				<include name="commons-logging.jar" />
+				<include name="slf4j-api.jar" />
+				<include name="slf4j-jdk14.jar" />
+				<include name="groovy-all.jar" />
+				<include name="ivy.jar" />
+				<include name="jsoup.jar" />
+				<include name="ant.jar" />
+				<include name="ant-launcher.jar" />
+				<include name="ant-commons-net.jar" />
+				<include name="ant-jsch.jar" />
+				<include name="ant-javamail.jar" />
+				<include name="commons-net.jar" />
+				<include name="jsch.jar" />
+				<include name="mail.jar" />
+			</fileset>
+			<fileset dir="${dir.lib}/ivy/bundle">
+				<include name="args4j.jar" />
+				<include name="json-io.jar" />
+				<include name="guava.jar" />
+			</fileset>
+			<fileset dir="${dir.lib}/jars">
+				<include name="xmlrpc.jar" />
+				<include name="ObjCBridge.jar" />
+				<include name="simmetrics.jar" />
+				<include name="jacksum.jar" />
+			</fileset>
+		</copy>
+
 		<!-- compile -->
-		<javac srcdir="${dir.source}" destdir="${dir.build}" target="${jvm.version}" source="${jvm.version}" encoding="utf-8" debug="true" debuglevel="lines,vars,source" includeAntRuntime="false">
+		<javac srcdir="${dir.source}" destdir="${dir.build}" target="${jvm.version}" source="${jvm.version}" encoding="utf-8" debug="yes" debuglevel="lines,vars,source" includeAntRuntime="no">
 			<classpath>
-				<fileset dir="${dir.lib}" includes="**/*.jar" />
+				<fileset dir="${dir.dist}/lib" />
 			</classpath>
+
+			<!-- compile-time dependencies  -->
+			<classpath path="${dir.lib}/jars/AppleJavaExtensions.jar" />
 		</javac>
+
+		<!-- copy property files -->
+		<copy-replace todir="${dir.build}">
+			<fileset dir="${dir.source}" includes="**/*.properties" />
+		</copy-replace>
 
 		<!-- copy resources -->
 		<copy todir="${dir.build}">
@@ -725,11 +782,6 @@
 				<exclude name="**/*.properties" />
 			</fileset>
 		</copy>
-
-		<!-- update application properties -->
-		<copy-replace todir="${dir.build}">
-			<fileset dir="${dir.source}" includes="**/*.properties" />
-		</copy-replace>
 	</target>
 
 
