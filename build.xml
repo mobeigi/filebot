@@ -578,7 +578,9 @@
 
 
 	<target name="appx" description="Build Windows 10 package" depends="revision">
-		<copy tofile="${dir.dist}/appx/FileBot.jar" file="${path.fatjar}" />
+		<copy todir="${dir.dist}/appx/lib">
+			<fileset dir="${dir.dist}/lib" includes="*.jar" />
+		</copy>
 		<copy todir="${dir.dist}/appx">
 			<fileset dir="${dir.installer}/appx" excludes="*.xml, *.ini" />
 			<fileset dir="${dir.lib}/native/win32-x64" />
@@ -596,9 +598,7 @@
 			</tarfileset>
 			<cutdirsmapper dirs="1" />
 		</copy>
-		<copy todir="${dir.dist}/appx/lib">
-			<fileset dir="${dir.dist}/lib" includes="*.jar" />
-		</copy>
+
 
 		<!-- copy files and resolve ant variables -->
 		<copy-replace todir="${dir.dist}/appx">
