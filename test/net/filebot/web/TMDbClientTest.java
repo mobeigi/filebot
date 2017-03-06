@@ -57,12 +57,12 @@ public class TMDbClientTest {
 
 	@Test
 	public void searchByNameGerman() throws Exception {
-		List<Movie> result = db.searchMovie("East of Eden", Locale.GERMAN);
+		List<Movie> result = db.searchMovie("Die Gelbe Hölle", Locale.GERMAN);
 		Movie movie = result.get(0);
 
-		assertEquals("Jenseits von Eden", movie.getName());
-		assertEquals(1955, movie.getYear());
-		assertEquals(Arrays.asList("Jenseits von Eden (1955)", "East of Eden (1955)"), movie.getEffectiveNames());
+		assertEquals("Die gelbe Hölle", movie.getName());
+		assertEquals(1958, movie.getYear());
+		assertEquals("[Die gelbe Hölle (1958), The Camp on Blood Island (1958)]", movie.getEffectiveNames().toString());
 	}
 
 	@Test

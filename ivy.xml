@@ -11,7 +11,7 @@
 		<dependency rev="58.2" org="com.ibm.icu" name="icu4j" />
 		<dependency rev="1.10.2" org="org.jsoup" name="jsoup" />
 		<dependency rev="1.6" org="org.tukaani" name="xz" />
-		<dependency rev="4.9.9" org="com.cedarsoftware" name="json-io" />
+		<dependency rev="4.9.1" org="com.cedarsoftware" name="json-io" />
 		<dependency rev="2.5" org="commons-io" name="commons-io" />
 		<dependency rev="3.6" org="commons-net" name="commons-net" />
 		<dependency rev="1.7.24" org="org.slf4j" name="slf4j-jdk14" />
