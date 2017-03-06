@@ -16,7 +16,7 @@
   <icon>..\icons\shortcut.ico</icon>
   <classPath>
     <mainClass>net.filebot.Main</mainClass>
-    <cp>lib\*.jar</cp>
+    <cp>%EXEDIR%\lib\*.jar</cp>
   </classPath>
   <jre>
     <path>jre</path>
