@@ -122,7 +122,7 @@
 
 
 	<target name="jar" depends="build">
-		<jar destfile="${dir.dist}/lib/filebot.jar">
+		<jar destfile="${dir.dist}/lib/filebot.jar" compress="no">
 			<fileset dir="${dir.build}" />
 			<manifest>
 				<attribute name="Build-Date" value="${tstamp.date}" />
