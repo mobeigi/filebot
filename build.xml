@@ -122,7 +122,7 @@
 
 
 	<target name="jar" depends="build">
-		<jar destfile="${dir.dist}/filebot.jar">
+		<jar destfile="${dir.dist}/lib/filebot.jar">
 			<fileset dir="${dir.build}" />
 			<manifest>
 				<attribute name="Build-Date" value="${tstamp.date}" />
@@ -136,7 +136,7 @@
 	<target name="fatjar" depends="jar" description="Build executable jar">
 		<jar destfile="${path.fatjar}" filesetmanifest="merge" duplicate="fail" compress="no">
 			<!-- include main jar -->
-			<zipfileset src="${dir.dist}/filebot.jar" />
+			<zipfileset src="${dir.dist}/lib/filebot.jar" />
 
 			<!-- include core libraries -->
 			<zipfileset src="${dir.dist}/lib/args4j.jar">
@@ -413,7 +413,7 @@
 
 
 		<bundleapp jvmrequired="${jvm.version}" minimumsystemversion="${mac.version}" outputdirectory="${dir.dist}" executablename="${application.executable}" name="${application.name}" displayname="${application.name}" version="${revision}" shortversion="${version}" identifier="${application.identifier}" mainclassname="${main.class}" icon="${application.icon}" copyright="${tstamp.year} ${package.company}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
-			<classpath file="${path.fatjar}" />
+			<classpath dir="${dir.dist}/lib" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 
 			<arch name="x86_64" />
