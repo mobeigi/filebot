@@ -1,4 +1,4 @@
-package net.filebot.win;
+package net.filebot.platform.windows;
 
 import static net.filebot.Logging.*;
 

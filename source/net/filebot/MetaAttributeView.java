@@ -17,7 +17,7 @@ import java.util.Set;
 
 import com.sun.jna.Platform;
 
-import net.filebot.mac.MacXattrView;
+import net.filebot.platform.mac.MacXattrView;
 
 public class MetaAttributeView extends AbstractMap<String, String> {
 

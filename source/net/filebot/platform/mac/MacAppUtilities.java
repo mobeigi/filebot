@@ -1,4 +1,4 @@
-package net.filebot.mac;
+package net.filebot.platform.mac;
 
 import static ca.weblite.objc.util.CocoaUtils.*;
 import static net.filebot.Logging.*;

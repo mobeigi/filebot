@@ -34,7 +34,7 @@ import javax.swing.JDialog;
 import javax.swing.SwingUtilities;
 
 import net.filebot.ResourceManager;
-import net.filebot.mac.MacAppUtilities;
+import net.filebot.platform.mac.MacAppUtilities;
 import net.filebot.ui.subtitle.upload.SubtitleUploadDialog;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.FileUtilities.ParentFilter;

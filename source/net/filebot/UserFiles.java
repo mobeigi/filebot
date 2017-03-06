@@ -27,7 +27,7 @@ import javax.swing.JFileChooser;
 import com.apple.eio.FileManager;
 import com.sun.jna.platform.FileUtils;
 
-import net.filebot.mac.MacAppUtilities;
+import net.filebot.platform.mac.MacAppUtilities;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
 

@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 
-import net.filebot.gio.GVFS;
+import net.filebot.platform.gnome.GVFS;
 
 public class FileTransferable implements Transferable {
 

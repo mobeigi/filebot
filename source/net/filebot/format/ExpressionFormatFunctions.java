@@ -19,7 +19,7 @@ import com.sun.jna.Platform;
 import groovy.lang.Closure;
 import groovy.util.XmlSlurper;
 import net.filebot.ApplicationFolder;
-import net.filebot.mac.MacAppUtilities;
+import net.filebot.platform.mac.MacAppUtilities;
 import net.filebot.util.FileUtilities;
 
 /**

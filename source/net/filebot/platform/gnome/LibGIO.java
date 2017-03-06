@@ -1,5 +1,5 @@
 
-package net.filebot.gio;
+package net.filebot.platform.gnome;
 
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;

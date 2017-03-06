@@ -40,7 +40,7 @@ import net.filebot.WebServices;
 import net.filebot.format.ExpressionFileFormat;
 import net.filebot.format.ExpressionFilter;
 import net.filebot.format.MediaBindingBean;
-import net.filebot.mac.MacAppUtilities;
+import net.filebot.platform.mac.MacAppUtilities;
 import net.filebot.ui.HeaderPanel;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
 import net.filebot.web.Datasource;

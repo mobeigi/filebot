@@ -1,10 +1,10 @@
-package net.filebot.mac;
+package net.filebot.platform.mac;
 
 import static java.util.Collections.*;
 import static javax.swing.BorderFactory.*;
 import static net.filebot.Logging.*;
 import static net.filebot.UserFiles.*;
-import static net.filebot.mac.MacAppUtilities.*;
+import static net.filebot.platform.mac.MacAppUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 

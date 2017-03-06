@@ -1,4 +1,4 @@
-package net.filebot.mac;
+package net.filebot.platform.mac;
 
 import java.nio.file.Path;
 import java.text.Normalizer;

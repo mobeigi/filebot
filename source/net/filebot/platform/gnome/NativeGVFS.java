@@ -1,5 +1,5 @@
 
-package net.filebot.gio;
+package net.filebot.platform.gnome;
 
 import java.io.File;
 import java.net.URI;

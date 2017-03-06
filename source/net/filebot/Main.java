@@ -38,7 +38,8 @@ import net.filebot.cli.ArgumentBean;
 import net.filebot.cli.ArgumentProcessor;
 import net.filebot.cli.CmdlineException;
 import net.filebot.format.ExpressionFormat;
-import net.filebot.mac.MacAppUtilities;
+import net.filebot.platform.mac.MacAppUtilities;
+import net.filebot.platform.windows.WinAppUtilities;
 import net.filebot.ui.FileBotMenuBar;
 import net.filebot.ui.GettingStartedStage;
 import net.filebot.ui.MainFrame;
@@ -49,7 +50,6 @@ import net.filebot.ui.SupportDialog;
 import net.filebot.ui.transfer.FileTransferable;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.ui.SwingEventBus;
-import net.filebot.win.WinAppUtilities;
 import net.miginfocom.swing.MigLayout;
 
 public class Main {

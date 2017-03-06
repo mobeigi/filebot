@@ -1,5 +1,5 @@
 
-package net.filebot.gio;
+package net.filebot.platform.gnome;
 
 import static java.util.Arrays.*;
 import static java.util.stream.Collectors.*;

@@ -7,6 +7,9 @@ import java.net.URI;
 
 import org.junit.Test;
 
+import net.filebot.platform.gnome.GVFS;
+import net.filebot.platform.gnome.PlatformGVFS;
+
 public class PlatformGVFSTest {
 
 	GVFS gvfs = new PlatformGVFS(new File("gvfs"));

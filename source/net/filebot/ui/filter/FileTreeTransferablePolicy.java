@@ -15,7 +15,7 @@ import java.util.logging.Level;
 
 import javax.swing.tree.TreeNode;
 
-import net.filebot.mac.MacAppUtilities;
+import net.filebot.platform.mac.MacAppUtilities;
 import net.filebot.ui.filter.FileTree.FileNode;
 import net.filebot.ui.filter.FileTree.FolderNode;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;

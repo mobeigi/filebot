@@ -62,7 +62,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import net.filebot.ResourceManager;
 import net.filebot.WebServices;
-import net.filebot.mac.MacAppUtilities;
+import net.filebot.platform.mac.MacAppUtilities;
 import net.filebot.subtitle.SubtitleMetrics;
 import net.filebot.subtitle.SubtitleNaming;
 import net.filebot.util.ui.AbstractBean;

@@ -21,7 +21,7 @@ import java.util.logging.Level;
 
 import net.filebot.hash.HashType;
 import net.filebot.hash.VerificationFileReader;
-import net.filebot.mac.MacAppUtilities;
+import net.filebot.platform.mac.MacAppUtilities;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.FileSet;
