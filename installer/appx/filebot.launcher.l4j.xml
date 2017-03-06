@@ -2,7 +2,7 @@
 <launch4jConfig>
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>FileBot.jar</jar>
+  <jar></jar>
   <outfile>filebot.launcher.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
@@ -14,6 +14,10 @@
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
   <icon>..\icons\shortcut.ico</icon>
+  <classPath>
+    <mainClass>net.filebot.Main</mainClass>
+    <cp>lib\*.jar</cp>
+  </classPath>
   <jre>
     <path>jre</path>
     <bundledJre64Bit>true</bundledJre64Bit>
