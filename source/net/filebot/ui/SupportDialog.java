@@ -92,7 +92,7 @@ public enum SupportDialog {
 		}
 
 		// ask for reviews only when a significant number of files have been processed
-		if (isAppStore() && sessionRenameCount <= 10 || totalRenameCount <= 5000) {
+		if (isAppStore() && (sessionRenameCount < 5 || totalRenameCount < 5000)) {
 			return false;
 		}
 
