@@ -49,7 +49,7 @@ public enum SupportDialog {
 		@Override
 		public boolean feelingLucky(int sessionRenameCount, int totalRenameCount, int currentRevision, int lastSupportRevision, int supportRevisionCount) {
 			// annoy users that chose not to purchase FileBot
-			if (this == Donation && sessionRenameCount > 0 && "Windows 10".equals(System.getProperty("os.name"))) {
+			if (sessionRenameCount > 0 && "Windows 10".equals(System.getProperty("os.name"))) {
 				return true;
 			}
 
