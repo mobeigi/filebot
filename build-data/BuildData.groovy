@@ -15,7 +15,6 @@ def dir_data    = dir_website.resolve('data')
 def dir_data_master = System.getProperty('net.filebot.data.master', 'https://raw.githubusercontent.com/filebot/data/master')
 
 ['add-series-alias.txt', 
- 'exclude-blacklist.txt', 
  'query-blacklist.txt', 
  'release-groups.txt', 
  'series-mappings.txt'
