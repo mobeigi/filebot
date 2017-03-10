@@ -8,6 +8,7 @@ import static net.filebot.util.StringUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
@@ -49,7 +50,7 @@ public enum SupportDialog {
 		@Override
 		public boolean feelingLucky(int sessionRenameCount, int totalRenameCount, int currentRevision, int lastSupportRevision, int supportRevisionCount) {
 			// annoy users that chose not to purchase FileBot
-			if (sessionRenameCount > 0 && "Windows 10".equals(System.getProperty("os.name"))) {
+			if (sessionRenameCount > 0 && Stream.of("Mac OS X", "Windows 10").anyMatch(Predicate.isEqual(System.getProperty("os.name")))) {
 				return true;
 			}
 

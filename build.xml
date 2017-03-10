@@ -309,7 +309,7 @@
 
 
 	<target name="appbundle" description="Build Mac application bundle" depends="revision">
-		<bundleapp outputdirectory="${dir.dist}" executablename="purchase.sh" hidedockicon="true" minimumsystemversion="${mac.version}" jvmrequired="${jvm.version}" name="${application.name}" displayname="${application.name} ${version}" version="${revision}" shortversion="${version}" identifier="${package.identifier}.Command" mainclassname="${main.class}" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} ${package.developer}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
+		<bundleapp outputdirectory="${dir.dist}" executablename="filebot.launcher" hidedockicon="true" minimumsystemversion="${mac.version}" jvmrequired="${jvm.version}" name="${application.name}" displayname="${application.name} ${version}" version="${revision}" shortversion="${version}" identifier="${package.identifier}.Command" mainclassname="${main.class}" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} ${package.developer}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<librarypath dir="${dir.installer}/appbundle/MacOS" />
