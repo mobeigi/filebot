@@ -97,7 +97,7 @@ public enum SupportDialog {
 			}
 
 			// ask for reviews only when a significant number of files have been processed
-			if (sessionRenameCount < 3 || totalRenameCount < 3000) {
+			if (sessionRenameCount < 5 || totalRenameCount < 5000) {
 				return false;
 			}
 
@@ -123,7 +123,7 @@ public enum SupportDialog {
 		}
 
 		// lucky if many many files have been processed over time
-		if (totalRenameCount >= 2000 * Math.pow(4, supportRevisionCount)) {
+		if (totalRenameCount >= 2000 * Math.pow(5, supportRevisionCount)) {
 			return true;
 		}
 
