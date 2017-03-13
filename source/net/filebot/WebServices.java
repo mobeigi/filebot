@@ -94,12 +94,12 @@ public final class WebServices {
 	}
 
 	public static VideoHashSubtitleService[] getVideoHashSubtitleServices(Locale locale) {
-		// special support for 射手网 for Chinese language subtitles
-		if (locale.equals(Locale.CHINESE)) {
-			return new VideoHashSubtitleService[] { OpenSubtitles, Shooter };
+		switch (locale.getLanguage()) {
+		case "zh":
+			return new VideoHashSubtitleService[] { OpenSubtitles, Shooter }; // special support for 射手网 for Chinese language subtitles
+		default:
+			return new VideoHashSubtitleService[] { OpenSubtitles };
 		}
-
-		return new VideoHashSubtitleService[] { OpenSubtitles };
 	}
 
 	public static Datasource getService(String name) {
