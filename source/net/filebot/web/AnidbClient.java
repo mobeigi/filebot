@@ -80,9 +80,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	}
 
 	// local AniDB search index
-	private final Resource<LocalSearch<SearchResult>> localIndex = Resource.lazy(() -> {
-		return new LocalSearch<SearchResult>(getAnimeTitles(), SearchResult::getEffectiveNames);
-	}).memoize();
+	private final Resource<LocalSearch<SearchResult>> localIndex = Resource.lazy(() -> new LocalSearch<SearchResult>(getAnimeTitles(), SearchResult::getEffectiveNames));
 
 	@Override
 	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception {

@@ -133,9 +133,7 @@ public final class WebServices {
 		}
 
 		// local TheTVDB search index
-		private final Resource<LocalSearch<SearchResult>> localIndex = Resource.lazy(() -> {
-			return new LocalSearch<SearchResult>(releaseInfo.getTheTVDBIndex(), SearchResult::getEffectiveNames);
-		}).memoize();
+		private final Resource<LocalSearch<SearchResult>> localIndex = Resource.lazy(() -> new LocalSearch<SearchResult>(releaseInfo.getTheTVDBIndex(), SearchResult::getEffectiveNames));
 
 		private SearchResult merge(SearchResult prime, List<SearchResult> group) {
 			int id = prime.getId();
@@ -177,9 +175,7 @@ public final class WebServices {
 		}
 
 		// local OpenSubtitles search index
-		private final Resource<LocalSearch<SubtitleSearchResult>> localIndex = Resource.lazy(() -> {
-			return new LocalSearch<SubtitleSearchResult>(releaseInfo.getOpenSubtitlesIndex(), SearchResult::getEffectiveNames);
-		}).memoize();
+		private final Resource<LocalSearch<SubtitleSearchResult>> localIndex = Resource.lazy(() -> new LocalSearch<SubtitleSearchResult>(releaseInfo.getOpenSubtitlesIndex(), SearchResult::getEffectiveNames));
 
 		@Override
 		public List<SubtitleSearchResult> search(final String query) throws Exception {
