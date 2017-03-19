@@ -15,7 +15,7 @@
 		<dependency rev="2.5" org="commons-io" name="commons-io" />
 		<dependency rev="3.6" org="commons-net" name="commons-net" />
 		<dependency rev="1.7.24" org="org.slf4j" name="slf4j-jdk14" />
-		<dependency rev="1.9.1" org="net.java.dev.glazedlists" name="glazedlists_java15" />
+		<dependency rev="1.10.0" org="net.java.dev.glazedlists" name="glazedlists_java16" />
 		<dependency rev="5.0" org="com.miglayout" name="miglayout-swing" />
 		<dependency rev="2.1" org="org.apache.commons" name="commons-vfs2" />
 		<dependency rev="0.7" org="com.github.junrar" name="junrar" />
