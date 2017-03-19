@@ -8,7 +8,6 @@
 	<classpathentry kind="lib" path="lib/jars/simmetrics.jar"/>
 	<classpathentry kind="lib" path="lib/jars/xmlrpc.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/ehcache.jar" sourcepath="lib/ivy/source/ehcache.jar"/>
-	<classpathentry kind="lib" path="lib/ivy/jar/glazedlists_java15.jar" sourcepath="lib/ivy/source/glazedlists_java15.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/icu4j.jar" sourcepath="lib/ivy/source/icu4j.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/jna.jar" sourcepath="lib/ivy/source/jna.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/junit.jar"/>
@@ -37,5 +36,6 @@
 	<classpathentry kind="lib" path="lib/ivy/jar/lanterna.jar" sourcepath="lib/ivy/source/lanterna.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/metadata-extractor.jar" sourcepath="lib/ivy/source/metadata-extractor.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/xmpcore.jar"/>
+	<classpathentry kind="lib" path="lib/ivy/jar/glazedlists_java16.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

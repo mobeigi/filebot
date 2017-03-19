@@ -157,7 +157,7 @@
 			<zipfileset src="${dir.dist}/lib/miglayout-swing.jar">
 				<include name="net/miginfocom/**" />
 			</zipfileset>
-			<zipfileset src="${dir.dist}/lib/glazedlists_java15.jar">
+			<zipfileset src="${dir.dist}/lib/glazedlists_java16.jar">
 				<include name="ca/odell/glazedlists/**" />
 			</zipfileset>
 			<zipfileset src="${dir.dist}/lib/controlsfx.jar">
@@ -713,7 +713,7 @@
 				<include name="ehcache.jar" />
 				<include name="miglayout-core.jar" />
 				<include name="miglayout-swing.jar" />
-				<include name="glazedlists_java15.jar" />
+				<include name="glazedlists_java16.jar" />
 				<include name="controlsfx.jar" />
 				<include name="rsyntaxtextarea.jar" />
 				<include name="lanterna.jar" />
