@@ -624,12 +624,6 @@
 		<antcall target="msi-arch">
 			<param name="arch" value="x86" />
 		</antcall>
-
-		<apply executable="signtool" dir="${dir.installer}/msi" parallel="true" failonerror="true">
-			<arg line="sign /fd SHA256 /t http://time.certum.pl/ /v /a" />
-			<srcfile />
-			<fileset dir="${dir.dist}" includes="*.msi" />
-		</apply>
 	</target>
 
 
