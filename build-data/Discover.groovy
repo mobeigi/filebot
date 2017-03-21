@@ -13,7 +13,7 @@ def updateMovieIndex = { m ->
 	if (!recentMoviesIndex.containsKey(m.tmdbId)) {
 		def i = TheMovieDB.getMovieInfo(m, Locale.ENGLISH, false)
 
-		if (i.imdbId == null)
+		if (i == null || i.imdbId == null)
 			return
 
 		def row = [i.id.pad(6), i.imdbId.pad(7), i.released.year as String, i.name]
