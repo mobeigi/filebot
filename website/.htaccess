@@ -30,8 +30,6 @@ redirect 302 /channel.html https://discord.gg/cKVvZ2S
 # redirect filebot.sourceforge.net to www.filebot.net
 RewriteEngine on
 
-RewriteCond %{HTTP_HOST} =filebot.net [NC]
-RewriteRule ^(.*)$ http://www.filebot.net/$1 [R=301,L]
-
-RewriteCond %{HTTP_HOST} =filebot.sourceforge.net [NC]
+RewriteCond %{HTTP_HOST} ^filebot\.net$ [OR]
+RewriteCond %{HTTP_HOST} ^filebot\.sourceforge\.net$
 RewriteRule ^(.*)$ http://www.filebot.net/$1 [R=301,L]

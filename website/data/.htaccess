@@ -1,0 +1,9 @@
+# cache by User Agent (e.g. FileBot 4.2)
+Header append Vary User-Agent
+
+
+# block outdated versions
+RewriteEngine on
+
+RewriteCond %{HTTP_USER_AGENT} ^FileBot.[0-9].[0-6].*$ [NC]
+RewriteRule ^(.*)$ - [G]
