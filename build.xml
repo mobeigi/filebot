@@ -964,7 +964,7 @@
 	<target name="upload-data" description="Upload data files" depends="init">
 		<scp todir="${deploy.website}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
 			<fileset dir="${dir.website}">
-				<include name="data/*.xz" />
+				<include name="data/**" />
 				<modified>
 					<param name="cache.cachefile" value="${dir.cache}/scp.cache" />
 				</modified>
