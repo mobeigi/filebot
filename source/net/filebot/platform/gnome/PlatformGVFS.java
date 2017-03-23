@@ -20,6 +20,11 @@ public class PlatformGVFS implements GVFS {
 		return Protocol.forName(uri.getScheme()).getFile(gvfs, uri);
 	}
 
+	@Override
+	public String toString() {
+		return String.format("%s [%s]", getClass().getSimpleName(), gvfs);
+	}
+
 	public static enum Protocol {
 
 		FILE {

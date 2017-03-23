@@ -28,4 +28,9 @@ public class NativeGVFS implements GVFS {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return String.format("%s [%s]", getClass().getSimpleName(), lib_gio);
+	}
+
 }
