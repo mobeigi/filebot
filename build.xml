@@ -517,11 +517,13 @@
 
 
 	<target name="snap" depends="revision">
-		<copy tofile="${dir.dist}/snappy/filebot/FileBot.jar" file="${path.fatjar}" />
+		<copy todir="${dir.dist}/snappy/filebot/lib">
+			<fileset dir="${dir.dist}/lib" includes="*.jar" />
+		</copy>
 
 		<!-- include native binaries that are not available via apt -->
 		<copy todir="${dir.dist}/snappy/filebot">
-			<fileset dir="${dir.lib}/native/linux-amd64" excludes="fpcalc, libmediainfo.so, libzen.so" />
+			<fileset dir="${dir.lib}/native/linux-amd64" includes="libjnidispatch.so, lib7-Zip-JBinding.so" />
 		</copy>
 
 		<!-- copy files and resolve ant variables -->
