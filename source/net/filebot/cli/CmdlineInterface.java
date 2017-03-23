@@ -25,6 +25,8 @@ public interface CmdlineInterface {
 
 	List<File> rename(Collection<File> files, RenameAction action, ConflictAction conflict, File output, ExpressionFileFormat format, Datasource db, String query, SortOrder order, ExpressionFilter filter, Locale locale, boolean strict) throws Exception;
 
+	List<File> rename(EpisodeListProvider db, String query, ExpressionFileFormat format, ExpressionFilter filter, SortOrder order, Locale locale, boolean strict, List<File> files, RenameAction action, ConflictAction conflict, File output) throws Exception;
+
 	List<File> rename(Map<File, File> rename, RenameAction action, ConflictAction conflict) throws Exception;
 
 	List<File> revert(Collection<File> files, FileFilter filter, RenameAction action) throws Exception;

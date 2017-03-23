@@ -142,6 +142,31 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	@Override
+	public List<File> rename(EpisodeListProvider db, String query, ExpressionFileFormat format, ExpressionFilter filter, SortOrder order, Locale locale, boolean strict, List<File> files, RenameAction action, ConflictAction conflict, File output) throws Exception {
+		// match files and episodes in linear order
+		List<Episode> episodes = fetchEpisodeList(db, query, filter, order, locale, strict);
+
+		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
+		for (int i = 0; i < files.size() && i < episodes.size(); i++) {
+			matches.add(new Match<File, Episode>(files.get(i), episodes.get(i)));
+		}
+
+		// map old files to new paths by applying formatting and validating filenames
+		Map<File, File> renameMap = new LinkedHashMap<File, File>();
+
+		for (Match<File, ?> match : matches) {
+			File file = match.getValue();
+			Object episode = match.getCandidate();
+			String newName = format != null ? format.format(new MediaBindingBean(episode, file, getContext(matches))) : validateFileName(EpisodeFormat.SeasonEpisode.format(episode));
+
+			renameMap.put(file, getDestinationFile(file, newName, output));
+		}
+
+		// rename episodes
+		return renameAll(renameMap, action, conflict, matches);
+	}
+
+	@Override
 	public List<File> rename(Map<File, File> renameMap, RenameAction renameAction, ConflictAction conflict) throws Exception {
 		// generic rename function that can be passed any set of files
 		return renameAll(renameMap, renameAction, conflict, null);
@@ -985,13 +1010,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 	}
 
-	@Override
-	public Stream<String> fetchEpisodeList(EpisodeListProvider db, String query, ExpressionFormat format, ExpressionFilter filter, SortOrder order, Locale locale, boolean strict) throws Exception {
-		// default episode format
-		if (format == null) {
-			return fetchEpisodeList(db, query, new ExpressionFormat("{episode}"), filter, order, locale, strict);
-		}
-
+	private List<Episode> fetchEpisodeList(EpisodeListProvider db, String query, ExpressionFilter filter, SortOrder order, Locale locale, boolean strict) throws Exception {
 		// sanity check
 		if (query == null) {
 			throw new CmdlineException(String.format("%s: query parameter is required", db.getName()));
@@ -1019,7 +1038,18 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// apply filter
-		episodes = applyExpressionFilter(episodes, filter);
+		return applyExpressionFilter(episodes, filter);
+	}
+
+	@Override
+	public Stream<String> fetchEpisodeList(EpisodeListProvider db, String query, ExpressionFormat format, ExpressionFilter filter, SortOrder order, Locale locale, boolean strict) throws Exception {
+		// default episode format
+		if (format == null) {
+			return fetchEpisodeList(db, query, new ExpressionFormat("{episode}"), filter, order, locale, strict);
+		}
+
+		// collect all episode objects first
+		List<Episode> episodes = fetchEpisodeList(db, query, filter, order, locale, strict);
 
 		// lazy format
 		Map<File, Episode> context = new EntryList<File, Episode>(null, episodes);

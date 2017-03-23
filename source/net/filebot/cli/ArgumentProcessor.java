@@ -53,6 +53,11 @@ public class ArgumentProcessor {
 			throw new CmdlineException("`filebot -get-subtitles -r` has been disabled due to abuse. Please see http://bit.ly/suball for details.");
 		}
 
+		// rename files in linear order
+		if (args.list && args.rename) {
+			return cli.rename(args.getEpisodeListProvider(), args.getSearchQuery(), args.getExpressionFileFormat(), args.getExpressionFilter(), args.getSortOrder(), args.getLanguage().getLocale(), args.isStrict(), args.getFiles(true), args.getRenameAction(), args.getConflictAction(), args.getOutputPath()).isEmpty() ? 1 : 0;
+		}
+
 		// print episode info
 		if (args.list) {
 			return print(cli.fetchEpisodeList(args.getEpisodeListProvider(), args.getSearchQuery(), args.getExpressionFormat(), args.getExpressionFilter(), args.getSortOrder(), args.getLanguage().getLocale(), args.isStrict()));
