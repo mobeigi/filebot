@@ -69,10 +69,8 @@ import net.filebot.vfs.SimpleFileInfo;
 import net.filebot.web.AudioTrack;
 import net.filebot.web.Datasource;
 import net.filebot.web.Episode;
-import net.filebot.web.EpisodeFormat;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.Movie;
-import net.filebot.web.MovieFormat;
 import net.filebot.web.MovieIdentificationService;
 import net.filebot.web.MoviePart;
 import net.filebot.web.MusicIdentificationService;
@@ -142,7 +140,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	@Override
-	public List<File> rename(EpisodeListProvider db, String query, ExpressionFileFormat format, ExpressionFilter filter, SortOrder order, Locale locale, boolean strict, List<File> files, RenameAction action, ConflictAction conflict, File output) throws Exception {
+	public List<File> rename(EpisodeListProvider db, String query, ExpressionFileFormat format, ExpressionFilter filter, SortOrder order, Locale locale, boolean strict, List<File> files, RenameAction action, ConflictAction conflict, File outputDir) throws Exception {
 		// match files and episodes in linear order
 		List<Episode> episodes = fetchEpisodeList(db, query, filter, order, locale, strict);
 
@@ -151,19 +149,8 @@ public class CmdlineOperations implements CmdlineInterface {
 			matches.add(new Match<File, Episode>(files.get(i), episodes.get(i)));
 		}
 
-		// map old files to new paths by applying formatting and validating filenames
-		Map<File, File> renameMap = new LinkedHashMap<File, File>();
-
-		for (Match<File, ?> match : matches) {
-			File file = match.getValue();
-			Object episode = match.getCandidate();
-			String newName = format != null ? format.format(new MediaBindingBean(episode, file, getContext(matches))) : validateFileName(EpisodeFormat.SeasonEpisode.format(episode));
-
-			renameMap.put(file, getDestinationFile(file, newName, output));
-		}
-
 		// rename episodes
-		return renameAll(renameMap, action, conflict, matches);
+		return renameAll(formatMatches(matches, format, outputDir), action, conflict, matches);
 	}
 
 	@Override
@@ -254,19 +241,8 @@ public class CmdlineOperations implements CmdlineInterface {
 		// add matches from other files that are linked via filenames
 		matches.addAll(derivateMatches);
 
-		// map old files to new paths by applying formatting and validating filenames
-		Map<File, File> renameMap = new LinkedHashMap<File, File>();
-
-		for (Match<File, ?> match : matches) {
-			File file = match.getValue();
-			Object episode = match.getCandidate();
-			String newName = (format != null) ? format.format(new MediaBindingBean(episode, file, getContext(matches))) : validateFileName(EpisodeFormat.SeasonEpisode.format(episode));
-
-			renameMap.put(file, getDestinationFile(file, newName, outputDir));
-		}
-
 		// rename episodes
-		return renameAll(renameMap, renameAction, conflictAction, matches);
+		return renameAll(formatMatches(matches, format, outputDir), renameAction, conflictAction, matches);
 	}
 
 	private List<Match<File, Object>> matchEpisodes(Collection<File> files, Collection<Episode> episodes, boolean strict) throws Exception {
@@ -503,19 +479,8 @@ public class CmdlineOperations implements CmdlineInterface {
 			});
 		});
 
-		// map old files to new paths by applying formatting and validating filenames
-		Map<File, File> renameMap = new LinkedHashMap<File, File>();
-
-		for (Match<File, ?> match : matches) {
-			File file = match.getValue();
-			Object movie = match.getCandidate();
-			String newName = (format != null) ? format.format(new MediaBindingBean(movie, file, getContext(matches))) : validateFileName(MovieFormat.NameYear.format(movie));
-
-			renameMap.put(file, getDestinationFile(file, newName, outputDir));
-		}
-
 		// rename movies
-		return renameAll(renameMap, renameAction, conflictAction, matches);
+		return renameAll(formatMatches(matches, format, outputDir), renameAction, conflictAction, matches);
 	}
 
 	public List<File> renameMusic(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFileFormat format, MusicIdentificationService... services) throws Exception {
@@ -536,40 +501,29 @@ public class CmdlineOperations implements CmdlineInterface {
 			});
 		}
 
-		// map old files to new paths by applying formatting and validating filenames
-		Map<File, File> renameMap = new LinkedHashMap<File, File>();
-
-		for (Match<File, ?> it : matches) {
-			File file = it.getValue();
-			Object music = it.getCandidate();
-			String path = format != null ? format.format(new MediaBindingBean(music, file, getContext(matches))) : validateFileName(music.toString());
-
-			renameMap.put(file, getDestinationFile(file, path, outputDir));
-		}
-
 		// error logging
 		remaining.forEach(f -> log.warning(format("Failed to process music file: %s", f)));
 
 		// rename movies
-		return renameAll(renameMap, renameAction, conflictAction, null);
+		return renameAll(formatMatches(matches, format, outputDir), renameAction, conflictAction, null);
 	}
 
 	public List<File> renameFiles(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFileFormat format, XattrMetaInfoProvider service, ExpressionFilter filter, boolean strict) throws Exception {
 		log.config(format("Rename files using [%s]", service.getName()));
 
+		Map<File, File> renameMap = new LinkedHashMap<File, File>();
+
 		// match to xattr metadata object or the file itself
 		Map<File, Object> matches = service.match(files, strict);
 
-		Map<File, File> renameMap = new LinkedHashMap<File, File>();
-
-		for (Entry<File, Object> it : matches.entrySet()) {
-			MediaBindingBean bindingBean = new MediaBindingBean(it.getValue(), it.getKey(), matches);
+		service.match(files, strict).forEach((k, v) -> {
+			MediaBindingBean bindingBean = new MediaBindingBean(v, k, matches);
 
 			if (filter == null || filter.matches(bindingBean)) {
-				String newName = format != null ? format.format(bindingBean) : bindingBean.getInfoObject() instanceof File ? bindingBean.getInfoObject().toString() : validateFileName(bindingBean.getInfoObject().toString());
-				renameMap.put(it.getKey(), getDestinationFile(it.getKey(), newName, outputDir));
+				String destinationPath = format != null ? format.format(bindingBean) : v instanceof File ? v.toString() : validateFileName(v.toString());
+				renameMap.put(k, getDestinationFile(k, destinationPath, outputDir));
 			}
-		}
+		});
 
 		return renameAll(renameMap, renameAction, conflictAction, null);
 	}
@@ -601,7 +555,22 @@ public class CmdlineOperations implements CmdlineInterface {
 		return newFile;
 	}
 
-	public List<File> renameAll(Map<File, File> renameMap, RenameAction renameAction, ConflictAction conflictAction, List<Match<File, ?>> matches) throws Exception {
+	private Map<File, File> formatMatches(List<Match<File, ?>> matches, ExpressionFormat format, File outputDir) throws Exception {
+		// map old files to new paths by applying formatting and validating filenames
+		Map<File, File> renameMap = new LinkedHashMap<File, File>();
+
+		for (Match<File, ?> match : matches) {
+			File file = match.getValue();
+			Object object = match.getCandidate();
+			String destinationPath = format != null ? format.format(new MediaBindingBean(object, file, getContext(matches))) : validateFileName(object.toString());
+
+			renameMap.put(file, getDestinationFile(file, destinationPath, outputDir));
+		}
+
+		return renameMap;
+	}
+
+	protected List<File> renameAll(Map<File, File> renameMap, RenameAction renameAction, ConflictAction conflictAction, List<Match<File, ?>> matches) throws Exception {
 		if (renameMap.isEmpty()) {
 			throw new CmdlineException("Failed to identify or process any files");
 		}
@@ -854,21 +823,20 @@ public class CmdlineOperations implements CmdlineInterface {
 		return destination;
 	}
 
-	private <T> List<T> applyExpressionFilter(List<T> input, ExpressionFilter filter) throws Exception {
+	protected <T> List<T> applyExpressionFilter(List<T> input, ExpressionFilter filter) {
 		if (filter == null) {
 			return input;
 		}
 
 		log.fine(format("Apply filter [%s] on [%d] items", filter.getExpression(), input.size()));
-		Map<File, T> context = new EntryList<File, T>(null, input);
-		List<T> output = new ArrayList<T>(input.size());
-		for (T it : input) {
-			if (filter.matches(new MediaBindingBean(it, null, context))) {
+
+		return input.stream().filter(it -> {
+			if (filter.matches(new MediaBindingBean(it, null, new EntryList<File, T>(null, input)))) {
 				log.finest(format("Include [%s]", it));
-				output.add(it);
+				return true;
 			}
-		}
-		return output;
+			return false;
+		}).collect(toList());
 	}
 
 	protected <T extends SearchResult> T selectSearchResult(String query, Collection<T> options) throws Exception {
@@ -1043,20 +1011,18 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	@Override
 	public Stream<String> fetchEpisodeList(EpisodeListProvider db, String query, ExpressionFormat format, ExpressionFilter filter, SortOrder order, Locale locale, boolean strict) throws Exception {
-		// default episode format
-		if (format == null) {
-			return fetchEpisodeList(db, query, new ExpressionFormat("{episode}"), filter, order, locale, strict);
-		}
-
 		// collect all episode objects first
 		List<Episode> episodes = fetchEpisodeList(db, query, filter, order, locale, strict);
 
-		// lazy format
-		Map<File, Episode> context = new EntryList<File, Episode>(null, episodes);
+		// instant format
+		if (format == null) {
+			return episodes.stream().map(Episode::toString);
+		}
 
+		// lazy format
 		return episodes.stream().map(episode -> {
 			try {
-				return format.format(new MediaBindingBean(episode, null, context));
+				return format.format(new MediaBindingBean(episode, null, new EntryList<File, Episode>(null, episodes)));
 			} catch (Exception e) {
 				debug.warning(e::getMessage);
 			}

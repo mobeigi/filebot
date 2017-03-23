@@ -32,11 +32,11 @@ public class ExpressionFilter {
 		return lastException;
 	}
 
-	public boolean matches(Object value) throws ScriptException {
+	public boolean matches(Object value) {
 		return matches(new ExpressionBindings(value));
 	}
 
-	public boolean matches(Bindings bindings) throws ScriptException {
+	public boolean matches(Bindings bindings) {
 		this.lastException = null;
 
 		// use privileged bindings so we are not restricted by the script sandbox
