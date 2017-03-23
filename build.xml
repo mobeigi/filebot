@@ -528,7 +528,7 @@
 
 		<!-- copy files and resolve ant variables -->
 		<copy-replace todir="${dir.dist}/snap">
-			<fileset dir="${dir.installer}/snappy" />
+			<fileset dir="${dir.installer}/snap" />
 		</copy-replace>
 		<chmod perm="+x" file="${dir.dist}/snap/filebot/filebot.sh" />
 
