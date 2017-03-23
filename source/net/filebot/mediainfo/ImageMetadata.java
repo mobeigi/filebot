@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
@@ -48,7 +49,7 @@ public class ImageMetadata {
 	}
 
 	public Map<String, String> snapshot(Function<Tag, String> key) {
-		return snapshot(key, d -> !d.getName().matches("JPEG|JFIF|Interoperability|Huffman|File"));
+		return snapshot(key, d -> Stream.of("JPEG", "JFIF", "Interoperability", "Huffman", "File").noneMatch(d.getName()::equals));
 	}
 
 	public Map<String, String> snapshot(Function<Tag, String> key, Predicate<Directory> accept) {
@@ -69,16 +70,15 @@ public class ImageMetadata {
 	}
 
 	public Optional<ZonedDateTime> getDateTaken() {
-		return extract(m -> m.getFirstDirectoryOfType(ExifIFD0Directory.class).getDate(ExifSubIFDDirectory.TAG_DATETIME)).map(d -> {
+		return extract(m -> m.getFirstDirectoryOfType(ExifIFD0Directory.class)).map(d -> d.getDate(ExifSubIFDDirectory.TAG_DATETIME)).map(d -> {
 			return d.toInstant().atZone(ZoneOffset.UTC);
 		});
 	}
 
 	public Optional<Map<CameraProperty, String>> getCameraModel() {
-		return extract(m -> {
-			ExifIFD0Directory directory = m.getFirstDirectoryOfType(ExifIFD0Directory.class);
-			String maker = directory.getDescription(ExifIFD0Directory.TAG_MAKE);
-			String model = directory.getDescription(ExifIFD0Directory.TAG_MODEL);
+		return extract(m -> m.getFirstDirectoryOfType(ExifIFD0Directory.class)).map(d -> {
+			String maker = d.getDescription(ExifIFD0Directory.TAG_MAKE);
+			String model = d.getDescription(ExifIFD0Directory.TAG_MODEL);
 
 			Map<CameraProperty, String> camera = new EnumMap<CameraProperty, String>(CameraProperty.class);
 			if (maker != null) {
@@ -87,8 +87,9 @@ public class ImageMetadata {
 			if (model != null) {
 				camera.put(CameraProperty.model, model);
 			}
+
 			return camera;
-		}).filter(m -> m.size() > 0);
+		}).filter(m -> !m.isEmpty());
 	}
 
 	public enum CameraProperty {
@@ -96,14 +97,15 @@ public class ImageMetadata {
 	}
 
 	public Optional<Map<AddressComponent, String>> getLocationTaken() {
-		return extract(m -> m.getFirstDirectoryOfType(GpsDirectory.class).getGeoLocation()).map(this::locate);
+		return extract(m -> m.getFirstDirectoryOfType(GpsDirectory.class)).map(GpsDirectory::getGeoLocation).map(this::locate);
 	}
 
 	protected Map<AddressComponent, String> locate(GeoLocation location) {
 		try {
 			// e.g. https://maps.googleapis.com/maps/api/geocode/json?latlng=40.7470444,-073.9411611
-			Cache cache = Cache.getCache("geocode", CacheType.Monthly);
-			Object json = cache.json(location.getLatitude() + "," + location.getLongitude(), pos -> new URL("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + pos)).get();
+			Cache cache = Cache.getCache("geocode", CacheType.Persistent);
+
+			Object json = cache.json(location.getLatitude() + "," + location.getLongitude(), p -> new URL("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + p)).get();
 
 			Map<AddressComponent, String> address = new EnumMap<AddressComponent, String>(AddressComponent.class);
 
