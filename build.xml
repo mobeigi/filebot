@@ -517,22 +517,22 @@
 
 
 	<target name="snap" depends="revision">
-		<copy todir="${dir.dist}/snappy/filebot/lib">
+		<copy todir="${dir.dist}/snap/filebot/usr/lib/filebot/java">
 			<fileset dir="${dir.dist}/lib" includes="*.jar" />
 		</copy>
 
 		<!-- include native binaries that are not available via apt -->
-		<copy todir="${dir.dist}/snappy/filebot">
+		<copy todir="${dir.dist}/snap/filebot/usr/lib/filebot/amd64">
 			<fileset dir="${dir.lib}/native/linux-amd64" includes="libjnidispatch.so, lib7-Zip-JBinding.so" />
 		</copy>
 
 		<!-- copy files and resolve ant variables -->
-		<copy-replace todir="${dir.dist}/snappy">
+		<copy-replace todir="${dir.dist}/snap">
 			<fileset dir="${dir.installer}/snappy" />
 		</copy-replace>
-		<chmod perm="+x" file="${dir.dist}/snappy/filebot/filebot.sh" verbose="yes" />
+		<chmod perm="+x" file="${dir.dist}/snap/filebot/filebot.sh" />
 
-		<exec executable="snapcraft" dir="${dir.dist}/snappy" failonerror="yes">
+		<exec executable="snapcraft" dir="${dir.dist}/snap" failonerror="yes">
 			<arg line="snap" />
 		</exec>
 	</target>
