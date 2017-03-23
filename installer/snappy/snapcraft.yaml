@@ -21,6 +21,6 @@ parts:
     plugin: nil
     stage-packages: [openjdk-8-jre, openjfx, jayatana]
     after: [desktop-gtk2]
-  mediainfo:
+  native:
     plugin: nil
-    stage-packages: [libmediainfo0v5, libchromaprint-tools]
+    stage-packages: [libmediainfo0v5, libchromaprint-tools, curl]
