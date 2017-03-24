@@ -71,12 +71,6 @@ public class Main {
 			}
 
 			if (args.clearCache() || args.clearUserData()) {
-				// clear cache must be called manually
-				if (System.console() == null) {
-					log.severe("`filebot -clear-cache` has been disabled due to abuse.");
-					System.exit(1);
-				}
-
 				// clear persistent user preferences
 				if (args.clearUserData()) {
 					log.info("Reset preferences");
@@ -85,6 +79,12 @@ public class Main {
 
 				// clear caches
 				if (args.clearCache()) {
+					// clear cache must be called manually
+					if (System.console() == null) {
+						log.severe("`filebot -clear-cache` has been disabled due to abuse.");
+						System.exit(1);
+					}
+
 					log.info("Clear cache");
 					for (File folder : getChildren(ApplicationFolder.Cache.get(), FOLDERS)) {
 						log.fine("* Delete " + folder);
