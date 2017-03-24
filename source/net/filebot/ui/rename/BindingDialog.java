@@ -1,6 +1,6 @@
 package net.filebot.ui.rename;
 
-import static java.util.stream.Collectors.*;
+import static java.util.Arrays.*;
 import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.UserFiles.*;
@@ -42,7 +42,6 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingWorker;
-import javax.swing.event.DocumentListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
@@ -55,7 +54,6 @@ import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.util.DefaultThreadFactory;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
-import net.filebot.util.ui.LazyDocumentListener;
 import net.miginfocom.swing.MigLayout;
 
 class BindingDialog extends JDialog {
@@ -104,35 +102,15 @@ class BindingDialog extends JDialog {
 			root.add(newButton("Close", ResourceManager.getIcon("dialog.continue"), e -> finish(false)), "tag ok");
 		}
 
-		// update preview on change
-		DocumentListener changeListener = new LazyDocumentListener(1000, evt -> {
-			// ignore lazy events that come in after the window has been closed
-			if (sample == null || bindingModel.executor.isShutdown()) {
-				return;
-			}
-
-			bindingModel.setModel(getSampleExpressions(), sample);
-		});
-
-		// update example bindings on change
-		infoTextField.getDocument().addDocumentListener(changeListener);
-		mediaFileTextField.getDocument().addDocumentListener(changeListener);
-
 		// disabled by default
-		infoTextField.setEnabled(false);
-		mediaInfoAction.setEnabled(false);
+		infoTextField.setEditable(false);
+		mediaFileTextField.setEditable(false);
 
-		// disable media info action if media file is invalid
-		mediaFileTextField.getDocument().addDocumentListener(new LazyDocumentListener(0, evt -> {
-			mediaInfoAction.setEnabled(getMediaFile() != null && getMediaFile().isFile());
-		}));
+		mediaInfoAction.setEnabled(false);
+		selectFileAction.setEnabled(editable);
 
 		// finish dialog and close window manually
 		addWindowListener(windowClosed(evt -> finish(false)));
-
-		mediaFileTextField.setEditable(editable);
-		infoTextField.setEditable(editable);
-		selectFileAction.setEnabled(editable);
 
 		// initialize window properties
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -186,11 +164,6 @@ class BindingDialog extends JDialog {
 		return table;
 	}
 
-	private List<String> getSampleExpressions() {
-		String expressions = ResourceBundle.getBundle(getClass().getName()).getString("expressions");
-		return COMMA.splitAsStream(expressions).collect(toList());
-	}
-
 	public boolean submit() {
 		return submit;
 	}
@@ -207,10 +180,29 @@ class BindingDialog extends JDialog {
 	public void setSample(MediaBindingBean sample) {
 		this.sample = sample;
 
-		infoTextField.setText(getInfoObject() == null ? "" : infoObjectFormat.format(getInfoObject()));
-		infoTextField.setToolTipText(getInfoObject() == null ? "null" : "<html><pre>" + escapeHTML(json(getInfoObject(), true)) + "</pre></html>");
+		Object i = getInfoObject();
+		if (i != null) {
+			infoTextField.setText(infoObjectFormat.format(i));
+			infoTextField.setToolTipText("<html><pre>" + escapeHTML(json(i, true)) + "</pre></html>");
+			infoTextField.setEnabled(true);
+		} else {
+			infoTextField.setText("none");
+			infoTextField.setToolTipText("null");
+			infoTextField.setEnabled(false);
+		}
 
-		mediaFileTextField.setText(getMediaFile() == null ? "" : getMediaFile().getAbsolutePath());
+		File f = getMediaFile();
+		if (f != null) {
+			mediaFileTextField.setText(f.getPath());
+			mediaFileTextField.setEnabled(true);
+			mediaInfoAction.setEnabled(true);
+		} else {
+			mediaFileTextField.setText("none");
+			mediaFileTextField.setEnabled(false);
+			mediaInfoAction.setEnabled(false);
+		}
+
+		updatePreviewModel();
 	}
 
 	public MediaBindingBean getSample() {
@@ -223,6 +215,16 @@ class BindingDialog extends JDialog {
 
 	public File getMediaFile() {
 		return sample == null ? null : sample.getFileObject();
+	}
+
+	private void updatePreviewModel() {
+		// ignore lazy events that come in after the window has been closed
+		if (sample == null || bindingModel.executor.isShutdown()) {
+			return;
+		}
+
+		String[] expressions = COMMA.split(ResourceBundle.getBundle(getClass().getName()).getString("expressions"));
+		bindingModel.setModel(asList(expressions), sample);
 	}
 
 	protected final Action mediaInfoAction = new AbstractAction("Open MediaInfo", ResourceManager.getIcon("action.properties")) {
