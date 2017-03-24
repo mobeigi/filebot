@@ -597,10 +597,13 @@ public class CmdlineOperations implements CmdlineInterface {
 
 						if (conflictAction == ConflictAction.OVERRIDE || (conflictAction == ConflictAction.AUTO && VideoQuality.isBetter(source, destination))) {
 							// do not delete files in test mode
-							if (renameAction.canRevert() && destination.delete()) {
-								log.info(format("[%s] Delete [%s]", conflictAction, destination));
-							} else {
-								log.warning(format("[%s] Unable to delete [%s]", conflictAction, destination));
+							if (renameAction.canRevert()) {
+								try {
+									log.info(format("[%s] Delete [%s]", conflictAction, destination));
+									delete(destination);
+								} catch (Exception e) {
+									log.warning(format("[%s] Failed to delete [%s]: %s", conflictAction, destination, e));
+								}
 							}
 						} else if (conflictAction == ConflictAction.INDEX) {
 							destination = nextAvailableIndexedName(destination);
