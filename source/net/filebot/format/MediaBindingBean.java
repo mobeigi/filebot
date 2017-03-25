@@ -444,10 +444,21 @@ public class MediaBindingBean {
 
 	@Define("dim")
 	public List<Integer> getDimension() {
-		String width = getMediaInfo(StreamKind.Video, 0, "Width");
-		String height = getMediaInfo(StreamKind.Video, 0, "Height");
+		// collect Width and Height as Integer List
+		return Stream.of("Width", "Height").map(p -> {
+			// collect value from Video Stream 0 or Image Stream 0
+			return Stream.of(StreamKind.Video, StreamKind.Image).map(k -> getMediaInfo().get(k, 0, p)).filter(s -> s.length() > 0).map(Integer::new).findFirst().orElse(0);
+		}).collect(toList());
+	}
 
-		return asList(Integer.parseInt(width), Integer.parseInt(height));
+	@Define("width")
+	public Integer getWidth() {
+		return getDimension().get(0);
+	}
+
+	@Define("height")
+	public Integer getHeight() {
+		return getDimension().get(1);
 	}
 
 	@Define("original")
