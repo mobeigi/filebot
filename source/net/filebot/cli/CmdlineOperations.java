@@ -599,7 +599,7 @@ public class CmdlineOperations implements CmdlineInterface {
 							// do not delete files in test mode
 							if (renameAction.canRevert()) {
 								try {
-									log.info(format("[%s] Delete [%s]", conflictAction, destination));
+									log.fine(format("[%s] Delete [%s]", conflictAction, destination));
 									delete(destination);
 								} catch (Exception e) {
 									log.warning(format("[%s] Failed to delete [%s]: %s", conflictAction, destination, e));
