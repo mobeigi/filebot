@@ -20,7 +20,7 @@ public class VideoQuality implements Comparator<File> {
 		return DESCENDING_ORDER.compare(f1, f2) < 0;
 	}
 
-	private final Comparator<File> chain = comparing(f -> new MediaBindingBean(f, f), comparingInt(this::getRepack).thenComparingInt(this::getResolution).thenComparingLong(this::getSize));
+	private final Comparator<File> chain = comparing(f -> new MediaBindingBean(f, f), comparingInt(this::getRepack).thenComparingInt(this::getResolution).thenComparingLong(MediaBindingBean::getFileSize));
 
 	@Override
 	public int compare(File f1, File f2) {
@@ -46,10 +46,6 @@ public class VideoQuality implements Comparator<File> {
 		}
 
 		return 0;
-	}
-
-	private long getSize(MediaBindingBean m) {
-		return m.getInferredMediaFile().length();
 	}
 
 }

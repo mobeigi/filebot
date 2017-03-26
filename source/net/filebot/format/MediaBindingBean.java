@@ -967,7 +967,13 @@ public class MediaBindingBean {
 	}
 
 	@Define("bytes")
-	public Long getFileSize() {
+	public long getFileSize() {
+		// sum size of all files
+		if (getMediaFile().isDirectory()) {
+			return listFiles(getMediaFile(), FILES).stream().mapToLong(File::length).sum();
+		}
+
+		// size of inferred media file (e.g. video file size for subtitle file)
 		return getInferredMediaFile().length();
 	}
 
