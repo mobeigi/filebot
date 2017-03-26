@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -817,18 +818,27 @@ public class MediaBindingBean {
 	}
 
 	@Define("duration")
-	public Long getDuration() {
-		return new Double(getMediaInfo(StreamKind.General, 0, "Duration")).longValue();
+	public Duration getDuration() {
+		long d = new Double(getMediaInfo(StreamKind.General, 0, "Duration")).longValue();
+		return Duration.ofMillis(d);
 	}
 
 	@Define("seconds")
-	public Integer getSeconds() {
-		return (int) (getDuration() / 1000);
+	public long getSeconds() {
+		return getDuration().getSeconds();
 	}
 
 	@Define("minutes")
-	public Integer getDurationInMinutes() {
-		return (int) (getDuration() / 60000);
+	public long getMinutes() {
+		return getDuration().toMinutes();
+	}
+
+	@Define("hours")
+	public String getHours() {
+		Duration d = getDuration();
+
+		// use RATIO instead of COLON for file name compatibility (see https://unicode-table.com/en/2236/)
+		return String.format("%d∶%02d", d.toHours(), d.minusHours(d.toHours()).toMinutes());
 	}
 
 	@Define("media")

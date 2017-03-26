@@ -555,7 +555,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return newFile;
 	}
 
-	private Map<File, File> formatMatches(List<Match<File, ?>> matches, ExpressionFormat format, File outputDir) throws Exception {
+	private Map<File, File> formatMatches(List<Match<File, ?>> matches, ExpressionFileFormat format, File outputDir) throws Exception {
 		// map old files to new paths by applying formatting and validating filenames
 		Map<File, File> renameMap = new LinkedHashMap<File, File>();
 
@@ -1037,7 +1037,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	public Stream<String> getMediaInfo(Collection<File> files, FileFilter filter, ExpressionFormat format) throws Exception {
 		// use default expression format if not set
 		if (format == null) {
-			return getMediaInfo(files, filter, new ExpressionFormat("{fn} [{resolution} {vc} {channels} {ac} {minutes}m]"));
+			return getMediaInfo(files, filter, new ExpressionFormat("{fn} [{resolution} {vc} {channels} {ac} {hours}]"));
 		}
 
 		return files.stream().filter(filter::accept).map(f -> {
