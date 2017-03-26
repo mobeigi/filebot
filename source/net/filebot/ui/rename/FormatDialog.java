@@ -424,6 +424,7 @@ public class FormatDialog extends JDialog {
 	protected MediaBindingBean restoreSample(Mode mode) {
 		Object info = null;
 		File media = null;
+		Map<File, ?> context = null;
 
 		try {
 			// restore sample from user preferences
@@ -443,9 +444,10 @@ public class FormatDialog extends JDialog {
 
 		if (path != null && !path.isEmpty()) {
 			media = new File(path);
+			context = singletonMap(media, info);
 		}
 
-		return new MediaBindingBean(info, media);
+		return new MediaBindingBean(info, media, context);
 	}
 
 	private ExecutorService createExecutor() {
