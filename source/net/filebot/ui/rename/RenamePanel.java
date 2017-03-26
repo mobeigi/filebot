@@ -581,7 +581,7 @@ public class RenamePanel extends JComponent {
 
 	private void showFormatEditor(MediaBindingBean binding) {
 		withWaitCursor(this, () -> {
-			FormatDialog dialog = new FormatDialog(getWindowAncestor(RenamePanel.this), getFormatEditorMode(binding), binding);
+			FormatDialog dialog = new FormatDialog(getWindowAncestor(RenamePanel.this), getFormatEditorMode(binding), binding, binding != null);
 			dialog.setLocation(getOffsetLocation(dialog.getOwner()));
 			dialog.setVisible(true);
 

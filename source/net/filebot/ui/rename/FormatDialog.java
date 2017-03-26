@@ -186,7 +186,7 @@ public class FormatDialog extends JDialog {
 		}
 	}
 
-	public FormatDialog(Window owner, Mode initMode, MediaBindingBean lockOnBinding) {
+	public FormatDialog(Window owner, Mode initMode, MediaBindingBean bindings, boolean locked) {
 		super(owner, ModalityType.DOCUMENT_MODAL);
 
 		// initialize hidden
@@ -226,9 +226,10 @@ public class FormatDialog extends JDialog {
 
 		content.add(help, "growx, wrap 25px:push");
 
-		if (lockOnBinding == null) {
+		if (bindings == null) {
 			content.add(new JButton(switchEditModeAction), "tag left");
 		}
+
 		content.add(new JButton(approveFormatAction), "tag apply");
 		content.add(new JButton(cancelAction), "tag cancel");
 
@@ -273,8 +274,15 @@ public class FormatDialog extends JDialog {
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setMinimumSize(new Dimension(650, 520));
 
+		// restore sample file if necessary
+		if (bindings == null) {
+			bindings = restoreSample(initMode);
+		} else if (bindings.getFileObject() == null && !locked) {
+			bindings = new MediaBindingBean(bindings.getInfoObject(), restoreSample(initMode).getMediaFile());
+		}
+
 		// initialize data
-		setState(initMode, lockOnBinding != null ? lockOnBinding : restoreSample(initMode), lockOnBinding != null);
+		setState(initMode, bindings, locked);
 	}
 
 	public void setState(Mode mode, MediaBindingBean bindings, boolean locked) {

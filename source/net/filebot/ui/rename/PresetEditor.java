@@ -314,7 +314,7 @@ public class PresetEditor extends JDialog {
 			sample = file = files.get(0);
 		}
 
-		FormatDialog dialog = new FormatDialog(getWindow(evt.getSource()), mode, new MediaBindingBean(sample, file, singletonMap(file, sample)));
+		FormatDialog dialog = new FormatDialog(getWindow(evt.getSource()), mode, new MediaBindingBean(sample, file, singletonMap(file, sample)), false);
 		dialog.setFormatCode(formatEditor.getText());
 		dialog.setLocation(getOffsetLocation(dialog.getOwner()));
 		dialog.setVisible(true);
