@@ -835,10 +835,7 @@ public class MediaBindingBean {
 
 	@Define("hours")
 	public String getHours() {
-		Duration d = getDuration();
-
-		// use RATIO instead of COLON for file name compatibility (see https://unicode-table.com/en/2236/)
-		return String.format("%d∶%02d", d.toHours(), d.minusHours(d.toHours()).toMinutes());
+		return ExpressionFormatMethods.format(getDuration(), "H:mm");
 	}
 
 	@Define("media")

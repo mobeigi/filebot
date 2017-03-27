@@ -14,8 +14,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -551,7 +553,11 @@ public class ExpressionFormatMethods {
 	}
 
 	public static String format(Temporal self, String pattern) {
-		return DateTimeFormatter.ofPattern(pattern).format(self);
+		return DateTimeFormatter.ofPattern(pattern, Locale.ENGLISH).format(self);
+	}
+
+	public static String format(TemporalAmount self, String pattern) {
+		return DateTimeFormatter.ofPattern(pattern, Locale.ENGLISH).format(LocalTime.MIDNIGHT.plus(self));
 	}
 
 	/**
