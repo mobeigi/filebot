@@ -4,6 +4,7 @@ import static net.filebot.util.ExceptionUtilities.*;
 
 import java.lang.reflect.Method;
 import java.util.AbstractMap;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -42,10 +43,21 @@ public class ExpressionBindings extends AbstractMap<String, Object> implements B
 	}
 
 	protected boolean isUndefined(Object value) {
-		if (value instanceof CharSequence) {
-			return ((CharSequence) value).length() <= 0;
+		if (value == null) {
+			return true;
 		}
-		return value == null;
+
+		// treat empty string as null
+		if (value instanceof CharSequence && value.toString().isEmpty()) {
+			return true;
+		}
+
+		// treat empty list as null
+		if (value instanceof Collection && ((Collection) value).isEmpty()) {
+			return true;
+		}
+
+		return false;
 	}
 
 	public Object getBindingBean() {

@@ -7,6 +7,7 @@ import static net.filebot.util.RegularExpressions.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,9 +39,17 @@ public class ExpressionFormatFunctions {
 				return null;
 			}
 		}
+
+		// treat empty string as null
 		if (object instanceof CharSequence && object.toString().isEmpty()) {
 			return null;
 		}
+
+		// treat empty list as null
+		if (object instanceof Collection && ((Collection) object).isEmpty()) {
+			return null;
+		}
+
 		return object;
 	}
 
