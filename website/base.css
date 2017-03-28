@@ -117,6 +117,18 @@ table.reference.cli > * > * > td:first-child {
 	font-weight: bold;
 }
 
+span.cmd {
+	color: #5C7684;
+	font-family: Andale Mono, monospace;
+	font-weight: bold;
+}
+
+span.option {
+	color: #225577;
+	font-family: Andale Mono, monospace;
+	font-weight: bold;
+}
+
 .page {
 	position: relative;
 	margin: 20px auto;
