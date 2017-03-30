@@ -2,7 +2,6 @@ package net.filebot.media;
 
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
-import static net.filebot.util.ExceptionUtilities.*;
 
 import java.io.File;
 import java.util.Locale;
@@ -70,7 +69,7 @@ public class XattrMetaInfo {
 		try {
 			return cache.computeIfAbsent(file, element -> compute.apply(xattr(file)));
 		} catch (Throwable e) {
-			debug.warning("Failed to read xattr: " + getRootCauseMessage(e));
+			debug.warning(cause("Failed to read xattr", e));
 		}
 		return null;
 	}
@@ -95,7 +94,7 @@ public class XattrMetaInfo {
 					xattr.get().setCreationDate(t);
 				}
 			} catch (Throwable e) {
-				debug.warning("Failed to set creation date: " + getRootCauseMessage(e));
+				debug.warning(cause("Failed to set creation date", e));
 			}
 		}
 
@@ -117,7 +116,7 @@ public class XattrMetaInfo {
 				}
 			}
 		} catch (Throwable e) {
-			debug.warning("Failed to set xattr: " + getRootCauseMessage(e));
+			debug.warning(cause("Failed to set xattr", e));
 		}
 	}
 
@@ -130,7 +129,7 @@ public class XattrMetaInfo {
 			try {
 				xattr(file).clear();
 			} catch (Throwable e) {
-				debug.warning("Failed to clear xattr: " + getRootCauseMessage(e));
+				debug.warning(cause("Failed to clear xattr", e));
 			}
 		}
 	}

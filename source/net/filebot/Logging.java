@@ -96,6 +96,15 @@ public final class Logging {
 		};
 	}
 
+	public static Supplier<String> cause(String m, Throwable t) {
+		return () -> {
+			StringBuilder s = new StringBuilder(m).append(": ");
+			s.append(t.getClass().getSimpleName()).append(": ");
+			s.append(t.getMessage());
+			return s.toString();
+		};
+	}
+
 	public static Supplier<String> cause(Throwable t) {
 		return () -> {
 			StringBuilder s = new StringBuilder();
