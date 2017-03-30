@@ -112,6 +112,11 @@ public class SeasonEpisodeMatcher {
 	protected List<SxE> range(String season, String... episodes) {
 		IntSummaryStatistics stats = stream(episodes).flatMap(s -> matchIntegers(s).stream()).mapToInt(i -> i).summaryStatistics();
 
+		// range patterns without season are more prone to false positives, so we need to do some extra sanity checks (e.g. Episode 01-50 is probably not a multi-episode but some sort of season pack)
+		if (season == null && stats.getMax() - stats.getMin() >= 9) {
+			return emptyList();
+		}
+
 		Integer s = matchInteger(season);
 		return IntStream.rangeClosed(stats.getMin(), stats.getMax()).boxed().map(e -> new SxE(s, e)).collect(toList());
 	}

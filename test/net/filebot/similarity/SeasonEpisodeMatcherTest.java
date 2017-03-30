@@ -117,6 +117,12 @@ public class SeasonEpisodeMatcherTest {
 	}
 
 	@Test
+	public void multiEpisodePatternsFalsePositive() {
+		assertEquals("[1x01, 01, 12]", matcher.match("Complete Season 01 (EP 01-12)/01").toString());
+		assertEquals("[1x01, 01, 12]", matcher.match("Complete Season 01 (EP 01-12)/12").toString());
+	}
+
+	@Test
 	public void withReleaseInfo() {
 		assertEquals("[7x20]", matcher.match("720p").toString());
 
