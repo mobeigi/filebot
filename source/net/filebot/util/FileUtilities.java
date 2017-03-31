@@ -246,12 +246,19 @@ public final class FileUtilities {
 			CharsetMatch match = detector.detect();
 			if (match != null) {
 				Reader reader = match.getReader();
+
+				// reader may be null if detected character encoding is not supported
 				if (reader != null) {
 					return reader;
 				}
 
-				// reader may be null if detected character encoding is not supported
-				debug.warning("Unsupported charset: " + match.getName());
+				// ISO-8859-8-I is not supported, but ISO-8859-8 uses the same code points so we can use that instead
+				switch (match.getName()) {
+				case "ISO-8859-8-I":
+					return new InputStreamReader(in, Charset.forName("ISO-8859-8"));
+				default:
+					debug.warning("Unsupported charset: " + match.getName());
+				}
 			}
 		}
 
