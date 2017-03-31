@@ -245,7 +245,13 @@ public final class FileUtilities {
 			detector.setText(in);
 			CharsetMatch match = detector.detect();
 			if (match != null) {
-				return match.getReader();
+				Reader reader = match.getReader();
+				if (reader != null) {
+					return reader;
+				}
+
+				// reader may be null if detected character encoding is not supported
+				debug.warning("Unsupported charset: " + match.getName());
 			}
 		}
 
