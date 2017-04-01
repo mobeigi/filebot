@@ -114,7 +114,7 @@ public final class Logging {
 		}
 
 		// e.g. Failed to create file: AccessDeniedException: /path/to/file
-		return Stream.of(m, t.getClass().getSimpleName(), t.getMessage()).map(Objects::nonNull).map(Objects::toString).collect(joining(": "));
+		return Stream.of(m, t.getClass().getSimpleName(), t.getMessage()).filter(Objects::nonNull).map(Objects::toString).collect(joining(": "));
 	}
 
 	public static class ConsoleFormatter extends Formatter {
