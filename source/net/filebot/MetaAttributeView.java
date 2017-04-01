@@ -6,7 +6,6 @@ import static net.filebot.Logging.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
@@ -21,8 +20,7 @@ import net.filebot.platform.mac.MacXattrView;
 
 public class MetaAttributeView extends AbstractMap<String, String> {
 
-	private Object xattr;
-	private Charset encoding = UTF_8;
+	private final Object xattr;
 
 	public MetaAttributeView(File file) throws IOException {
 		// resolve symlinks
@@ -56,7 +54,7 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 					attributeView.read(key, buffer);
 					buffer.flip();
 
-					return encoding.decode(buffer).toString();
+					return UTF_8.decode(buffer).toString();
 				} else {
 					return null; // attribute does not exist
 				}
@@ -81,7 +79,7 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 				if (value == null || value.isEmpty()) {
 					attributeView.delete(key);
 				} else {
-					attributeView.write(key, encoding.encode(value));
+					attributeView.write(key, UTF_8.encode(value));
 				}
 			}
 
@@ -98,6 +96,17 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 		}
 
 		return null; // since we don't know the old value
+	}
+
+	@Override
+	public void clear() {
+		try {
+			for (String key : list()) {
+				put(key, null);
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public List<String> list() throws IOException {
@@ -118,21 +127,10 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 	public Set<Entry<String, String>> entrySet() {
 		try {
 			Set<Entry<String, String>> entries = new LinkedHashSet<Entry<String, String>>();
-			for (String name : this.list()) {
+			for (String name : list()) {
 				entries.add(new AttributeEntry(name));
 			}
 			return entries;
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	public void clear() {
-		try {
-			for (String key : this.list()) {
-				this.put(key, null);
-			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
