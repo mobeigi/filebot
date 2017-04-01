@@ -1,7 +1,7 @@
 package net.filebot;
 
 import static java.nio.charset.StandardCharsets.*;
-import static java.nio.file.Files.*;
+import static net.filebot.Logging.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,45 +25,49 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 	private Charset encoding = UTF_8;
 
 	public MetaAttributeView(File file) throws IOException {
-		Path path = file.getCanonicalFile().toPath();
-		while (isSymbolicLink(path)) {
-			Path link = readSymbolicLink(path);
-			if (!link.isAbsolute()) {
-				link = path.getParent().resolve(link);
-			}
-			path = link;
-		}
+		// resolve symlinks
+		Path path = file.toPath().toRealPath();
 
 		// UserDefinedFileAttributeView (for Windows and Linux) OR our own xattr.h JNA wrapper via MacXattrView (for Mac) because UserDefinedFileAttributeView is not supported (Oracle Java 7/8)
 		if (Platform.isMac()) {
 			xattr = new MacXattrView(path);
 		} else {
 			xattr = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
+		}
 
-			if (xattr == null) {
-				throw new IOException("UserDefinedFileAttributeView is not supported");
-			}
+		// sanity check
+		if (xattr == null) {
+			throw new IOException("UserDefinedFileAttributeView is not supported");
 		}
 	}
 
 	@Override
 	public String get(Object key) {
+		return get(key.toString());
+	}
+
+	public String get(String key) {
 		try {
 			if (xattr instanceof UserDefinedFileAttributeView) {
 				UserDefinedFileAttributeView attributeView = (UserDefinedFileAttributeView) xattr;
-				ByteBuffer buffer = ByteBuffer.allocate(attributeView.size(key.toString()));
-				attributeView.read(key.toString(), buffer);
-				buffer.flip();
+				int size = attributeView.size(key);
+				if (size > 0) {
+					ByteBuffer buffer = ByteBuffer.allocate(size);
+					attributeView.read(key, buffer);
+					buffer.flip();
 
-				return encoding.decode(buffer).toString();
+					return encoding.decode(buffer).toString();
+				} else {
+					return null; // attribute does not exist
+				}
 			}
 
 			if (xattr instanceof MacXattrView) {
 				MacXattrView macXattr = (MacXattrView) xattr;
-				return macXattr.read(key.toString());
+				return macXattr.read(key);
 			}
-		} catch (Exception e) {
-			// ignore
+		} catch (IOException e) {
+			debug.warning(cause(e));
 		}
 
 		return null;
@@ -89,7 +93,7 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 					macXattr.write(key, value);
 				}
 			}
-		} catch (Exception e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 
@@ -118,7 +122,7 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 				entries.add(new AttributeEntry(name));
 			}
 			return entries;
-		} catch (Exception e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -129,7 +133,7 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 			for (String key : this.list()) {
 				this.put(key, null);
 			}
-		} catch (Exception e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
