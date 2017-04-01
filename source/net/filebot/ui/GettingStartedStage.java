@@ -55,8 +55,13 @@ public class GettingStartedStage {
 		Stage stage = new Stage();
 		stage.setResizable(false);
 
-		stage.initStyle(StageStyle.UTILITY);
-		stage.initModality(Modality.NONE);
+		if (isWindowsApp()) {
+			stage.initStyle(StageStyle.UNIFIED);
+			stage.initModality(Modality.NONE);
+		} else {
+			stage.initStyle(StageStyle.UTILITY);
+			stage.initModality(Modality.NONE);
+		}
 
 		return new GettingStartedStage(stage);
 	}
