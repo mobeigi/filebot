@@ -394,11 +394,7 @@
 		<exec executable="get-java.sh" dir="${dir.cache}" failonerror="yes" />
 
 		<copy todir="${dir.cache}">
-			<tarfileset>
-				<gzipresource>
-					<file file="${dir.cache}/jre-${jre.major}u${jre.build}-macosx-x64.tar.gz" />
-				</gzipresource>
-
+			<tarfileset file="${dir.cache}/jre-${jre.major}u${jre.build}-macosx-x64.tar.gz">
 				<exclude name="**/bin/**" />
 				<exclude name="**/man/**" />
 
@@ -598,11 +594,7 @@
 			<arg line="get-java" />
 		</exec>
 		<copy todir="${dir.dist}/appx/jre">
-			<tarfileset>
-				<gzipresource>
-					<file file="${dir.cache}/jre-${jre.major}u${jre.build}-windows-x64.tar.gz" />
-				</gzipresource>
-			</tarfileset>
+			<tarfileset file="${dir.cache}/jre-${jre.major}u${jre.build}-windows-x64.tar.gz" />
 			<cutdirsmapper dirs="1" />
 		</copy>
 
