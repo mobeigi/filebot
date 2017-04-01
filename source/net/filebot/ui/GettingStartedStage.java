@@ -5,6 +5,7 @@ import static net.filebot.Settings.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -18,6 +19,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -25,6 +27,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
+import net.filebot.ResourceManager;
 
 public class GettingStartedStage {
 
@@ -56,7 +59,8 @@ public class GettingStartedStage {
 		stage.setResizable(false);
 
 		if (isWindowsApp()) {
-			stage.initStyle(StageStyle.UNIFIED);
+			stage.getIcons().setAll(ResourceManager.getApplicationIconResources().map(URL::toString).map(Image::new).toArray(Image[]::new));
+			stage.initStyle(StageStyle.DECORATED);
 			stage.initModality(Modality.NONE);
 		} else {
 			stage.initStyle(StageStyle.UTILITY);

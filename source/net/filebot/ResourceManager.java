@@ -48,8 +48,12 @@ public final class ResourceManager {
 		return icon;
 	}
 
+	public static Stream<URL> getApplicationIconResources() {
+		return Stream.of("window.icon.large", "window.icon.medium", "window.icon.small").map(ResourceManager::getImageResource);
+	}
+
 	public static List<Image> getApplicationIcons() {
-		return Stream.of("window.icon.large", "window.icon.medium", "window.icon.small").map(ResourceManager::getImage).collect(toList());
+		return getApplicationIconResources().map(ResourceManager::getImage).collect(toList());
 	}
 
 	public static Icon getFlagIcon(String languageCode) {
