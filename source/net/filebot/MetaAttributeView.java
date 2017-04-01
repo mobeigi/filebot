@@ -6,8 +6,8 @@ import static net.filebot.Logging.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.AbstractMap;
@@ -55,7 +55,7 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 					buffer.flip();
 
 					return UTF_8.decode(buffer).toString();
-				} catch (NoSuchFileException e) {
+				} catch (FileSystemException e) {
 					// attribute does not exist
 					return null;
 				}
