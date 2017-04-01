@@ -393,7 +393,7 @@
 		<!-- fetch latest JRE -->
 		<exec executable="get-java.sh" dir="${dir.cache}" failonerror="yes" />
 
-		<untar src="${dir.cache}/jre-${jre.major}u${jre.build}-macosx-x64.tar.gz" dest="${dir.cache}" compression="gz">
+		<untar src="${dir.cache}/jre-${jre.major}u${jre.build}-macosx-x64.tar.gz" dest="${dir.cache}" compression="gzip">
 			<patternset>
 				<exclude name="**/bin/**" />
 				<exclude name="**/man/**" />
@@ -593,14 +593,9 @@
 		<exec executable="powershell" dir="${dir.cache}" failonerror="yes">
 			<arg line="get-java" />
 		</exec>
-		<copy todir="${dir.dist}/appx/jre">
-			<tarfileset>
-				<gzipresource>
-					<file file="${dir.cache}/jre-${jre.major}u${jre.build}-windows-x64.tar.gz" />
-				</gzipresource>
-			</tarfileset>
+		<untar src="${dir.cache}/jre-${jre.major}u${jre.build}-windows-x64.tar.gz" dest="${dir.dist}/appx/jre" compression="gzip">
 			<cutdirsmapper dirs="1" />
-		</copy>
+		</untar>
 
 
 		<exec executable="makepri" dir="${dir.dist}/appx" failonerror="yes">
