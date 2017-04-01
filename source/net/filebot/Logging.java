@@ -107,7 +107,7 @@ public final class Logging {
 		return () -> getMessage(null, t);
 	}
 
-	public static Supplier<String> cause(Object... elements) {
+	public static Supplier<String> message(Object... elements) {
 		return () -> getMessage(elements);
 	}
 

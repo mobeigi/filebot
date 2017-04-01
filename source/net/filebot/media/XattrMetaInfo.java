@@ -78,9 +78,9 @@ public class XattrMetaInfo {
 		// make file writable if necessary
 		if (!f.canWrite()) {
 			if (f.setWritable(true)) {
-				debug.fine(cause("Grant write permissions", f));
+				debug.fine(message("Grant write permissions", f));
 			} else {
-				debug.warning(cause("Failed to grant write permissions", f));
+				debug.warning(message("Failed to grant write permissions", f));
 			}
 		}
 		return f;
