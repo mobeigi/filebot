@@ -1,6 +1,7 @@
 package net.filebot;
 
 import static java.nio.channels.Channels.*;
+import static java.util.Arrays.*;
 import static java.util.stream.Collectors.*;
 
 import java.io.File;
@@ -22,7 +23,6 @@ import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import org.codehaus.groovy.runtime.StackTraceUtils;
 
@@ -107,6 +107,10 @@ public final class Logging {
 		return () -> getMessage(null, t);
 	}
 
+	public static Supplier<String> cause(Object... elements) {
+		return () -> getMessage(elements);
+	}
+
 	private static String getMessage(String m, Throwable t) {
 		// try to unravel stacked exceptions
 		if (t instanceof RuntimeException && t.getCause() != null) {
@@ -114,7 +118,11 @@ public final class Logging {
 		}
 
 		// e.g. Failed to create file: AccessDeniedException: /path/to/file
-		return Stream.of(m, t.getClass().getSimpleName(), t.getMessage()).filter(Objects::nonNull).map(Objects::toString).collect(joining(": "));
+		return getMessage(m, t.getClass().getSimpleName(), t.getMessage());
+	}
+
+	private static String getMessage(Object... elements) {
+		return stream(elements).filter(Objects::nonNull).map(Objects::toString).collect(joining(": "));
 	}
 
 	public static class ConsoleFormatter extends Formatter {

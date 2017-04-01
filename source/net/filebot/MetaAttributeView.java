@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.AbstractMap;
@@ -48,15 +49,15 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 		try {
 			if (xattr instanceof UserDefinedFileAttributeView) {
 				UserDefinedFileAttributeView attributeView = (UserDefinedFileAttributeView) xattr;
-				int size = attributeView.size(key);
-				if (size > 0) {
-					ByteBuffer buffer = ByteBuffer.allocate(size);
+				try {
+					ByteBuffer buffer = ByteBuffer.allocate(attributeView.size(key));
 					attributeView.read(key, buffer);
 					buffer.flip();
 
 					return UTF_8.decode(buffer).toString();
-				} else {
-					return null; // attribute does not exist
+				} catch (NoSuchFileException e) {
+					// attribute does not exist
+					return null;
 				}
 			}
 

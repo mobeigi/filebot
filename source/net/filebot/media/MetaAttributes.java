@@ -45,7 +45,7 @@ public class MetaAttributes {
 	public long getCreationDate(long time) {
 		try {
 			return fileAttributeView.readAttributes().creationTime().toMillis();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			return 0;
 		}
 	}
@@ -59,21 +59,13 @@ public class MetaAttributes {
 	}
 
 	public void setObject(Object object) {
-		try {
-			metaAttributeView.put(METADATA_KEY, toJson(object));
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		metaAttributeView.put(METADATA_KEY, toJson(object));
 	}
 
 	public Object getObject() {
-		try {
-			String json = metaAttributeView.get(METADATA_KEY);
-			if (json != null && json.length() > 0) {
-				return toObject(json);
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		String json = metaAttributeView.get(METADATA_KEY);
+		if (json != null && json.length() > 0) {
+			return toObject(json);
 		}
 		return null;
 	}
