@@ -67,15 +67,27 @@ public class XattrMetaInfo {
 		}
 
 		try {
-			return cache.computeIfAbsent(file, element -> compute.apply(xattr(file)));
+			return cache.computeIfAbsent(file, element -> compute.apply(xattr(file))); // read only
 		} catch (Throwable e) {
 			debug.warning(cause("Failed to read xattr", e));
 		}
 		return null;
 	}
 
-	private MetaAttributes xattr(File file) throws Exception {
-		return new MetaAttributes(file);
+	private File writable(File f) throws Exception {
+		// make file writable if necessary
+		if (!f.canWrite()) {
+			if (f.setWritable(true)) {
+				debug.finest("Grant write permissions: " + f);
+			} else {
+				debug.warning("Failed to grant write permissions: " + f);
+			}
+		}
+		return f;
+	}
+
+	private MetaAttributes xattr(File f) throws Exception {
+		return new MetaAttributes(f);
 	}
 
 	public synchronized void setMetaInfo(File file, Object model, String original) {
@@ -85,7 +97,7 @@ public class XattrMetaInfo {
 		}
 
 		// set creation date to episode / movie release date
-		Resource<MetaAttributes> xattr = Resource.lazy(() -> xattr(file));
+		Resource<MetaAttributes> xattr = Resource.lazy(() -> xattr(writable(file)));
 
 		if (useCreationDate) {
 			try {
@@ -127,7 +139,7 @@ public class XattrMetaInfo {
 
 		if (useExtendedFileAttributes) {
 			try {
-				xattr(file).clear();
+				xattr(writable(file)).clear();
 			} catch (Throwable e) {
 				debug.warning(cause("Failed to clear xattr", e));
 			}
