@@ -443,13 +443,6 @@ public class MediaBindingBean {
 		return "SD";
 	}
 
-	@Deprecated
-	@Define("sdhd")
-	public String getVideoDefinitionCategoryDeprecated() {
-		debug.warning("[WARNING] {sdhd} is deprecated and will be removed in the next release. Use {hd} instead.");
-		return getWidth() >= 1280 || getHeight() >= 720 ? "HD" : "SD";
-	}
-
 	@Define("dim")
 	public List<Integer> getDimension() {
 		// collect value from Video Stream 0 or Image Stream 0
@@ -1305,5 +1298,12 @@ public class MediaBindingBean {
 
 	public static final String EXCEPTION_UNDEFINED = "undefined";
 	public static final String EXCEPTION_SAMPLE_FILE_NOT_SET = "Sample file has not been set. Click \"Change Sample\" to select a sample file.";
+
+	@Deprecated
+	@Define("sdhd")
+	public String getVideoDefinitionCategoryDeprecated() {
+		debug.severe("[WARNING] {sdhd} is deprecated and will be removed in the next release. Use {hd} instead.");
+		return getVideoDefinitionCategory();
+	}
 
 }
