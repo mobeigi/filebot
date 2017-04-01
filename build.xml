@@ -393,16 +393,16 @@
 		<!-- fetch latest JRE -->
 		<exec executable="get-java.sh" dir="${dir.cache}" failonerror="yes" />
 
-		<copy todir="${dir.cache}">
-			<tarfileset file="${dir.cache}/jre-${jre.major}u${jre.build}-macosx-x64.tar.gz">
+		<untar src="${dir.cache}/jre-${jre.major}u${jre.build}-macosx-x64.tar.gz" dest="${dir.cache}" compression="gz">
+			<patternset>
 				<exclude name="**/bin/**" />
 				<exclude name="**/man/**" />
 
 				<!-- webkit uses deprecate font libraries which is not allowed in the app store  -->
 				<exclude name="**/libjfxmedia_qtkit.dylib" />
 				<exclude name="**/libjfxwebkit.dylib" />
-			</tarfileset>
-		</copy>
+			</patternset>
+		</untar>
 
 		<!-- MAS validation is a bit buggy and requires even libraries and frameworks to have a unique CFBundleIdentifier Collision -->
 		<replace file="${jre.path}/../Info.plist" token="com.oracle.java.${jre.major}u${jre.build}.jre" value="${application.identifier}.jre" encoding="UTF-8" />
@@ -594,7 +594,11 @@
 			<arg line="get-java" />
 		</exec>
 		<copy todir="${dir.dist}/appx/jre">
-			<tarfileset file="${dir.cache}/jre-${jre.major}u${jre.build}-windows-x64.tar.gz" />
+			<tarfileset>
+				<gzipresource>
+					<file file="${dir.cache}/jre-${jre.major}u${jre.build}-windows-x64.tar.gz" />
+				</gzipresource>
+			</tarfileset>
 			<cutdirsmapper dirs="1" />
 		</copy>
 
