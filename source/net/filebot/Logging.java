@@ -1,6 +1,7 @@
 package net.filebot;
 
 import static java.nio.channels.Channels.*;
+import static java.util.stream.Collectors.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,6 +11,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
@@ -20,6 +22,7 @@ import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.codehaus.groovy.runtime.StackTraceUtils;
 
@@ -97,21 +100,21 @@ public final class Logging {
 	}
 
 	public static Supplier<String> cause(String m, Throwable t) {
-		return () -> {
-			StringBuilder s = new StringBuilder(m).append(": ");
-			s.append(t.getClass().getSimpleName()).append(": ");
-			s.append(t.getMessage());
-			return s.toString();
-		};
+		return () -> getMessage(m, t);
 	}
 
 	public static Supplier<String> cause(Throwable t) {
-		return () -> {
-			StringBuilder s = new StringBuilder();
-			s.append(t.getClass().getSimpleName()).append(": ");
-			s.append(t.getMessage());
-			return s.toString();
-		};
+		return () -> getMessage(null, t);
+	}
+
+	private static String getMessage(String m, Throwable t) {
+		// try to unravel stacked exceptions
+		if (t instanceof RuntimeException && t.getCause() != null) {
+			return getMessage(m, t.getCause());
+		}
+
+		// e.g. Failed to create file: AccessDeniedException: /path/to/file
+		return Stream.of(m, t.getClass().getSimpleName(), t.getMessage()).map(Objects::nonNull).map(Objects::toString).collect(joining(": "));
 	}
 
 	public static class ConsoleFormatter extends Formatter {
