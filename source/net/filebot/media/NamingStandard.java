@@ -72,12 +72,15 @@ public enum NamingStandard {
 
 	private static String path(String... name) {
 		return stream(name).filter(Objects::nonNull).map(s -> {
-			s = replaceColon(s, ".", " - ");
-			s = replacePathSeparators(s, " ");
-			s = normalizeQuotationMarks(s);
-			s = trimTrailingPunctuation(s);
-			s = validateFileName(s);
-			return s;
+			return replaceColon(s, ".", " - ");
+		}).map(s -> {
+			return replacePathSeparators(s, " ");
+		}).map(s -> {
+			return normalizeQuotationMarks(s);
+		}).map(s -> {
+			return trimTrailingPunctuation(s);
+		}).map(s -> {
+			return validateFileName(s);
 		}).filter(s -> s.length() > 0).collect(joining("/"));
 	}
 
