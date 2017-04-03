@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
-	<name>FileBot 4.7.8</name>
-	<revision>4842</revision>
+	<name>FileBot 4.7.9</name>
+	<revision>4984</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 4.7.8</b><br>
+		<b>FileBot 4.7.9</b><br>
 		This release features:<br>
-		+ New language preferences<br>
-		+ New episode order preferences<br>
+		+ Presets for photo renaming<br>
 		+ New bindings<br>
 		+ Minor improvements and bugfixes<br>
 	<html>]]></message>
-	<discussion><![CDATA[https://www.filebot.net/forums/viewtopic.php?f=7&t=3709&p=26583#p26583]]></discussion>
+	<discussion><![CDATA[https://www.filebot.net/forums/viewtopic.php?f=7&t=3709&p=27130#p27130]]></discussion>
 	<download><![CDATA[https://www.filebot.net/#download]]></download>
 </update>
