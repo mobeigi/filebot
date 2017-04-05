@@ -612,7 +612,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 					// rename file, throw exception on failure
 					if (!destination.equals(source) && !destination.exists()) {
-						log.info(format("[%s] From [%s] to [%s]", renameAction, source, destination));
+						log.info(format("[%s] from [%s] to [%s]", renameAction, source, destination));
 						destination = renameAction.rename(source, destination);
 
 						// remember successfully renamed matches for history entry and possible revert
