@@ -1,8 +1,7 @@
 package net.filebot.cli;
 
-import static net.filebot.Logging.*;
-
 import java.io.File;
+import java.io.IOException;
 
 import net.filebot.RenameAction;
 
@@ -16,10 +15,13 @@ public class ExecutableRenameAction implements RenameAction {
 
 	@Override
 	public File rename(File from, File to) throws Exception {
-		Process process = new ProcessBuilder(executable, from.getPath(), to.getPath()).inheritIO().start();
+		ProcessBuilder process = new ProcessBuilder(executable, from.getPath(), to.getPath());
+		process.directory(from.getParentFile());
+		process.inheritIO();
 
-		if (process.waitFor() != 0) {
-			debug.severe(format("[%s] failed with exit code %d", executable, process.exitValue()));
+		int exitCode = process.start().waitFor();
+		if (exitCode != 0) {
+			throw new IOException(String.format("%s failed with exit code %d", process.command(), exitCode));
 		}
 
 		return null;
