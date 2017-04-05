@@ -97,7 +97,12 @@ public final class HistorySpooler {
 		List<Element> sequence = new ArrayList<Element>();
 
 		for (Entry<File, File> element : elements) {
-			sequence.add(new Element(element.getKey().getName(), element.getValue().getPath(), element.getKey().getParentFile()));
+			File k = element.getKey();
+			File v = element.getValue();
+
+			if (k != null && v != null) {
+				sequence.add(new Element(k.getName(), v.getPath(), k.getParentFile()));
+			}
 		}
 
 		if (sequence.size() > 0) {

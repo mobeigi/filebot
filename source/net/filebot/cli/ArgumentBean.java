@@ -28,6 +28,7 @@ import org.kohsuke.args4j.spi.ExplicitBooleanOptionHandler;
 
 import net.filebot.ApplicationFolder;
 import net.filebot.Language;
+import net.filebot.RenameAction;
 import net.filebot.StandardRenameAction;
 import net.filebot.WebServices;
 import net.filebot.format.ExpressionFileFilter;
@@ -201,7 +202,7 @@ public class ArgumentBean {
 		return files;
 	}
 
-	public StandardRenameAction getRenameAction() {
+	public RenameAction getRenameAction() {
 		return StandardRenameAction.forName(action);
 	}
 

@@ -513,29 +513,8 @@ public abstract class ScriptShellBaseClass extends Script {
 			return StandardRenameAction.forName(obj.toString());
 		}
 
-		if (obj instanceof Closure<?>) {
-			return new RenameAction() {
-
-				private final Closure<?> closure = (Closure<?>) obj;
-
-				@Override
-				public File rename(File from, File to) throws Exception {
-					Object value = closure.call(from, to);
-
-					// must return File object, so we try the result of the closure, but if it's not a File we just return the original destination parameter
-					return new File(value.toString());
-				}
-
-				@Override
-				public boolean canRevert() {
-					return false;
-				}
-
-				@Override
-				public String toString() {
-					return "CLOSURE";
-				}
-			};
+		if (obj instanceof Closure) {
+			return new GroovyRenameAction((Closure) obj);
 		}
 
 		// object probably can't be casted
