@@ -19,6 +19,22 @@ import groovy.lang.GroovyClassLoader;
 
 public class ScriptShell {
 
+	public static ScriptEngine createScriptEngine() {
+		ResourceBundle bundle = ResourceBundle.getBundle(ScriptShell.class.getName());
+
+		CompilerConfiguration config = new CompilerConfiguration();
+		config.setScriptBaseClass(bundle.getString("scriptBaseClass"));
+
+		// default imports
+		ImportCustomizer imports = new ImportCustomizer();
+		imports.addStarImports(COMMA.split(bundle.getString("starImport")));
+		imports.addStaticStars(COMMA.split(bundle.getString("starStaticImport")));
+		config.addCompilationCustomizers(imports);
+
+		GroovyClassLoader classLoader = new GroovyClassLoader(Thread.currentThread().getContextClassLoader(), config);
+		return new GroovyScriptEngineImpl(classLoader);
+	}
+
 	public static final String ARGV_BINDING_NAME = "args";
 	public static final String SHELL_BINDING_NAME = "__shell";
 	public static final String SHELL_CLI_BINDING_NAME = "__cli";
@@ -41,22 +57,6 @@ public class ScriptShell {
 
 		// setup script context
 		engine.getContext().setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
-	}
-
-	public ScriptEngine createScriptEngine() {
-		ResourceBundle bundle = ResourceBundle.getBundle(ScriptShell.class.getName());
-
-		CompilerConfiguration config = new CompilerConfiguration();
-		config.setScriptBaseClass(bundle.getString("scriptBaseClass"));
-
-		// default imports
-		ImportCustomizer imports = new ImportCustomizer();
-		imports.addStarImports(COMMA.split(bundle.getString("starImport")));
-		imports.addStaticStars(COMMA.split(bundle.getString("starStaticImport")));
-		config.addCompilationCustomizers(imports);
-
-		GroovyClassLoader classLoader = new GroovyClassLoader(Thread.currentThread().getContextClassLoader(), config);
-		return new GroovyScriptEngineImpl(classLoader);
 	}
 
 	public Object evaluate(String script, Bindings bindings) throws Throwable {
