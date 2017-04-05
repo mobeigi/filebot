@@ -6,11 +6,11 @@ import java.io.File;
 
 import net.filebot.RenameAction;
 
-public class ProcessRenameAction implements RenameAction {
+public class ExecutableRenameAction implements RenameAction {
 
 	private final String executable;
 
-	public ProcessRenameAction(String executable) {
+	public ExecutableRenameAction(String executable) {
 		this.executable = executable;
 	}
 
