@@ -513,6 +513,10 @@ public abstract class ScriptShellBaseClass extends Script {
 			return StandardRenameAction.forName(obj.toString());
 		}
 
+		if (obj instanceof File) {
+			return new ProcessRenameAction(obj.toString());
+		}
+
 		if (obj instanceof Closure) {
 			return new GroovyRenameAction((Closure) obj);
 		}
