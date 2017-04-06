@@ -205,7 +205,7 @@ public class ArgumentBean {
 	public RenameAction getRenameAction() {
 		// support custom executables (via absolute path)
 		if (action.startsWith("/")) {
-			return new ExecutableRenameAction(action);
+			return new ExecutableRenameAction(action, getOutputPath());
 		}
 
 		// support custom groovy scripts (via closures)

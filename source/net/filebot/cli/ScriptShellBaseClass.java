@@ -514,7 +514,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		}
 
 		if (obj instanceof File) {
-			return new ExecutableRenameAction(obj.toString());
+			return new ExecutableRenameAction(obj.toString(), getArgumentBean().getOutputPath());
 		}
 
 		if (obj instanceof Closure) {

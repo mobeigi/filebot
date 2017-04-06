@@ -8,15 +8,17 @@ import net.filebot.RenameAction;
 public class ExecutableRenameAction implements RenameAction {
 
 	private final String executable;
+	private final File directory;
 
-	public ExecutableRenameAction(String executable) {
+	public ExecutableRenameAction(String executable, File directory) {
 		this.executable = executable;
+		this.directory = directory;
 	}
 
 	@Override
 	public File rename(File from, File to) throws Exception {
-		ProcessBuilder process = new ProcessBuilder(executable, from.getPath(), to.getPath());
-		process.directory(from.getParentFile());
+		ProcessBuilder process = new ProcessBuilder(executable, from.getCanonicalPath(), getRelativePath(directory, to));
+		process.directory(directory);
 		process.inheritIO();
 
 		int exitCode = process.start().waitFor();
@@ -25,6 +27,10 @@ public class ExecutableRenameAction implements RenameAction {
 		}
 
 		return null;
+	}
+
+	private String getRelativePath(File dir, File f) {
+		return dir == null ? f.toString() : dir.toPath().relativize(f.toPath()).toString();
 	}
 
 	@Override
