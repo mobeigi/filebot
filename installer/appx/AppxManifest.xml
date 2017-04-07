@@ -5,6 +5,7 @@
 	xmlns:uap2="http://schemas.microsoft.com/appx/manifest/uap/windows10/2"
 	xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
 	xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+	xmlns:rescap3="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities/3"
 	xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10">
 
 	<Identity
@@ -95,6 +96,15 @@
 						</uap2:SupportedVerbs>
 					</uap3:FileTypeAssociation>
 				</uap3:Extension>
+				<rescap3:Extension Category="windows.desktopAppMigration">
+				<rescap3:DesktopAppMigration>
+					<rescap3:DesktopApp AumId="@{application.name}" />
+						<rescap3:DesktopApp ShortcutPath="%USERPROFILE%\Desktop\@{application.name}.lnk" />
+						<rescap3:DesktopApp ShortcutPath="%APPDATA%\Microsoft\Windows\Start Menu\Programs\@{application.name}.lnk" />
+						<rescap3:DesktopApp ShortcutPath="%APPDATA%\Microsoft\Windows\SendTo\Programs\@{application.name}.lnk" />
+						<rescap3:DesktopApp ShortcutPath="%PROGRAMDATA%\Microsoft\Windows\Start Menu\Programs\@{application.name}\@{application.name}.lnk"/>
+					</rescap3:DesktopAppMigration>
+				</rescap3:Extension>
 			</Extensions>
 		</Application>
 		<Application Id="@{package.identifier}.Command" Executable="filebot.exe" EntryPoint="Windows.FullTrustApplication">
