@@ -97,12 +97,11 @@
 					</uap3:FileTypeAssociation>
 				</uap3:Extension>
 				<rescap3:Extension Category="windows.desktopAppMigration">
-				<rescap3:DesktopAppMigration>
-					<rescap3:DesktopApp AumId="@{application.name}" />
+					<rescap3:DesktopAppMigration>
+						<rescap3:DesktopApp AumId="@{application.name}" />
 						<rescap3:DesktopApp ShortcutPath="%USERPROFILE%\Desktop\@{application.name}.lnk" />
 						<rescap3:DesktopApp ShortcutPath="%APPDATA%\Microsoft\Windows\Start Menu\Programs\@{application.name}.lnk" />
 						<rescap3:DesktopApp ShortcutPath="%APPDATA%\Microsoft\Windows\SendTo\Programs\@{application.name}.lnk" />
-						<rescap3:DesktopApp ShortcutPath="%PROGRAMDATA%\Microsoft\Windows\Start Menu\Programs\@{application.name}\@{application.name}.lnk"/>
 					</rescap3:DesktopAppMigration>
 				</rescap3:Extension>
 			</Extensions>
