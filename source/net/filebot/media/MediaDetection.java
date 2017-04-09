@@ -30,6 +30,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -1094,36 +1095,31 @@ public class MediaDetection {
 				return;
 			}
 
-			mapByMediaFolder(filesByExtension).forEach((mediaFolder, filesByMediaFolder) -> {
-				if (filesByMediaFolder.size() < 2) {
-					groups.add(filesByMediaFolder);
-					return;
+			filesByExtension.stream().collect(groupingBy(f -> {
+				if (VIDEO_FILES.accept(f) && f.length() > ONE_MEGABYTE) {
+					try (MediaInfo mi = new MediaInfo().open(f)) {
+						String v = mi.get(StreamKind.Video, 0, "Codec");
+						String a = mi.get(StreamKind.Audio, 0, "Codec");
+						String w = mi.get(StreamKind.Video, 0, "Width");
+						String h = mi.get(StreamKind.Video, 0, "Height");
+						return asList(v, a, w, h);
+					} catch (Exception e) {
+						debug.warning(format("Failed to read media characteristics: %s", e.getMessage()));
+					}
+				} else if (SUBTITLE_FILES.accept(f) && f.length() > ONE_KILOBYTE) {
+					try {
+						Language language = detectSubtitleLanguage(f);
+						if (language != null) {
+							return asList(language.getCode());
+						}
+					} catch (Exception e) {
+						debug.warning(format("Failed to detect subtitle language: %s", e.getMessage()));
+					}
 				}
 
-				filesByMediaFolder.stream().collect(groupingBy(f -> {
-					if (VIDEO_FILES.accept(f) && f.length() > ONE_MEGABYTE) {
-						try (MediaInfo mi = new MediaInfo().open(f)) {
-							String v = mi.get(StreamKind.Video, 0, "Codec");
-							String a = mi.get(StreamKind.Audio, 0, "Codec");
-							String w = mi.get(StreamKind.Video, 0, "Width");
-							String h = mi.get(StreamKind.Video, 0, "Height");
-							return asList(v, a, w, h);
-						} catch (Exception e) {
-							debug.warning(format("Failed to read media characteristics: %s", e.getMessage()));
-						}
-					} else if (SUBTITLE_FILES.accept(f) && f.length() > ONE_KILOBYTE) {
-						try {
-							Language language = detectSubtitleLanguage(f);
-							if (language != null) {
-								return asList(language.getCode());
-							}
-						} catch (Exception e) {
-							debug.warning(format("Failed to detect subtitle language: %s", e.getMessage()));
-						}
-					}
-					return emptyList();
-				}, LinkedHashMap::new, toList())).forEach((group, videos) -> groups.add(videos));
-			});
+				// default to grouping by most likely media folder
+				return Optional.ofNullable(guessMediaFolder(f)).map(File::getName);
+			}, LinkedHashMap::new, toList())).forEach((group, videos) -> groups.add(videos));
 		});
 
 		return groups;
