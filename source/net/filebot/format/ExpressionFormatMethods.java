@@ -80,6 +80,10 @@ public class ExpressionFormatMethods {
 		return pad(self.toString(), length, "0");
 	}
 
+	public static double round(Number self, int precision) {
+		return DefaultGroovyMethods.round(self.doubleValue(), precision);
+	}
+
 	/**
 	 * Return a substring matching the given pattern or break.
 	 */
