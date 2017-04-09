@@ -809,7 +809,12 @@ public class MediaBindingBean {
 
 	@Define("kbps")
 	public String getKiloBytesPerSecond() {
-		return String.format("%d kbps", getOverallBitRate() / 1000);
+		return String.format("%.0f kbps", getOverallBitRate() / 1e3f);
+	}
+
+	@Define("mbps")
+	public String getMegaBytesPerSecond() {
+		return String.format("%.1f Mbps", getOverallBitRate() / 1e6f);
 	}
 
 	@Define("khz")
@@ -986,12 +991,12 @@ public class MediaBindingBean {
 
 	@Define("megabytes")
 	public String getFileSizeInMegaBytes() {
-		return String.format("%.0f", getFileSize() / Math.pow(1000, 2));
+		return String.format("%.0f", getFileSize() / 1e6);
 	}
 
 	@Define("gigabytes")
 	public String getFileSizeInGigaBytes() {
-		return String.format("%.1f", getFileSize() / Math.pow(1000, 3));
+		return String.format("%.1f", getFileSize() / 1e9);
 	}
 
 	@Define("encodedDate")
