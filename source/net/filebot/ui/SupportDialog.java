@@ -49,7 +49,7 @@ public enum SupportDialog {
 
 		@Override
 		public boolean feelingLucky(int sessionRenameCount, int totalRenameCount, int currentRevision, int lastSupportRevision, int supportRevisionCount) {
-			// annoy users that chose not to purchase FileBot
+			// annoy users that chose not to purchase FileBot on the Store
 			if (sessionRenameCount > 0 && Stream.of("Mac OS X", "Windows 10").anyMatch(Predicate.isEqual(System.getProperty("os.name")))) {
 				return true;
 			}
@@ -101,6 +101,11 @@ public enum SupportDialog {
 				return false;
 			}
 
+			// ask for reviews at most every once in a while
+			if (Math.random() <= 0.777) {
+				return false;
+			}
+
 			return super.feelingLucky(sessionRenameCount, totalRenameCount, currentRevision, lastSupportRevision, supportRevisionCount);
 		}
 
@@ -112,11 +117,6 @@ public enum SupportDialog {
 	};
 
 	public boolean feelingLucky(int sessionRenameCount, int totalRenameCount, int currentRevision, int lastSupportRevision, int supportRevisionCount) {
-		// ask for reviews at most every once in a while
-		if (Math.random() <= 0.777) {
-			return false;
-		}
-
 		// lucky if many files are processed in a single session
 		if (sessionRenameCount >= 2000 * Math.pow(2, supportRevisionCount)) {
 			return true;
