@@ -1,5 +1,6 @@
 package net.filebot.cli;
 
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.Logging.*;
 import static net.filebot.hash.VerificationUtilities.*;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
@@ -38,6 +40,7 @@ import net.filebot.format.ExpressionFormat;
 import net.filebot.hash.HashType;
 import net.filebot.subtitle.SubtitleFormat;
 import net.filebot.subtitle.SubtitleNaming;
+import net.filebot.ui.PanelBuilder;
 import net.filebot.web.Datasource;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.SortOrder;
@@ -302,6 +305,19 @@ public class ArgumentBean {
 
 	public Level getLogLevel() {
 		return Level.parse(log.toUpperCase());
+	}
+
+	public PanelBuilder[] getPanelBuilders() {
+		// default multi panel mode
+		if (mode == null) {
+			return PanelBuilder.defaultSequence();
+		}
+
+		// only selected panels
+		return optional(mode).map(m -> {
+			Pattern pattern = Pattern.compile(mode, Pattern.CASE_INSENSITIVE);
+			return stream(PanelBuilder.defaultSequence()).filter(p -> pattern.matcher(p.getName()).matches()).toArray(PanelBuilder[]::new);
+		}).orElseThrow(error("Illegal mode", mode));
 	}
 
 	private final String[] args;
