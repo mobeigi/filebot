@@ -81,6 +81,16 @@ public class TheTVDBClientTest {
 	}
 
 	@Test
+	public void getEpisodeListMissingInformation() throws Exception {
+		List<Episode> list = db.getEpisodeList(wonderfalls, SortOrder.Airdate, Locale.JAPANESE);
+
+		Episode first = list.get(0);
+
+		assertEquals("Wonderfalls", first.getSeriesName());
+		assertEquals("Wax Lion", first.getTitle());
+	}
+
+	@Test
 	public void getEpisodeListIllegalSeries() throws Exception {
 		List<Episode> list = db.getEpisodeList(new SearchResult(313193, "*** DOES NOT EXIST ***"), SortOrder.Airdate, Locale.ENGLISH);
 		assertTrue(list.isEmpty());

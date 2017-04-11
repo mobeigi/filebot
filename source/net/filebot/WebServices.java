@@ -40,7 +40,6 @@ import net.filebot.web.TMDbClient;
 import net.filebot.web.TMDbTVClient;
 import net.filebot.web.TVMazeClient;
 import net.filebot.web.TheTVDBClient;
-import net.filebot.web.TheTVDBClientV1;
 import net.filebot.web.VideoHashSubtitleService;
 
 /**
@@ -60,9 +59,6 @@ public final class WebServices {
 	public static final TheTVDBClientWithLocalSearch TheTVDB = new TheTVDBClientWithLocalSearch(getApiKey("thetvdb"));
 	public static final TMDbTVClient TheMovieDB_TV = new TMDbTVClient(TheMovieDB);
 
-	// TheTVDB v2 implementation used for internal purposes and testing
-	public static final TheTVDBClient TheTVDBv2 = new TheTVDBClient(getApiKey("thetvdb"));
-
 	// subtitle sources
 	public static final OpenSubtitlesClient OpenSubtitles = new OpenSubtitlesClientWithLocalSearch(getApiKey("opensubtitles"), getApplicationVersion());
 	public static final ShooterSubtitles Shooter = new ShooterSubtitles();
@@ -74,7 +70,7 @@ public final class WebServices {
 	public static final ID3Lookup MediaInfoID3 = new ID3Lookup();
 
 	public static Datasource[] getServices() {
-		return new Datasource[] { TheMovieDB, OMDb, TheTVDB, AniDB, TheMovieDB_TV, TVmaze, AcoustID, MediaInfoID3, XattrMetaData, OpenSubtitles, Shooter, TheTVDBv2, FanartTV };
+		return new Datasource[] { TheMovieDB, OMDb, TheTVDB, AniDB, TheMovieDB_TV, TVmaze, AcoustID, MediaInfoID3, XattrMetaData, OpenSubtitles, Shooter, FanartTV };
 	}
 
 	public static MovieIdentificationService[] getMovieIdentificationServices() {
@@ -126,7 +122,7 @@ public final class WebServices {
 
 	public static final ExecutorService requestThreadPool = Executors.newCachedThreadPool();
 
-	public static class TheTVDBClientWithLocalSearch extends TheTVDBClientV1 {
+	public static class TheTVDBClientWithLocalSearch extends TheTVDBClient {
 
 		public TheTVDBClientWithLocalSearch(String apikey) {
 			super(apikey);

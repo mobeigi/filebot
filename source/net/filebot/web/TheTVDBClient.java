@@ -32,6 +32,8 @@ import net.filebot.ResourceManager;
 
 public class TheTVDBClient extends AbstractEpisodeListProvider implements ArtworkProvider {
 
+	private static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
+
 	private String apikey;
 
 	public TheTVDBClient(String apikey) {
@@ -40,7 +42,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 
 	@Override
 	public String getIdentifier() {
-		return "TheTVDBv2";
+		return "TheTVDB";
 	}
 
 	@Override
@@ -71,9 +73,9 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 	private Map<String, String> getRequestHeader(Locale locale) {
 		Map<String, String> header = new LinkedHashMap<String, String>(3);
 
-		// TODO support for default language => https://trello.com/c/dyEhtfky/16-handle-multiple-languages-in-the-accept-language-header
+		// TODO support for default language has not been implemented yet => https://trello.com/c/dyEhtfky/16-handle-multiple-languages-in-the-accept-language-header
 		if (locale != null && locale != Locale.ROOT) {
-			header.put("Accept-Language", Stream.of(locale, Locale.ENGLISH).map(Locale::getLanguage).distinct().collect(joining(", ")));
+			header.put("Accept-Language", locale.getLanguage());
 		}
 		header.put("Accept", "application/json");
 		header.put("Authorization", "Bearer " + getAuthorizationToken());
@@ -165,6 +167,11 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 		SeriesInfo info = getSeriesInfo(series, locale);
 		info.setOrder(sortOrder.name());
 
+		// ignore preferred language if basic series information isn't even available
+		if (info.getName() == null && !locale.equals(DEFAULT_LOCALE)) {
+			return fetchSeriesData(series, sortOrder, DEFAULT_LOCALE);
+		}
+
 		// fetch episode data
 		List<Episode> episodes = new ArrayList<Episode>();
 		List<Episode> specials = new ArrayList<Episode>();
@@ -178,10 +185,20 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 			}
 
 			streamJsonObjects(json, "data").forEach(it -> {
+				Integer id = getInteger(it, "id");
 				String episodeName = getString(it, "episodeName");
+
+				// default to English episode title if the preferred language is not available
+				if (episodeName == null && !locale.equals(DEFAULT_LOCALE)) {
+					try {
+						episodeName = getEpisodeList(series, sortOrder, DEFAULT_LOCALE).stream().filter(e -> id.equals(e.getId())).findFirst().map(Episode::getTitle).orElse(null);
+					} catch (Exception e) {
+						debug.warning(cause("Failed to retrieve default episode title", e));
+					}
+				}
+
 				Integer absoluteNumber = getInteger(it, "absoluteNumber");
 				SimpleDate airdate = getStringValue(it, "firstAired", SimpleDate::parse);
-				Integer id = getInteger(it, "id");
 
 				// default numbering
 				Integer episodeNumber = getInteger(it, "airedEpisodeNumber");
