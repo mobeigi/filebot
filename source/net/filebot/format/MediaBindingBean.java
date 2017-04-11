@@ -1304,11 +1304,4 @@ public class MediaBindingBean {
 	public static final String EXCEPTION_UNDEFINED = "undefined";
 	public static final String EXCEPTION_SAMPLE_FILE_NOT_SET = "Sample file has not been set. Click \"Change Sample\" to select a sample file.";
 
-	@Deprecated
-	@Define("sdhd")
-	public String getVideoDefinitionCategoryDeprecated() {
-		debug.severe("[WARNING] {sdhd} is deprecated and will be removed in the next release. Use {hd} instead.");
-		return getVideoDefinitionCategory();
-	}
-
 }
