@@ -36,7 +36,7 @@ if [ -z "$PACKAGE_HASH_EXPECTED" ]; then
 fi
 
 if [ "$PACKAGE_HASH" == "$PACKAGE_HASH_EXPECTED" ]; then
-	echo "$PACKAGE_FILE [HASH: $PACKAGE_HASH]"
+	echo "$PACKAGE_FILE [$PACKAGE_HASH]"
 	exit 0
 fi
 
@@ -45,10 +45,10 @@ curl -L -o "$PACKAGE_FILE" -z "$PACKAGE_FILE" --retry 5 "$PACKAGE_URL"	# FRS wil
 
 # check if file has been corrupted (or modified) in transit
 PACKAGE_HASH=`openssl dgst -md5 "$PACKAGE_FILE" | egrep -o "\b[a-z0-9]{32}\b"`
-echo "$PACKAGE_FILE [HASH: $PACKAGE_HASH]"
+echo "$PACKAGE_FILE [$PACKAGE_HASH]"
 
 if [ "$PACKAGE_HASH" != "$PACKAGE_HASH_EXPECTED" ]; then
-	echo "HASH hash mismatch [HASH: $PACKAGE_HASH_EXPECTED]"
+	echo "HASH hash mismatch [$PACKAGE_HASH_EXPECTED]"
 	rm -vf "$PACKAGE_FILE"
 	exit 1
 fi
