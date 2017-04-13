@@ -648,7 +648,7 @@
 	<target name="portable" description="Build portable package" depends="revision">
 		<tar destfile="${dir.dist}/${release}-portable.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
 			<tarfileset file="${path.fatjar}" fullpath="FileBot.jar" />
-			<tarfileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd" />
+			<tarfileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd, *.pub" />
 			<tarfileset dir="${dir.installer}/portable" includes="*.sh" filemode="755" />
 
 			<!-- include native libraries for all supported platforms -->

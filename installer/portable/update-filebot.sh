@@ -21,37 +21,46 @@ APP_ROOT=`cd "$PRG_DIR" && pwd`
 cd "$WORKING_DIR"
 
 
-
 # update core application files
-JAR_XZ_FILE="$APP_ROOT/FileBot.jar.xz"
-JAR_XZ_URL="https://sourceforge.net/projects/filebot/files/filebot/HEAD/FileBot.jar.xz"
+PACKAGE_NAME="FileBot.jar.xz.gpg"
+PACKAGE_FILE="$APP_ROOT/$PACKAGE_NAME"
+PACKAGE_URL="https://sourceforge.net/projects/filebot/files/filebot/HEAD/$PACKAGE_NAME"
 
 # check if file has changed
-JAR_XZ_SHA1_EXPECTED=`curl --retry 5 "$JAR_XZ_URL/list" | egrep -o "[a-z0-9]{40}"`
-JAR_XZ_SHA1=`sha1sum $JAR_XZ_FILE | cut -d' ' -f1`
+PACKAGE_SHA1_EXPECTED=`curl --retry 5 "$PACKAGE_URL/list" | egrep -o "[a-z0-9]{40}"`
+PACKAGE_SHA1=`sha1sum $PACKAGE_FILE | cut -d' ' -f1`
 
-if [ -z "$JAR_XZ_SHA1_EXPECTED" ]; then
+if [ -z "$PACKAGE_SHA1_EXPECTED" ]; then
 	echo "SHA1 hash unknown"
 	exit 1
 fi
 
-if [ "$JAR_XZ_SHA1" == "$JAR_XZ_SHA1_EXPECTED" ]; then
-	echo "$JAR_XZ_FILE [SHA1: $JAR_XZ_SHA1]"
+if [ "$PACKAGE_SHA1" == "$PACKAGE_SHA1_EXPECTED" ]; then
+	echo "$PACKAGE_FILE [SHA1: $PACKAGE_SHA1]"
 	exit 0
 fi
 
-echo "Update $JAR_XZ_FILE"
-curl -L -o "$JAR_XZ_FILE" -z "$JAR_XZ_FILE" --retry 5 "$JAR_XZ_URL"	# FRS will redirect to (unsecure) HTTP download link
+echo "Update $PACKAGE_FILE"
+curl -L -o "$PACKAGE_FILE" -z "$PACKAGE_FILE" --retry 5 "$PACKAGE_URL"	# FRS will redirect to (unsecure) HTTP download link
 
 # check if file has been corrupted (or modified) in transit
-JAR_XZ_SHA1=`sha1sum $JAR_XZ_FILE | cut -d' ' -f1`
-echo "$JAR_XZ_FILE [SHA1: $JAR_XZ_SHA1]"
+PACKAGE_SHA1=`sha1sum $PACKAGE_FILE | cut -d' ' -f1`
+echo "$PACKAGE_FILE [SHA1: $PACKAGE_SHA1]"
 
-if [ "$JAR_XZ_SHA1" != "$JAR_XZ_SHA1_EXPECTED" ]; then
-	echo "SHA1 hash mismatch [SHA1: $JAR_XZ_SHA1_EXPECTED]"
-	rm -vf "$JAR_XZ_FILE"
+if [ "$PACKAGE_SHA1" != "$PACKAGE_SHA1_EXPECTED" ]; then
+	echo "SHA1 hash mismatch [SHA1: $PACKAGE_SHA1_EXPECTED]"
+	rm -vf "$PACKAGE_FILE"
 	exit 1
 fi
 
-# unpack new jar
-xz --decompress --force --keep "$JAR_XZ_FILE"
+
+# initialize gpg
+GPG_HOME="$APP_ROOT/.gpg"
+JAR_XZ_FILE="$APP_ROOT/FileBot.jar.xz"
+
+if [ -d "$GPG_HOME" ]; then
+	mkdir -p -m 700 "$GPG_HOME" && gpg --homedir "$GPG_HOME" --import "$APP_ROOT/filebot.pub"
+fi
+
+# verify signature and extract jar
+gpg --batch --yes --homedir "$GPG_HOME" --trusted-key "4E402EBF7C3C6A71" --output "$JAR_XZ_FILE" --decrypt "$PACKAGE_FILE" && xz --decompress --force "$JAR_XZ_FILE"
