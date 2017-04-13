@@ -22,7 +22,7 @@ cd "$WORKING_DIR"
 
 
 # update core application files
-PACKAGE_NAME="FileBot.jar.xz.gpg"
+PACKAGE_NAME="FileBot.jar.xz.sig"
 PACKAGE_FILE="$APP_ROOT/$PACKAGE_NAME"
 PACKAGE_URL="https://sourceforge.net/projects/filebot/files/filebot/HEAD/$PACKAGE_NAME"
 
