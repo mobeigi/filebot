@@ -58,7 +58,7 @@ fi
 GPG_HOME="$APP_ROOT/.gpg"
 JAR_XZ_FILE="$APP_ROOT/FileBot.jar.xz"
 
-if [ -d "$GPG_HOME" ]; then
+if [ ! -d "$GPG_HOME" ]; then
 	mkdir -p -m 700 "$GPG_HOME" && gpg --homedir "$GPG_HOME" --import "$APP_ROOT/filebot.pub"
 fi
 
