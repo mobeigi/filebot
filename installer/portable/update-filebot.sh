@@ -27,16 +27,16 @@ PACKAGE_FILE="$APP_ROOT/$PACKAGE_NAME"
 PACKAGE_URL="https://sourceforge.net/projects/filebot/files/filebot/HEAD/$PACKAGE_NAME"
 
 # check if file has changed
-PACKAGE_SHA1_EXPECTED=`curl --retry 5 "$PACKAGE_URL/list" | egrep -o "[a-z0-9]{40}"`
-PACKAGE_SHA1=`sha1sum $PACKAGE_FILE | cut -d' ' -f1`
+PACKAGE_HASH_EXPECTED=`curl --silent --retry 5 "$PACKAGE_URL/list" | egrep -o "\b[a-z0-9]{32}\b"`
+PACKAGE_HASH=`openssl dgst -md5 "$PACKAGE_FILE" | egrep -o "\b[a-z0-9]{32}\b"`
 
-if [ -z "$PACKAGE_SHA1_EXPECTED" ]; then
-	echo "SHA1 hash unknown"
+if [ -z "$PACKAGE_HASH_EXPECTED" ]; then
+	echo "hash unknown"
 	exit 1
 fi
 
-if [ "$PACKAGE_SHA1" == "$PACKAGE_SHA1_EXPECTED" ]; then
-	echo "$PACKAGE_FILE [SHA1: $PACKAGE_SHA1]"
+if [ "$PACKAGE_HASH" == "$PACKAGE_HASH_EXPECTED" ]; then
+	echo "$PACKAGE_FILE [HASH: $PACKAGE_HASH]"
 	exit 0
 fi
 
@@ -44,11 +44,11 @@ echo "Update $PACKAGE_FILE"
 curl -L -o "$PACKAGE_FILE" -z "$PACKAGE_FILE" --retry 5 "$PACKAGE_URL"	# FRS will redirect to (unsecure) HTTP download link
 
 # check if file has been corrupted (or modified) in transit
-PACKAGE_SHA1=`sha1sum $PACKAGE_FILE | cut -d' ' -f1`
-echo "$PACKAGE_FILE [SHA1: $PACKAGE_SHA1]"
+PACKAGE_HASH=`openssl dgst -md5 "$PACKAGE_FILE" | egrep -o "\b[a-z0-9]{32}\b"`
+echo "$PACKAGE_FILE [HASH: $PACKAGE_HASH]"
 
-if [ "$PACKAGE_SHA1" != "$PACKAGE_SHA1_EXPECTED" ]; then
-	echo "SHA1 hash mismatch [SHA1: $PACKAGE_SHA1_EXPECTED]"
+if [ "$PACKAGE_HASH" != "$PACKAGE_HASH_EXPECTED" ]; then
+	echo "HASH hash mismatch [HASH: $PACKAGE_HASH_EXPECTED]"
 	rm -vf "$PACKAGE_FILE"
 	exit 1
 fi
