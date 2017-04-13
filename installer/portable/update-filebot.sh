@@ -55,11 +55,11 @@ fi
 
 
 # initialize gpg
-GPG_HOME="$APP_ROOT/.gpg"
+GPG_HOME="$APP_ROOT/data/.gpg"
 JAR_XZ_FILE="$APP_ROOT/FileBot.jar.xz"
 
 if [ ! -d "$GPG_HOME" ]; then
-	mkdir -p -m 700 "$GPG_HOME" && gpg --homedir "$GPG_HOME" --import "$APP_ROOT/filebot.pub"
+	mkdir -p "$GPG_HOME" && chmod 700 "$GPG_HOME" && gpg --homedir "$GPG_HOME" --import "$APP_ROOT/filebot.pub"
 fi
 
 # verify signature and extract jar
