@@ -274,6 +274,27 @@ public final class FileUtilities {
 		return a.getPath().equals(b.getPath());
 	}
 
+	public static boolean equalsFileContent(File a, File b) {
+		// must have the same file size
+		if (a.length() != b.length()) {
+			return false;
+		}
+
+		// must not be a folder
+		if (a.isDirectory() || b.isDirectory()) {
+			return false;
+		}
+
+		// must be equal byte by byte
+		try {
+			return FileUtils.contentEquals(a, b);
+		} catch (Exception e) {
+			log.warning(cause(e));
+		}
+
+		return false;
+	}
+
 	/**
 	 * Pattern used for matching file extensions.
 	 *
