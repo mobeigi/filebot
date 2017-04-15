@@ -592,9 +592,15 @@ public class CmdlineOperations implements CmdlineInterface {
 
 					if (!destination.equals(source) && destination.exists()) {
 						if (conflictAction == ConflictAction.FAIL) {
-							throw new CmdlineException("File already exists: " + destination);
+							throw new CmdlineException(String.format("Failed to process [%s] because [%s] already exists", source, destination));
 						}
 
+						// do not allow abuse of online databases by repeatedly processing the same files
+						if (matches != null && equalsFileContent(source, destination)) {
+							throw new CmdlineException(String.format("Failed to process [%s] because [%s] is an exact copy and already exists", source, destination));
+						}
+
+						// delete existing destination path if necessary
 						if (conflictAction == ConflictAction.OVERRIDE || (conflictAction == ConflictAction.AUTO && VideoQuality.isBetter(source, destination))) {
 							// do not delete files in test mode
 							if (renameAction.canRevert()) {
@@ -605,7 +611,10 @@ public class CmdlineOperations implements CmdlineInterface {
 									log.warning(format("[%s] Failed to delete [%s]: %s", conflictAction, destination, e));
 								}
 							}
-						} else if (conflictAction == ConflictAction.INDEX) {
+						}
+
+						// generate indexed destination path if necessary
+						if (conflictAction == ConflictAction.INDEX) {
 							destination = nextAvailableIndexedName(destination);
 						}
 					}
@@ -626,34 +635,41 @@ public class CmdlineOperations implements CmdlineInterface {
 				}
 			}
 		} finally {
-			// update rename history
-			if (renameAction.canRevert()) {
-				HistorySpooler.getInstance().append(renameLog.entrySet());
-			}
+			// update history and xattr metadata
+			writeHistory(renameAction, renameLog, matches);
 
-			// printer number of renamed files if any
+			// print number of processed files
 			log.fine(format("Processed %d files", renameLog.size()));
-		}
-
-		// write metadata into xattr if xattr is enabled
-		if (matches != null && renameLog.size() > 0 && renameAction.canRevert()) {
-			for (Match<File, ?> match : matches) {
-				File source = match.getValue();
-				Object infoObject = match.getCandidate();
-				if (infoObject != null) {
-					File destination = renameLog.get(source);
-					if (destination != null && destination.isFile()) {
-						xattr.setMetaInfo(destination, infoObject, source.getName());
-					}
-				}
-			}
 		}
 
 		// new file names
 		return new ArrayList<File>(renameLog.values());
 	}
 
-	protected static File nextAvailableIndexedName(File file) {
+	protected void writeHistory(RenameAction action, Map<File, File> log, List<Match<File, ?>> matches) {
+		if (log.isEmpty() || !action.canRevert()) {
+			return;
+		}
+
+		// write rename history
+		HistorySpooler.getInstance().append(log.entrySet());
+
+		// write xattr metadata
+		if (matches != null) {
+			for (Match<File, ?> match : matches) {
+				File source = match.getValue();
+				Object infoObject = match.getCandidate();
+				if (infoObject != null) {
+					File destination = log.get(source);
+					if (destination != null && destination.isFile()) {
+						xattr.setMetaInfo(destination, infoObject, source.getName());
+					}
+				}
+			}
+		}
+	}
+
+	protected File nextAvailableIndexedName(File file) {
 		File parent = file.getParentFile();
 		String name = getName(file);
 		String ext = getExtension(file);
