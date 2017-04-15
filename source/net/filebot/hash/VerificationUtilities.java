@@ -107,6 +107,10 @@ public final class VerificationUtilities {
 		return computeHash(file, HashType.SFV);
 	}
 
+	public static String sha256(File file) throws IOException, InterruptedException {
+		return computeHash(file, HashType.SHA256);
+	}
+
 	private VerificationUtilities() {
 		throw new UnsupportedOperationException();
 	}
