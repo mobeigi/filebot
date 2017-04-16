@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<project name="filebot" default="fatjar" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="filebot" default="fatjar" xmlns:if="ant:if" xmlns:unless="ant:unless" xmlns:ivy="antlib:org.apache.ivy.ant">
 
 	<!-- define source dirs -->
 	<property name="dir.source" location="${basedir}/source" />
@@ -49,10 +49,13 @@
 
 	<!-- sign with gpg macro -->
 	<macrodef name="gpg-sign">
+		<attribute name="detach" default="no" />
 		<element name="filesets" implicit="yes" />
 		<sequential>
-			<apply executable="gpg">
-				<arg line="--verbose --batch --yes --local-user ${package.maintainer} --sign" />
+			<apply executable="gpg" verbose="yes">
+				<arg line="--verbose --batch --yes --local-user ${package.maintainer}" />
+				<arg line="--sign" unless:true="@{detach}" />
+				<arg line="--armor --detach-sign" if:true="@{detach}" />
 				<srcfile />
 				<filesets />
 			</apply>
