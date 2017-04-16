@@ -22,7 +22,7 @@ cd "$WORKING_DIR"
 
 
 # update core application files
-PACKAGE_NAME="FileBot.jar.xz.sig"
+PACKAGE_NAME="FileBot.jar.xz.gpg"
 PACKAGE_FILE="$APP_ROOT/$PACKAGE_NAME"
 PACKAGE_URL="https://sourceforge.net/projects/filebot/files/filebot/HEAD/$PACKAGE_NAME"
 
@@ -59,7 +59,7 @@ GPG_HOME="$APP_ROOT/data/.gpg"
 JAR_XZ_FILE="$APP_ROOT/FileBot.jar.xz"
 
 if [ ! -d "$GPG_HOME" ]; then
-	mkdir -p "$GPG_HOME" && chmod 700 "$GPG_HOME" && gpg --homedir "$GPG_HOME" --import "$APP_ROOT/filebot.pub"
+	mkdir -p "$GPG_HOME" && chmod 700 "$GPG_HOME" && gpg --homedir "$GPG_HOME" --import "$APP_ROOT/maintainer.pub"
 fi
 
 # verify signature and extract jar

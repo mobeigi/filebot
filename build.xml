@@ -47,6 +47,19 @@
 	</macrodef>
 
 
+	<!-- sign with gpg macro -->
+	<macrodef name="gpg-sign">
+		<element name="filesets" implicit="yes" />
+		<sequential>
+			<apply executable="gpg">
+				<arg line="--verbose --batch --yes --local-user ${package.maintainer} --sign" />
+				<srcfile />
+				<filesets />
+			</apply>
+		</sequential>
+	</macrodef>
+
+
 	<target name="resolve" description="Retrieve dependencies with Apache Ivy">
 		<delete dir="${dir.lib}/ivy" />
 		<ivy:retrieve pattern="${dir.lib}/ivy/[type]/[artifact].[ext]" />
@@ -648,7 +661,7 @@
 	<target name="portable" description="Build portable package" depends="revision">
 		<tar destfile="${dir.dist}/${release}-portable.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
 			<tarfileset file="${path.fatjar}" fullpath="FileBot.jar" />
-			<tarfileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd, *.pub" />
+			<tarfileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd" />
 			<tarfileset dir="${dir.installer}/portable" includes="*.sh" filemode="755" />
 
 			<!-- include native libraries for all supported platforms -->
@@ -656,6 +669,9 @@
 			<tarfileset prefix="lib/aarch64" dir="${dir.lib}/native/linux-armv8" includes="*.so" />
 			<tarfileset prefix="lib/i686" dir="${dir.lib}/native/linux-i686" includes="*.so" />
 			<tarfileset prefix="lib/x86_64" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
+
+			<!-- include maintainer public key -->
+			<tarfileset dir="${dir.installer}/gpg" includes="maintainer.pub" />
 		</tar>
 	</target>
 
@@ -968,9 +984,13 @@
 
 
 	<target name="deploy-beta-jar" depends="fatjar" description="Build and deploy the latest jar">
-		<xz src="${path.fatjar}" destfile="${path.fatjar}.xz" />
-		<scp file="${path.fatjar}.xz" remoteTofile="${deploy.release}/HEAD/filebot-r${revision}.jar.xz" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}" />
-		<scp file="${path.fatjar}.xz" remoteTofile="${deploy.release}/HEAD/FileBot.jar.xz" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}" />
+		<xz src="${path.fatjar}" destfile="${dir.release}/FileBot.jar.xz" />
+		<gpg-sign>
+			<fileset dir="${dir.release}" includes="*.jar.xz" />
+		</gpg-sign>
+		<scp todir="${deploy.release}/HEAD" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
+			<fileset dir="${dir.release}" includes="*.jar.xz.gpg" />
+		</scp>
 	</target>
 
 
