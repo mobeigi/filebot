@@ -53,12 +53,24 @@
 		<element name="filesets" implicit="yes" />
 		<sequential>
 			<apply executable="gpg" verbose="yes">
-				<arg line="--verbose --batch --yes --local-user ${package.maintainer}" />
+				<arg line="--verbose --batch --yes --local-user ${package.maintainer} --compress-level 0" />
 				<arg line="--armor --detach-sign" if:true="@{detach}" />
 				<arg line="--sign" unless:true="@{detach}" />
 				<srcfile />
 				<filesets />
 			</apply>
+		</sequential>
+	</macrodef>
+
+
+	<!-- deploy release artifacts -->
+	<macrodef name="release-deploy">
+		<attribute name="todir" />
+		<element name="filesets" implicit="yes" />
+		<sequential>
+			<scp todir="@{todir}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
+				<filesets />
+			</scp>
 		</sequential>
 	</macrodef>
 
@@ -840,8 +852,7 @@
 		<mkdir dir="${dir.release}" />
 
 		<!-- prepare release packages -->
-		<copy todir="${dir.release}" preservelastmodified="yes" verbose="yes">
-			<path path="${path.fatjar}" />
+		<copy todir="${dir.release}" verbose="yes">
 			<fileset dir="${dir.dist}">
 				<include name="*.tar.xz" />
 				<include name="*.msi" />
@@ -850,10 +861,34 @@
 			</fileset>
 		</copy>
 
-		<checksum algorithm="SHA-256" pattern="{0}	{1}" todir="${dir.cache}/${release}" fileext=".sha256">
+		<gpg-sign detach="no">
 			<fileset dir="${dir.release}" />
+		</gpg-sign>
+		<gpg-sign detach="yes">
+			<fileset dir="${dir.release}" excludes="*.gpg" />
+		</gpg-sign>
+
+		<!-- move to final staging folder -->
+		<mkdir dir="${dir.release}/FRS/${release}" />
+		<copy todir="${dir.release}/FRS/${release}" verbose="yes">
+			<fileset dir="${dir.release}">
+				<!-- require gpg signatures for manual installer packages -->
+				<include name="*.msi.gpg" />
+				<include name="*.deb.gpg" />
+				<include name="*-portable.tar.xz.gpg" />
+
+				<!-- use detached signatures for package repositories -->
+				<include name="*-darwin.tar.xz" />
+				<include name="*-darwin.tar.xz.asc" />
+				<include name="*.spk" />
+				<include name="*.spk.asc" />
+			</fileset>
+		</copy>
+
+		<checksum algorithm="SHA-256" pattern="{0}	{1}" todir="${dir.cache}/${release}" fileext=".sha256">
+			<fileset dir="${dir.release}/FRS/${release}" excludes="*.asc" />
 		</checksum>
-		<concat destfile="${dir.release}/README.md" overwrite="true" eol="unix" outputencoding="utf-8">
+		<concat destfile="${dir.release}/FRS/${release}/README.md" overwrite="true" eol="unix" outputencoding="utf-8">
 			<fileset file="${dir.installer}/ant/digest.head.md" />
 			<fileset dir="${dir.cache}/${release}" includes="*.sha256" />
 			<fileset file="${dir.installer}/ant/digest.tail.md" />
@@ -862,19 +897,12 @@
 
 
 	<target name="deploy-release" depends="stage-release" description="Upload release files to SourceForge.net FRS">
-		<!-- make sure to upload README.md first -->
-		<scp todir="${deploy.release}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
-			<fileset dir="${dir.release}/.." includes="**/README.md">
-				<date datetime="${tstamp.date}" pattern="yyyy-MM-dd" when="after" />
-			</fileset>
-		</scp>
-
-		<!-- upload starting with parent folders so scp will create the release folder for us -->
-		<scp todir="${deploy.release}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
-			<fileset dir="${dir.release}/.." excludes="**/README.md">
-				<date datetime="${tstamp.date}" pattern="yyyy-MM-dd" when="after" />
-			</fileset>
-		</scp>
+		<release-deploy todir="${deploy.release}">
+			<fileset dir="${dir.release}/FRS" includes="**/*.md" />
+			<fileset dir="${dir.release}/FRS" includes="**/*spk*" />
+			<fileset dir="${dir.release}/FRS" includes="**/*darwin*" />
+			<fileset dir="${dir.release}/FRS" includes="**/*.gpg" />
+		</release-deploy>
 	</target>
 
 
@@ -915,13 +943,13 @@
 		</copy-replace>
 
 		<!-- upload -->
-		<scp todir="${deploy.website}" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
+		<release-deploy todir="${deploy.website}">
 			<fileset dir="${dir.dist}/website">
 				<modified>
 					<param name="cache.cachefile" value="${dir.cache}/scp.cache" />
 				</modified>
 			</fileset>
-		</scp>
+		</release-deploy>
 	</target>
 
 
@@ -942,11 +970,9 @@
 		</package-source>
 
 		<!-- upload -->
-		<scp todir="${deploy.website}/syno" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
-			<fileset dir="${dir.dist}/website/syno">
-				<include name="*.json" />
-			</fileset>
-		</scp>
+		<release-deploy todir="${deploy.website}/syno">
+			<fileset dir="${dir.dist}/website/syno" includes="*.json" />
+		</release-deploy>
 	</target>
 
 
@@ -974,7 +1000,7 @@
 
 
 	<target name="upload-data" description="Upload data files" depends="init">
-		<scp todir="${deploy.website}/data" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
+		<release-deploy todir="${deploy.website}/data">
 			<fileset dir="${dir.website}/data">
 				<include name=".htaccess" />
 				<include name="*.txt.xz" />
@@ -982,7 +1008,7 @@
 					<param name="cache.cachefile" value="${dir.cache}/scp.cache" />
 				</modified>
 			</fileset>
-		</scp>
+		</release-deploy>
 	</target>
 
 
@@ -991,18 +1017,19 @@
 		<gpg-sign>
 			<fileset dir="${dir.release}" includes="*.jar.xz" />
 		</gpg-sign>
-		<scp todir="${deploy.release}/HEAD" trust="yes" verbose="true" sftp="true" keyfile="${deploy.keyfile}">
+		<release-deploy todir="${deploy.release}/HEAD">
 			<fileset dir="${dir.release}" includes="*.jar.xz.gpg" />
-		</scp>
+		</release-deploy>
 	</target>
 
 
 	<target name="deploy-beta-release" description="Build and deploy the latest release files">
 		<input addproperty="mark" message="Mark:" />
 		<antcall target="deploy-release">
-			<param name="dir.release" location="${dir.dist}/beta/release/${release}_${mark}" />
-			<param name="dir.cache" location="${dir.dist}/beta/cache/${release}_${mark}" />
 			<param name="deploy.release" value="${deploy.release}/HEAD" />
+			<param name="release" value="${release}_${mark}" />
+			<param name="dir.release" location="${dir.dist}/beta/release/${release}" />
+			<param name="dir.cache" location="${dir.dist}/beta/cache/${release}" />
 		</antcall>
 	</target>
 
