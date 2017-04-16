@@ -54,8 +54,8 @@
 		<sequential>
 			<apply executable="gpg" verbose="yes">
 				<arg line="--verbose --batch --yes --local-user ${package.maintainer}" />
-				<arg line="--sign" unless:true="@{detach}" />
 				<arg line="--armor --detach-sign" if:true="@{detach}" />
+				<arg line="--sign" unless:true="@{detach}" />
 				<srcfile />
 				<filesets />
 			</apply>
