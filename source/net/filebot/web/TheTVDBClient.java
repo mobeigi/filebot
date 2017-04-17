@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.swing.Icon;
@@ -73,14 +74,32 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 	private Map<String, String> getRequestHeader(Locale locale) {
 		Map<String, String> header = new LinkedHashMap<String, String>(3);
 
-		// TODO support for default language has not been implemented yet => https://trello.com/c/dyEhtfky/16-handle-multiple-languages-in-the-accept-language-header
-		if (locale != null && locale != Locale.ROOT) {
-			header.put("Accept-Language", locale.getLanguage());
-		}
+		getLanguageCode(locale).ifPresent(languageCode -> {
+			header.put("Accept-Language", languageCode);
+		});
+
 		header.put("Accept", "application/json");
 		header.put("Authorization", "Bearer " + getAuthorizationToken());
 
 		return header;
+	}
+
+	private Optional<String> getLanguageCode(Locale locale) {
+		// Note: ISO 639 is not a stable standard— some languages' codes have changed.
+		// Locale's constructor recognizes both the new and the old codes for the languages whose codes have changed,
+		// but this function always returns the old code.
+		return Optional.ofNullable(locale).map(Locale::getLanguage).map(code -> {
+			switch (code) {
+			case "iw":
+				return "he"; // Hebrew
+			case "in":
+				return "id"; // Indonesian
+			case "":
+				return null; // empty language code
+			default:
+				return code;
+			}
+		});
 	}
 
 	private String token = null;
