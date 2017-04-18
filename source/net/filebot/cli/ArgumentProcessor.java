@@ -63,6 +63,11 @@ public class ArgumentProcessor {
 			return print(cli.fetchEpisodeList(args.getEpisodeListProvider(), args.getSearchQuery(), args.getExpressionFormat(), args.getExpressionFilter(), args.getSortOrder(), args.getLanguage().getLocale(), args.isStrict()));
 		}
 
+		// execute command for each file
+		if (args.mediaInfo && args.getExecCommand() != null) {
+			return cli.execute(args.getFiles(true), args.getFileFilter(), args.getExecCommand()) ? 0 : 1;
+		}
+
 		// print media info
 		if (args.mediaInfo) {
 			return print(cli.getMediaInfo(args.getFiles(true), args.getFileFilter(), args.getExpressionFormat()));

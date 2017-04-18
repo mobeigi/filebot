@@ -72,7 +72,7 @@ public class ExecCommand {
 		process.directory(directory);
 		process.inheritIO();
 
-		debug.finest(message("Execute", command));
+		debug.finest(format("Execute %s", command));
 
 		int exitCode = process.start().waitFor();
 		if (exitCode != 0) {

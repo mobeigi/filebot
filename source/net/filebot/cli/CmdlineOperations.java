@@ -649,13 +649,9 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		// execute command
 		if (exec != null) {
-			Map<File, Object> context = renameLog.values().stream().filter(Objects::nonNull).collect(toMap(f -> f, f -> xattr.getMetaInfo(f), (a, b) -> a, LinkedHashMap::new));
-			if (context.size() > 0) {
-				exec.execute(context.entrySet().stream().map(m -> new MediaBindingBean(m.getValue(), m.getKey(), context)).toArray(MediaBindingBean[]::new));
-			}
+			execute(renameLog.values(), Objects::nonNull, exec); // destination files may include null values
 		}
 
-		// destination files may include null values
 		return new ArrayList<File>(renameLog.values());
 	}
 
@@ -1073,6 +1069,25 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 			return null;
 		}).filter(Objects::nonNull);
+	}
+
+	@Override
+	public boolean execute(Collection<File> files, FileFilter filter, ExecCommand exec) throws Exception {
+		// collect files
+		List<File> f = filter(files, filter);
+
+		if (f.isEmpty()) {
+			return false;
+		}
+
+		// collect object metadata
+		List<Object> m = f.stream().map(xattr::getMetaInfo).collect(toList());
+
+		// build and execute commands
+		MediaBindingBean[] group = IntStream.range(0, f.size()).mapToObj(i -> new MediaBindingBean(m.get(i), f.get(i), new EntryList<File, Object>(f, m))).toArray(MediaBindingBean[]::new);
+		exec.execute(group);
+
+		return true;
 	}
 
 	@Override

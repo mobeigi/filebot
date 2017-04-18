@@ -43,6 +43,8 @@ public interface CmdlineInterface {
 
 	Stream<String> getMediaInfo(Collection<File> files, FileFilter filter, ExpressionFormat format) throws Exception;
 
+	boolean execute(Collection<File> files, FileFilter filter, ExecCommand exec) throws Exception;
+
 	List<File> extract(Collection<File> files, File output, ConflictAction conflict, FileFilter filter, boolean forceExtractAll) throws Exception;
 
 }
