@@ -27,6 +27,7 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.ParserProperties;
 import org.kohsuke.args4j.spi.ExplicitBooleanOptionHandler;
+import org.kohsuke.args4j.spi.RestOfArgumentsHandler;
 
 import net.filebot.ApplicationFolder;
 import net.filebot.Language;
@@ -139,6 +140,9 @@ public class ArgumentBean {
 
 	@Option(name = "--def", usage = "Define script variables", handler = BindingsHandler.class)
 	public Map<String, String> defines = new LinkedHashMap<String, String>();
+
+	@Option(name = "-exec", usage = "Execute command", handler = RestOfArgumentsHandler.class)
+	public List<String> exec = new ArrayList<String>();
 
 	@Argument
 	public List<String> arguments = new ArrayList<String>();
@@ -305,6 +309,14 @@ public class ArgumentBean {
 
 	public Level getLogLevel() {
 		return Level.parse(log.toUpperCase());
+	}
+
+	public ExecCommand getExecCommand() {
+		try {
+			return exec == null || exec.isEmpty() ? null : ExecCommand.parse(exec, getOutputPath());
+		} catch (Exception e) {
+			throw new CmdlineException("Illegal exec expression: " + exec);
+		}
 	}
 
 	public PanelBuilder[] getPanelBuilders() {

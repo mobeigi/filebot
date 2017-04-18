@@ -69,10 +69,10 @@ public class CmdlineOperationsTextUI extends CmdlineOperations {
 	}
 
 	@Override
-	public List<File> renameAll(Map<File, File> renameMap, RenameAction renameAction, ConflictAction conflictAction, List<Match<File, ?>> matches) throws Exception {
+	public List<File> renameAll(Map<File, File> renameMap, RenameAction renameAction, ConflictAction conflictAction, List<Match<File, ?>> matches, ExecCommand exec) throws Exception {
 		// default behavior if rename map is empty
 		if (renameMap.isEmpty()) {
-			return super.renameAll(renameMap, renameAction, conflictAction, matches);
+			return super.renameAll(renameMap, renameAction, conflictAction, matches, exec);
 		}
 
 		// manually confirm each file mapping
@@ -91,7 +91,7 @@ public class CmdlineOperationsTextUI extends CmdlineOperations {
 			return emptyList();
 		}
 
-		return super.renameAll(selection.stream().collect(toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new)), renameAction, conflictAction, matches);
+		return super.renameAll(selection.stream().collect(toMap(Entry::getKey, Entry::getValue, (a, b) -> a, LinkedHashMap::new)), renameAction, conflictAction, matches, exec);
 	}
 
 	@Override
