@@ -11,6 +11,8 @@ else if ($type == 'deb')
 	$name = 'FileBot for Debian Linux';
 else if ($type == 'portable')
 	$name = 'FileBot Portable';
+else if ($type == 'jar')
+	$name = 'FileBot Jar';
 else if ($type == 'forum')
 	$name = 'Customer Support';
 else if (strlen($type) > 0)
