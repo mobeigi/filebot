@@ -78,25 +78,25 @@ public class ArgumentBean {
 	@Option(name = "-get-subtitles", usage = "Fetch subtitles")
 	public boolean getSubtitles;
 
-	@Option(name = "--q", usage = "Force lookup query", metaVar = "series/movie title")
+	@Option(name = "--q", usage = "Force lookup query", metaVar = "series / movie query")
 	public String query;
 
-	@Option(name = "--lang", usage = "Language", metaVar = "3-letter language code")
+	@Option(name = "--lang", usage = "Language", metaVar = "language code")
 	public String lang = "en";
 
-	@Option(name = "-check", usage = "Create/Check verification files")
+	@Option(name = "-check", usage = "Create / Check verification files")
 	public boolean check;
 
-	@Option(name = "--output", usage = "Output path", metaVar = "/path")
+	@Option(name = "--output", usage = "Output path", metaVar = "path")
 	public String output;
 
 	@Option(name = "--encoding", usage = "Output character encoding", metaVar = "[UTF-8, Windows-1252]")
 	public String encoding;
 
-	@Option(name = "-list", usage = "Fetch episode list")
+	@Option(name = "-list", usage = "Print episode list")
 	public boolean list = false;
 
-	@Option(name = "-mediainfo", usage = "Get media info")
+	@Option(name = "-mediainfo", usage = "Print media info")
 	public boolean mediaInfo = false;
 
 	@Option(name = "-revert", usage = "Revert files")
@@ -105,13 +105,13 @@ public class ArgumentBean {
 	@Option(name = "-extract", usage = "Extract archives")
 	public boolean extract = false;
 
-	@Option(name = "-script", usage = "Run Groovy script", metaVar = "[fn:name] or [dev:name] or [/path/to/script.groovy]")
+	@Option(name = "-script", usage = "Run Groovy script", metaVar = "[fn:name] or [dev:name] or [foo.groovy]")
 	public String script = null;
 
 	@Option(name = "--log", usage = "Log level", metaVar = "[all, fine, info, warning]")
 	public String log = "all";
 
-	@Option(name = "--log-file", usage = "Log file", metaVar = "/path/to/log.txt")
+	@Option(name = "--log-file", usage = "Log file", metaVar = "log.txt")
 	public String logFile = null;
 
 	@Option(name = "--log-lock", usage = "Lock log file", metaVar = "[yes, no]", handler = ExplicitBooleanOptionHandler.class)
@@ -126,7 +126,7 @@ public class ArgumentBean {
 	@Option(name = "-clear-prefs", usage = "Clear application settings")
 	public boolean clearPrefs = false;
 
-	@Option(name = "-unixfs", usage = "Do not strip invalid characters from file paths")
+	@Option(name = "-unixfs", usage = "Allow special characters in file paths")
 	public boolean unixfs = false;
 
 	@Option(name = "-no-xattr", usage = "Disable extended attributes")
@@ -141,7 +141,7 @@ public class ArgumentBean {
 	@Option(name = "--def", usage = "Define script variables", handler = BindingsHandler.class)
 	public Map<String, String> defines = new LinkedHashMap<String, String>();
 
-	@Option(name = "-exec", usage = "Execute command", handler = RestOfArgumentsHandler.class)
+	@Option(name = "-exec", usage = "Execute command", metaVar = "command", handler = RestOfArgumentsHandler.class)
 	public List<String> exec = new ArrayList<String>();
 
 	@Argument
