@@ -798,10 +798,10 @@ public class MediaDetection {
 			}
 		}
 
-		// first parent folder that matches a movie (max 3 levels deep)
+		// first parent folder that matches a movie (max 4 levels deep)
 		for (boolean strictness : new boolean[] { true, false }) {
 			File f = movieFile.getParentFile();
-			for (int i = 0; f != null && i < 3 && !isStructureRoot(f); f = f.getParentFile(), i++) {
+			for (int i = 0; f != null && i < 4 && !isStructureRoot(f); f = f.getParentFile(), i++) {
 				String term = stripReleaseInfo(f.getName());
 				if (term.length() > 0 && checkMovie(f, strictness) != null) {
 					return f;
