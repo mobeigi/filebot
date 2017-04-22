@@ -278,7 +278,7 @@ public class FormatDialog extends JDialog {
 		if (bindings == null) {
 			bindings = restoreSample(initMode);
 		} else if (bindings.getFileObject() == null && !locked) {
-			bindings = new MediaBindingBean(bindings.getInfoObject(), restoreSample(initMode).getMediaFile());
+			bindings = new MediaBindingBean(bindings.getInfoObject(), restoreSample(initMode).getFileObject());
 		}
 
 		// initialize data
@@ -428,14 +428,13 @@ public class FormatDialog extends JDialog {
 
 		try {
 			// restore sample from user preferences
-			String sample = mode.persistentSample().getValue();
-			info = MetaAttributes.toObject(sample);
-
-			if (info == null) {
-				throw new NullPointerException();
-			}
+			info = MetaAttributes.toObject(mode.persistentSample().getValue());
 		} catch (Exception e) {
-			// restore sample from application properties
+			debug.log(Level.WARNING, e, e::toString);
+		}
+
+		// restore sample from application properties if necessary
+		if (info == null) {
 			info = mode.getDefaultSampleObject();
 		}
 
