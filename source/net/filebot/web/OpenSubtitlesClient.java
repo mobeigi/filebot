@@ -465,6 +465,17 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		return subLanguageMap;
 	}
 
+	protected String getLanguageCode(Locale locale) {
+		switch (locale.toString()) {
+		case "pt_BR":
+			return "pb";
+		case "zh_TW":
+			return "tw";
+		default:
+			return locale.getLanguage();
+		}
+	}
+
 	protected String[] getLanguageFilter(Locale locale) {
 		return locale == null || locale.getLanguage().isEmpty() ? new String[0] : new String[] { getSubLanguageID(locale) };
 	}
@@ -476,7 +487,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 		String subLanguageID = null;
 		try {
-			subLanguageID = getSubLanguageMap().get(locale.getLanguage());
+			subLanguageID = getSubLanguageMap().get(getLanguageCode(locale));
 		} catch (Exception e) {
 			throw new IllegalStateException("Failed to retrieve subtitle language map", e);
 		}
