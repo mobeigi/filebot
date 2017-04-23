@@ -456,47 +456,45 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			}
 		});
 
-		// some additional special handling
-		subLanguageMap.put("iw", "heb"); // Hebrew
-		subLanguageMap.put("pb", "pob"); // Brazilian Portuguese
-		subLanguageMap.put("zh", "chi"); // Chinese (Simplified)
-		subLanguageMap.put("tw", "zht"); // Chinese (Traditional)
-
 		return subLanguageMap;
 	}
 
-	protected String getLanguageCode(Locale locale) {
-		switch (locale.toString()) {
-		case "pt_BR":
-			return "pb";
-		case "zh_TW":
-			return "tw";
-		default:
-			return locale.getLanguage();
-		}
-	}
-
-	protected String[] getLanguageFilter(Locale locale) {
-		return locale == null || locale.getLanguage().isEmpty() ? new String[0] : new String[] { getSubLanguageID(locale) };
-	}
-
 	protected String getSubLanguageID(Locale locale) {
-		if (locale == null || locale.getLanguage().isEmpty()) {
+		if (locale == null || locale.equals(Locale.ROOT)) {
 			return "all";
 		}
 
-		String subLanguageID = null;
+		// some special handling
+		switch (locale.toString()) {
+		case "en_US":
+			return "eng"; // English
+		case "pt_BR":
+			return "pob"; // Brazilian Portuguese
+		case "zh_CN":
+			return "chi"; // Chinese (Simplified)
+		case "zh_TW":
+			return "zht"; // Chinese (Traditional)
+		case "iw_IL":
+			return "heb"; // Hebrew
+		}
+
+		Map<String, String> languageMap;
 		try {
-			subLanguageID = getSubLanguageMap().get(getLanguageCode(locale));
+			languageMap = getSubLanguageMap();
 		} catch (Exception e) {
 			throw new IllegalStateException("Failed to retrieve subtitle language map", e);
 		}
 
+		String subLanguageID = languageMap.get(locale.getLanguage());
 		if (subLanguageID == null) {
 			throw new IllegalArgumentException("SubLanguageID not found: " + locale);
 		}
 
 		return subLanguageID;
+	}
+
+	protected String[] getLanguageFilter(Locale locale) {
+		return locale == null || locale.getLanguage().isEmpty() ? new String[0] : new String[] { getSubLanguageID(locale) };
 	}
 
 	public Cache getCache(String section) {
