@@ -861,27 +861,19 @@
 			</fileset>
 		</copy>
 
-		<gpg-sign detach="no">
-			<fileset dir="${dir.release}" />
-		</gpg-sign>
-		<gpg-sign detach="yes">
-			<fileset dir="${dir.release}" excludes="*.gpg" />
+		<!-- require gpg signatures for all installer packages -->
+		<gpg-sign>
+			<fileset dir="${dir.release}">
+				<exclude name="*.spk" />
+			</fileset>
 		</gpg-sign>
 
 		<!-- move to final staging folder -->
 		<mkdir dir="${dir.release}/FRS/${release}" />
 		<copy todir="${dir.release}/FRS/${release}" verbose="yes">
 			<fileset dir="${dir.release}">
-				<!-- require gpg signatures for manual installer packages -->
-				<include name="*.msi.gpg" />
-				<include name="*.deb.gpg" />
-				<include name="*-portable.tar.xz.gpg" />
-
-				<!-- use detached signatures for package repositories -->
-				<include name="*-darwin.tar.xz" />
-				<include name="*-darwin.tar.xz.asc" />
+				<include name="*.gpg" />
 				<include name="*.spk" />
-				<include name="*.spk.asc" />
 			</fileset>
 		</copy>
 
