@@ -337,7 +337,7 @@ public class ReleaseInfo {
 
 	public Pattern getReleaseGroupPattern(boolean strict) throws Exception {
 		// match 1..N group patterns
-		String group = "((?<!\\p{Alnum})" + or(releaseGroup.get()) + "(?!\\p{Alnum})[\\p{Punct}]??)+";
+		String group = "((?<!\\p{Alnum})" + or(releaseGroup.get()) + "(?!\\p{Alnum})[\\p{Punct}]?)+";
 
 		// group pattern at beginning or ending of the string
 		String[] groupHeadTail = { "(?<=^[\\P{Alnum}]*)" + group, group + "(?=[\\P{Alnum}]*$)" };
