@@ -336,7 +336,7 @@ public class ReleaseInfo {
 	}
 
 	public Pattern getReleaseGroupPattern(boolean strict) throws Exception {
-		// match 1..N group patterns
+		// match 1..N group patterns (e.g. GROUP[INDEX])
 		String group = "((?<!\\p{Alnum})" + or(releaseGroup.get()) + "(?!\\p{Alnum})[\\p{Punct}]?)+";
 
 		// group pattern at beginning or ending of the string
