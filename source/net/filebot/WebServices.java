@@ -39,7 +39,7 @@ import net.filebot.web.SubtitleSearchResult;
 import net.filebot.web.TMDbClient;
 import net.filebot.web.TMDbTVClient;
 import net.filebot.web.TVMazeClient;
-import net.filebot.web.TheTVDBClientV1;
+import net.filebot.web.TheTVDBClient;
 import net.filebot.web.VideoHashSubtitleService;
 
 /**
@@ -122,7 +122,7 @@ public final class WebServices {
 
 	public static final ExecutorService requestThreadPool = Executors.newCachedThreadPool();
 
-	public static class TheTVDBClientWithLocalSearch extends TheTVDBClientV1 {
+	public static class TheTVDBClientWithLocalSearch extends TheTVDBClient {
 
 		public TheTVDBClientWithLocalSearch(String apikey) {
 			super(apikey);
