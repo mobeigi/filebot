@@ -649,7 +649,11 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		// execute command
 		if (exec != null) {
-			execute(renameLog.values(), Objects::nonNull, exec); // destination files may include null values
+			try {
+				execute(renameLog.values(), Objects::nonNull, exec); // destination files may include null values
+			} catch (Exception e) {
+				log.warning(message("Execute", e.getMessage()));
+			}
 		}
 
 		return new ArrayList<File>(renameLog.values());
