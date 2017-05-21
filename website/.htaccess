@@ -11,7 +11,7 @@ redirect 302 /files/ https://sourceforge.net/projects/filebot/files/
 redirect 302 /forums/faq.php https://www.filebot.net/forums/viewtopic.php?f=3&t=7
 
 # redirect donate page
-redirect 302 /donate.html https://app.filebot.net/donate.php
+redirect 302 /donate.html https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=rednoah%40filebot%2enet&lc=US&item_name=FileBot%20Support&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
 
 # redirect to support pages
 redirect 302 /amc.html https://www.filebot.net/forums/viewtopic.php?f=4&t=215
