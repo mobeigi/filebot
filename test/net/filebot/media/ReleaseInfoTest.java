@@ -20,6 +20,8 @@ public class ReleaseInfoTest {
 	@Test
 	public void getReleaseGroup() throws Exception {
 		assertEquals("aXXo", info.getReleaseGroup("Jurassic.Park[1993]DvDrip-aXXo"));
+		assertEquals("aXXo", info.getReleaseGroup("Jurassic.Park[1993]DvDrip-[aXXo]"));
+		assertEquals("aXXo[RARBG]", info.getReleaseGroup("Jurassic.Park[1993]DvDrip-aXXo[RARBG]"));
 	}
 
 	@Test

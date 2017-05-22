@@ -100,15 +100,19 @@ public class ReleaseInfo {
 		// check file and folder for release group names
 		String[] groups = releaseGroup.get();
 
-		// try case-sensitive match
-		String match = matchLast(getReleaseGroupPattern(true), groups, name);
+		for (boolean strict : new boolean[] { true, false }) {
+			String match = matchLast(getReleaseGroupPattern(strict), groups, name);
 
-		if (match != null) {
-			return match;
+			if (match != null) {
+				// group pattern does not match closing brackets in GROUP[INDEX] patterns
+				if (match.lastIndexOf(']') < match.lastIndexOf('[')) {
+					return match + ']';
+				}
+				return match;
+			}
 		}
 
-		// try case-insensitive match
-		return matchLast(getReleaseGroupPattern(false), groups, name);
+		return null;
 	}
 
 	private Pattern languageTag;
