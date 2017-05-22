@@ -6,10 +6,12 @@ import java.io.File;
 import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 
+@Ignore("Sample file does not exist")
 public class MediaInfoTest {
 
 	File getSampleFile(String name) throws Exception {

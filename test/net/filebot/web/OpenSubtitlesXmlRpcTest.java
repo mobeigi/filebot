@@ -30,17 +30,6 @@ public class OpenSubtitlesXmlRpcTest {
 	}
 
 	@Test
-	public void guessMovie() throws Exception {
-		Map<String, List<SubtitleSearchResult>> results = xmlrpc.guessMovie(singleton("himym.s13.e12"));
-		SubtitleSearchResult result = results.get("himym.s13.e12").get(0);
-
-		assertEquals(460649, result.getImdbId());
-		assertEquals("How I Met Your Mother", result.getName());
-		assertEquals(2005, result.getYear());
-		assertEquals("Series", result.getKind().toString());
-	}
-
-	@Test
 	public void search() throws Exception {
 		List<SubtitleSearchResult> list = xmlrpc.searchMoviesOnIMDB("babylon 5");
 		Movie sample = list.get(0);
@@ -71,20 +60,6 @@ public class OpenSubtitlesXmlRpcTest {
 
 		// check size
 		assertTrue(list.size() > 20);
-	}
-
-	@Test
-	public void getSubtitleListAllLanguages() throws Exception {
-		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(singleton(Query.forImdbId(361256, -1, -1)));
-
-		OpenSubtitlesSubtitleDescriptor sample = list.get(75);
-
-		assertEquals("\"Wonderfalls\" Safety Canary", sample.getProperty(Property.MovieName));
-		assertEquals("Czech", sample.getProperty(Property.LanguageName));
-		assertEquals("imdbid", sample.getProperty(Property.MatchedBy));
-
-		// check size
-		assertTrue(list.size() > 70);
 	}
 
 	@Test
