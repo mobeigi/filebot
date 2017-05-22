@@ -564,9 +564,11 @@ public class MediaDetection {
 		List<Movie> options = new ArrayList<Movie>();
 
 		// try xattr metadata if enabled
-		Object metaObject = xattr.getMetaInfo(movieFile);
-		if (metaObject instanceof Movie) {
-			options.add((Movie) metaObject);
+		if (movieFile.exists()) {
+			Object metaObject = xattr.getMetaInfo(movieFile);
+			if (metaObject instanceof Movie) {
+				options.add((Movie) metaObject);
+			}
 		}
 
 		// lookup by id from nfo file
