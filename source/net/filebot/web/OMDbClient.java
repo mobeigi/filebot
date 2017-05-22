@@ -36,6 +36,12 @@ public class OMDbClient implements MovieIdentificationService {
 
 	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(2, 1, TimeUnit.SECONDS);
 
+	private String apikey;
+
+	public OMDbClient(String apikey) {
+		this.apikey = apikey;
+	}
+
 	@Override
 	public String getIdentifier() {
 		return "OMDb";
@@ -126,9 +132,10 @@ public class OMDbClient implements MovieIdentificationService {
 
 	public Object request(Map<String, Object> parameters) throws Exception {
 		Cache cache = Cache.getCache(getName(), CacheType.Monthly);
-		String key = '?' + encodeParameters(parameters, true);
 
-		return cache.json(key, s -> getResource(s)).fetch(withPermit(fetchIfModified(), r -> REQUEST_LIMIT.acquirePermit())).expire(Cache.ONE_WEEK).get();
+		return cache.json(encodeParameters(parameters, true), s -> {
+			return getResource('?' + s + "&apikey=" + apikey);
+		}).fetch(withPermit(fetchIfModified(), r -> REQUEST_LIMIT.acquirePermit())).expire(Cache.ONE_WEEK).get();
 	}
 
 	public URL getResource(String file) throws Exception {

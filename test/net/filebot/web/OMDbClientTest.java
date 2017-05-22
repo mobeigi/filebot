@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class OMDbClientTest {
 
-	private final OMDbClient client = new OMDbClient();
+	private final OMDbClient client = new OMDbClient("49d311ec");
 
 	@Test
 	public void searchMovie1() throws Exception {

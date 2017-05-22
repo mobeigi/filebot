@@ -48,7 +48,7 @@ import net.filebot.web.VideoHashSubtitleService;
 public final class WebServices {
 
 	// movie sources
-	public static final OMDbClient OMDb = new OMDbClient();
+	public static final OMDbClient OMDb = new OMDbClient(getApiKey("omdb"));
 	public static final TMDbClient TheMovieDB = new TMDbClient(getApiKey("themoviedb"), SystemProperty.of("net.filebot.WebServices.TheMovieDB.adult", Boolean::parseBoolean, false).get());
 
 	// episode sources
