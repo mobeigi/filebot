@@ -23,11 +23,6 @@ public class ReleaseInfoTest {
 	}
 
 	@Test
-	public void getReleaseGroupWithSubs() throws Exception {
-		assertEquals("aXXo", info.getReleaseGroup("Jurassic.Park[1993]DvDrip-aXXo.eng-forced"));
-	}
-
-	@Test
 	public void getReleaseGroupFalseNegative() throws Exception {
 		assertEquals(null, info.getReleaseGroup("The.aXXo.Movie.2005"));
 		assertEquals(null, info.getReleaseGroup("The aXXo Movie"));
@@ -38,7 +33,7 @@ public class ReleaseInfoTest {
 	public void getReleaseGroupPattern() throws Exception {
 		assertEquals("[]_Infinite_Stratos_2_-_01_[]", clean(info.getReleaseGroupTrimPattern(), "[HorribleSubs]_Infinite_Stratos_2_-_01_[HorribleSubs]"));
 		assertEquals("[]_Infinite_Stratos_2_-_01_[]", clean(info.getReleaseGroupPattern(true), "[HorribleSubs]_Infinite_Stratos_2_-_01_[HorribleSubs]"));
-		assertEquals("[]_Infinite_Stratos_2_-_01_[]", clean(info.getReleaseGroupPattern(false), "[HorribleSubs]_Infinite_Stratos_2_-_01_[HorribleSubs]"));
+		assertEquals("_Infinite_Stratos_2_-_01_", clean(info.getReleaseGroupPattern(false), "HorribleSubs_Infinite_Stratos_2_-_01_HorribleSubs"));
 
 		assertEquals("DVL", info.getReleaseGroup("Movie-DVL"));
 		assertEquals("iMBT", info.getReleaseGroup("The.Legend.Of.Zorro-iMBT"));
