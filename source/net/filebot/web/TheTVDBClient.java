@@ -130,8 +130,8 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 			String seriesName = getString(it, "seriesName");
 			String[] aliasNames = stream(getArray(it, "aliases")).toArray(String[]::new);
 
-			if (seriesName.startsWith("**") && seriesName.endsWith("**")) {
-				debug.fine(format("Invalid series: %s [%d]", seriesName, id));
+			if (seriesName == null || seriesName.startsWith("**") || seriesName.endsWith("**")) {
+				debug.warning(format("Ignore invalid series: %s [%d]", seriesName, id));
 				return null;
 			}
 
