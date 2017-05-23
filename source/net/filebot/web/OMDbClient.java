@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.*;
 import static net.filebot.CachedResource.*;
 import static net.filebot.Logging.*;
 import static net.filebot.util.JsonUtilities.*;
+import static net.filebot.util.RegularExpressions.*;
 import static net.filebot.util.StringUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
@@ -173,7 +174,7 @@ public class OMDbClient implements MovieIdentificationService {
 		fields.put(MovieInfo.Property.runtime, getRuntimeMinutes(data.get("runtime")));
 		fields.put(MovieInfo.Property.tagline, data.get("plot"));
 		fields.put(MovieInfo.Property.vote_average, data.get("imdbRating"));
-		fields.put(MovieInfo.Property.vote_count, data.get("imdbVotes").replaceAll("\\D", ""));
+		fields.put(MovieInfo.Property.vote_count, getVoteCount(data.get("imdbVotes")));
 		fields.put(MovieInfo.Property.imdb_id, data.get("imdbID"));
 		fields.put(MovieInfo.Property.poster_path, data.get("poster"));
 
@@ -197,6 +198,10 @@ public class OMDbClient implements MovieIdentificationService {
 		actors.addAll(split(delim, data.get("writer"), s -> new Person(s, Person.WRITER)));
 
 		return new MovieInfo(fields, emptyList(), genres, emptyMap(), languages, emptyList(), emptyList(), actors, emptyList());
+	}
+
+	private String getVoteCount(String votes) {
+		return NON_DIGIT.matcher(votes).replaceAll("");
 	}
 
 	private String getRuntimeMinutes(String runtime) {
