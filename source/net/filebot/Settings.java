@@ -3,7 +3,6 @@ package net.filebot;
 import static net.filebot.Logging.*;
 
 import java.util.Locale;
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
@@ -40,15 +39,14 @@ public final class Settings {
 	}
 
 	public static String getApiKey(String name) {
-		ResourceBundle bundle = ResourceBundle.getBundle(Settings.class.getName(), Locale.ROOT);
 		if (isAppStore()) {
 			try {
-				return bundle.getString("apikey.appstore." + name);
-			} catch (MissingResourceException e) {
+				return getApplicationProperty("apikey.appstore." + name);
+			} catch (Exception e) {
 				// use default value
 			}
 		}
-		return bundle.getString("apikey." + name);
+		return getApplicationProperty("apikey." + name);
 	}
 
 	public static boolean isUnixFS() {
