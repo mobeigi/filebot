@@ -42,6 +42,7 @@ import net.filebot.format.ExpressionFilter;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.platform.mac.MacAppUtilities;
 import net.filebot.ui.HeaderPanel;
+import net.filebot.ui.rename.FormatDialog.Mode;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
 import net.filebot.web.Datasource;
 import net.filebot.web.EpisodeListProvider;
@@ -61,11 +62,12 @@ public class PresetEditor extends JDialog {
 	private JTextField pathInput;
 	private RSyntaxTextArea filterEditor;
 	private RSyntaxTextArea formatEditor;
-	private JComboBox<RenameAction> actionCombo;
+
 	private JComboBox<Datasource> providerCombo;
 	private JComboBox<SortOrder> sortOrderCombo;
-	private JComboBox<String> matchModeCombo;
 	private JComboBox<Language> languageCombo;
+	private JComboBox<String> matchModeCombo;
+	private JComboBox<RenameAction> actionCombo;
 
 	private JRadioButton selectRadio;
 	private JRadioButton inheritRadio;
@@ -301,12 +303,12 @@ public class PresetEditor extends JDialog {
 	});
 
 	private final Action editFormatExpression = newAction("Open Format Editor", ResourceManager.getIcon("action.format"), evt -> {
-		FormatDialog.Mode mode = FormatDialog.Mode.getMode((Datasource) providerCombo.getSelectedItem());
+		Mode mode = Mode.getMode((Datasource) providerCombo.getSelectedItem());
 
 		Object sample = mode.getDefaultSampleObject();
 		File file = null;
 
-		if (mode == FormatDialog.Mode.File) {
+		if (mode == Mode.File) {
 			List<File> files = UserFiles.showLoadDialogSelectFiles(false, false, null, new ExtensionFileFilter(ExtensionFileFilter.WILDCARD), "Select Sample File", evt);
 			if (files.isEmpty()) {
 				return;
@@ -345,7 +347,7 @@ public class PresetEditor extends JDialog {
 				if (files.size() > 0) {
 					for (File f : files) {
 						popup.add(newAction(f.getPath(), e -> {
-							BindingDialog dialog = new BindingDialog(getWindow(evt.getSource()), "File Bindings", FormatDialog.Mode.File.getFormat(), false);
+							BindingDialog dialog = new BindingDialog(getWindow(evt.getSource()), "File Bindings", Mode.File.getFormat(), false);
 							dialog.setLocation(getOffsetLocation(getWindow(evt.getSource())));
 							dialog.setSample(new MediaBindingBean(f, f));
 							dialog.setVisible(true);
