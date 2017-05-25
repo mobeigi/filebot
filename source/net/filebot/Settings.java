@@ -40,13 +40,10 @@ public final class Settings {
 
 	public static String getApiKey(String name) {
 		if (isAppStore()) {
-			try {
-				return getApplicationProperty("apikey.appstore." + name);
-			} catch (Exception e) {
-				// use default value
-			}
+			return getApplicationProperty("com.apikey." + name);
+		} else {
+			return getApplicationProperty("apikey." + name);
 		}
-		return getApplicationProperty("apikey." + name);
 	}
 
 	public static boolean isUnixFS() {
