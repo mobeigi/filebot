@@ -245,6 +245,7 @@ public class PresetEditor extends JDialog {
 				Datasource provider = (Datasource) value;
 				label.setText(provider.getName());
 				label.setIcon(provider.getIcon());
+				label.setToolTipText(provider.getIdentifier());
 			}
 
 			return label;
