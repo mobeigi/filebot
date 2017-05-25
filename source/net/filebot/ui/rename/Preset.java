@@ -143,7 +143,7 @@ public class Preset {
 	}
 
 	public static Datasource[] getGenericFileMatcherServices() {
-		return new Datasource[] { PhotoFileMatcher.INSTANCE, XattrFileMatcher.INSTANCE, PlainFileMatcher.INSTANCE };
+		return new Datasource[] { new PhotoFileMatcher(), new XattrFileMatcher(), new PlainFileMatcher() };
 	}
 
 	public static StandardRenameAction[] getSupportedActions() {

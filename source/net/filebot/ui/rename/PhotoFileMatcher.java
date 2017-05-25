@@ -20,8 +20,6 @@ import net.filebot.web.SortOrder;
 
 public class PhotoFileMatcher implements Datasource, AutoCompleteMatcher {
 
-	public static final PhotoFileMatcher INSTANCE = new PhotoFileMatcher();
-
 	@Override
 	public String getIdentifier() {
 		return "exif";

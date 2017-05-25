@@ -17,8 +17,6 @@ import net.filebot.web.SortOrder;
 
 public class PlainFileMatcher implements Datasource, AutoCompleteMatcher {
 
-	public static final PlainFileMatcher INSTANCE = new PlainFileMatcher();
-
 	@Override
 	public String getIdentifier() {
 		return "file";
