@@ -84,6 +84,10 @@ public class MetaAttributes {
 	}
 
 	public static Object toObject(String json) {
+		if (json == null || json.isEmpty()) {
+			return null;
+		}
+
 		Map<String, Object> options = new HashMap<String, Object>();
 		options.put(JsonReader.TYPE_NAME_MAP, JSON_TYPE_MAP);
 
