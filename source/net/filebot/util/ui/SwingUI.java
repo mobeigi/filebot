@@ -158,6 +158,9 @@ public final class SwingUI {
 		button.setVerticalTextPosition(SwingConstants.BOTTOM);
 		button.setOpaque(false);
 
+		// fix Windows 10 button padding
+		button.setMaximumSize(new Dimension(36, 36));
+
 		if (Settings.isMacApp()) {
 			button.setPreferredSize(new Dimension(28, 27));
 		} else {
