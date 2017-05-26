@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
@@ -150,7 +151,11 @@ public class Language implements Serializable {
 	}
 
 	private static String getProperty(String key) {
-		return ResourceBundle.getBundle(Language.class.getName()).getString(key);
+		try {
+			return ResourceBundle.getBundle(Language.class.getName()).getString(key);
+		} catch (MissingResourceException e) {
+			throw new IllegalArgumentException("Illegal language code: " + key);
+		}
 	}
 
 }
