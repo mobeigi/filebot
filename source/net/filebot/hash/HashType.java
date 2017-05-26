@@ -93,6 +93,30 @@ public enum HashType {
 		}
 	},
 
+	// SHA3_384 {
+	//
+	// @Override
+	// public Hash newHash() {
+	// return new MessageDigestHash("SHA3-384");
+	// }
+	//
+	// @Override
+	// public VerificationFormat getFormat() {
+	// // e.g 1a02a7c1e9ac91346d08829d5037b240f42ded07 ?SHA3-384*folder/file.txt
+	// return new VerificationFormat("SHA3-384");
+	// }
+	//
+	// @Override
+	// public ExtensionFileFilter getFilter() {
+	// return MediaTypes.getTypeFilter("verification/sha3sum");
+	// }
+	//
+	// @Override
+	// public String toString() {
+	// return "SHA3";
+	// }
+	// },
+
 	ED2K {
 
 		@Override
