@@ -78,7 +78,7 @@ public enum HashType {
 
 		@Override
 		public VerificationFormat getFormat() {
-			// e.g 1a02a7c1e9ac91346d08829d5037b240f42ded07 ?SHA1*folder/file.txt
+			// e.g 1a02a7c1e9ac91346d08829d5037b240f42ded07 ?SHA256*folder/file.txt
 			return new VerificationFormat("SHA256");
 		}
 
@@ -97,7 +97,7 @@ public enum HashType {
 
 		@Override
 		public Hash newHash() {
-			return new Ed2kHash();
+			return JacksumHash.newED2K();
 		}
 
 		@Override
