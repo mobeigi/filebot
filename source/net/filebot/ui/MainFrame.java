@@ -13,6 +13,7 @@ import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
 import java.awt.Dialog.ModalExclusionType;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
@@ -92,6 +93,7 @@ public class MainFrame extends JFrame {
 		});
 
 		setSize(1060, 650);
+		setMinimumSize(new Dimension(880, 515));
 
 		// KEYBOARD SHORTCUTS
 		installAction(getRootPane(), getKeyStroke(VK_DELETE, CTRL_MASK | SHIFT_MASK), newAction("Clear Cache", evt -> {
