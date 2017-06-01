@@ -8,6 +8,7 @@ redirect 302 /files/FileBot_Subtitles_Installer.pkg https://downloads.sourceforg
 redirect 302 /files/ https://sourceforge.net/projects/filebot/files/
 
 # redirect phpBB FAQ link to FileBot FAQ page
+redirect 301 /forums/rules.php https://www.filebot.net/forums/viewtopic.php?f=5&t=1868
 redirect 301 /forums/faq.php https://www.filebot.net/forums/viewtopic.php?f=3&t=7
 redirect 301 /forums/app.php/help/faq https://www.filebot.net/forums/viewtopic.php?f=3&t=7
 
