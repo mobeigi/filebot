@@ -8,7 +8,9 @@ redirect 302 /files/FileBot_Subtitles_Installer.pkg https://downloads.sourceforg
 redirect 302 /files/ https://sourceforge.net/projects/filebot/files/
 
 # redirect phpBB FAQ link to FileBot FAQ page
-redirect 302 /forums/faq.php https://www.filebot.net/forums/viewtopic.php?f=3&t=7
+redirect 301 /forums/faq.php https://www.filebot.net/forums/viewtopic.php?f=3&t=7
+redirect 301 /forums/app.php/help/faq https://www.filebot.net/forums/viewtopic.php?f=3&t=7
+
 
 # redirect donate page
 redirect 302 /donate.html https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=rednoah%40filebot%2enet&lc=US&item_name=FileBot%20Support&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
