@@ -25,10 +25,9 @@ redirect 302 /channel.html https://discord.gg/cKVvZ2S
 
 
 # redirect forums links
-redirect 301 /forums https://www.filebot.net/forums/
-redirect 301 /forums/rules.php https://www.filebot.net/forums/viewtopic.php?f=5&t=1868
-redirect 301 /forums/faq.php https://www.filebot.net/forums/viewtopic.php?f=3&t=7
-redirect 301 /forums/app.php/help/faq https://www.filebot.net/forums/viewtopic.php?f=3&t=7
+redirect 302 /forums/rules.php https://www.filebot.net/forums/viewtopic.php?f=5&t=1868
+redirect 302 /forums/faq.php https://www.filebot.net/forums/viewtopic.php?f=3&t=7
+redirect 302 /forums/app.php/help/faq https://www.filebot.net/forums/viewtopic.php?f=3&t=7
 
 
 # redirect filebot.sourceforge.net to www.filebot.net
