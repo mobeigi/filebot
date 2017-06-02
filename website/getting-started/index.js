@@ -48,10 +48,10 @@ function getData() {
 		thumb: 'images/node.screenshot.thumb.png'
 	}]
 
-	var links = false
+	var embed = location.hash.length > 0
 	var youtube = !(/zh(.CN)?/i).test(navigator.locale ? navigator.locale : navigator.language) // YouTube is blocked in China (mainland)
 
-	if (links) {
+	if (embed) {
 		data = data.slice(0, 5) // use only tutorial images
 
 		if (location.hash == '#mas') {
@@ -66,14 +66,13 @@ function getData() {
 		}
 	}
 
-	if (!links) {
-		data.forEach(function(it) {
-			it.video = it[youtube ? 'link' : 'video']
-		})
-	}
+	data.forEach(function(it) {
+		it.video = it[youtube ? 'link' : 'video']
+	})
+
 	if (!youtube) {
 		data.forEach(function(it) {
-			it[links ? 'link' : 'iframe'] = it.video
+			it['iframe'] = it.video
 			delete it.video
 		})
 	}
