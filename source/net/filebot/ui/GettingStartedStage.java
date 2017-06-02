@@ -79,6 +79,9 @@ public class GettingStartedStage {
 		webview.getEngine().load(getEmbeddedHelpURL());
 		webview.setPrefSize(750, 490);
 
+		// intercept target _blank click events and open links in a new browser window
+		webview.getEngine().setCreatePopupHandler(c -> onPopup(webview));
+
 		webview.getEngine().getLoadWorker().stateProperty().addListener((v, o, n) -> {
 			if (n == Worker.State.SUCCEEDED) {
 				stage.setTitle(webview.getEngine().getTitle());
@@ -121,6 +124,15 @@ public class GettingStartedStage {
 		} catch (Exception e) {
 			debug.log(Level.WARNING, "Failed to set background", e);
 		}
+	}
+
+	protected WebEngine onPopup(WebView webview) {
+		// get currently select image via Galleria API
+		Object uri = webview.getEngine().executeScript("$('.galleria').data('galleria').getData().link");
+		openURI(uri.toString());
+
+		// prevent current web view from opening the link
+		return null;
 	}
 
 }
