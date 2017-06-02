@@ -2,27 +2,27 @@
 function getData() {
 	var data = [{
 		link: 'https://www.youtube.com/watch?v=RRq2_Pjyko8&index=1&list=PLdPvEJhzxLMCEJJpb1mJtVkOpS7FfALnd',
-		video: 'http://app.filebot.net/getting-started/videos/rename.mp4',
+		video: 'https://app.filebot.net/getting-started/videos/rename.mp4',
 		image: 'images/rename.png',
 		thumb: 'images/rename.thumb.png'
 	}, {
 		link: 'https://www.youtube.com/watch?v=btNSv7AnMMw&index=2&list=PLdPvEJhzxLMCEJJpb1mJtVkOpS7FfALnd',
-		video: 'http://app.filebot.net/getting-started/videos/episodes.mp4',
+		video: 'https://app.filebot.net/getting-started/videos/episodes.mp4',
 		image: 'images/episodes.png',
 		thumb: 'images/episodes.thumb.png'
 	}, {
 		link: 'https://www.youtube.com/watch?v=q-oZ_hovsTY&index=3&list=PLdPvEJhzxLMCEJJpb1mJtVkOpS7FfALnd',
-		video: 'http://app.filebot.net/getting-started/videos/subtitle-lookup.mp4',
+		video: 'https://app.filebot.net/getting-started/videos/subtitle-lookup.mp4',
 		image: 'images/subtitle-hash-lookup.png',
 		thumb: 'images/subtitle-hash-lookup.thumb.png'
 	}, {
 		link: 'https://www.youtube.com/watch?v=R80tKtHf4zw&index=4&list=PLdPvEJhzxLMCEJJpb1mJtVkOpS7FfALnd',
-		video: 'http://app.filebot.net/getting-started/videos/subtitle-search.mp4',
+		video: 'https://app.filebot.net/getting-started/videos/subtitle-search.mp4',
 		image: 'images/subtitle-search.png',
 		thumb: 'images/subtitle-search.thumb.png'
 	}, {
 		link: 'https://www.youtube.com/watch?v=4KWkSPr3fQY&index=5&list=PLdPvEJhzxLMCEJJpb1mJtVkOpS7FfALnd',
-		video: 'http://app.filebot.net/getting-started/videos/sfv.mp4',
+		video: 'https://app.filebot.net/getting-started/videos/sfv.mp4',
 		image: 'images/sfv.png',
 		thumb: 'images/sfv.thumb.png'
 	}, {
