@@ -24,7 +24,7 @@ cd "$WORKING_DIR"
 # update core application files
 PACKAGE_NAME="FileBot.jar.xz.gpg"
 PACKAGE_FILE="$APP_ROOT/$PACKAGE_NAME"
-PACKAGE_URL="https://sourceforge.net/projects/filebot/files/filebot/HEAD/$PACKAGE_NAME"
+PACKAGE_URL="https://downloads.sourceforge.net/filebot/filebot/HEAD/$PACKAGE_NAME"
 
 # check if file has changed
 PACKAGE_HASH_EXPECTED=`curl --silent --retry 5 "$PACKAGE_URL/list" | egrep -o "\b[a-z0-9]{32}\b"`
