@@ -56,7 +56,7 @@ public class GettingStartedStage {
 
 	private static GettingStartedStage create() {
 		Stage stage = new Stage();
-		stage.setResizable(false);
+		stage.setResizable(true);
 
 		if (isWindowsApp()) {
 			stage.getIcons().setAll(ResourceManager.getApplicationIconResources().map(URL::toString).map(Image::new).toArray(Image[]::new));
@@ -78,9 +78,6 @@ public class GettingStartedStage {
 		WebView webview = new WebView();
 		webview.getEngine().load(getEmbeddedHelpURL());
 		webview.setPrefSize(750, 490);
-
-		// intercept target _blank click events and open links in a new browser window
-		webview.getEngine().setCreatePopupHandler((config) -> onPopup(webview));
 
 		webview.getEngine().getLoadWorker().stateProperty().addListener((v, o, n) -> {
 			if (n == Worker.State.SUCCEEDED) {
@@ -124,15 +121,6 @@ public class GettingStartedStage {
 		} catch (Exception e) {
 			debug.log(Level.WARNING, "Failed to set background", e);
 		}
-	}
-
-	protected WebEngine onPopup(WebView webview) {
-		// get currently select image via Galleria API
-		Object uri = webview.getEngine().executeScript("$('.galleria').data('galleria').getData().link");
-		openURI(uri.toString());
-
-		// prevent current web view from opening the link
-		return null;
 	}
 
 }

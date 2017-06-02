@@ -48,7 +48,7 @@ function getData() {
 		thumb: 'images/node.screenshot.thumb.png'
 	}]
 
-	var links = location.hash.length > 0
+	var links = false
 	var youtube = !(/zh(.CN)?/i).test(navigator.locale ? navigator.locale : navigator.language) // YouTube is blocked in China (mainland)
 
 	if (links) {
