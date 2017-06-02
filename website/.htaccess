@@ -7,12 +7,6 @@ redirect 302 /files/FileBot-setup.exe https://github.com/filebot/filebot-install
 redirect 302 /files/FileBot_Subtitles_Installer.pkg https://downloads.sourceforge.net/project/filebot/filebot/LATEST/FileBot_Subtitles_Installer.pkg
 redirect 302 /files/ https://sourceforge.net/projects/filebot/files/
 
-# redirect phpBB FAQ link to FileBot FAQ page
-redirect 301 /forums/rules.php https://www.filebot.net/forums/viewtopic.php?f=5&t=1868
-redirect 301 /forums/faq.php https://www.filebot.net/forums/viewtopic.php?f=3&t=7
-redirect 301 /forums/app.php/help/faq https://www.filebot.net/forums/viewtopic.php?f=3&t=7
-
-
 # redirect donate page
 redirect 302 /donate.html https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=rednoah%40filebot%2enet&lc=US&item_name=FileBot%20Support&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
 
@@ -30,9 +24,16 @@ redirect 302 /syno/support.html https://www.filebot.net/forums/viewforum.php?f=1
 redirect 302 /channel.html https://discord.gg/cKVvZ2S
 
 
+# redirect forums links
+redirect 301 /forums https://www.filebot.net/forums/
+redirect 301 /forums/rules.php https://www.filebot.net/forums/viewtopic.php?f=5&t=1868
+redirect 301 /forums/faq.php https://www.filebot.net/forums/viewtopic.php?f=3&t=7
+redirect 301 /forums/app.php/help/faq https://www.filebot.net/forums/viewtopic.php?f=3&t=7
+
+
 # redirect filebot.sourceforge.net to www.filebot.net
 RewriteEngine on
 
 RewriteCond %{HTTP_HOST} ^filebot\.net$ [OR]
 RewriteCond %{HTTP_HOST} ^filebot\.sourceforge\.net$
-RewriteRule ^(.*)$ http://www.filebot.net/$1 [R=301,L]
+RewriteRule ^(.*)$ https://www.filebot.net/$1 [R=301,L]
