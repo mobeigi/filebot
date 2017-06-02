@@ -27,3 +27,19 @@ redirect 302 /channel.html https://discord.gg/cKVvZ2S
 redirect 302 /forums/rules.php https://www.filebot.net/forums/viewtopic.php?f=5&t=1868
 redirect 302 /forums/faq.php https://www.filebot.net/forums/viewtopic.php?f=3&t=7
 redirect 302 /forums/app.php/help/faq https://www.filebot.net/forums/viewtopic.php?f=3&t=7
+
+
+# cache static resources
+ExpiresActive on
+
+ExpiresByType text/plain                "access plus 1 week"
+ExpiresByType text/css                  "access plus 1 week"
+ExpiresByType application/javascript    "access plus 1 week"
+ExpiresByType application/json          "access plus 1 week"
+ExpiresByType application/xml           "access plus 1 week"
+ExpiresByType image/svg+xml             "access plus 1 week"
+ExpiresByType image/png                 "access plus 1 week"
+ExpiresByType image/gif                 "access plus 1 week"
+ExpiresByType image/png                 "access plus 1 week"
+ExpiresByType application/x-xz          "access plus 1 week"
+ExpiresByType image/x-icon              "access plus 1 year"
