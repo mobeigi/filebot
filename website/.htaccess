@@ -1,11 +1,10 @@
-# redirect to store
-redirect 302 /files/FileBot.app https://itunes.apple.com/us/app/filebot/id905384638?mt=12&uo=6&at=1l3vupy&ct=link
-redirect 302 /files/FileBot.appx https://www.microsoft.com/en-us/store/p/filebot/9nblggh52t9x?cid=link
-
-# redirect to download location
-redirect 302 /files/FileBot-setup.exe https://github.com/filebot/filebot-installer/releases/download/v1.0/FileBot-setup.exe
+# redirect to download links
 redirect 302 /files/FileBot_Subtitles_Installer.pkg https://downloads.sourceforge.net/project/filebot/filebot/LATEST/FileBot_Subtitles_Installer.pkg
-redirect 302 /files/ https://sourceforge.net/projects/filebot/files/
+redirect 302 /files/ https://downloads.sourceforge.net/filebot/
+
+# redirect to store
+redirect 302 /windows/purchase.html https://itunes.apple.com/us/app/filebot/id905384638?mt=12&uo=6&at=1l3vupy&ct=link
+redirect 302 /mac/purchase.html https://www.microsoft.com/en-us/store/p/filebot/9nblggh52t9x?cid=link
 
 # redirect donate page
 redirect 302 /donate.html https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=rednoah%40filebot%2enet&lc=US&item_name=FileBot%20Support&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
@@ -28,11 +27,3 @@ redirect 302 /channel.html https://discord.gg/cKVvZ2S
 redirect 302 /forums/rules.php https://www.filebot.net/forums/viewtopic.php?f=5&t=1868
 redirect 302 /forums/faq.php https://www.filebot.net/forums/viewtopic.php?f=3&t=7
 redirect 302 /forums/app.php/help/faq https://www.filebot.net/forums/viewtopic.php?f=3&t=7
-
-
-# redirect filebot.sourceforge.net to www.filebot.net
-RewriteEngine on
-
-RewriteCond %{HTTP_HOST} ^filebot\.net$ [OR]
-RewriteCond %{HTTP_HOST} ^filebot\.sourceforge\.net$
-RewriteRule ^(.*)$ https://www.filebot.net/$1 [R=301,L]
