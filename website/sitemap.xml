@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 <url>
-  <loc>http://www.filebot.net/</loc>
+  <loc>https://www.filebot.net/</loc>
   <changefreq>weekly</changefreq>
 </url>
 <url>
-  <loc>http://www.filebot.net/naming.html</loc>
+  <loc>https://www.filebot.net/naming.html</loc>
   <changefreq>weekly</changefreq>
 </url>
 <url>
-  <loc>http://www.filebot.net/cli.html</loc>
+  <loc>https://www.filebot.net/cli.html</loc>
   <changefreq>weekly</changefreq>
 </url>
 <url>
-  <loc>http://www.filebot.net/script.html</loc>
+  <loc>https://www.filebot.net/script.html</loc>
   <changefreq>weekly</changefreq>
 </url>
 <url>
-  <loc>http://www.filebot.net/forums/</loc>
+  <loc>https://www.filebot.net/forums/</loc>
   <changefreq>daily</changefreq>
 </url>
 </urlset>
