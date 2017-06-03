@@ -1,5 +1,5 @@
 # redirect to download links
-redirect 302 /files/FileBot_Subtitles_Installer.pkg https://downloads.sourceforge.net/project/filebot/filebot/LATEST/FileBot_Subtitles_Installer.pkg
+redirect 302 /files/FileBot_Subtitles.pkg https://downloads.sourceforge.net/project/filebot/filebot/LATEST/FileBot_Subtitles.pkg
 redirect 302 /files/ https://downloads.sourceforge.net/filebot/
 
 # redirect to store
