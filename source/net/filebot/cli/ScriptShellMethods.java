@@ -60,6 +60,10 @@ public class ScriptShellMethods {
 		return new File(self, path.getPath());
 	}
 
+	public static String negative(String self) {
+		return '-' + self;
+	}
+
 	public static String getAt(File self, int index) {
 		return FileUtilities.listPath(self).get(index).getName();
 	}
