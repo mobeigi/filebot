@@ -328,7 +328,7 @@ public class MediaBindingBean {
 		String codec = getMediaInfo(StreamKind.Video, 0, "Encoded_Library_Name", "Encoded_Library/Name", "CodecID/Hint", "Format");
 
 		// get first token (e.g. DivX 5 => DivX)
-		return tokenize(codec).findFirst().get();
+		return tokenize(codec).findFirst().orElse(null);
 	}
 
 	@Define("ac")
