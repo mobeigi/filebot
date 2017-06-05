@@ -29,7 +29,7 @@ public class AssociativeScriptObject extends GroovyObjectSupport implements Iter
 			return value;
 		}
 
-		return super.getProperty(name);
+		return super.getProperty(name); // throw MissingPropertyException
 	}
 
 	@Override

@@ -1230,7 +1230,18 @@ public class MediaBindingBean {
 				return null; // never throw exceptions for empty or null values
 			}
 		};
-		return new AssociativeScriptObject(new ExpressionBindings(mediaBindingBean));
+
+		return new AssociativeScriptObject(new ExpressionBindings(mediaBindingBean)) {
+
+			@Override
+			public Object getProperty(String name) {
+				try {
+					return super.getProperty(name);
+				} catch (Exception e) {
+					return null; // never throw exceptions for empty or null values
+				}
+			}
+		};
 	}
 
 	private AssociativeScriptObject createPropertyBindings(Object object) {
@@ -1239,12 +1250,11 @@ public class MediaBindingBean {
 			@Override
 			public Object getProperty(String name) {
 				Object value = super.getProperty(name);
+
 				if (value == null) {
 					return undefined(name);
 				}
-				if (value instanceof CharSequence) {
-					return replacePathSeparators(value.toString()).trim(); // auto-clean value of path separators
-				}
+
 				return value;
 			}
 		};
