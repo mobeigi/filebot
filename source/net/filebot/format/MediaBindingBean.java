@@ -1245,7 +1245,7 @@ public class MediaBindingBean {
 	}
 
 	private AssociativeScriptObject createPropertyBindings(Object object) {
-		return new AssociativeScriptObject(new PropertyBindings(object, null)) {
+		return new AssociativeScriptObject(new PropertyBindings(object)) {
 
 			@Override
 			public Object getProperty(String name) {

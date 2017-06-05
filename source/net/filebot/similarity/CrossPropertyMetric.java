@@ -1,28 +1,23 @@
 
 package net.filebot.similarity;
 
-
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import net.filebot.format.PropertyBindings;
 
-
 public class CrossPropertyMetric implements SimilarityMetric {
 
 	private SimilarityMetric metric;
-
 
 	public CrossPropertyMetric(SimilarityMetric metric) {
 		this.metric = metric;
 	}
 
-
 	public CrossPropertyMetric() {
 		this.metric = new StringEqualsMetric();
 	}
-
 
 	@Override
 	public float getSimilarity(Object o1, Object o2) {
@@ -53,9 +48,8 @@ public class CrossPropertyMetric implements SimilarityMetric {
 		return feedback / keys.size();
 	}
 
-
 	protected Map<String, Object> getProperties(Object object) {
-		return new PropertyBindings(object, null);
+		return new PropertyBindings(object);
 	}
 
 }
