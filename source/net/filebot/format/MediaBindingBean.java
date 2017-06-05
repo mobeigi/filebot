@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -728,7 +729,7 @@ public class MediaBindingBean {
 			if (infoObject instanceof Episode) {
 				SortOrder order = SortOrder.forName(k);
 				Episode episode = fetchEpisode(getEpisode(), order, null);
-				return createBindingObject(null, episode, null);
+				return createBindingObject(episode);
 			}
 			return undefined(k);
 		});
@@ -741,12 +742,12 @@ public class MediaBindingBean {
 
 			if (language != null && infoObject instanceof Movie) {
 				Movie movie = TheMovieDB.getMovieDescriptor(getMovie(), language.getLocale());
-				return createBindingObject(null, movie, null);
+				return createBindingObject(movie);
 			}
 
 			if (language != null && infoObject instanceof Episode) {
 				Episode episode = fetchEpisode(getEpisode(), null, language.getLocale());
-				return createBindingObject(null, episode, null);
+				return createBindingObject(episode);
 			}
 
 			return undefined(k);
@@ -1061,14 +1062,14 @@ public class MediaBindingBean {
 
 	@Define("self")
 	public AssociativeScriptObject getSelf() {
-		return createBindingObject(mediaFile, infoObject, context);
+		return createBindingObject(mediaFile, infoObject, context, property -> null);
 	}
 
 	@Define("model")
 	public List<AssociativeScriptObject> getModel() {
 		List<AssociativeScriptObject> result = new ArrayList<AssociativeScriptObject>();
 		for (Entry<File, ?> it : context.entrySet()) {
-			result.add(createBindingObject(it.getKey(), it.getValue(), context));
+			result.add(createBindingObject(it.getKey(), it.getValue(), context, property -> null));
 		}
 		return result;
 	}
@@ -1221,7 +1222,11 @@ public class MediaBindingBean {
 		});
 	}
 
-	private AssociativeScriptObject createBindingObject(File file, Object info, Map<File, ?> context) {
+	private AssociativeScriptObject createBindingObject(Object info) {
+		return createBindingObject(null, info, null, this::undefined);
+	}
+
+	private AssociativeScriptObject createBindingObject(File file, Object info, Map<File, ?> context, Function<String, Object> defaultValue) {
 		MediaBindingBean mediaBindingBean = new MediaBindingBean(info, file, context) {
 
 			@Override
@@ -1231,33 +1236,11 @@ public class MediaBindingBean {
 			}
 		};
 
-		return new AssociativeScriptObject(new ExpressionBindings(mediaBindingBean)) {
-
-			@Override
-			public Object getProperty(String name) {
-				try {
-					return super.getProperty(name);
-				} catch (Exception e) {
-					return null; // never throw exceptions for empty or null values
-				}
-			}
-		};
+		return new AssociativeScriptObject(new ExpressionBindings(mediaBindingBean), defaultValue);
 	}
 
 	private AssociativeScriptObject createPropertyBindings(Object object) {
-		return new AssociativeScriptObject(new PropertyBindings(object)) {
-
-			@Override
-			public Object getProperty(String name) {
-				Object value = super.getProperty(name);
-
-				if (value == null) {
-					return undefined(name);
-				}
-
-				return value;
-			}
-		};
+		return new AssociativeScriptObject(new PropertyBindings(object), this::undefined);
 	}
 
 	private List<AssociativeScriptObject> createMediaInfoBindings(StreamKind kind) {

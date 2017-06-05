@@ -176,12 +176,12 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	// define global variable: _system
 	public AssociativeScriptObject get_system() {
-		return new AssociativeScriptObject(System.getProperties());
+		return new AssociativeScriptObject(System.getProperties(), property -> null);
 	}
 
 	// define global variable: _environment
 	public AssociativeScriptObject get_environment() {
-		return new AssociativeScriptObject(System.getenv());
+		return new AssociativeScriptObject(System.getenv(), property -> null);
 	}
 
 	// Complete or session rename history

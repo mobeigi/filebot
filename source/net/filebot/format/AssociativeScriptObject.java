@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Function;
 
 import groovy.lang.GroovyObjectSupport;
 
@@ -17,13 +18,33 @@ public class AssociativeScriptObject extends GroovyObjectSupport implements Iter
 
 	private final Map<Object, Object> properties;
 
+	private final Function<String, Object> defaultValue;
+
 	public AssociativeScriptObject(Map<?, ?> properties) {
 		this.properties = new LenientLookup(properties);
+
+		// throw MissingPropertyException
+		this.defaultValue = super::getProperty;
+	}
+
+	public AssociativeScriptObject(Map<?, ?> properties, Function<String, Object> defaultValue) {
+		this.properties = new LenientLookup(properties);
+		this.defaultValue = defaultValue;
 	}
 
 	@Override
 	public Object getProperty(String name) {
-		return properties.get(name);
+		Object value = properties.get(name);
+
+		if (value == null) {
+			return defaultValue.apply(name);
+		}
+
+		return value;
+	}
+
+	public Object getDefaultProperty(String name) {
+		return super.getProperty(name);
 	}
 
 	@Override
