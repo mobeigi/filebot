@@ -23,13 +23,7 @@ public class AssociativeScriptObject extends GroovyObjectSupport implements Iter
 
 	@Override
 	public Object getProperty(String name) {
-		Object value = properties.get(name);
-
-		if (value != null) {
-			return value;
-		}
-
-		return super.getProperty(name); // throw MissingPropertyException
+		return properties.get(name);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 
 package net.filebot.format;
 
+import static net.filebot.util.ExceptionUtilities.*;
 
 import java.lang.reflect.Method;
 import java.util.AbstractMap;
@@ -8,7 +9,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
 
 /*
  * Used to create a map view of the properties of an Object
@@ -18,12 +18,8 @@ public class PropertyBindings extends AbstractMap<String, Object> {
 	private final Object object;
 	private final Map<String, Object> properties = new TreeMap<String, Object>(String.CASE_INSENSITIVE_ORDER);
 
-	private final Object defaultValue;
-
-
-	public PropertyBindings(Object object, Object defaultValue) {
+	public PropertyBindings(Object object) {
 		this.object = object;
-		this.defaultValue = defaultValue;
 
 		// get method bindings
 		for (Method method : object.getClass().getMethods()) {
@@ -34,13 +30,12 @@ public class PropertyBindings extends AbstractMap<String, Object> {
 				}
 
 				// boolean properties
-				if (method.getName().length() > 2 && method.getName().substring(0, 3).equalsIgnoreCase("is")) {
+				if (method.getName().length() > 2 && method.getName().substring(0, 2).equalsIgnoreCase("is")) {
 					properties.put(method.getName().substring(2), method);
 				}
 			}
 		}
 	}
-
 
 	@Override
 	public Object get(Object key) {
@@ -50,54 +45,43 @@ public class PropertyBindings extends AbstractMap<String, Object> {
 		if (value instanceof Method) {
 			try {
 				value = ((Method) value).invoke(object);
-
-				if (value == null) {
-					value = defaultValue;
-				}
 			} catch (Exception e) {
-				throw new RuntimeException(e);
+				throw new BindingException(key, getRootCauseMessage(e), e);
 			}
 		}
 
 		return value;
 	}
 
-
 	@Override
 	public Object put(String key, Object value) {
 		return properties.put(key, value);
 	}
-
 
 	@Override
 	public Object remove(Object key) {
 		return properties.remove(key);
 	}
 
-
 	@Override
 	public boolean containsKey(Object key) {
 		return properties.containsKey(key);
 	}
-
 
 	@Override
 	public Set<String> keySet() {
 		return properties.keySet();
 	}
 
-
 	@Override
 	public boolean isEmpty() {
 		return properties.isEmpty();
 	}
 
-
 	@Override
 	public String toString() {
 		return properties.toString();
 	}
-
 
 	@Override
 	public Set<Entry<String, Object>> entrySet() {
@@ -111,12 +95,10 @@ public class PropertyBindings extends AbstractMap<String, Object> {
 					return key;
 				}
 
-
 				@Override
 				public Object getValue() {
 					return get(key);
 				}
-
 
 				@Override
 				public Object setValue(Object value) {

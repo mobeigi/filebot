@@ -6,11 +6,11 @@ public class BindingException extends RuntimeException {
 		super(message, cause);
 	}
 
-	public BindingException(String binding, String innerMessage) {
+	public BindingException(Object binding, String innerMessage) {
 		this(binding, innerMessage, null);
 	}
 
-	public BindingException(String binding, String innerMessage, Throwable cause) {
+	public BindingException(Object binding, String innerMessage, Throwable cause) {
 		this(String.format("Binding \"%s\": %s", binding, innerMessage), cause);
 	}
 
