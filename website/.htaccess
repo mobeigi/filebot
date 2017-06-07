@@ -29,6 +29,10 @@ redirect 302 /forums/faq.php https://www.filebot.net/forums/viewtopic.php?f=3&t=
 redirect 302 /forums/help/faq https://www.filebot.net/forums/viewtopic.php?f=3&t=7
 
 
+# disable directory index
+Options -Indexes
+
+
 # cache static resources
 ExpiresActive on
 
