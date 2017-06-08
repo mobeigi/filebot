@@ -1014,7 +1014,7 @@
 		<gpg-sign>
 			<fileset dir="${dir.release}" includes="*.jar.xz" />
 		</gpg-sign>
-		<release-deploy todir="${deploy.release}/HEAD">
+		<release-deploy todir="${deploy.release}/latest">
 			<fileset dir="${dir.release}" includes="*.jar.xz.gpg" />
 		</release-deploy>
 	</target>
