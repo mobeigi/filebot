@@ -24,32 +24,13 @@ cd "$WORKING_DIR"
 # update core application files
 PACKAGE_NAME="FileBot.jar.xz.gpg"
 PACKAGE_FILE="$APP_ROOT/$PACKAGE_NAME"
-PACKAGE_URL="https://downloads.sourceforge.net/filebot/filebot/HEAD/$PACKAGE_NAME"
-
-# check if file has changed
-PACKAGE_HASH_EXPECTED=`curl --silent --retry 5 "$PACKAGE_URL/list" | egrep -o "\b[a-z0-9]{32}\b"`
-PACKAGE_HASH=`openssl dgst -md5 "$PACKAGE_FILE" | egrep -o "\b[a-z0-9]{32}\b"`
-
-if [ -z "$PACKAGE_HASH_EXPECTED" ]; then
-	echo "hash unknown"
-	exit 1
-fi
-
-if [ "$PACKAGE_HASH" == "$PACKAGE_HASH_EXPECTED" ]; then
-	echo "$PACKAGE_FILE [$PACKAGE_HASH]"
-	exit 0
-fi
+PACKAGE_URL="https://get.filebot.net/filebot/latest/$PACKAGE_NAME"
 
 echo "Update $PACKAGE_FILE"
-curl -L -o "$PACKAGE_FILE" -z "$PACKAGE_FILE" --retry 5 "$PACKAGE_URL"	# FRS will redirect to (unsecure) HTTP download link
+HTTP_CODE=`curl -L -o "$PACKAGE_FILE" -z "$PACKAGE_FILE" --retry 5 "$PACKAGE_URL" -w "%{http_code}"`
 
-# check if file has been corrupted (or modified) in transit
-PACKAGE_HASH=`openssl dgst -md5 "$PACKAGE_FILE" | egrep -o "\b[a-z0-9]{32}\b"`
-echo "$PACKAGE_FILE [$PACKAGE_HASH]"
-
-if [ "$PACKAGE_HASH" != "$PACKAGE_HASH_EXPECTED" ]; then
-	echo "HASH hash mismatch [$PACKAGE_HASH_EXPECTED]"
-	rm -vf "$PACKAGE_FILE"
+if [ $HTTP_CODE -ne 200 ]; then
+	echo "$HTTP_CODE NO UPDATE"
 	exit 1
 fi
 
