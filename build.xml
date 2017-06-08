@@ -885,6 +885,11 @@
 			<fileset dir="${dir.cache}/${release}" includes="*.sha256" />
 			<fileset file="${dir.installer}/ant/digest.tail.md" />
 		</concat>
+
+		<!-- include source tarball -->
+		<tar destfile="${dir.release}/FRS/${release}/${package.name}-${version}-src.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
+			<tarfileset dir="${dir.source}" />
+		</tar>
 	</target>
 
 
