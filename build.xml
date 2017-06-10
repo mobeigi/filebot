@@ -950,10 +950,10 @@
 
 
 	<target name="deploy-synology" description="Update Synology Package Source" depends="init">
-		<mkdir dir="${dir.dist}/website/syno" />
+		<mkdir dir="${dir.dist}/syno" />
 
 		<!-- merge all filebot related packages into a single package source file -->
-		<package-source file="${dir.dist}/website/syno/index.json">
+		<package-source file="${dir.dist}/syno/index.json">
 			<keyring file="${dir.installer}/gpg/FileBot.pub" />
 			<spk file="${dir.release}/${package.name}-${version}-noarch.spk">
 				<info name="link" value="https://downloads.sourceforge.net/project/filebot/filebot/${release}/${package.name}-${version}-noarch.spk" />
@@ -966,8 +966,8 @@
 		</package-source>
 
 		<!-- upload -->
-		<release-deploy todir="${deploy.website}/syno">
-			<fileset dir="${dir.dist}/website/syno" includes="*.json" />
+		<release-deploy todir="${deploy.release}/syno">
+			<fileset dir="${dir.dist}/syno" />
 		</release-deploy>
 	</target>
 
