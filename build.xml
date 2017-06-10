@@ -958,8 +958,8 @@
 			<keyring file="${dir.installer}/gpg/FileBot.pub" />
 			<spk file="${dir.release}/${package.name}-${version}-noarch.spk">
 				<info name="link" value="https://downloads.sourceforge.net/project/filebot/filebot/${release}/${package.name}-${version}-noarch.spk" />
-				<thumbnail url="https://app.filebot.net/syno/filebot-thumbnail.png" />
-				<snapshot url="https://app.filebot.net/syno/filebot-snapshot.png" />
+				<thumbnail url="https://www.filebot.net/syno/filebot-thumbnail.png" />
+				<snapshot url="https://www.filebot.net/syno/filebot-snapshot.png" />
 			</spk>
 			<source url="https://raw.githubusercontent.com/filebot/filebot-node/master/spksrc.json" />
 			<source url="https://raw.githubusercontent.com/rednoah/java-installer/master/spksrc.json" />
