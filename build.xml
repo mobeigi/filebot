@@ -894,10 +894,9 @@
 
 
 	<target name="deploy-release" depends="stage-release" description="Upload release files to SourceForge.net FRS">
-		<release-deploy todir="${deploy.release}">
+		<release-deploy todir="${deploy.release}/${package.name}">
 			<fileset dir="${dir.release}/FRS" includes="**/*.md" />
-			<fileset dir="${dir.release}/FRS" includes="**/*spk*" />
-			<fileset dir="${dir.release}/FRS" includes="**/*darwin*" />
+			<fileset dir="${dir.release}/FRS" includes="**/*.spk" />
 			<fileset dir="${dir.release}/FRS" includes="**/*.gpg" />
 		</release-deploy>
 	</target>
@@ -991,7 +990,7 @@
 		<gpg-sign>
 			<fileset dir="${dir.release}" includes="*.jar.xz" />
 		</gpg-sign>
-		<release-deploy todir="${deploy.release}/latest">
+		<release-deploy todir="${deploy.release}/${package.name}/latest">
 			<fileset dir="${dir.release}" includes="*.jar.xz.gpg" />
 		</release-deploy>
 	</target>
@@ -1000,7 +999,7 @@
 	<target name="deploy-beta-release" description="Build and deploy the latest release files">
 		<input addproperty="mark" message="Mark:" />
 		<antcall target="deploy-release">
-			<param name="deploy.release" value="${deploy.release}/HEAD" />
+			<param name="deploy.release" value="${deploy.release}/${package.name}/latest" />
 			<param name="release" value="${release}_${mark}" />
 			<param name="dir.release" location="${dir.dist}/beta/release/${release}" />
 			<param name="dir.cache" location="${dir.dist}/beta/cache/${release}" />
