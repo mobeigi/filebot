@@ -48,8 +48,15 @@ public class AutoDetection {
 	private Locale locale;
 
 	public AutoDetection(Collection<File> root, boolean resolve, Locale locale) {
-		this.files = (resolve ? resolve(root.stream().map(FastFile::new), getSystemFilesFilter()) : root.stream()).toArray(File[]::new);
 		this.locale = locale;
+
+		// require a set of distinct files
+		this.files = root.stream().sorted().distinct().map(FastFile::new).toArray(File[]::new);
+
+		// resolve folders if required
+		if (resolve) {
+			this.files = resolve(stream(files), getSystemFilesFilter()).toArray(File[]::new);
+		}
 	}
 
 	protected Stream<File> resolve(Stream<File> root, FileFilter excludes) {
