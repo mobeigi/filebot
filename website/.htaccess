@@ -2,6 +2,10 @@
 redirect 302 /files/FileBot_Subtitles.pkg https://downloads.sourceforge.net/project/filebot/filebot/LATEST/FileBot_Subtitles.pkg
 redirect 302 /files/ https://downloads.sourceforge.net/filebot/
 
+# redirect to store
+redirect 302 /windows/purchase.html https://www.microsoft.com/en-us/store/p/filebot/9nblggh52t9x?cid=purchase
+redirect 302 /mac/purchase.html https://itunes.apple.com/us/app/filebot/id905384638?mt=12&uo=6&at=1l3vupy&ct=purchase
+
 # redirect donate page
 redirect 302 /donate.html https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=rednoah%40filebot%2enet&lc=US&item_name=FileBot%20Support&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
 
