@@ -13,6 +13,7 @@ import java.io.StringWriter;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
@@ -113,7 +114,7 @@ public final class Logging {
 
 	private static String getMessage(String m, Throwable t) {
 		// try to unravel stacked exceptions
-		if (t instanceof RuntimeException && t.getCause() != null) {
+		if (t.getCause() != null && (t instanceof RuntimeException || t instanceof ExecutionException)) {
 			return getMessage(m, t.getCause());
 		}
 

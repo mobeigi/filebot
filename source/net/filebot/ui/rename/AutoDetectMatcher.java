@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutorService;
@@ -44,17 +43,21 @@ class AutoDetectMatcher implements AutoCompleteMatcher {
 		// can't use parallel stream because default fork/join pool doesn't play well with the security manager
 		ExecutorService workerThreadPool = Executors.newFixedThreadPool(getPreferredThreadPoolSize());
 		try {
-			Map<Group, Future<List<Match<File, ?>>>> matches = groups.entrySet().stream().collect(toMap(Entry::getKey, it -> {
+			// match groups in parallel
+			List<Future<List<Match<File, ?>>>> matches = groups.entrySet().stream().filter(it -> {
+				return it.getKey().types().length == 1; // unambiguous group
+			}).map(it -> {
 				return workerThreadPool.submit(() -> match(it.getKey(), it.getValue(), strict, order, locale, autodetection, parent));
-			}));
+			}).collect(toList());
 
 			// collect results
-			return matches.entrySet().stream().flatMap(it -> {
+			return matches.stream().flatMap(it -> {
 				try {
-					return it.getValue().get().stream();
+					return it.get().stream();
 				} catch (Exception e) {
+					// CancellationException is expected
 					if (findCause(e, CancellationException.class) == null) {
-						log.log(Level.WARNING, "Failed group: " + it.getKey(), e);
+						log.log(Level.WARNING, e, cause("Failed to match group", e));
 					}
 					return Stream.empty();
 				}
@@ -65,22 +68,18 @@ class AutoDetectMatcher implements AutoCompleteMatcher {
 	}
 
 	private List<Match<File, ?>> match(Group group, Collection<File> files, boolean strict, SortOrder order, Locale locale, boolean autodetection, Component parent) throws Exception {
-		if (group.types().length == 1) {
-			for (Type key : group.types()) {
-				switch (key) {
-				case Movie:
-					return movie.match(files, strict, order, locale, autodetection, parent);
-				case Series:
-					return episode.match(files, strict, order, locale, autodetection, parent);
-				case Anime:
-					return anime.match(files, strict, order, locale, autodetection, parent);
-				case Music:
-					return music.match(files, strict, order, locale, autodetection, parent);
-				}
+		for (Type key : group.types()) {
+			switch (key) {
+			case Movie:
+				return movie.match(files, strict, order, locale, autodetection, parent);
+			case Series:
+				return episode.match(files, strict, order, locale, autodetection, parent);
+			case Anime:
+				return anime.match(files, strict, order, locale, autodetection, parent);
+			case Music:
+				return music.match(files, strict, order, locale, autodetection, parent);
 			}
 		}
-
-		debug.info(format("Ignore group: %s", group));
 		return emptyList();
 	}
 
