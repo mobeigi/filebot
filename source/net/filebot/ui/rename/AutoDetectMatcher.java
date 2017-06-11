@@ -68,19 +68,27 @@ class AutoDetectMatcher implements AutoCompleteMatcher {
 	}
 
 	private List<Match<File, ?>> match(Group group, Collection<File> files, boolean strict, SortOrder order, Locale locale, boolean autodetection, Component parent) throws Exception {
+		AutoCompleteMatcher m = getMatcher(group);
+		if (m != null) {
+			return m.match(files, strict, order, locale, autodetection, parent);
+		}
+		return emptyList();
+	}
+
+	private AutoCompleteMatcher getMatcher(Group group) {
 		for (Type key : group.types()) {
 			switch (key) {
 			case Movie:
-				return movie.match(files, strict, order, locale, autodetection, parent);
+				return movie;
 			case Series:
-				return episode.match(files, strict, order, locale, autodetection, parent);
+				return episode;
 			case Anime:
-				return anime.match(files, strict, order, locale, autodetection, parent);
+				return anime;
 			case Music:
-				return music.match(files, strict, order, locale, autodetection, parent);
+				return music;
 			}
 		}
-		return emptyList();
+		return null;
 	}
 
 }
