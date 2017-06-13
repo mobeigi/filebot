@@ -889,11 +889,22 @@
 
 
 	<target name="deploy-release" depends="stage-release" description="Upload release files to SourceForge.net FRS">
-		<release-deploy todir="${deploy.release}/${package.name}">
-			<fileset dir="${dir.release}/FRS" includes="**/*.md" />
-			<fileset dir="${dir.release}/FRS" includes="**/*.tar.xz" />
-			<fileset dir="${dir.release}/FRS" includes="**/*.spk" />
-			<fileset dir="${dir.release}/FRS" includes="**/*.gpg" />
+		<property name="mirror" location="${dir.cache}/${release}/FRS" />
+
+		<copy todir="${mirror}/${package.name}/${release}" verbose="yes">
+			<fileset dir="${dir.release}">
+				<include name="*.gpg" />
+				<include name="*.spk" />
+				<include name="*-src.tar.xz" />
+				<include name="*.md" />
+			</fileset>
+		</copy>
+
+		<release-deploy todir="${deploy.release.mirror}">
+			<fileset dir="${mirror}" includes="**/*.md" />
+			<fileset dir="${mirror}" includes="**/*-src.tar.xz" />
+			<fileset dir="${mirror}" includes="**/*.spk" />
+			<fileset dir="${mirror}" includes="**/*.gpg" />
 		</release-deploy>
 	</target>
 
