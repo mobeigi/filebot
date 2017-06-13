@@ -15,7 +15,6 @@
 	<property file="${dir.source}/net/filebot/Settings.properties" />
 
 	<property name="release" value="${application.name}_${application.version}" />
-	<property name="version" value="${application.version}" />
 
 	<!-- define output paths -->
 	<property name="dir.cache" location="${basedir}/cache" />
@@ -337,7 +336,7 @@
 
 
 	<target name="appbundle" description="Build Mac application bundle" depends="revision">
-		<bundleapp outputdirectory="${dir.dist}" executablename="filebot.launcher" hidedockicon="true" minimumsystemversion="${mac.version}" jvmrequired="${jvm.version}" name="${application.name}" displayname="${application.name} ${version}" version="${revision}" shortversion="${version}" identifier="${package.identifier}.Command" mainclassname="${main.class}" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} ${package.developer}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
+		<bundleapp outputdirectory="${dir.dist}" executablename="filebot.launcher" hidedockicon="true" minimumsystemversion="${mac.version}" jvmrequired="${jvm.version}" name="${application.name}" displayname="${application.name} ${application.version}" version="${revision}" shortversion="${application.version}" identifier="${package.identifier}.Command" mainclassname="${main.class}" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} ${package.developer}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<librarypath dir="${dir.installer}/appbundle/MacOS" />
@@ -413,7 +412,7 @@
 
 	<target name="appbundle-maspkg" depends="revision">
 		<property name="path.app" location="${dir.dist}/${application.name}.app" />
-		<property name="path.pkg" location="${dir.dist}/${application.name}_${version}_r${revision}.pkg" />
+		<property name="path.pkg" location="${dir.dist}/${application.name}_${application.version}_r${revision}.pkg" />
 
 		<property name="path.app.jre" location="${path.app}/Contents/PlugIns/jre1.${jre.major}.0_${jre.build}.jre" />
 		<property name="jre.path" location="${dir.cache}/jre1.${jre.major}.0_${jre.build}.jre/Contents/Home" />
@@ -436,7 +435,7 @@
 		<replace file="${jre.path}/../Info.plist" token="com.oracle.java.${jre.major}u${jre.build}.jre" value="${application.identifier}.jre" encoding="UTF-8" />
 
 
-		<bundleapp jvmrequired="${jvm.version}" minimumsystemversion="${mac.version}" outputdirectory="${dir.dist}" executablename="${application.executable}" name="${application.name}" displayname="${application.name}" version="${revision}" shortversion="${version}" identifier="${application.identifier}" mainclassname="${main.class}" icon="${application.icon}" copyright="${tstamp.year} ${package.company}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
+		<bundleapp jvmrequired="${jvm.version}" minimumsystemversion="${mac.version}" outputdirectory="${dir.dist}" executablename="${application.executable}" name="${application.name}" displayname="${application.name}" version="${revision}" shortversion="${application.version}" identifier="${application.identifier}" mainclassname="${main.class}" icon="${application.icon}" copyright="${tstamp.year} ${package.company}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
 			<classpath dir="${dir.dist}/lib" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 
@@ -592,7 +591,7 @@
 		<!-- jdeb does not support tarfileset fullpath attribute (see https://github.com/tcurdt/jdeb/issues/245) -->
 		<copy file="${path.fatjar}" tofile="${dir.staging}/FileBot.jar" />
 
-		<jdeb destfile="${dir.dist}/${package.name}_${version}_${deb.arch}.deb" control="${dir.staging}/control" compression="xz" verbose="true">
+		<jdeb destfile="${dir.dist}/${package.name}_${application.version}_${deb.arch}.deb" control="${dir.staging}/control" compression="xz" verbose="true">
 			<tarfileset prefix="/usr/share/filebot" dir="${dir.staging}" includes="*.jar" />
 			<tarfileset prefix="/usr/share/filebot" dir="${dir.staging}" includes="*.sh" filemode="755" />
 			<tarfileset prefix="/usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="fpcalc" filemode="755" />
@@ -692,7 +691,7 @@
 
 
 	<target name="spk" description="Build Synology NAS package" depends="revision">
-		<spk destdir="${dir.dist}" name="${package.name}" version="${version}" arch="noarch" compression="xz">
+		<spk destdir="${dir.dist}" name="${package.name}" version="${application.version}" arch="noarch" compression="xz">
 			<info name="displayname" value="${application.name}" />
 			<info name="description" value="${package.description}" />
 			<info name="maintainer" value="${package.project}" />
@@ -868,26 +867,22 @@
 			</fileset>
 		</gpg-sign>
 
-		<!-- move to final staging folder -->
-		<mkdir dir="${dir.release}/FRS/${release}" />
-		<copy todir="${dir.release}/FRS/${release}" verbose="yes">
+
+		<checksum algorithm="SHA-256" pattern="{0}	{1}" todir="${dir.cache}/${release}/sha">
 			<fileset dir="${dir.release}">
 				<include name="*.gpg" />
 				<include name="*.spk" />
 			</fileset>
-		</copy>
-
-		<checksum algorithm="SHA-256" pattern="{0}	{1}" todir="${dir.cache}/${release}" fileext=".sha256">
-			<fileset dir="${dir.release}/FRS/${release}" excludes="*.asc" />
 		</checksum>
-		<concat destfile="${dir.release}/FRS/${release}/README.md" overwrite="true" eol="unix" outputencoding="utf-8">
+		<concat destfile="${dir.release}/README.md" overwrite="true" eol="unix" outputencoding="utf-8">
 			<fileset file="${dir.installer}/ant/digest.head.md" />
-			<fileset dir="${dir.cache}/${release}" includes="*.sha256" />
+			<fileset dir="${dir.cache}/${release}/sha" />
 			<fileset file="${dir.installer}/ant/digest.tail.md" />
 		</concat>
 
+
 		<!-- include source tarball -->
-		<tar destfile="${dir.release}/FRS/${release}/${package.name}-${version}-src.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
+		<tar destfile="${dir.release}/${package.name}-${application.version}-src.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
 			<tarfileset dir="${dir.source}" />
 		</tar>
 	</target>
@@ -899,6 +894,40 @@
 			<fileset dir="${dir.release}/FRS" includes="**/*.tar.xz" />
 			<fileset dir="${dir.release}/FRS" includes="**/*.spk" />
 			<fileset dir="${dir.release}/FRS" includes="**/*.gpg" />
+		</release-deploy>
+	</target>
+
+
+	<target name="deploy-jar" depends="fatjar" description="Build and deploy the latest jar">
+		<xz src="${path.fatjar}" destfile="${dir.release}/FileBot.jar.xz" />
+		<gpg-sign>
+			<fileset dir="${dir.release}" includes="*.jar.xz" />
+		</gpg-sign>
+		<release-deploy todir="${deploy.release}/${package.name}/latest">
+			<fileset dir="${dir.release}" includes="*.jar.xz.gpg" />
+		</release-deploy>
+	</target>
+
+
+	<target name="deploy-synology" description="Update Synology Package Source" depends="init">
+		<mkdir dir="${dir.dist}/syno" />
+
+		<!-- merge all filebot related packages into a single package source file -->
+		<package-source file="${dir.dist}/syno/index.json">
+			<keyring file="${dir.installer}/gpg/FileBot.pub" />
+			<spk file="${dir.release}/${package.name}-${application.version}-noarch.spk">
+				<info name="link" value="https://downloads.sourceforge.net/project/filebot/filebot/${release}/${package.name}-${application.version}-noarch.spk" />
+				<thumbnail url="https://www.filebot.net/syno/filebot-thumbnail.png" />
+				<snapshot url="https://www.filebot.net/syno/filebot-snapshot.png" />
+			</spk>
+			<source url="https://raw.githubusercontent.com/filebot/filebot-node/master/spksrc.json" />
+			<source url="https://raw.githubusercontent.com/rednoah/java-installer/master/spksrc.json" />
+			<source url="https://raw.githubusercontent.com/rednoah/ant-installer/master/spksrc.json" />
+		</package-source>
+
+		<!-- upload -->
+		<release-deploy todir="${deploy.release}">
+			<fileset dir="${dir.dist}" includes="syno/**" />
 		</release-deploy>
 	</target>
 
@@ -950,61 +979,15 @@
 	</target>
 
 
-	<target name="deploy-synology" description="Update Synology Package Source" depends="init">
-		<mkdir dir="${dir.dist}/syno" />
-
-		<!-- merge all filebot related packages into a single package source file -->
-		<package-source file="${dir.dist}/syno/index.json">
-			<keyring file="${dir.installer}/gpg/FileBot.pub" />
-			<spk file="${dir.release}/${package.name}-${version}-noarch.spk">
-				<info name="link" value="https://downloads.sourceforge.net/project/filebot/filebot/${release}/${package.name}-${version}-noarch.spk" />
-				<thumbnail url="https://www.filebot.net/syno/filebot-thumbnail.png" />
-				<snapshot url="https://www.filebot.net/syno/filebot-snapshot.png" />
-			</spk>
-			<source url="https://raw.githubusercontent.com/filebot/filebot-node/master/spksrc.json" />
-			<source url="https://raw.githubusercontent.com/rednoah/java-installer/master/spksrc.json" />
-			<source url="https://raw.githubusercontent.com/rednoah/ant-installer/master/spksrc.json" />
-		</package-source>
-
-		<!-- upload -->
-		<release-deploy todir="${deploy.release}/syno">
-			<fileset dir="${dir.dist}/syno" />
-		</release-deploy>
-	</target>
-
-
 	<target name="upload-data" description="Upload data files" depends="init">
-		<release-deploy todir="${deploy.website}/data">
-			<fileset dir="${dir.website}/data">
-				<include name=".htaccess" />
-				<include name="*.txt.xz" />
+		<release-deploy todir="${deploy.website}">
+			<fileset dir="${dir.website}">
+				<include name="data/**" />
 				<modified>
 					<param name="cache.cachefile" value="${dir.cache}/scp.cache" />
 				</modified>
 			</fileset>
 		</release-deploy>
-	</target>
-
-
-	<target name="deploy-beta-jar" depends="fatjar" description="Build and deploy the latest jar">
-		<xz src="${path.fatjar}" destfile="${dir.release}/FileBot.jar.xz" />
-		<gpg-sign>
-			<fileset dir="${dir.release}" includes="*.jar.xz" />
-		</gpg-sign>
-		<release-deploy todir="${deploy.release}/${package.name}/latest">
-			<fileset dir="${dir.release}" includes="*.jar.xz.gpg" />
-		</release-deploy>
-	</target>
-
-
-	<target name="deploy-beta-release" description="Build and deploy the latest release files">
-		<input addproperty="mark" message="Mark:" />
-		<antcall target="deploy-release">
-			<param name="deploy.release" value="${deploy.release}/${package.name}/latest" />
-			<param name="release" value="${release}_${mark}" />
-			<param name="dir.release" location="${dir.dist}/beta/release/${release}" />
-			<param name="dir.cache" location="${dir.dist}/beta/cache/${release}" />
-		</antcall>
 	</target>
 
 
