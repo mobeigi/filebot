@@ -93,7 +93,7 @@ public class MainFrame extends JFrame {
 		});
 
 		setSize(1060, 650);
-		setMinimumSize(new Dimension(900, 525));
+		setMinimumSize(new Dimension(900, 340));
 
 		// KEYBOARD SHORTCUTS
 		installAction(getRootPane(), getKeyStroke(VK_DELETE, CTRL_MASK | SHIFT_MASK), newAction("Clear Cache", evt -> {
