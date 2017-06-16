@@ -1244,7 +1244,7 @@ public class MediaBindingBean {
 	}
 
 	private List<AssociativeScriptObject> createMediaInfoBindings(StreamKind kind) {
-		return getMediaInfo().snapshot().get(kind).stream().map(AssociativeScriptObject::new).collect(toList());
+		return getMediaInfo().snapshot().get(kind).stream().map(m -> new AssociativeScriptObject(m, this::undefined)).collect(toList());
 	}
 
 	private String[] getFileNames(File file) {
