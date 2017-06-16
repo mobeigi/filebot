@@ -408,6 +408,13 @@ public class MediaBindingBean {
 		return BigDecimal.valueOf(d).setScale(1, RoundingMode.HALF_UP).toPlainString();
 	}
 
+	@Define("aco")
+	public String getAudioChannelObjects() {
+		return getMediaInfo(StreamKind.Audio, "Codec_Profile").filter(Objects::nonNull).map(s -> {
+			return SLASH.splitAsStream(s).findFirst().orElse(null);
+		}).filter(Objects::nonNull).map(String::trim).filter(s -> s.length() > 0).findFirst().orElse(null);
+	}
+
 	@Define("resolution")
 	public String getVideoResolution() {
 		return join(getDimension(), "x"); // e.g. 1280x720
