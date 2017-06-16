@@ -1143,7 +1143,7 @@ public class MediaBindingBean {
 		return getSeriesInfo();
 	}
 
-	private final Resource<MovieInfo> primaryMovieInfo = Resource.lazy(() -> TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false));
+	private final Resource<MovieInfo> primaryMovieInfo = Resource.lazy(() -> TheMovieDB.getMovieInfo(getMovie(), Locale.US, false));
 	private final Resource<MovieInfo> extendedMovieInfo = Resource.lazy(() -> getMovieInfo(getMovie().getLanguage(), true));
 
 	public MovieInfo getPrimaryMovieInfo() {
@@ -1166,7 +1166,7 @@ public class MediaBindingBean {
 		Movie m = getMovie();
 
 		if (m.getTmdbId() > 0)
-			return TheMovieDB.getMovieInfo(m, locale == null ? Locale.ENGLISH : locale, extendedInfo);
+			return TheMovieDB.getMovieInfo(m, locale == null ? Locale.US : locale, extendedInfo);
 		if (m.getImdbId() > 0)
 			return OMDb.getMovieInfo(m);
 
