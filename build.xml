@@ -343,6 +343,8 @@
 
 			<arch name="x86_64" />
 
+			<argument value="-help" />
+
 			<option value="-Dapplication.deployment=app" />
 			<option value="-Dapplication.update=auto" />
 			<option value="-Dunixfs=false" />
@@ -360,10 +362,6 @@
 			<option value="-Xdock:name=${application.name}" />
 			<option value="-Xdock:icon=Contents/Resources/filebot.icns" />
 			<option value="-Dapple.laf.useScreenMenuBar=true" />
-
-			<bundledocument role="viewer" handlerRank="none" contentTypes="public.movie" name="Video file" />
-			<bundledocument role="viewer" handlerRank="none" contentTypes="public.audio" name="Audio file" />
-			<bundledocument role="viewer" handlerRank="none" contentTypes="public.folder" name="Media folder" />
 		</bundleapp>
 
 		<!-- application bundle folder as tar -->
