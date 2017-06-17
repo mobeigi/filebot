@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.text.CollationKey;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -1100,11 +1102,12 @@ public class MediaDetection {
 			filesByExtension.stream().collect(groupingBy(f -> {
 				if (VIDEO_FILES.accept(f) && f.length() > ONE_MEGABYTE) {
 					try (MediaInfo mi = new MediaInfo().open(f)) {
+						Object d = Duration.ofMillis(Long.parseLong(mi.get(StreamKind.General, 0, "Duration"))).toMinutes() < 10 ? ChronoUnit.MINUTES : ChronoUnit.HOURS;
 						String v = mi.get(StreamKind.Video, 0, "Codec");
 						String a = mi.get(StreamKind.Audio, 0, "Codec");
 						String w = mi.get(StreamKind.Video, 0, "Width");
 						String h = mi.get(StreamKind.Video, 0, "Height");
-						return asList(v, a, w, h);
+						return asList(d, v, a, w, h);
 					} catch (Exception e) {
 						debug.warning(format("Failed to read media characteristics: %s", e.getMessage()));
 					}
