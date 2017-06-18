@@ -990,7 +990,7 @@
 	<target name="upload-data" description="Upload data files" depends="init">
 		<release-deploy todir="${deploy.website}">
 			<fileset dir="${dir.website}">
-				<include name="data/**" />
+				<include name="data/*.xz" />
 				<modified>
 					<param name="cache.cachefile" value="${dir.cache}/scp.cache" />
 				</modified>
