@@ -143,7 +143,7 @@ public class MediaDetection {
 		// check for valid imdb id patterns
 		return grepImdbId(file.getPath()).stream().map(Movie::new).filter(m -> {
 			try {
-				return strict ? WebServices.TheMovieDB.getMovieDescriptor(m, Locale.ENGLISH).getId() > 0 : true;
+				return strict ? WebServices.TheMovieDB.getMovieDescriptor(m, Locale.US).getId() > 0 : true;
 			} catch (Exception e) {
 				return false;
 			}

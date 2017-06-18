@@ -43,7 +43,7 @@ public class XattrMetaInfo {
 		} else if (object instanceof Movie) {
 			Movie movie = (Movie) object;
 			if (movie.getYear() > 0 && movie.getTmdbId() > 0) {
-				SimpleDate releaseDate = WebServices.TheMovieDB.getMovieInfo(movie, Locale.ENGLISH, false).getReleased();
+				SimpleDate releaseDate = WebServices.TheMovieDB.getMovieInfo(movie, Locale.US, false).getReleased();
 				if (releaseDate != null) {
 					return releaseDate.getTimeStamp();
 				}
