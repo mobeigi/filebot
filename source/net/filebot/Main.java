@@ -170,7 +170,7 @@ public class Main {
 
 	private static void startUserInterface(ArgumentBean args) {
 		// use native LaF an all platforms (use platform-independent laf for standalone jar deployment)
-		if (isExecutableJar()) {
+		if (isPortableApp()) {
 			setNimbusLookAndFeel();
 		} else {
 			setSystemLookAndFeel();
