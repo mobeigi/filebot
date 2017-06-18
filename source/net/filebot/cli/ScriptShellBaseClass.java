@@ -269,7 +269,7 @@ public abstract class ScriptShellBaseClass extends Script {
 
 		// 3. run full-fledged movie detection
 		try {
-			List<Movie> options = MediaDetection.detectMovie(file, WebServices.TheMovieDB, Locale.ENGLISH, strict);
+			List<Movie> options = MediaDetection.detectMovie(file, WebServices.TheMovieDB, Locale.US, strict);
 			if (options.size() > 0) {
 				return options.get(0);
 			}
