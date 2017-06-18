@@ -527,7 +527,13 @@ public class ReleaseInfo {
 
 		@Override
 		public boolean accept(File file) {
-			return (namePattern.matcher(file.getName()).find() || (file.isFile() && namePattern.matcher(file.getParentFile().getName()).find()));
+			if (file.isFile()) {
+				// check file name without extension and parent folder name
+				return namePattern.matcher(getNameWithoutExtension(file.getName())).find() || namePattern.matcher(file.getParentFile().getName()).find();
+			} else {
+				// just check folder name
+				return namePattern.matcher(file.getName()).find();
+			}
 		}
 	}
 
