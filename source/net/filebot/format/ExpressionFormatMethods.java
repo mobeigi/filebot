@@ -398,7 +398,7 @@ public class ExpressionFormatMethods {
 	}
 
 	public static boolean isLatin(String self) {
-		return Normalizer.normalize(self, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}", "").matches("^\\p{InBasicLatin}+$");
+		return Normalizer.normalize(self, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}", "").matches("\\p{InBasicLatin}+");
 	}
 
 	/**
