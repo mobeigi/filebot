@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.text.Normalizer;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
@@ -394,6 +395,10 @@ public class ExpressionFormatMethods {
 
 	public static String asciiQuotes(String self) {
 		return Normalization.normalizeQuotationMarks(self);
+	}
+
+	public static boolean isLatin(String self) {
+		return Normalizer.normalize(self, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}", "").matches("^\\p{InBasicLatin}+$");
 	}
 
 	/**
