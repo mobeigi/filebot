@@ -343,8 +343,6 @@
 
 			<arch name="x86_64" />
 
-			<argument value="-help" />
-
 			<option value="-Dapplication.deployment=app" />
 			<option value="-Dapplication.update=auto" />
 			<option value="-Dunixfs=false" />
