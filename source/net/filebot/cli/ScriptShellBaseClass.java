@@ -186,7 +186,11 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	// Complete or session rename history
 	public Map<File, File> getRenameLog() throws IOException {
-		return getRenameLog(false);
+		return HistorySpooler.getInstance().getSessionHistory().getRenameMap();
+	}
+
+	public Map<File, File> getPersistentRenameLog() throws IOException {
+		return HistorySpooler.getInstance().getCompleteHistory().getRenameMap();
 	}
 
 	public Map<File, File> getRenameLog(boolean complete) throws IOException {
