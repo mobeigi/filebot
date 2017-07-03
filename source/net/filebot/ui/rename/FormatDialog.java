@@ -11,6 +11,7 @@ import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
@@ -239,6 +240,20 @@ public class FormatDialog extends JDialog {
 		pane.add(header, "h 60px, growx, dock north");
 		pane.add(content, "grow");
 
+		// copy text to clipboard when clicked
+		preview.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		preview.addMouseListener(mouseClicked(evt -> {
+			copyToClipboard(preview.getText());
+			log.info("Format value has been copied to clipboard");
+		}));
+
+		status.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		status.addMouseListener(mouseClicked(evt -> {
+			copyToClipboard(status.getText());
+			log.info("Error message has been copied to clipboard");
+		}));
+
+		// update preview if sample has changed
 		addPropertyChangeListener("sample", evt -> {
 			if (isMacSandbox()) {
 				if (sample != null && sample.getFileObject() != null && sample.getFileObject().exists()) {
