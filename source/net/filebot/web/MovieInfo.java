@@ -90,6 +90,10 @@ public class MovieInfo implements Crew, Serializable {
 		return get(Property.certification); // e.g. PG-13
 	}
 
+	public boolean isAdult() {
+		return get(Property.adult, Boolean::parseBoolean);
+	}
+
 	public String getTagline() {
 		return get(Property.tagline);
 	}
