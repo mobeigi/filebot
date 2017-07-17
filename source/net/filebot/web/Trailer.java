@@ -1,22 +1,25 @@
 package net.filebot.web;
 
 import java.io.Serializable;
-import java.util.Map;
 
 public class Trailer implements Serializable {
 
 	protected String type;
 	protected String name;
-	protected Map<String, String> sources;
+	protected String site;
+	protected Integer size;
+	protected String language;
 
 	public Trailer() {
 		// used by serializer
 	}
 
-	public Trailer(String type, String name, Map<String, String> sources) {
+	public Trailer(String type, String name, String site, Integer size, String language) {
 		this.type = type;
 		this.name = name;
-		this.sources = sources;
+		this.site = site;
+		this.size = size;
+		this.language = language;
 	}
 
 	public String getType() {
@@ -27,17 +30,17 @@ public class Trailer implements Serializable {
 		return name;
 	}
 
-	public Map<String, String> getSources() {
-		return sources;
+	public Integer getSize() {
+		return size;
 	}
 
-	public String getSource(String size) {
-		return sources.containsKey(size) ? sources.get(size) : sources.values().iterator().next();
+	public String getLanguage() {
+		return language;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%s %s (%s)", name, sources.keySet(), type);
+		return String.format("%s [%s] [%s] [%s]", name, type, size, language);
 	}
 
 }

@@ -69,7 +69,7 @@ public class TMDbClientTest {
 		List<Movie> result = db.searchMovie("Suicide Squad", new Locale("es", "MX"));
 		Movie movie = result.get(0);
 
-		assertEquals("Escuadrón suicida", movie.getName());
+		assertEquals("Escuadrón Suicida", movie.getName());
 		assertEquals(2016, movie.getYear());
 		assertEquals(-1, movie.getImdbId());
 		assertEquals(297761, movie.getTmdbId());
@@ -92,9 +92,11 @@ public class TMDbClientTest {
 		assertEquals("Transformers", movie.getName());
 		assertEquals("2007-06-27", movie.getReleased().toString());
 		assertEquals("PG-13", movie.getCertification());
+		assertEquals("{NL=12, FR=U, BG=C, TH=PG-13, DK=11, SE=15 År, GB=12A, KR=12세 관람가, HU=12, BR=10, AU=M, DE=12, GR=13, US=PG-13}", movie.getCertifications().toString());
 		assertEquals("[es, en]", movie.getSpokenLanguages().toString());
 		assertEquals("Shia LaBeouf", movie.getActors().get(0));
 		assertEquals("Michael Bay", movie.getDirector());
+		assertEquals("Trailer 2 [Trailer] [720] [en_US]", movie.getTrailers().get(0).toString());
 	}
 
 	@Test

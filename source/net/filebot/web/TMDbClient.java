@@ -172,7 +172,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 	}
 
 	public MovieInfo getMovieInfo(String id, Locale locale, boolean extendedInfo) throws Exception {
-		Object response = request("movie/" + id, extendedInfo ? singletonMap("append_to_response", "alternative_titles,releases,casts,trailers") : emptyMap(), locale);
+		Object response = request("movie/" + id, extendedInfo ? singletonMap("append_to_response", "alternative_titles,release_dates,credits,videos") : emptyMap(), locale);
 
 		// read all basic movie properties
 		Map<MovieInfo.Property, String> fields = getEnumMap(response, MovieInfo.Property.class);
@@ -230,24 +230,21 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 
 		Map<String, String> certifications = new LinkedHashMap<String, String>();
 		try {
-			String countryCode = locale.getCountry().isEmpty() ? "US" : locale.getCountry();
-
-			streamJsonObjects(getMap(response, "releases"), "countries").forEach(it -> {
+			streamJsonObjects(getMap(response, "release_dates"), "results").forEach(it -> {
 				String certificationCountry = getString(it, "iso_3166_1");
-				String certification = getString(it, "certification");
-
-				if (certification != null && certificationCountry != null) {
-					// add country specific certification code
-					if (countryCode.equals(certificationCountry)) {
-						fields.put(MovieInfo.Property.certification, certification);
-					}
-
-					// collect all certification codes just in case
-					certifications.put(certificationCountry, certification);
+				if (certificationCountry != null) {
+					streamJsonObjects(it, "release_dates").map(r -> getString(r, "certification")).filter(Objects::nonNull).findFirst().ifPresent(c -> {
+						// collect all certification codes just in case
+						certifications.put(certificationCountry, c);
+					});
 				}
 			});
 		} catch (Exception e) {
 			debug.warning(format("Bad data: certification => %s", response));
+		} finally {
+			// add country specific certification code as default certification value
+			String certificationCountry = locale.getCountry().isEmpty() ? "US" : locale.getCountry();
+			fields.put(MovieInfo.Property.certification, certifications.get(certificationCountry));
 		}
 
 		List<Person> cast = new ArrayList<Person>();
@@ -255,7 +252,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 			// { "cast_id":20, "character":"Gandalf", "credit_id":"52fe4a87c3a368484e158bb7", "id":1327, "name":"Ian McKellen", "order":1, "profile_path":"/c51mP46oPgAgFf7bFWVHlScZynM.jpg" }
 			Function<String, String> normalize = s -> replaceSpace(s, " ").trim(); // user data may not be well-formed
 
-			Stream.of("cast", "crew").flatMap(section -> streamJsonObjects(getMap(response, "casts"), section)).map(it -> {
+			Stream.of("cast", "crew").flatMap(section -> streamJsonObjects(getMap(response, "credits"), section)).map(it -> {
 				String name = getStringValue(it, "name", normalize);
 				String character = getStringValue(it, "character", normalize);
 				String job = getStringValue(it, "job", normalize);
@@ -271,18 +268,14 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 
 		List<Trailer> trailers = new ArrayList<Trailer>();
 		try {
-			Stream.of("quicktime", "youtube").forEach(section -> {
-				streamJsonObjects(getMap(response, "trailers"), section).map(it -> {
-					Map<String, String> sources = new LinkedHashMap<String, String>();
-					Stream.concat(Stream.of(it), streamJsonObjects(it, "sources")).forEach(source -> {
-						String size = getString(source, "size");
-						if (size != null) {
-							sources.put(size, getString(source, "source"));
-						}
-					});
-					return new Trailer(section, getString(it, "name"), sources);
-				}).forEach(trailers::add);
-			});
+			streamJsonObjects(getMap(response, "videos"), "results").map(it -> {
+				String type = getString(it, "type");
+				String name = getString(it, "name");
+				String site = getString(it, "site");
+				Integer size = getInteger(it, "size");
+				String lang = Stream.of("iso_639_1", "iso_3166_1").map(k -> getString(it, k)).filter(Objects::nonNull).collect(joining("_"));
+				return new Trailer(type, name, site, size, lang);
+			}).forEach(trailers::add);
 		} catch (Exception e) {
 			debug.warning(format("Bad data: trailers => %s", response));
 		}
