@@ -272,9 +272,10 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 				String type = getString(it, "type");
 				String name = getString(it, "name");
 				String site = getString(it, "site");
+				String key = getString(it, "key");
 				Integer size = getInteger(it, "size");
 				String lang = Stream.of("iso_639_1", "iso_3166_1").map(k -> getString(it, k)).filter(Objects::nonNull).collect(joining("_"));
-				return new Trailer(type, name, site, size, lang);
+				return new Trailer(type, name, site, key, size, lang);
 			}).forEach(trailers::add);
 		} catch (Exception e) {
 			debug.warning(format("Bad data: trailers => %s", response));
