@@ -465,6 +465,7 @@
 			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
 
+			<option value="-Xdock:name=${application.name}" />
 			<option value="-Dapple.laf.useScreenMenuBar=true" />
 
 			<bundledocument role="viewer" handlerRank="none" contentTypes="public.movie" name="Video file" />
