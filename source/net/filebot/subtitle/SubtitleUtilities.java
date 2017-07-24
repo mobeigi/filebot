@@ -353,9 +353,16 @@ public final class SubtitleUtilities {
 			// convert to target format and target encoding
 			try (SubRipWriter out = new SubRipWriter(writer)) {
 				for (SubtitleElement it : decodeSubtitles(file)) {
+					if (it.isEmpty()) {
+						debug.warning(message("Subtitle element is empty", it));
+						continue;
+					}
+
+					// adjust offset if necessary
 					if (outputTimingOffset != 0) {
 						it = new SubtitleElement(Math.max(0, it.getStart() + outputTimingOffset), Math.max(0, it.getEnd() + outputTimingOffset), it.getText());
 					}
+
 					out.write(it);
 				}
 			}
