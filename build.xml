@@ -822,7 +822,6 @@
 		<exec executable="git" outputproperty="revision" failonerror="true">
 			<arg line="rev-list --count master" />
 		</exec>
-		<echo>Revision: ${application.version}</echo>
 		<echo>Revision: ${revision}</echo>
 	</target>
 
