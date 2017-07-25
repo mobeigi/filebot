@@ -34,7 +34,7 @@ public class GettingStartedStage {
 	public static void start() {
 		invokeJavaFX(() -> {
 			// libjfxwebkit.dylib cannot be deployed on the MAS due to deprecated dependencies
-			if (isMacSandbox()) {
+			if (isAppStore()) {
 				ask();
 			} else {
 				create().show();
