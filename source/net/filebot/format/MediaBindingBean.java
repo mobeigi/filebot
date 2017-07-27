@@ -380,8 +380,11 @@ public class MediaBindingBean {
 		String height = getMediaInfo(StreamKind.Video, 0, "Height");
 		String scanType = getMediaInfo(StreamKind.Video, 0, "ScanType");
 
+		// progressive by default if ScanType is undefined
+		String p = scanType.codePoints().map(Character::toLowerCase).mapToObj(Character::toChars).map(String::valueOf).findFirst().orElse("p");
+
 		// e.g. 720p
-		return height + Character.toLowerCase(scanType.charAt(0));
+		return height + p;
 	}
 
 	@Define("af")
