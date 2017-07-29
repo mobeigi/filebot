@@ -37,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -236,9 +237,9 @@ public class DropToUnlock extends JList<File> {
 			try {
 				String owner = Files.getOwner(f.toPath()).getName();
 				String permissions = PosixFilePermissions.toString(Files.getPosixFilePermissions(f.toPath()));
-				log.severe(format("Permission denied: %s (%s %s)", f, permissions, owner));
+				log.log(Level.SEVERE, format("Permission denied: %s (%s %s)", f, permissions, owner));
 			} catch (Exception e) {
-				log.severe(format("Permission denied: %s", f));
+				log.log(Level.SEVERE, e, format("Permission denied: %s", f));
 			}
 		});
 	}
