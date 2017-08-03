@@ -53,6 +53,7 @@ import net.filebot.Settings;
 import net.filebot.hash.HashType;
 import net.filebot.media.MetaAttributes;
 import net.filebot.media.NamingStandard;
+import net.filebot.media.VideoFormat;
 import net.filebot.mediainfo.ImageMetadata;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
@@ -352,27 +353,11 @@ public class MediaBindingBean {
 
 	@Define("vf")
 	public String getVideoFormat() {
-		int width = Integer.parseInt(getMediaInfo(StreamKind.Video, 0, "Width"));
-		int height = Integer.parseInt(getMediaInfo(StreamKind.Video, 0, "Height"));
+		int w = Integer.parseInt(getMediaInfo(StreamKind.Video, 0, "Width"));
+		int h = Integer.parseInt(getMediaInfo(StreamKind.Video, 0, "Height"));
 
-		int[] ws = new int[] { 15360, 7680, 3840, 1920, 1280, 1024, 854, 748, 720, 688, 512, 320 };
-		int[] hs = new int[] {  8640, 4320, 2160, 1080, 720,  576,  576, 480, 480, 360, 240, 240 };
-
-		int ns = 0;
-
-		for (int i = 0; i < ws.length - 1; i++) {
-			if ((width >= ws[i] || height >= hs[i]) || (width > ws[i + 1] && height > hs[i + 1])) {
-				ns = hs[i];
-				break;
-			}
-		}
-
-		if (ns > 0) {
-			// e.g. 720p, nobody actually wants files to be tagged as interlaced, e.g. 720i
-			return String.format("%dp", ns);
-		}
-
-		return null; // video too small
+		// e.g. 720p, nobody actually wants files to be tagged as interlaced, e.g. 720i
+		return String.format("%dp", VideoFormat.DEFAULT_GROUPS.guessFormat(w, h));
 	}
 
 	@Define("hpi")
