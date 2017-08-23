@@ -600,14 +600,14 @@
 
 	<target name="appx" description="Build Windows 10 package" depends="revision">
 		<antcall target="appx-arch">
-			<param name="arch" value="x64" />
-			<param name="arch.env" value="AMD64" />
-			<param name="arch.jre" value="x64" />
-		</antcall>
-		<antcall target="appx-arch">
 			<param name="arch" value="x86" />
 			<param name="arch.env" value="x86" />
 			<param name="arch.jre" value="i586" />
+		</antcall>
+		<antcall target="appx-arch">
+			<param name="arch" value="x64" />
+			<param name="arch.env" value="AMD64" />
+			<param name="arch.jre" value="x64" />
 		</antcall>
 	</target>
 
@@ -630,6 +630,7 @@
 
 		<!-- fetch latest JRE -->
 		<exec executable="powershell" dir="${dir.cache}" failonerror="yes">
+			<env key="PROCESSOR_ARCHITECTURE" value="${arch.env}" />
 			<arg line="get-java" />
 		</exec>
 		<untar src="${dir.cache}/jre-${jre.major}u${jre.build}-windows-${arch.jre}.tar.gz" dest="${dir.staging}/jre" compression="gzip">
