@@ -599,16 +599,32 @@
 
 
 	<target name="appx" description="Build Windows 10 package" depends="revision">
-		<copy todir="${dir.dist}/appx">
+		<antcall target="appx-arch">
+			<param name="arch" value="x64" />
+			<param name="arch.env" value="AMD64" />
+			<param name="arch.jre" value="x64" />
+		</antcall>
+		<antcall target="appx-arch">
+			<param name="arch" value="x86" />
+			<param name="arch.env" value="x86" />
+			<param name="arch.jre" value="i586" />
+		</antcall>
+	</target>
+
+
+	<target name="appx-arch">
+		<property name="dir.staging" location="${dir.dist}/appx/${arch}" />
+
+		<copy todir="${dir.staging}">
 			<fileset dir="${dir.installer}/appx" excludes="*.xml, *.ini, *.url" />
-			<fileset dir="${dir.lib}/native/win32-x64" />
+			<fileset dir="${dir.lib}/native/win32-${arch}" />
 		</copy>
-		<copy todir="${dir.dist}/appx/lib">
+		<copy todir="${dir.staging}/lib">
 			<fileset dir="${dir.dist}/lib" includes="*.jar" />
 		</copy>
 
 		<!-- copy files and resolve ant variables -->
-		<copy-replace todir="${dir.dist}/appx">
+		<copy-replace todir="${dir.staging}">
 			<fileset dir="${dir.installer}/appx" includes="*.xml, *.ini" excludes="*.l4j.xml" />
 		</copy-replace>
 
@@ -616,19 +632,19 @@
 		<exec executable="powershell" dir="${dir.cache}" failonerror="yes">
 			<arg line="get-java" />
 		</exec>
-		<untar src="${dir.cache}/jre-${jre.major}u${jre.build}-windows-x64.tar.gz" dest="${dir.dist}/appx/jre" compression="gzip">
+		<untar src="${dir.cache}/jre-${jre.major}u${jre.build}-windows-${arch.jre}.tar.gz" dest="${dir.staging}/jre" compression="gzip">
 			<cutdirsmapper dirs="1" />
 		</untar>
 
-
-		<exec executable="makepri" dir="${dir.dist}/appx" failonerror="yes">
+		<!-- package APPX -->
+		<exec executable="makepri" dir="${dir.staging}" failonerror="yes">
 			<arg line="createconfig /o /pv 10.0.0 /cf priconfig.xml /dq en-US" />
 		</exec>
-		<exec executable="makepri" dir="${dir.dist}/appx" failonerror="yes">
+		<exec executable="makepri" dir="${dir.staging}" failonerror="yes">
 			<arg line="new /o /pr . /cf priconfig.xml /in ${microsoft.application.name}" />
 		</exec>
 		<exec executable="makeappx" dir="${dir.dist}" failonerror="yes">
-			<arg line="pack /v /o /d appx /p ${release}_r${revision}.appx" />
+			<arg line="pack /v /o /d ${dir.staging} /p ${release}_r${revision}_${arch}.appx" />
 		</exec>
 	</target>
 
