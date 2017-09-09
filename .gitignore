@@ -15,3 +15,5 @@ lib/ivy/
 *.cer
 *.pfx
 *.pvk
+
+.DS_Store
