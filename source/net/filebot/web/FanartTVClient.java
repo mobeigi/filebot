@@ -36,7 +36,7 @@ public class FanartTVClient implements Datasource, ArtworkProvider {
 
 	public URL getResource(String path) throws Exception {
 		// e.g. http://webservice.fanart.tv/v3/movies/17645?api_key=6fa42b0ef3b5f3aab6a7edaa78675ac2
-		return new URL("http://webservice.fanart.tv/v3/" + path + "?api_key=" + apikey);
+		return new URL("https://webservice.fanart.tv/v3/" + path + "?api_key=" + apikey);
 	}
 
 	@Override
