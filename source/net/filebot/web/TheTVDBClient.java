@@ -281,7 +281,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
-		return URI.create("http://www.thetvdb.com/?tab=seasonall&id=" + searchResult.getId());
+		return URI.create("https://www.thetvdb.com/?tab=seasonall&id=" + searchResult.getId());
 	}
 
 	@Override
@@ -305,7 +305,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 
 		// TheTVDB API v2 does not have a dedicated banner mirror
 		try {
-			return new URL("http://thetvdb.com/banners/" + path);
+			return new URL("https://thetvdb.com/banners/" + path);
 		} catch (Exception e) {
 			throw new IllegalArgumentException(path, e);
 		}
