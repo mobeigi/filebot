@@ -25,7 +25,7 @@
 		<dependency rev="0.6" org="com.optimaize.languagedetector" name="language-detector" />
 		<dependency rev="0.6.5" org="one.util" name="streamex" />
 		<dependency rev="8.40.13" org="org.controlsfx" name="controlsfx" />
-		<dependency rev="3.0.0-rc1" org="com.googlecode.lanterna" name="lanterna" />
+		<dependency rev="3.0.0" org="com.googlecode.lanterna" name="lanterna" />
 		<dependency rev="2.10.1" org="com.drewnoakes" name="metadata-extractor" />
 
 		<!-- FileBot Scripting -->
