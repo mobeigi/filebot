@@ -4,8 +4,8 @@
 	<dependencies>
 		<!-- FileBot -->
 		<dependency rev="2.4.12" org="org.codehaus.groovy" name="groovy-all" />
-		<dependency rev="4.4.0" org="net.java.dev.jna" name="jna" />
-		<dependency rev="4.4.0" org="net.java.dev.jna" name="jna-platform" />
+		<dependency rev="4.5.0" org="net.java.dev.jna" name="jna" />
+		<dependency rev="4.5.0" org="net.java.dev.jna" name="jna-platform" />
 		<dependency rev="2.33" org="args4j" name="args4j" />
 		<dependency rev="2.10.4" org="net.sf.ehcache" name="ehcache" />
 		<dependency rev="59.1" org="com.ibm.icu" name="icu4j" />
