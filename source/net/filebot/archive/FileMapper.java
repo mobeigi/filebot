@@ -1,9 +1,16 @@
 package net.filebot.archive;
 
+import static java.util.stream.Collectors.*;
+
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
+import java.util.Set;
+
+import net.filebot.vfs.FileInfo;
 
 public class FileMapper implements ExtractOutProvider {
 
@@ -39,4 +46,13 @@ public class FileMapper implements ExtractOutProvider {
 
 		return new FileOutputStream(outputFile);
 	}
+
+	public FileFilter newPathFilter(Collection<FileInfo> selection) {
+		return newPathFilter(selection.stream().map(FileInfo::getPath).collect(toSet()));
+	}
+
+	public FileFilter newPathFilter(Set<String> selection) {
+		return f -> selection.contains(getOutputFile(f).getPath());
+	}
+
 }

@@ -219,7 +219,7 @@ class ExtractTool extends Tool<TableModel> {
 							outputMapping.add(new SimpleFileInfo(outputPath.getPath(), it.getLength()));
 						}
 
-						final Set<FileInfo> selection = new TreeSet<FileInfo>();
+						Set<FileInfo> selection = new TreeSet<FileInfo>();
 						for (FileInfo future : outputMapping) {
 							if (filter == null || filter.accept(future.toFile())) {
 								selection.add(future);
@@ -246,13 +246,7 @@ class ExtractTool extends Tool<TableModel> {
 								archive.extract(outputMapper.getOutputDir());
 							} else {
 								// extract files selected by the given filter
-								archive.extract(outputMapper.getOutputDir(), new FileFilter() {
-
-									@Override
-									public boolean accept(File entry) {
-										return selection.contains(outputMapper.getOutputFile(entry));
-									}
-								});
+								archive.extract(outputMapper.getOutputDir(), outputMapper.newPathFilter(selection));
 							}
 						}
 					} finally {
