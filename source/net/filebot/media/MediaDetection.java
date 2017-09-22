@@ -123,7 +123,7 @@ public class MediaDetection {
 		}
 
 		// require a good S00E00 match
-		return MediaDetection.isEpisode(String.join("/", file.getParent(), file.getName()), strict);
+		return isEpisode(String.join("/", file.getParent(), file.getName()), strict);
 	}
 
 	public static boolean isMovie(File file, boolean strict) {
@@ -675,6 +675,22 @@ public class MediaDetection {
 
 		// sort by relevance
 		return sortMoviesBySimilarity(options, terms);
+	}
+
+	public static List<Movie> detectMovieWithYear(File movieFile, MovieIdentificationService service, Locale locale, boolean strict) throws Exception {
+		// in non-strict mode, process all movie files as best as possible
+		if (!strict) {
+			return detectMovie(movieFile, service, locale, strict);
+		}
+
+		// in strict mode, only process movies that follow the name (year) pattern, so we can confirm each match by checking the movie year
+		List<Integer> year = parseMovieYear(getRelativePathTail(movieFile, 3).getPath());
+		if (year.isEmpty() || isEpisode(movieFile, true)) {
+			return null;
+		}
+
+		// allow only movie matches where the the movie year matches the year pattern in the filename
+		return detectMovie(movieFile, service, locale, strict).stream().filter(m -> year.contains(m.getYear())).collect(toList());
 	}
 
 	public static SimilarityMetric getMovieMatchMetric() {

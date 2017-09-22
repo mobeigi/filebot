@@ -419,7 +419,12 @@ public class CmdlineOperations implements CmdlineInterface {
 			// unknown hash, try via imdb id from nfo file
 			if (movie == null) {
 				log.fine(format("Auto-detect movie from context: [%s]", file));
-				List<Movie> options = detectMovie(file, service, locale, strict);
+				List<Movie> options = detectMovieWithYear(file, service, locale, strict);
+
+				// ignore files that cannot yield any acceptable matches (e.g. movie files without year in strict mode)
+				if (options == null) {
+					continue;
+				}
 
 				// apply filter if defined
 				options = applyExpressionFilter(options, filter);
@@ -447,15 +452,8 @@ public class CmdlineOperations implements CmdlineInterface {
 
 			// check if we managed to lookup the movie descriptor
 			if (movie != null) {
-				// get file list for movie
-				SortedSet<File> movieParts = filesByMovie.get(movie);
-
-				if (movieParts == null) {
-					movieParts = new TreeSet<File>();
-					filesByMovie.put(movie, movieParts);
-				}
-
-				movieParts.add(file);
+				// add to file list for movie
+				filesByMovie.computeIfAbsent(movie, k -> new TreeSet<File>()).add(file);
 			}
 		}
 
@@ -1182,13 +1180,7 @@ public class CmdlineOperations implements CmdlineInterface {
 						log.finest("Extracting files " + selection);
 
 						// extract files selected by the given filter
-						archive.extract(outputMapper.getOutputDir(), new FileFilter() {
-
-							@Override
-							public boolean accept(File entry) {
-								return selection.contains(outputMapper.getOutputFile(entry));
-							}
-						});
+						archive.extract(outputMapper.getOutputDir(), outputMapper.newPathFilter(selection));
 
 						for (FileInfo it : selection) {
 							extractedFiles.add(it.toFile());

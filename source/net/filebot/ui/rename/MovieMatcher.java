@@ -159,19 +159,14 @@ class MovieMatcher implements AutoCompleteMatcher {
 		try {
 			List<Future<Map<File, List<Movie>>>> tasks = movieMatchFiles.stream().filter(f -> movieByFile.get(f) == null).map(f -> {
 				return workerThreadPool.submit(() -> {
-					if (strict) {
-						// in strict mode, only process movies that follow the name (year) pattern
-						List<Integer> year = parseMovieYear(getRelativePathTail(f, 3).getPath());
-						if (year.isEmpty() || isEpisode(f, true)) {
-							return (Map<File, List<Movie>>) EMPTY_MAP;
-						}
+					List<Movie> options = detectMovieWithYear(f, service, locale, strict);
 
-						// allow only movie matches where the the movie year matches the year pattern in the filename
-						return singletonMap(f, detectMovie(f, service, locale, strict).stream().filter(m -> year.contains(m.getYear())).collect(toList()));
-					} else {
-						// in non-strict mode just allow all options
-						return singletonMap(f, detectMovie(f, service, locale, strict));
+					// ignore files that cannot yield any acceptable matches (e.g. movie files without year in strict mode)
+					if (options == null) {
+						return (Map<File, List<Movie>>) EMPTY_MAP;
 					}
+
+					return singletonMap(f, options);
 				});
 			}).collect(toList());
 
