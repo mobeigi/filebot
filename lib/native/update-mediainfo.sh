@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/sh -xu
 
-MEDIAINFO_VERSION="0.7.93"
-ZEN_VERSION="0.4.34"
+MEDIAINFO_VERSION="0.7.99"
+ZEN_VERSION="0.4.37"
 
 
 # Download and extract archives
