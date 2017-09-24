@@ -137,8 +137,7 @@ public final class WebServices {
 			return Resource.lazy(() -> {
 				if (year > 0) {
 					// limit search index to a given year (so we don't have to check all movies of all time all the time)
-					// the year might be off by 1 so we also check movies from the previous year and the next year
-					Movie[] movies = stream(releaseInfo.getMovieList()).filter(m -> m.getYear() - 1 <= year && year <= m.getYear() + 1).toArray(Movie[]::new);
+					Movie[] movies = stream(releaseInfo.getMovieList()).filter(m -> year == m.getYear()).toArray(Movie[]::new);
 
 					// search by primary movie name and all known alias names
 					return new LocalSearch<>(movies, Movie::getEffectiveNamesWithoutYear);
@@ -153,10 +152,14 @@ public final class WebServices {
 		public List<Movie> searchMovie(String movieName, int movieYear, Locale locale, boolean extendedInfo) throws Exception {
 			// run local search and API search in parallel
 			Future<List<Movie>> apiSearch = requestThreadPool.submit(() -> TMDbClientWithLocalSearch.super.searchMovie(movieName, movieYear, locale, extendedInfo));
-			Future<List<Movie>> localSearch = requestThreadPool.submit(() -> localIndexPerYear.computeIfAbsent(movieYear, this::getLocalIndex).get().search(movieName));
+
+			// the year might be off by 1 so we also check movies from the previous year and the next year
+			Future<List<Movie>> localSearch1 = requestThreadPool.submit(() -> localIndexPerYear.computeIfAbsent(movieYear, this::getLocalIndex).get().search(movieName));
+			Future<List<Movie>> localSearch2 = requestThreadPool.submit(() -> localIndexPerYear.computeIfAbsent(movieYear - 1, this::getLocalIndex).get().search(movieName));
+			Future<List<Movie>> localSearch3 = requestThreadPool.submit(() -> localIndexPerYear.computeIfAbsent(movieYear + 1, this::getLocalIndex).get().search(movieName));
 
 			// combine alias names into a single search results, and keep API search name as primary name
-			return Stream.of(apiSearch.get(), localSearch.get()).flatMap(List::stream).distinct().collect(toList());
+			return Stream.of(apiSearch.get(), localSearch1.get(), localSearch2.get(), localSearch3.get()).flatMap(List::stream).distinct().collect(toList());
 		}
 	}
 
