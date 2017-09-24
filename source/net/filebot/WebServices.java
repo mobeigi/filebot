@@ -8,6 +8,7 @@ import static net.filebot.Settings.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.FileUtilities.*;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -28,6 +29,7 @@ import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.FanartTVClient;
 import net.filebot.web.ID3Lookup;
 import net.filebot.web.LocalSearch;
+import net.filebot.web.Movie;
 import net.filebot.web.MovieIdentificationService;
 import net.filebot.web.MusicIdentificationService;
 import net.filebot.web.OMDbClient;
@@ -49,7 +51,7 @@ public final class WebServices {
 
 	// movie sources
 	public static final OMDbClient OMDb = new OMDbClient(getApiKey("omdb"));
-	public static final TMDbClient TheMovieDB = new TMDbClient(getApiKey("themoviedb"), SystemProperty.of("net.filebot.WebServices.TheMovieDB.adult", Boolean::parseBoolean, false).get());
+	public static final TMDbClient TheMovieDB = new TMDbClientWithLocalSearch(getApiKey("themoviedb"), SystemProperty.of("net.filebot.WebServices.TheMovieDB.adult", Boolean::parseBoolean, false).get());
 
 	// episode sources
 	public static final TVMazeClient TVmaze = new TVMazeClient();
@@ -121,6 +123,41 @@ public final class WebServices {
 	}
 
 	public static final ExecutorService requestThreadPool = Executors.newCachedThreadPool();
+
+	public static class TMDbClientWithLocalSearch extends TMDbClient {
+
+		public TMDbClientWithLocalSearch(String apikey, boolean adult) {
+			super(apikey, adult);
+		}
+
+		// local TheMovieDB search index
+		private Map<Integer, Resource<LocalSearch<Movie>>> localIndexPerYear = synchronizedMap(new HashMap<>());
+
+		private Resource<LocalSearch<Movie>> getLocalIndex(int year) {
+			return Resource.lazy(() -> {
+				if (year > 0) {
+					// limit search index to a given year (so we don't have to check all movies of all time all the time)
+					Movie[] movies = stream(releaseInfo.getMovieList()).filter(m -> year == m.getYear()).toArray(Movie[]::new);
+
+					// search by primary movie name and all known alias names
+					return new LocalSearch<>(movies, Movie::getEffectiveNamesWithoutYear);
+				}
+
+				// check all movies of all time if release year is not known (but only compare to primary title for performance reasons)
+				return new LocalSearch<>(releaseInfo.getMovieList(), m -> singleton(m.getName()));
+			});
+		}
+
+		@Override
+		public List<Movie> searchMovie(String movieName, int movieYear, Locale locale, boolean extendedInfo) throws Exception {
+			// run local search and API search in parallel
+			Future<List<Movie>> apiSearch = requestThreadPool.submit(() -> TMDbClientWithLocalSearch.super.searchMovie(movieName, movieYear, locale, extendedInfo));
+			Future<List<Movie>> localSearch = requestThreadPool.submit(() -> localIndexPerYear.computeIfAbsent(movieYear, this::getLocalIndex).get().search(movieName));
+
+			// combine alias names into a single search results, and keep API search name as primary name
+			return Stream.of(apiSearch.get(), localSearch.get()).flatMap(List::stream).distinct().collect(toList());
+		}
+	}
 
 	public static class TheTVDBClientWithLocalSearch extends TheTVDBClient {
 
