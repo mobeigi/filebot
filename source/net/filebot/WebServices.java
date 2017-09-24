@@ -137,7 +137,8 @@ public final class WebServices {
 			return Resource.lazy(() -> {
 				if (year > 0) {
 					// limit search index to a given year (so we don't have to check all movies of all time all the time)
-					Movie[] movies = stream(releaseInfo.getMovieList()).filter(m -> year == m.getYear()).toArray(Movie[]::new);
+					// the year might be off by 1 so we also check movies from the previous year and the next year
+					Movie[] movies = stream(releaseInfo.getMovieList()).filter(m -> m.getYear() - 1 <= year && year <= m.getYear() + 1).toArray(Movie[]::new);
 
 					// search by primary movie name and all known alias names
 					return new LocalSearch<>(movies, Movie::getEffectiveNamesWithoutYear);
