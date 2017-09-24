@@ -694,7 +694,7 @@ public class MediaDetection {
 	}
 
 	public static SimilarityMetric getMovieMatchMetric() {
-		return new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric(), new SequenceMatchSimilarity(0, true), new StringEqualsMetric() {
+		return new MetricAvg(new NameSimilarityMetric(), new StringEqualsMetric() {
 
 			@Override
 			protected String normalize(Object object) {
@@ -718,7 +718,7 @@ public class MediaDetection {
 			public float getSimilarity(Object o1, Object o2) {
 				return super.getSimilarity(o1, o2) * 2; // DOUBLE WEIGHT FOR YEAR MATCH
 			}
-		});
+		}, new MetricAvg(new SequenceMatchSimilarity(), new SequenceMatchSimilarity(0, true)));
 	}
 
 	public static Movie getLocalizedMovie(MovieIdentificationService service, Movie movie, Locale locale) throws Exception {
