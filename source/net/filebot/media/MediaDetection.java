@@ -716,9 +716,9 @@ public class MediaDetection {
 
 			@Override
 			public float getSimilarity(Object o1, Object o2) {
-				return super.getSimilarity(o1, o2) * 2; // DOUBLE WEIGHT FOR YEAR MATCH
+				return super.getSimilarity(o1, o2) * 1.4f; // extra weight for year match
 			}
-		}, new MetricAvg(new SequenceMatchSimilarity(), new SequenceMatchSimilarity(0, true)));
+		}, new SequenceMatchSimilarity(), new SequenceMatchSimilarity(0, true));
 	}
 
 	public static Movie getLocalizedMovie(MovieIdentificationService service, Movie movie, Locale locale) throws Exception {
