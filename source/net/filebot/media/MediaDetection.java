@@ -716,7 +716,7 @@ public class MediaDetection {
 
 			@Override
 			public float getSimilarity(Object o1, Object o2) {
-				return super.getSimilarity(o1, o2) * 1.4f; // extra weight for year match
+				return super.getSimilarity(o1, o2) * 2; // extra weight for year match
 			}
 		}, new SequenceMatchSimilarity(), new SequenceMatchSimilarity(0, true));
 	}
