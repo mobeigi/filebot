@@ -214,7 +214,7 @@ tvdb_updates.values().each{ update ->
 		try {
 			retry(2, 60000) {
 				def seriesNames = []
-				def xml = new XmlSlurper().parse("http://thetvdb.com/api/BA864DEE427E384A/series/${update.id}/en.xml")
+				def xml = new XmlSlurper().parse("https://thetvdb.com/api/BA864DEE427E384A/series/${update.id}/en.xml")
 				def imdbid = any{ xml.Series.IMDB_ID.text().match(/tt\d+/) }{ '' }
 
 				seriesNames += xml.Series.SeriesName.text()
@@ -231,7 +231,7 @@ tvdb_updates.values().each{ update ->
 
 					// scrape extra alias titles from webpage (not supported yet by API)
 					def html = Cache.getCache('thetvdb_series_page', CacheType.Persistent).text(update.id) { 
-						return new URL("http://thetvdb.com/?tab=series&id=${it}")
+						return new URL("https://thetvdb.com/?tab=series&id=${it}")
 					}.expire(Cache.ONE_MONTH).get()
 
 					def jsoup = org.jsoup.Jsoup.parse(html)
