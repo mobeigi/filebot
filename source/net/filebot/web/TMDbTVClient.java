@@ -13,7 +13,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
-import java.util.stream.Stream;
 
 import javax.swing.Icon;
 
@@ -98,8 +97,12 @@ public class TMDbTVClient extends AbstractEpisodeListProvider {
 		// http://api.themoviedb.org/3/tv/id
 		Object tv = tmdb.request("tv/" + series.getId(), emptyMap(), locale);
 
+		// retrieve localized series name from response
+		String name = getString(tv, "name");
+		String originalName = getString(tv, "original_name");
+
 		SeriesInfo info = new SeriesInfo(this, sortOrder, locale, series.getId());
-		info.setName(Stream.of("original_name", "name").map(key -> getString(tv, key)).filter(Objects::nonNull).findFirst().orElse(series.getName()));
+		info.setName(originalName != null ? originalName : name);
 		info.setAliasNames(series.getAliasNames());
 		info.setStatus(getString(tv, "status"));
 		info.setLanguage(getString(tv, "original_language"));
@@ -128,9 +131,9 @@ public class TMDbTVClient extends AbstractEpisodeListProvider {
 				Integer absoluteNumber = episodes.size() + 1;
 
 				if (s > 0) {
-					episodes.add(new Episode(series.getName(), seasonNumber, episodeNumber, episodeTitle, absoluteNumber, null, airdate, id, info));
+					episodes.add(new Episode(name, seasonNumber, episodeNumber, episodeTitle, absoluteNumber, null, airdate, id, info));
 				} else {
-					specials.add(new Episode(series.getName(), null, null, episodeTitle, null, episodeNumber, airdate, id, info));
+					specials.add(new Episode(name, null, null, episodeTitle, null, episodeNumber, airdate, id, info));
 				}
 			});
 		}
