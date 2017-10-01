@@ -103,7 +103,7 @@ public class TMDbTVClient extends AbstractEpisodeListProvider {
 		String originalName = getString(tv, "original_name");
 
 		SeriesInfo info = new SeriesInfo(this, sortOrder, locale, series.getId());
-		info.setName(originalName != null ? originalName : name);
+		info.setName(name);
 		info.setAliasNames(Stream.concat(Stream.of(series.getName(), originalName), Stream.of(series.getAliasNames())).filter(Objects::nonNull).filter(s -> !s.equals(name)).distinct().toArray(String[]::new));
 		info.setStatus(getString(tv, "status"));
 		info.setLanguage(getString(tv, "original_language"));
