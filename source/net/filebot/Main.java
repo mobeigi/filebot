@@ -130,7 +130,7 @@ public class Main {
 			System.exit(1);
 		} catch (Throwable e) {
 			// unexpected error => dump stack
-			debug.severe(cause("Error during startup", e));
+			debug.log(Level.SEVERE, "Error during startup", e);
 			System.exit(1);
 		}
 	}
