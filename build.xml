@@ -604,11 +604,13 @@
 			<param name="arch.env" value="AMD64" />
 			<param name="arch.jre" value="x64" />
 		</antcall>
+		<!--
 		<antcall target="appx-arch">
 			<param name="arch" value="x86" />
 			<param name="arch.env" value="x86" />
 			<param name="arch.jre" value="i586" />
 		</antcall>
+		-->
 	</target>
 
 
@@ -633,7 +635,7 @@
 			<env key="PROCESSOR_ARCHITECTURE" value="${arch.env}" />
 			<arg line="get-java" />
 		</exec>
-		<untar src="${dir.cache}/jre-${jre.major}u${jre.build}-windows-${arch.jre}.tar.gz" dest="${dir.staging}/jre" compression="gzip">
+		<untar src="${dir.cache}/jre-${jre.major}_windows-${arch.jre}_bin.tar.gz" dest="${dir.staging}/jre" compression="gzip">
 			<cutdirsmapper dirs="1" />
 		</untar>
 
