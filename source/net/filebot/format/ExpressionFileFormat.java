@@ -2,6 +2,7 @@ package net.filebot.format;
 
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.RegularExpressions.*;
 
 import javax.script.Bindings;
 import javax.script.ScriptException;
@@ -36,7 +37,11 @@ public class ExpressionFileFormat extends ExpressionFormat {
 	@Override
 	protected String normalizeResult(CharSequence value) {
 		// normalize unicode space characters and remove newline characters
-		return normalizePathSeparators(replaceSpace(value, " ").trim());
+		return normalizePathSeparators(replaceSpace(stripCRLF(value), " ").trim());
+	}
+
+	protected String stripCRLF(CharSequence value) {
+		return NEWLINE.matcher(value).replaceAll("");
 	}
 
 }
