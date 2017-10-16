@@ -12,6 +12,7 @@ import static net.filebot.Settings.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -38,7 +39,6 @@ import com.google.common.eventbus.Subscribe;
 import net.filebot.CacheManager;
 import net.filebot.Settings;
 import net.filebot.cli.GroovyPad;
-import net.filebot.platform.mac.MacAppUtilities;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.ui.DefaultFancyListCellRenderer;
 import net.filebot.util.ui.ShadowBorder;
@@ -208,9 +208,9 @@ public class MainFrame extends JFrame {
 				dragEnterTimer = invokeLater(SELECTDELAY_ON_DRAG_OVER, () -> {
 					selectEnabled = true;
 
-					// bring window to front when on dnd
-					if (isMacApp()) {
-						MacAppUtilities.requestForeground();
+					// bring window to front when drag-and-drop operation is in progress
+					if (Desktop.getDesktop().isSupported(Desktop.Action.APP_REQUEST_FOREGROUND)) {
+						Desktop.getDesktop().requestForeground(true);
 					} else {
 						SwingUtilities.getWindowAncestor(((DropTarget) dtde.getSource()).getComponent()).toFront();
 					}

@@ -12,6 +12,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -149,7 +150,7 @@ public class DropToUnlock extends JList<File> {
 					if (model.stream().allMatch(f -> !isLockedFolder(f))) {
 						dialogCancelled.set(false);
 						invokeLater(750, () -> dialog.setVisible(false)); // auto-close unlock dialog once all folders have been unlocked
-						invokeLater(1000, () -> requestForeground()); // bring application to foreground now that folders have been unlocked
+						invokeLater(1000, () -> Desktop.getDesktop().requestForeground(true)); // bring application to foreground now that folders have been unlocked
 					} else {
 						model.stream().filter(f -> isLockedFolder(f)).findFirst().ifPresent(f -> {
 							invokeLater(250, () -> {

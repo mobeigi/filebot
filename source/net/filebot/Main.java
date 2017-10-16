@@ -200,7 +200,6 @@ public class Main {
 		if (isMacApp()) {
 			// Mac specific configuration
 			MacAppUtilities.initializeApplication();
-			MacAppUtilities.setWindowCanFullScreen(frame);
 			MacAppUtilities.setDefaultMenuBar(FileBotMenuBar.createHelp());
 			MacAppUtilities.setOpenFileHandler(openFiles -> SwingEventBus.getInstance().post(new FileTransferable(openFiles)));
 		} else if (isUbuntuApp()) {
