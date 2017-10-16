@@ -639,8 +639,12 @@ public class MediaDetection {
 		if (movieNameMatches.isEmpty()) {
 			movieNameMatches = matchMovieFromStringWithoutSpacing(terms, strict);
 
-			if (movieNameMatches.isEmpty() && !terms.equals(stripReleaseInfo(terms, true))) {
-				movieNameMatches = matchMovieFromStringWithoutSpacing(stripReleaseInfo(terms, true), strict);
+			// check alternative terms if necessary and only if they're different
+			if (movieNameMatches.isEmpty()) {
+				List<String> alternativeTerms = stripReleaseInfo(terms, true);
+				if (!terms.containsAll(alternativeTerms)) {
+					movieNameMatches = matchMovieFromStringWithoutSpacing(alternativeTerms, strict);
+				}
 			}
 		}
 
