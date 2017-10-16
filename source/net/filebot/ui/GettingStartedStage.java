@@ -1,14 +1,11 @@
 package net.filebot.ui;
 
-import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.util.ui.SwingUI.*;
 
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.logging.Level;
 
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -115,15 +112,18 @@ public class GettingStartedStage {
 	}
 
 	protected void setBackground(WebEngine engine, int color) {
-		try {
-			// use reflection to retrieve the WebEngine's private 'page' field
-			Field f = engine.getClass().getDeclaredField("page");
-			f.setAccessible(true);
-			com.sun.webkit.WebPage page = (com.sun.webkit.WebPage) f.get(engine);
-			page.setBackgroundColor(color);
-		} catch (Exception e) {
-			debug.log(Level.WARNING, "Failed to set background", e);
-		}
+		/*
+		 * Java 9 makes internal classes inaccessible, so setting the page background is no longer supported: package com.sun.webkit is declared in module javafx.web, which does not export it
+		 */
+//		try {
+//			// use reflection to retrieve the WebEngine's private 'page' field
+//			Field f = engine.getClass().getDeclaredField("page");
+//			f.setAccessible(true);
+//			com.sun.webkit.WebPage page = (com.sun.webkit.WebPage) f.get(engine);
+//			page.setBackgroundColor(color);
+//		} catch (Exception e) {
+//			debug.log(Level.WARNING, "Failed to set background", e);
+//		}
 	}
 
 	protected WebEngine onPopup(WebView webview) {
