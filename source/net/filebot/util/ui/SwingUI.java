@@ -140,7 +140,7 @@ public final class SwingUI {
 	}
 
 	public static boolean isShiftOrAltDown(InputEvent evt) {
-		return checkModifiers(evt.getModifiers(), ActionEvent.SHIFT_MASK) || checkModifiers(evt.getModifiers(), ActionEvent.ALT_MASK);
+		return checkModifiers(evt.getModifiersEx(), InputEvent.SHIFT_DOWN_MASK) || checkModifiers(evt.getModifiersEx(), InputEvent.ALT_DOWN_MASK);
 	}
 
 	public static boolean isShiftOrAltDown(ActionEvent evt) {
@@ -200,14 +200,14 @@ public final class SwingUI {
 		component.getDocument().addUndoableEditListener(undoSupport);
 
 		// install undo action
-		installAction(component, KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_MASK), newAction("Undo", evt -> {
+		installAction(component, KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK), newAction("Undo", evt -> {
 			if (undoSupport.canUndo()) {
 				undoSupport.undo();
 			}
 		}));
 
 		// install redo action
-		installAction(component, KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_MASK), newAction("Redo", evt -> {
+		installAction(component, KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK), newAction("Redo", evt -> {
 			if (undoSupport.canRedo()) {
 				undoSupport.redo();
 			}

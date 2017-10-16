@@ -72,8 +72,8 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 
 		searchTextField.getSelectButton().addPropertyChangeListener(SelectButton.SELECTED_VALUE, selectButtonListener);
 
-		installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.SHIFT_MASK), new SpinSeasonAction(1));
-		installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.SHIFT_MASK), new SpinSeasonAction(-1));
+		installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.SHIFT_DOWN_MASK), new SpinSeasonAction(1));
+		installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.SHIFT_DOWN_MASK), new SpinSeasonAction(-1));
 	}
 
 	@Override

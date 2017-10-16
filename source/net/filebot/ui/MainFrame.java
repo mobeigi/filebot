@@ -96,7 +96,7 @@ public class MainFrame extends JFrame {
 		setMinimumSize(new Dimension(900, 340));
 
 		// KEYBOARD SHORTCUTS
-		installAction(getRootPane(), getKeyStroke(VK_DELETE, CTRL_MASK | SHIFT_MASK), newAction("Clear Cache", evt -> {
+		installAction(getRootPane(), getKeyStroke(VK_DELETE, CTRL_DOWN_MASK | SHIFT_DOWN_MASK), newAction("Clear Cache", evt -> {
 			withWaitCursor(getRootPane(), () -> {
 				CacheManager.getInstance().clearAll();
 				log.info("Cache has been cleared");

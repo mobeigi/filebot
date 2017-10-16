@@ -56,8 +56,8 @@ public class SelectButtonTextField<T> extends JComponent {
 		editor.setUI(new TextFieldComboBoxUI(selectButton));
 		editor.setMaximumRowCount(10);
 
-		SwingUI.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.CTRL_MASK), new SpinClientAction(-1));
-		SwingUI.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.CTRL_MASK), new SpinClientAction(1));
+		SwingUI.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.CTRL_DOWN_MASK), new SpinClientAction(-1));
+		SwingUI.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.CTRL_DOWN_MASK), new SpinClientAction(1));
 	}
 
 	public String getText() {
