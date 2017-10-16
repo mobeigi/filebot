@@ -1,7 +1,6 @@
 
 package net.filebot.util;
 
-
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
@@ -11,11 +10,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-
 public class TreeIteratorTest {
 
 	private List<Object> tree;
-
 
 	@Before
 	public void setUp() throws Exception {
@@ -42,12 +39,10 @@ public class TreeIteratorTest {
 		tree.add(trunk);
 	}
 
-
 	@Test
 	public void iterate() {
 		TreeIterator<Object> treeIterator = new TreeIterator<Object>(tree) {
 
-			@SuppressWarnings("unchecked")
 			@Override
 			protected Iterator<Object> children(Object node) {
 				if (node instanceof Iterable)
@@ -55,7 +50,6 @@ public class TreeIteratorTest {
 
 				return null;
 			}
-
 		};
 
 		// check leafs (String) and nodes (Iterable)

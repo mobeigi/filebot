@@ -9,7 +9,6 @@ import java.nio.channels.Channels;
 
 import org.junit.Test;
 
-@SuppressWarnings("resource")
 public class ByteBufferOutputStreamTest {
 
 	@Test

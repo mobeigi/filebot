@@ -154,7 +154,6 @@ public class Cache {
 		return new TypedCache<List<V>>(cache, cacheType, it -> it == null ? null : stream((Object[]) it).map(cls::cast).collect(toList()), it -> it == null ? null : it.toArray());
 	}
 
-	@SuppressWarnings("unchecked")
 	public static class TypedCache<V> extends Cache {
 
 		private final Function<Object, V> read;

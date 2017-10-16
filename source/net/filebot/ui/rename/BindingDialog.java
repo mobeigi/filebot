@@ -130,7 +130,6 @@ class BindingDialog extends JDialog {
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 				super.getTableCellRendererComponent(table, null, isSelected, hasFocus, row, column);
 
-				@SuppressWarnings("unchecked")
 				Future<String> future = (Future<String>) value;
 
 				// reset state

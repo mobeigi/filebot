@@ -33,7 +33,6 @@ import redstone.xmlrpc.XmlRpcException;
 import redstone.xmlrpc.XmlRpcFault;
 import redstone.xmlrpc.util.Base64;
 
-@SuppressWarnings("unchecked")
 public class OpenSubtitlesXmlRpc {
 
 	private final String useragent;

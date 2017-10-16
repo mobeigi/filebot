@@ -119,7 +119,6 @@ public class SeriesNameMatcher {
 	 * @return series names that have been matched one or multiple times depending on the threshold
 	 */
 	private Collection<String> flatMatchAll(String[] names, Pattern prefixPattern, int threshold, boolean strict) {
-		@SuppressWarnings("unchecked")
 		Comparator<String> wordComparator = (Comparator) commonSequenceMatcher.getCollator();
 		ThresholdCollection<String> thresholdCollection = new ThresholdCollection<String>(threshold, wordComparator);
 
