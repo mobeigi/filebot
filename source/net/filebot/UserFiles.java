@@ -24,9 +24,6 @@ import java.util.logging.Level;
 
 import javax.swing.JFileChooser;
 
-import com.apple.eio.FileManager;
-import com.sun.jna.platform.FileUtils;
-
 import net.filebot.platform.mac.MacAppUtilities;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
@@ -35,19 +32,15 @@ public class UserFiles {
 
 	public static void trash(File file) throws IOException {
 		// use system trash if possible
-		try {
-			if (isMacApp()) {
-				// use com.apple.eio package on OS X platform
-				if (FileManager.moveToTrash(file)) {
+		if (Desktop.getDesktop().isSupported(Desktop.Action.MOVE_TO_TRASH)) {
+			try {
+				if (Desktop.getDesktop().moveToTrash(file)) {
 					return;
 				}
-			} else if (FileUtils.getInstance().hasTrash()) {
-				// use com.sun.jna.platform package on Windows and Linux
-				FileUtils.getInstance().moveToTrash(new File[] { file });
-				return;
+				debug.log(Level.WARNING, message("Failed to move file to trash", file));
+			} catch (Exception e) {
+				debug.log(Level.WARNING, e::toString);
 			}
-		} catch (Exception e) {
-			debug.log(Level.WARNING, e::toString);
 		}
 
 		// delete permanently if necessary
@@ -57,10 +50,11 @@ public class UserFiles {
 	}
 
 	public static void revealFiles(Collection<File> files) {
-		if (isMacApp()) {
+		// try to reveal file in folder
+		if (Desktop.getDesktop().isSupported(Desktop.Action.BROWSE_FILE_DIR)) {
 			files.stream().collect(groupingBy(File::getParentFile, LinkedHashMap::new, toList())).forEach((parent, children) -> {
 				try {
-					FileManager.revealInFinder(children.get(children.size() - 1));
+					Desktop.getDesktop().browseFileDirectory(children.get(children.size() - 1));
 				} catch (Exception e) {
 					debug.log(Level.WARNING, e::toString);
 				}
