@@ -199,9 +199,7 @@ public class Main {
 		// configure main window
 		if (isMacApp()) {
 			// Mac specific configuration
-			MacAppUtilities.initializeApplication();
-			MacAppUtilities.setDefaultMenuBar(FileBotMenuBar.createHelp());
-			MacAppUtilities.setOpenFileHandler(openFiles -> SwingEventBus.getInstance().post(new FileTransferable(openFiles)));
+			MacAppUtilities.initializeApplication(FileBotMenuBar.createHelp(), files -> SwingEventBus.getInstance().post(new FileTransferable(files)));
 		} else if (isUbuntuApp()) {
 			// Ubuntu/Debian specific configuration
 			frame.setIconImages(ResourceManager.getApplicationIcons());

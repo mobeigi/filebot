@@ -1,7 +1,6 @@
 package net.filebot.platform.mac;
 
 import static ca.weblite.objc.util.CocoaUtils.*;
-import static net.filebot.Logging.*;
 
 import java.awt.Desktop;
 import java.awt.EventQueue;
@@ -14,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 
 import javax.swing.JMenuBar;
 import javax.swing.UIManager;
@@ -94,41 +92,23 @@ public class MacAppUtilities {
 		return result;
 	}
 
-	public static void setDefaultMenuBar(JMenuBar menu) {
-		try {
-			Desktop.getDesktop().setDefaultMenuBar(menu);
-		} catch (Throwable t) {
-			debug.log(Level.WARNING, t.getMessage(), t);
-		}
-	}
-
-	public static void setQuitStrategyCloseAll() {
-		try {
-			Desktop.getDesktop().setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
-		} catch (Throwable t) {
-			debug.log(Level.WARNING, t.getMessage(), t);
-		}
-	}
-
-	public static void setOpenFileHandler(Consumer<List<File>> handler) {
-		try {
-			Desktop.getDesktop().setOpenFileHandler(evt -> {
-				List<File> files = evt.getFiles();
-				if (files.size() > 0) {
-					handler.accept(files);
-				}
-			});
-		} catch (Throwable t) {
-			debug.log(Level.WARNING, t.getMessage(), t);
-		}
-	}
-
-	public static void initializeApplication() {
+	public static void initializeApplication(JMenuBar appMenuBar, Consumer<List<File>> openFileHandler) {
 		// improved UI defaults
 		UIManager.put("TitledBorder.border", UIManager.getBorder("InsetBorder.aquaVariant"));
 
 		// make sure Application Quit Events get forwarded to normal Window Listeners
-		setQuitStrategyCloseAll();
+		Desktop.getDesktop().setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
+
+		// set global menu bar
+		Desktop.getDesktop().setDefaultMenuBar(appMenuBar);
+
+		// set open file handler
+		Desktop.getDesktop().setOpenFileHandler(evt -> {
+			List<File> files = evt.getFiles();
+			if (files.size() > 0) {
+				openFileHandler.accept(files);
+			}
+		});
 	}
 
 	public static boolean isLockedFolder(File folder) {
