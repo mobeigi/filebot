@@ -759,6 +759,9 @@
 				<include name="sevenzipjbinding.jar" />
 				<include name="commons-io.jar" />
 				<include name="commons-vfs2.jar" />
+				<include name="jaxb-api.jar" />
+				<include name="jaxb-impl.jar" />
+				<include name="activation.jar" />
 				<include name="junrar.jar" />
 				<include name="jna.jar" />
 				<include name="jna-platform.jar" />
@@ -800,9 +803,6 @@
 			<classpath>
 				<fileset dir="${dir.dist}/lib" />
 			</classpath>
-
-			<!-- compile-time dependencies  -->
-			<classpath path="${dir.lib}/jars/AppleJavaExtensions.jar" />
 		</javac>
 
 		<!-- copy property files -->
