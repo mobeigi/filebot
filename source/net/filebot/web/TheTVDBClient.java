@@ -175,7 +175,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider implements Artwor
 		info.setAirsDayOfWeek(getString(data, "airsDayOfWeek"));
 		info.setAirsTime(getString(data, "airsTime"));
 		info.setBannerUrl(getStringValue(data, "banner", this::resolveImage));
-		info.setLastUpdated(getStringValue(data, "lastUpdated", Long::new));
+		info.setLastUpdated(getStringValue(data, "lastUpdated", Long::parseLong));
 
 		return info;
 	}

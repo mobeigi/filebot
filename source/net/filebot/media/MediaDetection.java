@@ -1287,13 +1287,13 @@ public class MediaDetection {
 	public static List<Integer> grepImdbId(CharSequence text) {
 		// scan for imdb id patterns like tt1234567
 		Pattern imdbId = Pattern.compile("(?<!\\p{Alnum})tt(\\d{7})(?!\\p{Alnum})", Pattern.CASE_INSENSITIVE);
-		return streamMatches(text, imdbId, m -> m.group(1)).map(Integer::new).collect(toList());
+		return streamMatches(text, imdbId, m -> m.group(1)).map(Integer::parseInt).collect(toList());
 	}
 
 	public static List<Integer> grepTheTvdbId(CharSequence text) {
 		// scan for thetvdb id patterns like http://www.thetvdb.com/?tab=series&id=78874&lid=14
 		Pattern tvdbUrl = Pattern.compile("thetvdb.com[\\p{Graph}]*?[\\p{Punct}]id=(\\d+)", Pattern.CASE_INSENSITIVE);
-		return streamMatches(text, tvdbUrl, m -> m.group(1)).map(Integer::new).collect(toList());
+		return streamMatches(text, tvdbUrl, m -> m.group(1)).map(Integer::parseInt).collect(toList());
 	}
 
 	public static Movie grepMovie(File nfo, MovieIdentificationService resolver, Locale locale) throws Exception {

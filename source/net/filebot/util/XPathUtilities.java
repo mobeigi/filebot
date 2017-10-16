@@ -127,7 +127,7 @@ public final class XPathUtilities {
 
 	public static Double getDecimal(String textContent) {
 		try {
-			return new Double(textContent);
+			return Double.parseDouble(textContent);
 		} catch (NumberFormatException | NullPointerException e) {
 			return null;
 		}

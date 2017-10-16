@@ -444,7 +444,7 @@ public class MediaBindingBean {
 		// collect value from Video Stream 0 or Image Stream 0
 		return Stream.of(StreamKind.Video, StreamKind.Image).map(k -> {
 			// collect Width and Height as Integer List
-			return Stream.of("Width", "Height").map(p -> getMediaInfo().get(k, 0, p)).filter(s -> s.length() > 0).map(Integer::new).collect(toList());
+			return Stream.of("Width", "Height").map(p -> getMediaInfo().get(k, 0, p)).filter(s -> s.length() > 0).map(Integer::parseInt).collect(toList());
 		}).filter(d -> d.size() == 2).findFirst().orElse(null);
 	}
 
@@ -800,7 +800,7 @@ public class MediaBindingBean {
 
 	@Define("bitrate")
 	public Long getOverallBitRate() {
-		return new Double(getMediaInfo(StreamKind.General, 0, "OverallBitRate")).longValue();
+		return (long) Double.parseDouble(getMediaInfo(StreamKind.General, 0, "OverallBitRate"));
 	}
 
 	@Define("kbps")
@@ -820,7 +820,7 @@ public class MediaBindingBean {
 
 	@Define("duration")
 	public Duration getDuration() {
-		long d = new Double(getMediaInfo(StreamKind.General, 0, "Duration")).longValue();
+		long d = (long) Double.parseDouble(getMediaInfo(StreamKind.General, 0, "Duration"));
 		return Duration.ofMillis(d);
 	}
 

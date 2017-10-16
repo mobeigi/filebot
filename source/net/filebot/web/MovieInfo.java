@@ -103,19 +103,19 @@ public class MovieInfo implements Crew, Serializable {
 	}
 
 	public Integer getId() {
-		return get(Property.id, Integer::new);
+		return get(Property.id, Integer::parseInt);
 	}
 
 	public Integer getImdbId() {
-		return get(Property.imdb_id, s -> new Integer(s.substring(2))); // e.g. tt0379786
+		return get(Property.imdb_id, s -> Integer.parseInt(s.substring(2))); // e.g. tt0379786
 	}
 
 	public Integer getVotes() {
-		return get(Property.vote_count, Integer::new);
+		return get(Property.vote_count, Integer::parseInt);
 	}
 
 	public Double getRating() {
-		return get(Property.vote_average, Double::new);
+		return get(Property.vote_average, Double::parseDouble);
 	}
 
 	public SimpleDate getReleased() {
@@ -123,19 +123,19 @@ public class MovieInfo implements Crew, Serializable {
 	}
 
 	public Integer getRuntime() {
-		return get(Property.runtime, Integer::new);
+		return get(Property.runtime, Integer::parseInt);
 	}
 
 	public Long getBudget() {
-		return get(Property.budget, Long::new);
+		return get(Property.budget, Long::parseLong);
 	}
 
 	public Long getRevenue() {
-		return get(Property.revenue, Long::new);
+		return get(Property.revenue, Long::parseLong);
 	}
 
 	public Double getPopularity() {
-		return get(Property.popularity, Double::new);
+		return get(Property.popularity, Double::parseDouble);
 	}
 
 	public URL getHomepage() {

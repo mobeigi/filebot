@@ -108,9 +108,9 @@ public class TMDbTVClient extends AbstractEpisodeListProvider {
 		info.setStatus(getString(tv, "status"));
 		info.setLanguage(getString(tv, "original_language"));
 		info.setStartDate(getStringValue(tv, "first_air_date", SimpleDate::parse));
-		info.setRating(getStringValue(tv, "vote_average", Double::new));
-		info.setRatingCount(getStringValue(tv, "vote_count", Integer::new));
-		info.setRuntime(stream(getArray(tv, "episode_run_time")).map(Object::toString).map(Integer::new).findFirst().orElse(null));
+		info.setRating(getStringValue(tv, "vote_average", Double::parseDouble));
+		info.setRatingCount(getStringValue(tv, "vote_count", Integer::parseInt));
+		info.setRuntime(stream(getArray(tv, "episode_run_time")).map(Object::toString).map(Integer::parseInt).findFirst().orElse(null));
 		info.setGenres(streamJsonObjects(tv, "genres").map(it -> getString(it, "name")).collect(toList()));
 		info.setNetwork(streamJsonObjects(tv, "networks").map(it -> getString(it, "name")).findFirst().orElse(null));
 

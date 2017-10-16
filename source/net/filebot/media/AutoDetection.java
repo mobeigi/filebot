@@ -310,7 +310,7 @@ public class AutoDetection {
 			return getChildren(f.getParentFile(), VIDEO_FILES, HUMAN_NAME_ORDER).stream().filter(it -> {
 				return find(dn, snm) || find(normalize(it.getName()), snm);
 			}).map(it -> {
-				return streamMatches(it.getName(), EPISODE_NUMBERS).map(Integer::new).collect(toSet());
+				return streamMatches(it.getName(), EPISODE_NUMBERS).map(Integer::parseInt).collect(toSet());
 			}).filter(it -> it.size() > 0).distinct().count() >= 10;
 		}
 

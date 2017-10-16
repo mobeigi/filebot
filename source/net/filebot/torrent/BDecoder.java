@@ -116,7 +116,7 @@ class BDecoder {
 			return null;
 
 		case 'i':
-			return new Long(getNumberFromStream(bais, 'e'));
+			return getNumberFromStream(bais, 'e');
 
 		case '0':
 		case '1':
