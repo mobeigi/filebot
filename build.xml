@@ -434,7 +434,10 @@
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 
 			<arch name="x86_64" />
-			<runtime dir="${jre.path}" />
+			<runtime dir="${jre.path}">
+				<include name="conf" />
+				<include name="legal" />
+			</runtime>
 
 			<argument value="--mode" />
 			<argument value="${application.mode}" />
