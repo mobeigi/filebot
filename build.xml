@@ -435,8 +435,7 @@
 
 			<arch name="x86_64" />
 			<runtime dir="${jre.path}">
-				<include name="conf" />
-				<include name="legal" />
+				<include name="**/*" />
 			</runtime>
 
 			<argument value="--mode" />
