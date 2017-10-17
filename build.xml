@@ -415,7 +415,7 @@
 		<!-- fetch latest JRE -->
 		<exec executable="get-java.sh" dir="${dir.cache}" failonerror="yes" />
 
-		<untar src="${dir.cache}/jre-${jre.major}u${jre.build}-macosx-x64.tar.gz" dest="${dir.cache}" compression="gzip">
+		<untar src="${dir.cache}/jre-${jre.major}_osx-x64.tar.gz" dest="${dir.cache}" compression="gzip">
 			<patternset>
 				<exclude name="**/bin/**" />
 				<exclude name="**/man/**" />
