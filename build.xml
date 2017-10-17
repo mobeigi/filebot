@@ -409,8 +409,8 @@
 		<property name="path.app" location="${dir.dist}/${application.name}.app" />
 		<property name="path.pkg" location="${dir.dist}/${application.name}_${application.version}_r${revision}.pkg" />
 
-		<property name="path.app.jre" location="${path.app}/Contents/PlugIns/jre1.${jre.major}.0_${jre.build}.jre" />
-		<property name="jre.path" location="${dir.cache}/jre1.${jre.major}.0_${jre.build}.jre/Contents/Home" />
+		<property name="path.app.jre" location="${path.app}/Contents/PlugIns/jre-${jre.major}.jre" />
+		<property name="jre.path" location="${dir.cache}/jre-${jre.major}.jre/Contents/Home" />
 
 		<!-- fetch latest JRE -->
 		<exec executable="get-java.sh" dir="${dir.cache}" failonerror="yes" />
@@ -418,10 +418,9 @@
 		<untar src="${dir.cache}/jre-${jre.major}_osx-x64_bin.tar.gz" dest="${dir.cache}" compression="gzip">
 			<patternset>
 				<exclude name="**/bin/**" />
-				<exclude name="**/man/**" />
+				<exclude name="**/include/**" />
 
 				<!-- webkit uses deprecate font libraries which is not allowed in the app store  -->
-				<exclude name="**/libjfxmedia_qtkit.dylib" />
 				<exclude name="**/libjfxwebkit.dylib" />
 			</patternset>
 		</untar>
