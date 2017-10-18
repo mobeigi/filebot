@@ -409,13 +409,13 @@
 		<property name="path.app" location="${dir.dist}/${application.name}.app" />
 		<property name="path.pkg" location="${dir.dist}/${application.name}_${application.version}_r${revision}.pkg" />
 
-		<property name="path.app.jre" location="${path.app}/Contents/PlugIns/jre-${jre.major}.jre" />
-		<property name="jre.path" location="${dir.cache}/jre-${jre.major}.jre/Contents/Home" />
+		<property name="path.app.jre" location="${path.app}/Contents/PlugIns/jre-${jre.version}.jre" />
+		<property name="jre.path" location="${dir.cache}/jre-${jre.version}.jre/Contents/Home" />
 
 		<!-- fetch latest JRE -->
 		<exec executable="get-java.sh" dir="${dir.cache}" failonerror="yes" />
 
-		<untar src="${dir.cache}/jre-${jre.major}_osx-x64_bin.tar.gz" dest="${dir.cache}" compression="gzip">
+		<untar src="${dir.cache}/jre-${jre.version}_osx-x64_bin.tar.gz" dest="${dir.cache}" compression="gzip">
 			<patternset>
 				<exclude name="**/bin/**" />
 				<exclude name="**/include/**" />
@@ -426,7 +426,7 @@
 		</untar>
 
 		<!-- MAS validation is a bit buggy and requires even libraries and frameworks to have a unique CFBundleIdentifier Collision -->
-		<replace file="${jre.path}/../Info.plist" token="com.oracle.java.${jre.major}u${jre.build}.jre" value="${application.identifier}.jre" encoding="UTF-8" />
+		<replace file="${jre.path}/../Info.plist" token="com.oracle.java.${jre.version}.jre" value="${application.identifier}.jre" encoding="UTF-8" summary="true" />
 
 
 		<bundleapp jvmrequired="${jvm.version}" minimumsystemversion="${mac.version}" outputdirectory="${dir.dist}" executablename="${application.executable}" name="${application.name}" displayname="${application.name}" version="${revision}" shortversion="${application.version}" identifier="${application.identifier}" mainclassname="${main.class}" icon="${application.icon}" copyright="${tstamp.year} ${package.company}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="true">
@@ -636,7 +636,7 @@
 			<env key="PROCESSOR_ARCHITECTURE" value="${arch.env}" />
 			<arg line="get-java" />
 		</exec>
-		<untar src="${dir.cache}/jre-${jre.major}_windows-${arch.jre}_bin.tar.gz" dest="${dir.staging}/jre" compression="gzip">
+		<untar src="${dir.cache}/jre-${jre.version}_windows-${arch.jre}_bin.tar.gz" dest="${dir.staging}/jre" compression="gzip">
 			<cutdirsmapper dirs="1" />
 		</untar>
 
@@ -832,7 +832,7 @@
 			<fileset dir="${dir.source}" includesfile="${dir.website}/docs/includes.fileset" />
 			<doctitle>${application.name} ${application.version}</doctitle>
 			<bottom>${application.name} ${application.version} (r${revision}) built on ${tstamp.date}</bottom>
-			<link href="http://docs.oracle.com/javase/${jre.major}/docs/api/" />
+			<link href="http://docs.oracle.com/javase/${jre.version}/docs/api/" />
 			<link href="http://docs.groovy-lang.org/latest/html/api/" />
 		</javadoc>
 	</target>
