@@ -184,6 +184,9 @@ public class MediaInfo implements Closeable {
 		handle = null;
 	}
 
+	/**
+	 * TODO: use {@link java.lang.ref.Cleaner} instead of Object.finalize() once Java 8 support is dropped
+	 */
 	@Override
 	protected void finalize() {
 		dispose();
