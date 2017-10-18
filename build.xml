@@ -637,6 +637,11 @@
 			<arg line="get-java" />
 		</exec>
 		<untar src="${dir.cache}/jre-${jre.version}_windows-${arch.jre}_bin.tar.gz" dest="${dir.staging}/jre" compression="gzip">
+			<patternset>
+				<exclude name="**/dtplugin/**" />
+				<exclude name="**/plugin2/**" />
+				<exclude name="**/jfxwebkit.dll" />
+			</patternset>
 			<cutdirsmapper dirs="1" />
 		</untar>
 
