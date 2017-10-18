@@ -619,7 +619,7 @@
 		<property name="dir.staging" location="${dir.dist}/appx/${arch}" />
 
 		<copy todir="${dir.staging}">
-			<fileset dir="${dir.installer}/appx" includes="*.exe, *.properties, *.ico, **/*.png" />
+			<fileset dir="${dir.installer}/appx" includes="*.exe, *.properties, *.ico, Assets/*.png" />
 			<fileset dir="${dir.lib}/native/win32-${arch}" />
 		</copy>
 		<copy todir="${dir.staging}/lib">
