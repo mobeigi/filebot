@@ -42,6 +42,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 import net.filebot.ApplicationFolder;
 import net.filebot.Language;
@@ -710,12 +711,7 @@ public class MediaDetection {
 
 			@Override
 			protected String normalize(Object object) {
-				Matcher ym = year.matcher(object.toString());
-				StringBuilder sb = new StringBuilder();
-				while (ym.find()) {
-					sb.append(ym.group()).append(' ');
-				}
-				return sb.toString().trim();
+				return streamMatches(object.toString(), year).mapToInt(Integer::parseInt).flatMap(i -> IntStream.of(i, i + 1)).mapToObj(Objects::toString).collect(joining(" "));
 			}
 
 			@Override
