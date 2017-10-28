@@ -114,7 +114,10 @@ public final class FileUtilities {
 		destination = resolve(source, destination);
 
 		// create parent folder if necessary and make sure that the folder structure is created, and throw exception if the folder structure can't be created
-		Files.createDirectories(destination.getParentFile().toPath());
+		Path parentFolder = destination.toPath().getParent();
+		if (Files.notExists(parentFolder)) {
+			Files.createDirectories(parentFolder);
+		}
 
 		return destination;
 	}
