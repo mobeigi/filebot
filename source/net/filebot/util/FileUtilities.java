@@ -115,7 +115,7 @@ public final class FileUtilities {
 
 		// create parent folder if necessary and make sure that the folder structure is created, and throw exception if the folder structure can't be created
 		Path parentFolder = destination.toPath().getParent();
-		if (Files.notExists(parentFolder)) {
+		if (Files.notExists(parentFolder, LinkOption.NOFOLLOW_LINKS)) {
 			Files.createDirectories(parentFolder);
 		}
 
