@@ -5,6 +5,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<attributes>
 			<attribute name="module" value="true"/>
+			<attribute name="limit-modules" value="java.se,javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.media,javafx.swing,javafx.web,jdk.accessibility,jdk.attach,jdk.compiler,jdk.httpserver,jdk.jartool,jdk.javadoc,jdk.jconsole,jdk.jdi,jdk.management,jdk.packager,jdk.plugin.dom,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported,oracle.desktop,oracle.net,jdk.dynalink,jdk.incubator.httpclient,jdk.jfr,jdk.jshell,jdk.jsobject,jdk.management.cmm,jdk.management.jfr,jdk.management.resource,jdk.net,jdk.packager.services,jdk.scripting.nashorn,jdk.xml.dom,java.activation,jdk.xml.bind"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/ivy/bundle/args4j.jar"/>
