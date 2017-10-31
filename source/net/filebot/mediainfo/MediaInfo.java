@@ -9,6 +9,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.ref.Cleaner;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
@@ -23,10 +24,12 @@ import com.sun.jna.WString;
 public class MediaInfo implements Closeable {
 
 	private Pointer handle;
+	private Cleaner.Cleanable cleanable;
 
 	public MediaInfo() {
 		try {
 			handle = MediaInfoLibrary.INSTANCE.New();
+			cleanable = cleaner.register(this, new Finalizer(handle));
 		} catch (LinkageError e) {
 			throw new MediaInfoException(e);
 		}
@@ -171,25 +174,7 @@ public class MediaInfo implements Closeable {
 
 	@Override
 	public synchronized void close() {
-		MediaInfoLibrary.INSTANCE.Close(handle);
-	}
-
-	public synchronized void dispose() {
-		if (handle == null) {
-			return;
-		}
-
-		// delete handle
-		MediaInfoLibrary.INSTANCE.Delete(handle);
-		handle = null;
-	}
-
-	/**
-	 * TODO: use {@link java.lang.ref.Cleaner} instead of Object.finalize() once Java 8 support is dropped
-	 */
-	@Override
-	protected void finalize() {
-		dispose();
+		cleanable.clean();
 	}
 
 	public enum StreamKind {
@@ -271,6 +256,26 @@ public class MediaInfo implements Closeable {
 	public static Map<StreamKind, List<Map<String, String>>> snapshot(File file) throws IOException {
 		try (MediaInfo mi = new MediaInfo().open(file)) {
 			return mi.snapshot();
+		}
+	}
+
+	/**
+	 * Use {@link Cleaner} instead of Object.finalize()
+	 */
+	private static final Cleaner cleaner = Cleaner.create();
+
+	private static class Finalizer implements Runnable {
+
+		private Pointer handle;
+
+		public Finalizer(Pointer handle) {
+			this.handle = handle;
+		}
+
+		@Override
+		public void run() {
+			MediaInfoLibrary.INSTANCE.Close(handle);
+			MediaInfoLibrary.INSTANCE.Delete(handle);
 		}
 	}
 
