@@ -92,11 +92,17 @@ public class TMDbClientTest {
 		assertEquals("Transformers", movie.getName());
 		assertEquals("2007-06-27", movie.getReleased().toString());
 		assertEquals("PG-13", movie.getCertification());
-		assertEquals("{NL=12, FR=U, BG=C, TH=PG-13, DK=11, SE=15 År, GB=12A, KR=12세 관람가, HU=12, BR=10, AU=M, DE=12, GR=13, US=PG-13}", movie.getCertifications().toString());
+		assertEquals("{NL=12, AU=M, BG=C, GR=13, KR=12세 관람가, DK=11, GB=12A, TH=PG-13, SE=15, BR=10, HU=12, DE=12, FR=U, US=PG-13}", movie.getCertifications().toString());
 		assertEquals("[es, en]", movie.getSpokenLanguages().toString());
 		assertEquals("Shia LaBeouf", movie.getActors().get(0));
 		assertEquals("Michael Bay", movie.getDirector());
-		assertEquals("Trailer 2 [Trailer] [720] [en_US]", movie.getTrailers().get(0).toString());
+		assertEquals("Trailer 2 [Trailer] [720] [en_US] [YouTube::ejxQOv53lXs]", movie.getTrailers().get(0).toString());
+	}
+
+	@Test
+	public void getMovieInfoHebrew() throws Exception {
+		MovieInfo movie = db.getMovieInfo(new Movie(1260396), Locale.forLanguageTag("he-IL"), false);
+		assertEquals("שבעה", movie.getName());
 	}
 
 	@Test
