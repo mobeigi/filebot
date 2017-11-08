@@ -100,9 +100,12 @@ public class TMDbClientTest {
 	}
 
 	@Test
-	public void getMovieInfoHebrew() throws Exception {
-		MovieInfo movie = db.getMovieInfo(new Movie(1260396), Locale.forLanguageTag("he-IL"), false);
-		assertEquals("שבעה", movie.getName());
+	public void getMovieInfoForceLanguageCode() throws Exception {
+		MovieInfo shiva = db.getMovieInfo(new Movie(1260396), Locale.forLanguageTag("he-IL"), false);
+		assertEquals("שבעה", shiva.getName());
+
+		MovieInfo raid = db.getMovieInfo(new Movie(1899353), Locale.forLanguageTag("id-ID"), false);
+		assertEquals("Serbuan Maut", raid.getName());
 	}
 
 	@Test
