@@ -390,9 +390,9 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		// but this function always returns the old code.
 		switch (language) {
 		case "iw":
-			return "he"; // Hebrew
+			return "he-IL"; // Hebrew
 		case "in":
-			return "id"; // Indonesian
+			return "id-ID"; // Indonesian
 		case "":
 			return null; // empty language code
 		}
