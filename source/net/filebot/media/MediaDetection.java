@@ -1119,8 +1119,8 @@ public class MediaDetection {
 				if (VIDEO_FILES.accept(f) && f.length() > ONE_MEGABYTE) {
 					try (MediaInfo mi = new MediaInfo().open(f)) {
 						Object d = Duration.ofMillis(Long.parseLong(mi.get(StreamKind.General, 0, "Duration"))).toMinutes() < 10 ? ChronoUnit.MINUTES : ChronoUnit.HOURS;
-						String v = mi.get(StreamKind.Video, 0, "Codec");
-						String a = mi.get(StreamKind.Audio, 0, "Codec");
+						String v = mi.get(StreamKind.Video, 0, "CodecID");
+						String a = mi.get(StreamKind.Audio, 0, "CodecID");
 						String w = mi.get(StreamKind.Video, 0, "Width");
 						String h = mi.get(StreamKind.Video, 0, "Height");
 						return asList(d, v, a, w, h);
