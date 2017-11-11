@@ -141,18 +141,8 @@ public class ReleaseInfo {
 	}
 
 	protected String matchLast(Pattern pattern, String[] paragon, CharSequence... sequence) {
-		String lastMatch = null;
-
 		// match last occurrence
-		for (CharSequence name : sequence) {
-			if (name == null)
-				continue;
-
-			Matcher matcher = pattern.matcher(name);
-			while (matcher.find()) {
-				lastMatch = matcher.group();
-			}
-		}
+		String lastMatch = stream(sequence).filter(Objects::nonNull).map(s -> matchLastOccurrence(s, pattern)).filter(Objects::nonNull).findFirst().orElse(null);
 
 		// prefer standard value over matched value
 		if (lastMatch != null && paragon != null) {

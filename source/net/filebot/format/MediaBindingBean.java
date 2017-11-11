@@ -1262,9 +1262,9 @@ public class MediaBindingBean {
 	private Pattern getKeywordExcludePattern() {
 		// collect key information
 		List<Object> keys = new ArrayList<Object>();
-		keys.add(getName());
 
 		if (infoObject instanceof Episode || infoObject instanceof Movie) {
+			keys.add(getName());
 			keys.addAll(getAliasNames());
 
 			if (infoObject instanceof Episode) {

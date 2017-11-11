@@ -55,6 +55,17 @@ public final class StringUtilities {
 		return null;
 	}
 
+	public static String matchLastOccurrence(CharSequence s, Pattern pattern) {
+		String lastMatch = null;
+
+		Matcher matcher = pattern.matcher(s);
+		while (matcher.find()) {
+			lastMatch = matcher.group();
+		}
+
+		return lastMatch;
+	}
+
 	public static Stream<String> tokenize(CharSequence s) {
 		return tokenize(s, SPACE);
 	}
