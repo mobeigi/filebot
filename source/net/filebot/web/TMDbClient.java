@@ -308,8 +308,8 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 		}
 
 		try {
-			String mirror = (String) Cache.getCache(getName(), CacheType.Monthly).computeIfAbsent("configuration.base_url", it -> {
-				return getString(getMap(getConfiguration(), "images"), "base_url");
+			String mirror = (String) Cache.getCache(getName(), CacheType.Monthly).computeIfAbsent("configuration.secure_base_url", it -> {
+				return getString(getMap(getConfiguration(), "images"), "secure_base_url");
 			});
 			return new URL(mirror + "original" + path);
 		} catch (Exception e) {
