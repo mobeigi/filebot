@@ -188,11 +188,6 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			}
 		});
 
-		// lookup subtitles by tag
-		if (remainingFiles.size() > 0) {
-			results.putAll(getSubtitleListByTag(remainingFiles.toArray(new File[0]), locale));
-		}
-
 		return results;
 	}
 
