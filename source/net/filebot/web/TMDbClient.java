@@ -123,7 +123,7 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 
 		if (extendedInfo) {
 			try {
-				Object response = request(path + "/alternative_titles", emptyMap(), Locale.ENGLISH);
+				Object response = request(path + "/alternative_titles", emptyMap(), Locale.US);
 				streamJsonObjects(response, key).map(n -> {
 					return getString(n, "title");
 				}).filter(Objects::nonNull).filter(n -> n.length() >= 2).forEach(alternativeTitles::add);
