@@ -22,7 +22,6 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -547,7 +546,7 @@ public class RenamePanel extends JComponent {
 		actionPopup.addSeparator();
 
 		actionPopup.addDescription(new JLabel("Action:"));
-		for (StandardRenameAction action : EnumSet.of(StandardRenameAction.MOVE, StandardRenameAction.COPY, StandardRenameAction.KEEPLINK, StandardRenameAction.SYMLINK, StandardRenameAction.HARDLINK)) {
+		for (StandardRenameAction action : Preset.getSupportedActions()) {
 			actionPopup.add(new SetRenameAction(action));
 		}
 

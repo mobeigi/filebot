@@ -11,6 +11,8 @@ import java.nio.file.LinkOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
+import com.sun.jna.Platform;
+
 import net.filebot.util.FileUtilities;
 
 public enum StandardRenameAction implements RenameAction {
@@ -79,6 +81,35 @@ public enum StandardRenameAction implements RenameAction {
 		}
 	},
 
+	CLONE {
+
+		@Override
+		public File rename(File from, File to) throws Exception {
+			File dest = FileUtilities.resolveDestination(from, to);
+
+			// clonefile or reflink requires filesystem that supports copy-on-write (e.g. apfs or btrfs)
+			ProcessBuilder process = new ProcessBuilder();
+
+			if (Platform.isMac()) {
+				// -c copy files using clonefile
+				process.command("cp", "-c", "-f", from.getPath(), dest.getPath());
+			} else {
+				// --reflink copy files using reflink
+				process.command("cp", "--reflink", "--force", from.isDirectory() ? "--recursive" : "--no-target-directory", from.getPath(), dest.getPath());
+			}
+
+			process.directory(from.getParentFile());
+			process.inheritIO();
+
+			int exitCode = process.start().waitFor();
+			if (exitCode != 0) {
+				throw new IOException(String.format("%s failed with exit code %d", process.command(), exitCode));
+			}
+
+			return dest;
+		}
+	},
+
 	DUPLICATE {
 
 		@Override
@@ -88,26 +119,6 @@ public enum StandardRenameAction implements RenameAction {
 			} catch (Exception e) {
 				return COPY.rename(from, to);
 			}
-		}
-	},
-
-	REFLINK {
-
-		@Override
-		public File rename(File from, File to) throws Exception {
-			File dest = FileUtilities.resolveDestination(from, to);
-
-			// reflink requires Linux and a filesystem that supports copy-on-write (e.g. btrfs)
-			ProcessBuilder process = new ProcessBuilder("cp", "--reflink", "--force", from.isDirectory() ? "--recursive" : "--no-target-directory", from.getPath(), dest.getPath());
-			process.directory(from.getParentFile());
-			process.inheritIO();
-
-			int exitCode = process.start().waitFor();
-			if (exitCode != 0) {
-				throw new IOException(String.format("reflink: %s failed with exit code %d", process.command(), exitCode));
-			}
-
-			return dest;
 		}
 	},
 
@@ -136,10 +147,10 @@ public enum StandardRenameAction implements RenameAction {
 			return "Symlink";
 		case HARDLINK:
 			return "Hardlink";
+		case CLONE:
+			return "Clone";
 		case DUPLICATE:
 			return "Hardlink or Copy";
-		case REFLINK:
-			return "Lightweight Copy";
 		default:
 			return "Test";
 		}
@@ -157,10 +168,10 @@ public enum StandardRenameAction implements RenameAction {
 			return "Symlinking";
 		case HARDLINK:
 			return "Hardlinking";
+		case CLONE:
+			return "Cloning";
 		case DUPLICATE:
 			return "Duplicating";
-		case REFLINK:
-			return "Reflinking";
 		default:
 			return "Testing";
 		}

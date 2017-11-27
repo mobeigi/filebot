@@ -2,6 +2,7 @@ package net.filebot.ui.rename;
 
 import static java.util.Collections.*;
 import static net.filebot.Logging.*;
+import static net.filebot.Settings.*;
 import static net.filebot.WebServices.*;
 import static net.filebot.util.FileUtilities.*;
 
@@ -147,7 +148,14 @@ public class Preset {
 	}
 
 	public static StandardRenameAction[] getSupportedActions() {
-		return new StandardRenameAction[] { StandardRenameAction.MOVE, StandardRenameAction.COPY, StandardRenameAction.KEEPLINK, StandardRenameAction.SYMLINK, StandardRenameAction.HARDLINK };
+		if (isWindowsApp()) {
+			// CoW clones not supported on Windows
+			return new StandardRenameAction[] { StandardRenameAction.MOVE, StandardRenameAction.COPY, StandardRenameAction.KEEPLINK, StandardRenameAction.SYMLINK, StandardRenameAction.HARDLINK };
+		} else {
+			// CoW clones / reflinks supported on macOS and Linux
+			return new StandardRenameAction[] { StandardRenameAction.MOVE, StandardRenameAction.COPY, StandardRenameAction.KEEPLINK, StandardRenameAction.SYMLINK, StandardRenameAction.HARDLINK, StandardRenameAction.CLONE };
+		}
+
 	}
 
 	public static Language[] getSupportedLanguages() {
