@@ -42,7 +42,8 @@ public enum NativeRenameAction implements RenameAction {
 	private static void SHFileOperation(NativeRenameAction action, String[] src, String[] dst) {
 		// configure parameter structure
 		SHFILEOPSTRUCT op = new SHFILEOPSTRUCT();
-		op.wFunc = (action == MOVE) ? ShellAPI.FO_MOVE : ShellAPI.FO_COPY;
+
+		op.wFunc = SHFileOperationFunction(action);
 		op.fFlags = Shell32.FOF_MULTIDESTFILES | Shell32.FOF_NOCOPYSECURITYATTRIBS | Shell32.FOF_NOCONFIRMATION | Shell32.FOF_NOCONFIRMMKDIR;
 
 		op.pFrom = op.encodePaths(src);
@@ -52,6 +53,17 @@ public enum NativeRenameAction implements RenameAction {
 
 		if (op.fAnyOperationsAborted) {
 			throw new CancellationException(action.name() + " cancelled");
+		}
+	}
+
+	private static int SHFileOperationFunction(NativeRenameAction action) {
+		switch (action) {
+		case MOVE:
+			return ShellAPI.FO_MOVE;
+		case COPY:
+			return ShellAPI.FO_COPY;
+		default:
+			throw new UnsupportedOperationException("SHFileOperation not supported: " + action);
 		}
 	}
 
