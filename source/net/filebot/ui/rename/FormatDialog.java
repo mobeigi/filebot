@@ -2,6 +2,7 @@ package net.filebot.ui.rename;
 
 import static java.awt.Font.*;
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static javax.swing.BorderFactory.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
@@ -23,6 +24,7 @@ import java.text.Format;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
@@ -703,20 +705,12 @@ public class FormatDialog extends JDialog {
 			// create new recent history and ignore duplicates
 			Set<String> recent = new LinkedHashSet<String>();
 
-			// add new format first
+			// remember the 8 most recent formats
 			recent.add(format.getExpression());
-
-			// save the 8 most recent formats
-			for (String expression : mode.persistentFormatHistory()) {
-				recent.add(expression);
-
-				if (recent.size() >= 8) {
-					break;
-				}
-			}
+			recent.addAll(mode.persistentFormatHistory());
 
 			// update persistent history
-			mode.persistentFormatHistory().set(recent);
+			mode.persistentFormatHistory().set(recent.stream().filter(Objects::nonNull).limit(8).collect(toList()));
 
 			finish(true);
 		} catch (ScriptException e) {
