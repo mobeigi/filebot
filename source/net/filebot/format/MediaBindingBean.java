@@ -630,6 +630,8 @@ public class MediaBindingBean {
 			return getMovieInfo().getGenres();
 		if (infoObject instanceof Episode)
 			return getSeriesInfo().getGenres();
+		if (infoObject instanceof AudioTrack)
+			return Stream.of(getMusic().getGenre()).filter(Objects::nonNull).collect(toList());
 
 		return null;
 	}

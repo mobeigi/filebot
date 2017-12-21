@@ -95,6 +95,7 @@ public class ID3Lookup implements MusicIdentificationService {
 		String album = getString(m, "Album");
 		String albumArtist = getString(m, "Album/Performer");
 		String trackTitle = getString(m, "Track");
+		String genre = getString(m, "Genre");
 		Integer mediumIndex = null;
 		Integer mediumCount = null;
 		Integer trackIndex = getInteger(m, "Track/Position");
@@ -113,7 +114,7 @@ public class ID3Lookup implements MusicIdentificationService {
 			}
 		}
 
-		return new AudioTrack(artist, title, album, albumArtist, trackTitle, albumReleaseDate, mediumIndex, mediumCount, trackIndex, trackCount, mbid, getIdentifier());
+		return new AudioTrack(artist, title, album, albumArtist, trackTitle, genre, albumReleaseDate, mediumIndex, mediumCount, trackIndex, trackCount, mbid, getIdentifier());
 	}
 
 	public Episode getEpisode(MediaInfo m) {
