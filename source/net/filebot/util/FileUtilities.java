@@ -301,7 +301,7 @@ public final class FileUtilities {
 	 *
 	 * e.g. "file.txt" -> match "txt", ".hidden" -> no match
 	 */
-	public static final Pattern EXTENSION = Pattern.compile("(?<=.[.])\\p{Alnum}+$");
+	public static final Pattern EXTENSION = Pattern.compile("(?<=.[.])[\\p{Alnum}-]+$");
 	public static final String UNC_PREFIX = "\\\\";
 
 	public static String getExtension(File file) {
