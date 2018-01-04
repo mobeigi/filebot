@@ -15,7 +15,7 @@
     Being a dick includes - but is not limited to - the following instances:
 
         1a. Outright copyright infringement - Don't just copy this and change the name.
-        1b. Selling or publishing the unmodified with no meaningful work done what-so-ever, that's REALLY being a dick.
+        1b. Selling or publishing the unmodified original with no meaningful work done what-so-ever, that's REALLY being a dick.
         1c. Modifying the original work to contain hidden harmful content. That would make you a PROPER dick.
         1d. Publishing binaries or competing clones that undermine the ability of the original author to make money from his work. That would be a DICK move.
 
