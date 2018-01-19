@@ -149,7 +149,7 @@ public class AutoDetection {
 		try {
 			stream(files).collect(toMap(f -> f, f -> workerThreadPool.submit(() -> detectGroup(f)))).forEach((file, group) -> {
 				try {
-					groups.computeIfAbsent(group.get(), k -> new TreeSet<File>()).add(file);
+					groups.computeIfAbsent(group.get(), k -> new TreeSet<File>()).add(new File(file.getPath())); // use FastFile internally but do not expose to outside code that expects File objects
 				} catch (Exception e) {
 					debug.log(Level.SEVERE, e.getMessage(), e);
 				}
