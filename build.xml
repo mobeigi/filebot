@@ -11,8 +11,7 @@
 
 	<!-- import property files -->
 	<property file="${basedir}/profile.properties" />
-	<property file="${dir.installer}/ant/ant.properties" />
-	<property file="${dir.source}/net/filebot/Settings.properties" />
+	<property file="${basedir}/app.properties" />
 
 	<property name="release" value="${application.name}_${application.version}" />
 
@@ -1022,5 +1021,14 @@
 		</release-deploy>
 	</target>
 
+
+	<target name="eclipse-properties-builder">
+		<exec executable="git" outputproperty="revision" failonerror="true">
+			<arg line="rev-list --count master" />
+		</exec>
+		<copy-replace todir="bin">
+			<fileset dir="source" includes="**/*.properties" />
+		</copy-replace>
+	</target>
 
 </project>

@@ -39,11 +39,7 @@ public final class Settings {
 	}
 
 	public static String getApiKey(String name) {
-		if (isAppStore()) {
-			return getApplicationProperty("com.apikey." + name);
-		} else {
-			return getApplicationProperty("apikey." + name);
-		}
+		return getApplicationProperty("apikey." + name);
 	}
 
 	public static boolean isUnixFS() {
