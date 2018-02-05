@@ -328,7 +328,7 @@ public class ExpressionFormatMethods {
 
 	public static String replacePart(String self, String replacement) {
 		// handle '(n)', '(Part n)' and ': Part n' like syntax
-		String[] patterns = new String[] { "\\s*[(](\\w+)[)]$", "\\W+Part (\\w+)\\W*$" };
+		String[] patterns = new String[] { "\\s*[(](\\w{1,3})[)]$", "\\W+Part (\\w+)\\W*$" };
 
 		for (String pattern : patterns) {
 			Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS).matcher(self);
