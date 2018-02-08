@@ -376,8 +376,11 @@ public class MediaBindingBean {
 	public String getAudioChannels() {
 		String channels = getMediaInfo(StreamKind.Audio, 0, "Channel(s)_Original", "Channel(s)");
 
+		// e.g. 15 objects / 6 channels
+		int ch = tokenize(channels, SLASH).map(s -> matchInteger(s)).filter(Objects::nonNull).min(Integer::compare).get();
+
 		// get first number, e.g. 6ch
-		return String.format("%dch", matchInteger(channels));
+		return ch + "ch";
 	}
 
 	@Define("channels")
