@@ -14,9 +14,7 @@ import net.filebot.web.EpisodeFormat;
 import net.filebot.web.Movie;
 import net.filebot.web.MoviePart;
 
-public enum NamingStandard {
-
-	Plex;
+public class PlexNamingStandard {
 
 	public String getPath(Object o) {
 		if (o instanceof Episode)
@@ -30,20 +28,13 @@ public enum NamingStandard {
 	}
 
 	public String getPath(Episode e) {
-		// enforce title length limit by default
-		String episodeTitle = truncateText(EpisodeFormat.SeasonEpisode.formatMultiTitle(getMultiEpisodeList(e)), TITLE_MAX_LENGTH);
-
-		// Anime
 		if (isAnime(e)) {
-			String primaryTitle = e.getSeriesInfo().getName();
-			String episode = String.join(" - ", primaryTitle, EpisodeFormat.SeasonEpisode.formatSxE(e), episodeTitle);
-			return path(getAnimeFolder(), primaryTitle, episode);
+			// Anime
+			return path(getSeriesFolder(), getSeriesFolder(e), getEpisodeName(e));
+		} else {
+			// TV Series
+			return path(getSeriesFolder(), getSeriesFolder(e), getSeasonFolder(e), getEpisodeName(e));
 		}
-
-		// TV Series
-		String episode = String.join(" - ", e.getSeriesName(), EpisodeFormat.SeasonEpisode.formatS00E00(e), episodeTitle);
-		String season = e.getSpecial() != null ? getSpecialFolder(e.getSeason()) : e.getSeason() != null ? getSeasonFolder(e.getSeason()) : null;
-		return path(getSeriesFolder(), e.getSeriesName(), season, episode);
 	}
 
 	public String getPath(Movie m) {
@@ -104,12 +95,50 @@ public enum NamingStandard {
 		return "Music";
 	}
 
-	public String getSpecialFolder(Integer season) {
-		return "Specials";
+	public String getSeriesFolder(Episode e) {
+		return formatSeriesName(e);
 	}
 
-	public String getSeasonFolder(Integer season) {
-		return String.format("Season %02d", season == null ? 0 : season);
+	public String getSeasonFolder(Episode e) {
+		if (e.getSpecial() != null) {
+			return "Specials";
+		}
+
+		if (e.getSeason() != null) {
+			return String.format("Season %02d", e.getSeason());
+		}
+
+		return null;
+	}
+
+	public String getEpisodeName(Episode e) {
+		return String.join(" - ", formatSeriesName(e), formatEpisodeNumbers(e), formatEpisodeTitle(e));
+	}
+
+	public String formatSeriesName(Episode e) {
+		if (isAnime(e)) {
+			// Anime
+			return e.getSeriesInfo().getName(); // series info name is the primary Anime name
+		} else {
+			// TV Series
+			return e.getSeriesName();
+		}
+	}
+
+	public String formatEpisodeNumbers(Episode e) {
+		if (isAnime(e)) {
+			// Anime
+			return EpisodeFormat.SeasonEpisode.formatSxE(e);
+		} else {
+			// TV Series
+			return EpisodeFormat.SeasonEpisode.formatS00E00(e);
+		}
+
+	}
+
+	public String formatEpisodeTitle(Episode e) {
+		// enforce title length limit by default
+		return truncateText(EpisodeFormat.SeasonEpisode.formatMultiTitle(getMultiEpisodeList(e)), TITLE_MAX_LENGTH);
 	}
 
 	public static final int TITLE_MAX_LENGTH = 150;
