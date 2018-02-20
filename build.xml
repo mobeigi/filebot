@@ -334,40 +334,12 @@
 	</target>
 
 
-	<target name="appbundle" description="Build Mac application bundle" depends="revision">
-		<bundleapp outputdirectory="${dir.dist}" executablename="filebot.launcher" hidedockicon="true" minimumsystemversion="${mac.version}" jvmrequired="${jvm.version}" name="${application.name}" displayname="${application.name} ${application.version}" version="${revision}" shortversion="${application.version}" identifier="${package.identifier}.Command" mainclassname="${main.class}" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} ${package.developer}" applicationcategory="${mac.application.category}" highresolutioncapable="true" supportsautomaticgraphicsswitching="true" debug="false">
-			<classpath file="${path.fatjar}" />
-			<librarypath dir="${dir.lib}/native/mac-x86_64" />
-			<librarypath dir="${dir.installer}/appbundle/MacOS" />
-
-			<arch name="x86_64" />
-
-			<option value="-Dapplication.deployment=app" />
-			<option value="-Dapplication.update=auto" />
-			<option value="-Dunixfs=false" />
-			<option value="-DuseExtendedFileAttributes=true" />
-			<option value="-DuseCreationDate=false" />
-
-			<option value="-Djava.net.useSystemProxies=true" />
-			<option value="-Dfile.encoding=UTF-8" />
-
-			<option value="-Djna.nosys=true" />
-			<option value="-Djna.library.path=$APP_ROOT/Contents/MacOS" />
-			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
-			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
-
-			<option value="-Xdock:name=${application.name}" />
-			<option value="-Xdock:icon=Contents/Resources/filebot.icns" />
-			<option value="-Dapple.laf.useScreenMenuBar=true" />
-		</bundleapp>
-
-		<!-- application bundle folder as tar -->
+	<target name="cask" description="Build Mac application bundle">
 		<tar destfile="${dir.dist}/${release}-darwin.tar.xz" compression="xz" longfile="posix" encoding="utf-8">
-			<tarfileset dir="${dir.dist}" includes="${application.name}.app/**" excludes="**/MacOS/**" />
-			<tarfileset dir="${dir.dist}" includes="${application.name}.app/**/**.dylib" />
-
-			<tarfileset dir="${dir.dist}" includes="${application.name}.app/**/fpcalc" filemode="755" />
-			<tarfileset dir="${dir.dist}" includes="${application.name}.app/**/**.sh" filemode="755" />
+			<tarfileset file="${path.fatjar}" fullpath="FileBot.jar" />
+			<tarfileset dir="${dir.installer}/cask" includes="*.sh" filemode="755" />
+			<tarfileset prefix="lib" dir="${dir.lib}/native/mac-x86_64" includes="fpcalc" filemode="755" />
+			<tarfileset prefix="lib" dir="${dir.lib}/native/mac-x86_64" includes="*.dylib" />
 		</tar>
 	</target>
 
@@ -865,7 +837,7 @@
 	</target>
 
 
-	<target name="stage-release" depends="fatjar, spk, portable, appbundle">
+	<target name="stage-release" depends="fatjar, spk, cask, portable">
 		<!-- ensure clean release dir -->
 		<delete dir="${dir.release}" />
 		<mkdir dir="${dir.release}" />
