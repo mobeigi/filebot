@@ -616,6 +616,13 @@
 			<cutdirsmapper dirs="1" />
 		</untar>
 
+
+		<!-- Workaround for VS2013 / CoInitialize hack (see http://mail.openjdk.java.net/pipermail/swing-dev/2018-February/008323.html) -->
+		<delete verbose="yes">
+			<fileset dir="${dir.staging}/jre" includes="**/*120*.dll" />
+		</delete>
+
+
 		<!-- package APPX -->
 		<exec executable="makepri" dir="${dir.staging}" failonerror="yes">
 			<arg line="createconfig /o /pv 10.0.0 /cf priconfig.xml /dq en-US" />
