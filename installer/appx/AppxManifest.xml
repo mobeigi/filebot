@@ -26,7 +26,7 @@
 	</Resources>
 
 	<Dependencies>
-		<TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.14393.351" MaxVersionTested="10.0.16299.15" />
+		<TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.16299.248" MaxVersionTested="10.0.16299.248" />
 
 		<!-- Workaround for VS2013 / CoInitialize hack (see http://mail.openjdk.java.net/pipermail/swing-dev/2018-February/008323.html) -->
 		<PackageDependency Name="Microsoft.VCLibs.120.00.UWPDesktop" MinVersion="12.0.40653.0" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" />
