@@ -1,8 +1,12 @@
 package net.filebot.platform.windows;
 
+import static javax.swing.BorderFactory.*;
 import static net.filebot.Logging.*;
 
+import java.awt.Color;
 import java.util.logging.Level;
+
+import javax.swing.UIManager;
 
 import com.sun.jna.WString;
 import com.sun.jna.platform.win32.Shell32;
@@ -29,6 +33,11 @@ public class WinAppUtilities {
 			debug.log(Level.WARNING, t.getMessage(), t);
 		}
 		return null;
+	}
+
+	public static void initializeApplication() {
+		// improved UI defaults
+		UIManager.put("TitledBorder.border", createCompoundBorder(createLineBorder(new Color(0xD7D7D7), 1, true), createCompoundBorder(createMatteBorder(7, 5, 6, 5, new Color(0xE5E5E5)), createEmptyBorder(0, 2, 0, 2))));
 	}
 
 	private WinAppUtilities() {

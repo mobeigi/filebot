@@ -36,6 +36,7 @@ import net.filebot.cli.ArgumentBean;
 import net.filebot.cli.ArgumentProcessor;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.platform.mac.MacAppUtilities;
+import net.filebot.platform.windows.WinAppUtilities;
 import net.filebot.ui.FileBotMenuBar;
 import net.filebot.ui.GettingStartedStage;
 import net.filebot.ui.MainFrame;
@@ -205,6 +206,7 @@ public class Main {
 			frame.setIconImages(ResourceManager.getApplicationIcons());
 		} else if (isWindowsApp()) {
 			// Windows specific configuration
+			WinAppUtilities.initializeApplication();
 			frame.setIconImages(ResourceManager.getApplicationIcons());
 		} else {
 			// generic Linux/FreeBSD/Solaris configuration
