@@ -30,7 +30,7 @@ public class PlexNamingStandard {
 	public String getPath(Episode e) {
 		if (isAnime(e)) {
 			// Anime
-			return path(getSeriesFolder(), getSeriesFolder(e), getEpisodeName(e));
+			return path(getAnimeFolder(), getSeriesFolder(e), getEpisodeName(e));
 		} else {
 			// TV Series
 			return path(getSeriesFolder(), getSeriesFolder(e), getSeasonFolder(e), getEpisodeName(e));
