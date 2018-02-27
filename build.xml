@@ -783,7 +783,7 @@
 		</copy>
 
 		<!-- compile -->
-		<javac srcdir="${dir.source}" destdir="${dir.build}" target="${jvm.version}" source="${jvm.version}" encoding="utf-8" debug="yes" debuglevel="lines,vars,source" includeAntRuntime="no">
+		<javac srcdir="${dir.source}" destdir="${dir.build}" release="${jvm.version}" target="${jvm.version}" source="${jvm.version}" encoding="utf-8" debug="yes" debuglevel="lines,vars,source" includeAntRuntime="no">
 			<classpath>
 				<fileset dir="${dir.dist}/lib" />
 			</classpath>
