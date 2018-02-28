@@ -385,18 +385,21 @@
 
 		<!-- fetch latest JRE -->
 		<exec executable="get-java.sh" dir="${dir.cache}" failonerror="yes" />
+		<untar src="${dir.cache}/jre-${jre.version}_osx-x64_bin.tar.gz" dest="${dir.cache}" compression="gzip" />
 
-		<untar src="${dir.cache}/jre-${jre.version}_osx-x64_bin.tar.gz" dest="${dir.cache}" compression="gzip">
-			<patternset>
-				<exclude name="**/bin/**" />
-				<exclude name="**/deploy/**" />
-				<exclude name="**/nibs/**" />
-				<exclude name="**/shortcuts/**" />
+
+		<!-- MAS validation does not like certain files included in the JRE -->
+		<delete verbose="yes" includeEmptyDirs="yes">
+			<fileset dir="${jre.path}">
+				<include name="**/bin/**" />
+				<include name="**/deploy/**" />
+				<include name="**/nibs/**" />
+				<include name="**/shortcuts/**" />
 
 				<!-- webkit uses deprecate font libraries which is not allowed in the app store  -->
-				<exclude name="**/libjfxwebkit.dylib" />
-			</patternset>
-		</untar>
+				<include name="**/libjfxwebkit.dylib" />
+			</fileset>
+		</delete>
 
 		<!-- MAS validation is a bit buggy and requires even libraries and frameworks to have a unique CFBundleIdentifier Collision -->
 		<replace file="${jre.path}/../Info.plist" token="com.oracle.java.${jre.version}.jre" value="${application.identifier}.jre" encoding="UTF-8" summary="true" />
