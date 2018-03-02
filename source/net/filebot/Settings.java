@@ -87,7 +87,7 @@ public final class Settings {
 	}
 
 	public static boolean isMacApp() {
-		return isApplicationDeployment("mas", "app");
+		return isApplicationDeployment("mas", "cask");
 	}
 
 	public static boolean isMacSandbox() {
