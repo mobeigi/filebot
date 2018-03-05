@@ -41,7 +41,7 @@ public class WinAppUtilities {
 		// improved UI defaults
 		UIManager.put("TitledBorder.border", createCompoundBorder(createLineBorder(new Color(0xD7D7D7), 1, true), createCompoundBorder(createMatteBorder(6, 5, 6, 5, new Color(0xE5E5E5)), createEmptyBorder(0, 2, 0, 2))));
 
-		// disable MigLayout auto-scaling (see https://github.com/mikaelgrev/miglayout/issues/53)
+		// disable MigLayout scaling to fix layout on high-resolution screens (see https://github.com/mikaelgrev/miglayout/issues/53)
 		PlatformDefaults.setLogicalPixelBase(PlatformDefaults.BASE_REAL_PIXEL);
 	}
 

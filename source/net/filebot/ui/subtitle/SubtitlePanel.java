@@ -76,8 +76,8 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		add(createImageButton(setUserAction), "w pref!, h 2+pref!, gap rel, sgy button", 2);
 
 		// add at the top right corner
-		add(uploadDropTarget, "width 1.45cm!, height 1.2cm!, pos n 0% 100%-1.8cm n", 0);
-		add(downloadDropTarget, "width 1.45cm!, height 1.2cm!, pos n 0% 100%-0.15cm n", 0);
+		add(uploadDropTarget, "width 50px!, height 40px!, pos n 0% 100%-60px n", 0);
+		add(downloadDropTarget, "width 50px!, height 40px!, pos n 0% 100%-5px n", 0);
 	}
 
 	@Subscribe
