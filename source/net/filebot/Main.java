@@ -203,14 +203,14 @@ public class Main {
 			MacAppUtilities.initializeApplication(FileBotMenuBar.createHelp(), files -> SwingEventBus.getInstance().post(new FileTransferable(files)));
 		} else if (isUbuntuApp()) {
 			// Ubuntu/Debian specific configuration
-			frame.setIconImages(ResourceManager.getApplicationIcons());
+			frame.setIconImages(ResourceManager.getApplicationIconImages());
 		} else if (isWindowsApp()) {
 			// Windows specific configuration
 			WinAppUtilities.initializeApplication();
-			frame.setIconImages(ResourceManager.getApplicationIcons());
+			frame.setIconImages(ResourceManager.getApplicationIconImages());
 		} else {
 			// generic Linux/FreeBSD/Solaris configuration
-			frame.setIconImages(ResourceManager.getApplicationIcons());
+			frame.setIconImages(ResourceManager.getApplicationIconImages());
 		}
 
 		// start application
