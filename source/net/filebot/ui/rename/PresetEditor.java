@@ -79,8 +79,8 @@ public class PresetEditor extends JDialog {
 
 		presetNameHeader = new HeaderPanel();
 
-		inheritRadio = new JRadioButton("<html>Use <b>Original Files</b> selection</html>");
-		selectRadio = new JRadioButton("<html>Do <b>Select</b> files</html>");
+		inheritRadio = new JRadioButton("<html><nobr>Use <b>Original Files</b> selection</nobr></html>");
+		selectRadio = new JRadioButton("<html><nobr>Do <b>Select</b> files</nobr></html>");
 		pathInput = new JTextField(40);
 
 		filterEditor = createEditor();
