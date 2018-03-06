@@ -6,15 +6,10 @@ import static net.filebot.ui.LanguageComboBoxModel.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dialog.ModalityType;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
-import java.awt.geom.Path2D;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
@@ -76,8 +71,8 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		add(createImageButton(setUserAction), "w pref!, h 2+pref!, gap rel, sgy button", 2);
 
 		// add at the top right corner
-		add(uploadDropTarget, "width 50px!, height 40px!, pos n 0% 100%-60px n", 0);
-		add(downloadDropTarget, "width 50px!, height 40px!, pos n 0% 100%-5px n", 0);
+		add(uploadDropTarget, "width 54px!, height 54px!", 4);
+		add(downloadDropTarget, "width 54px!, height 54px!, gap after 10px", 5);
 	}
 
 	@Subscribe
@@ -96,30 +91,6 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		public OpenSubtitlesClient getSubtitleService() {
 			return WebServices.OpenSubtitles;
 		};
-
-		@Override
-		protected void paintComponent(Graphics g) {
-			Graphics2D g2d = (Graphics2D) g.create();
-			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-			Path2D path = new Path2D.Float();
-			path.moveTo(0, 0);
-			path.lineTo(0, getHeight() - 1 - 12);
-			path.lineTo(12, getHeight() - 1);
-			path.lineTo(getWidth() - 1 - 12, getHeight() - 1);
-			path.lineTo(getWidth() - 1, getHeight() - 1 - 12);
-			path.lineTo(getWidth() - 1, 0);
-
-			g2d.setPaint(getBackground());
-			g2d.fill(path);
-
-			g2d.setPaint(Color.gray);
-			g2d.draw(path);
-
-			g2d.translate(2, 0);
-			super.paintComponent(g2d);
-			g2d.dispose();
-		}
 	};
 
 	private final SubtitleDropTarget downloadDropTarget = new SubtitleDropTarget.Download() {
@@ -147,30 +118,6 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		public Locale getQueryLanguage() {
 			// use currently selected language for drop target
 			return languageComboBox.getModel().getSelectedItem() == ALL_LANGUAGES ? null : languageComboBox.getModel().getSelectedItem().getLocale();
-		}
-
-		@Override
-		protected void paintComponent(Graphics g) {
-			Graphics2D g2d = (Graphics2D) g.create();
-			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-			Path2D path = new Path2D.Float();
-			path.moveTo(0, 0);
-			path.lineTo(0, getHeight() - 1 - 12);
-			path.lineTo(12, getHeight() - 1);
-			path.lineTo(getWidth() - 1 - 12, getHeight() - 1);
-			path.lineTo(getWidth() - 1, getHeight() - 1 - 12);
-			path.lineTo(getWidth() - 1, 0);
-
-			g2d.setPaint(getBackground());
-			g2d.fill(path);
-
-			g2d.setPaint(Color.gray);
-			g2d.draw(path);
-
-			g2d.translate(2, 0);
-			super.paintComponent(g2d);
-			g2d.dispose();
 		}
 	};
 

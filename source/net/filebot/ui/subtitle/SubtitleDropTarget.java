@@ -10,6 +10,10 @@ import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
@@ -18,6 +22,7 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Ellipse2D;
 import java.io.File;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -37,6 +42,7 @@ import net.filebot.ResourceManager;
 import net.filebot.platform.mac.MacAppUtilities;
 import net.filebot.ui.subtitle.upload.SubtitleUploadDialog;
 import net.filebot.util.FileUtilities;
+import net.filebot.util.FileUtilities.ExtensionFileFilter;
 import net.filebot.util.FileUtilities.ParentFilter;
 import net.filebot.web.OpenSubtitlesClient;
 import net.filebot.web.SubtitleProvider;
@@ -52,12 +58,10 @@ abstract class SubtitleDropTarget extends JButton {
 		setHorizontalAlignment(CENTER);
 
 		setHideActionText(true);
-		setBorderPainted(false);
 		setContentAreaFilled(false);
 		setFocusPainted(false);
-
+		setBorderPainted(false);
 		setBackground(Color.white);
-		setOpaque(false);
 
 		// initialize with default mode
 		setDropAction(DropAction.Accept);
@@ -68,6 +72,28 @@ abstract class SubtitleDropTarget extends JButton {
 
 		// install drop target
 		new DropTarget(this, dropHandler);
+	}
+
+	private Color lineColor = new Color(0xD7D7D7);
+
+	@Override
+	protected void paintComponent(Graphics g) {
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+		float w = getWidth();
+		float h = getHeight();
+		float d = Math.min(w, h) - 1f;
+
+		Shape shape = new Ellipse2D.Float((w - d) / 2, (h - d) / 2, d - 1, d - 1);
+
+		g2d.setColor(getBackground());
+		g2d.fill(shape);
+
+		g2d.setColor(lineColor);
+		g2d.draw(shape);
+
+		super.paintComponent(g2d);
 	}
 
 	protected void setDropAction(DropAction dropAction) {
