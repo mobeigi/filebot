@@ -4,7 +4,6 @@ import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.image.BaseMultiResolutionImage;
 import java.net.URL;
 import java.util.HashMap;
@@ -35,20 +34,15 @@ public final class ResourceManager {
 	}
 
 	public static Stream<URL> getApplicationIconResources() {
-		return Stream.of("window.icon.large", "window.icon.medium", "window.icon.small").map(ResourceManager::getImageResource);
+		return Stream.of("window.icon16", "window.icon64").map(ResourceManager::getImageResource);
 	}
 
 	public static List<Image> getApplicationIconImages() {
-		return getApplicationIconResources().map(ResourceManager::getToolkitImage).collect(toList());
+		return Stream.of("window.icon16", "window.icon64").map(ResourceManager::getMultiResolutionImageResource).map(ResourceManager::getMultiResolutionImage).collect(toList());
 	}
 
 	public static Icon getFlagIcon(String languageCode) {
 		return getIcon("flags/" + languageCode);
-	}
-
-	private static Image getToolkitImage(URL resource) {
-		// load sun.awt.image.ToolkitImage or sun.awt.image.MultiResolutionToolkitImage (via @2x convention)
-		return Toolkit.getDefaultToolkit().getImage(resource);
 	}
 
 	private static Image getMultiResolutionImage(URL[] resource) {
