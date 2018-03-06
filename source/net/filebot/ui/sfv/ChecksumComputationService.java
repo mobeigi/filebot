@@ -1,5 +1,7 @@
 package net.filebot.ui.sfv;
 
+import static net.filebot.Logging.*;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.HashSet;
@@ -10,6 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 import net.filebot.Settings;
 import net.filebot.util.DefaultThreadFactory;
@@ -108,8 +111,12 @@ class ChecksumComputationService {
 		public void execute(Runnable command) {
 			int preferredPoolSize = getPreferredPoolSize();
 
-			if (getCorePoolSize() < preferredPoolSize) {
-				setCorePoolSize(preferredPoolSize);
+			if (preferredPoolSize > 0 && preferredPoolSize <= getMaximumPoolSize() && getCorePoolSize() < preferredPoolSize) {
+				try {
+					setCorePoolSize(preferredPoolSize);
+				} catch (Exception e) {
+					log.log(Level.WARNING, "Failed to set core pool size: " + preferredPoolSize, e);
+				}
 			}
 
 			synchronized (this) {
