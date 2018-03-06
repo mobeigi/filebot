@@ -27,6 +27,10 @@ public final class ResourceManager {
 	}
 
 	private static Icon getIcon(List<String> icons) {
+		if (icons.isEmpty()) {
+			return null;
+		}
+
 		return cache.computeIfAbsent(icons.get(0), i -> {
 			// load image
 			URL[] resource = getMultiResolutionImageResource(i);
@@ -35,11 +39,7 @@ public final class ResourceManager {
 			}
 
 			// try next image
-			if (icons.size() > 0) {
-				return getIcon(icons.subList(1, icons.size()));
-			}
-
-			return null;
+			return getIcon(icons.subList(1, icons.size()));
 		});
 	}
 

@@ -37,7 +37,6 @@ import java.util.logging.Level;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
@@ -169,8 +168,8 @@ class SubtitleAutoMatchDialog extends JDialog {
 	}
 
 	protected void addSubtitleService(final SubtitleServiceBean service, final JPanel servicePanel) {
-		final LinkButton component = new LinkButton(service.getDescription(), null, ResourceManager.getIcon("database"), service.getLink());
-		component.setBorder(BorderFactory.createEmptyBorder());
+		LinkButton component = new LinkButton(service.getDescription(), null, ResourceManager.getIcon("database.go"), service.getLink());
+		component.setBorder(createEmptyBorder());
 		component.setVisible(false);
 
 		service.addPropertyChangeListener(evt -> {
