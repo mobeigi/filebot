@@ -1,6 +1,5 @@
 package net.filebot;
 
-import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 
@@ -22,24 +21,16 @@ public final class ResourceManager {
 
 	private static final Map<String, Icon> cache = synchronizedMap(new HashMap<String, Icon>(256));
 
-	public static Icon getIcon(String... name) {
-		return getIcon(asList(name));
-	}
-
-	private static Icon getIcon(List<String> icons) {
-		if (icons.isEmpty()) {
-			return null;
-		}
-
-		return cache.computeIfAbsent(icons.get(0), i -> {
+	public static Icon getIcon(String name) {
+		return cache.computeIfAbsent(name, i -> {
 			// load image
 			URL[] resource = getMultiResolutionImageResource(i);
 			if (resource.length > 0) {
 				return new ImageIcon(getMultiResolutionImage(resource));
 			}
 
-			// try next image
-			return getIcon(icons.subList(1, icons.size()));
+			// default image
+			return null;
 		});
 	}
 
