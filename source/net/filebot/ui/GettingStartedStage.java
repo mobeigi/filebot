@@ -45,6 +45,11 @@ public class GettingStartedStage {
 		alert.setHeaderText("Hello! Do you need help Getting Started?");
 		alert.setContentText("If you have never used FileBot before, please have a look at the video tutorials first.");
 
+		if (isWindowsApp()) {
+			Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+			stage.getIcons().setAll(ResourceManager.getApplicationIconResources().map(URL::toString).map(Image::new).toArray(Image[]::new));
+		}
+
 		Optional<ButtonType> result = alert.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			openURI(getEmbeddedHelpURL());
