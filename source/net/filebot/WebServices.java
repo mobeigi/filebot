@@ -66,8 +66,8 @@ public final class WebServices {
 	public static final ShooterSubtitles Shooter = new ShooterSubtitles();
 
 	// other sources
-	public static final FanartTVClient FanartTV = new FanartTVClient(Settings.getApiKey("fanart.tv"));
-	public static final AcoustIDClient AcoustID = new AcoustIDClient(Settings.getApiKey("acoustid"));
+	public static final FanartTVClient FanartTV = new FanartTVClient(getApiKey("fanart.tv"));
+	public static final AcoustIDClient AcoustID = new AcoustIDClient(getApiKey("acoustid"));
 	public static final XattrMetaInfoProvider XattrMetaData = new XattrMetaInfoProvider();
 	public static final ID3Lookup MediaInfoID3 = new ID3Lookup();
 
