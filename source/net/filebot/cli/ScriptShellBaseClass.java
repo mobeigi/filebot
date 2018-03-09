@@ -155,6 +155,9 @@ public abstract class ScriptShellBaseClass extends Script {
 		} else {
 			log.log(Level.WARNING, cause(t));
 		}
+
+		// print full stack trace if debug logging is enabled
+		debug.log(Level.ALL, "Suppressed Exception: " + t, t);
 	}
 
 	public void die(Object cause) throws Throwable {
