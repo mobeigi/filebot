@@ -42,8 +42,7 @@ public class MediaInfo implements Closeable {
 
 		String path = file.getCanonicalPath();
 
-		// on Mac files that contain accents cannot be opened via JNA WString file paths due to encoding differences so we use the buffer interface instead for these files
-		if (Platform.isMac() && !US_ASCII.newEncoder().canEncode(path)) {
+		if (preferOpenViaBuffer(path)) {
 			try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
 				if (openViaBuffer(raf)) {
 					return this;
@@ -57,6 +56,18 @@ public class MediaInfo implements Closeable {
 			return this;
 		}
 		throw new IOException("Failed to open media file: " + path);
+	}
+
+	private boolean preferOpenViaBuffer(String path) {
+		// on Windows file paths that are longer than 260 characters cannot be opened
+		if (Platform.isWindows() && path.length() > 250)
+			return true;
+
+		// on Mac files that contain accents cannot be opened via JNA WString file paths due to encoding differences so we use the buffer interface instead for these files
+		if (Platform.isMac() && !US_ASCII.newEncoder().canEncode(path))
+			return true;
+
+		return false;
 	}
 
 	private boolean openViaBuffer(RandomAccessFile f) throws IOException {
