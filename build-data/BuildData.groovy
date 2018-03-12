@@ -54,10 +54,10 @@ log.info "Reviews: " + reviews.size()
 // ------------------------------ FUNCTIONS ------------------------------ //
 
 
-def moviedb_out = dir_data.resolve('moviedb.txt')
-def thetvdb_out = dir_data.resolve('thetvdb.txt')
-def anidb_out   = dir_data.resolve('anidb.txt')
-def osdb_out    = dir_data.resolve('osdb.txt')
+def moviedb_out = dir_release.resolve('moviedb.txt')
+def thetvdb_out = dir_release.resolve('thetvdb.txt')
+def anidb_out   = dir_release.resolve('anidb.txt')
+def osdb_out    = dir_release.resolve('osdb.txt')
 
 
 def pack(file, lines) {
