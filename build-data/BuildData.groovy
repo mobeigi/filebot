@@ -66,7 +66,7 @@ def pack(file, lines) {
 			lines.each{ writer.append(it).append('\n') }
 		}
 	}
-	new File(file.parentFile, file.name + '.xz').withOutputStream{ out ->
+	file.parentFile.resolve(file.name + '.xz').withOutputStream{ out ->
 		new XZOutputStream(out, new LZMA2Options(LZMA2Options.PRESET_DEFAULT)).withWriter('UTF-8'){ writer ->
 			lines.each{ writer.append(it).append('\n') }
 		}
@@ -129,10 +129,10 @@ if (_args.mode == /no-index/) {
 def movies_index = [:]
 
 ['ancient-movies.txt', 'recent-movies.txt'].each{
-	movies_index << csv(it as File, '\t', 1, [1..-1])
+	movies_index << csv(dir_data.resolve(it), '\t', 1, [1..-1])
 }
 
-def tmdb_txt = 'tmdb.txt' as File
+def tmdb_txt = dir_data.resolve('tmdb.txt')
 def tmdb_index = csv(tmdb_txt, '\t', 1, [0..-1])
 
 def tmdb = []
@@ -184,7 +184,7 @@ pack(moviedb_out, movies*.join('\t'))
 // ------------------------------ BUILD SERIES INDEX ------------------------------ //
 
 
-def tvdb_txt = 'tvdb.txt' as File
+def tvdb_txt = dir_data.resolve('tvdb.txt')
 def tvdb = [:]
 
 if (tvdb_txt.exists()) {
@@ -196,7 +196,7 @@ if (tvdb_txt.exists()) {
 }
 
 def tvdb_updates = [:] as TreeMap
-('updates_all.xml' as File).eachLine('UTF-8'){
+dir_data.resolve('updates_all.xml').eachLine('UTF-8'){
 	def m = (it =~ '<Series><id>(\\d+)</id><time>(\\d+)</time></Series>')
 	while(m.find()) {
 		def id = m.group(1) as Integer
@@ -324,7 +324,7 @@ pack(thetvdb_out, thetvdb_txt)
 
 def osdb = []
 
-('osdb.txt' as File).eachLine('UTF-8'){
+dir_data.resolve('osdb.txt').eachLine('UTF-8'){
 	def fields = it.split(/\t/)*.trim()
 
 	// 0 IDMovie, 1 IDMovieImdb, 2 MovieName, 3 MovieYear, 4 MovieKind, 5 MoviePriority
@@ -375,7 +375,7 @@ def anidb = new AnidbClient('filebot', 6).getAnimeTitles() as List
 def animeExcludes = [] as Set
 
 // exclude anime movies from anime index
-('anime-list.xml' as File).eachLine('UTF-8') {
+dir_data.resolve('anime-list.xml').eachLine('UTF-8') {
     if (it =~ /tvdbid="movie"/ || it =~ /imdbid="ttd\+"/) {
         animeExcludes << it.match(/anidbid="(\d+)"/).toInteger()
     }
