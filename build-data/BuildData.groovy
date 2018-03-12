@@ -7,9 +7,9 @@ import org.tukaani.xz.*
 // ------------------------------ UPDATE LISTS ------------------------------ //
 
 
-def dir_root    = project as File
-def dir_website = dir_root.resolve('website')
-def dir_data    = dir_website.resolve('data')
+def dir_root = project as File
+def dir_data = data as File
+
 
 // sort and check shared regex collections
 def dir_data_master = System.getProperty('net.filebot.data.master', 'https://raw.githubusercontent.com/filebot/data/master')
@@ -46,7 +46,7 @@ reviews = reviews.sort{ it.date }
 
 def json = new groovy.json.JsonBuilder()
 json.call(reviews as List)
-json.toPrettyString().saveAs(dir_website.resolve('reviews.json'))
+json.toPrettyString().saveAs(dir_root.resolve('website/reviews.json'))
 log.info "Reviews: " + reviews.size()
 
 

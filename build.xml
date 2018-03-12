@@ -993,18 +993,6 @@
 	</target>
 
 
-	<target name="upload-data" description="Upload data files" depends="init">
-		<release-deploy todir="${deploy.website}">
-			<fileset dir="${dir.website}">
-				<include name="data/*.xz" />
-				<modified>
-					<param name="cache.cachefile" value="${dir.cache}/scp.cache" />
-				</modified>
-			</fileset>
-		</release-deploy>
-	</target>
-
-
 	<target name="eclipse-properties-builder">
 		<exec executable="git" outputproperty="revision" failonerror="true">
 			<arg line="rev-list --count master" />
