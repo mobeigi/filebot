@@ -7,8 +7,9 @@ import org.tukaani.xz.*
 // ------------------------------ UPDATE LISTS ------------------------------ //
 
 
-def dir_root = project as File
-def dir_data = data as File
+def dir_root    = project as File
+def dir_data    = data as File
+def dir_release = release as File
 
 
 // sort and check shared regex collections
@@ -20,7 +21,7 @@ def dir_data_master = System.getProperty('net.filebot.data.master', 'https://raw
  'series-mappings.txt'
 ].each{
 	def input = new URL(dir_data_master + '/' + it)
-	def output = dir_data.resolve(it)
+	def output = dir_release.resolve(it)
 
 	log.finest "Fetch $input"
 	def lines = new TreeSet(String.CASE_INSENSITIVE_ORDER)
@@ -274,7 +275,7 @@ tvdb.keySet().toList().each{ id ->
 tvdb.values().findResults{ it.collect{ it.toString().replace('\t', '').trim() }.join('\t') }.join('\n').saveAs(tvdb_txt)
 
 // additional custom mappings
-def extraAliasNames = csv(dir_data.resolve('add-series-alias.txt'), '\t', 0, [1..-1])
+def extraAliasNames = csv(dir_release.resolve('add-series-alias.txt'), '\t', 0, [1..-1])
 
 def thetvdb_index = []
 tvdb.values().each{ r ->
