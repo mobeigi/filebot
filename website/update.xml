@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
-	<name>FileBot 4.7.19</name>
-	<revision>5271</revision>
+	<name>FileBot 4.8</name>
+	<revision>5278</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 4.7.19</b><br>
+		<b>FileBot 4.8</b><br>
 		This release features:<br>
 		+ HiDPI support<br>
 		+ Improved episode auto-detection<br>
@@ -12,6 +12,6 @@
 		+ Support for CoW clones<br>
 		+ Lots of minor improvements and bugfixes<br>
 	<html>]]></message>
-	<discussion><![CDATA[https://www.filebot.net/forums/viewtopic.php?f=7&t=3709&p=32608#p32608]]></discussion>
+	<discussion><![CDATA[https://www.filebot.net/forums/viewtopic.php?f=7&t=3709&p=32848#p32848]]></discussion>
 	<download><![CDATA[https://www.filebot.net/]]></download>
 </update>
