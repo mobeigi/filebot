@@ -328,7 +328,14 @@ public class ArgumentBean {
 		// only selected panels
 		return optional(mode).map(m -> {
 			Pattern pattern = Pattern.compile(mode, Pattern.CASE_INSENSITIVE);
-			return stream(PanelBuilder.defaultSequence()).filter(p -> pattern.matcher(p.getName()).matches()).toArray(PanelBuilder[]::new);
+			PanelBuilder[] panel = stream(PanelBuilder.defaultSequence()).filter(p -> pattern.matcher(p.getName()).matches()).toArray(PanelBuilder[]::new);
+
+			// throw exception if illegal pattern was passed in
+			if (panel.length == 0) {
+				return null;
+			}
+
+			return panel;
 		}).orElseThrow(error("Illegal mode", mode));
 	}
 
