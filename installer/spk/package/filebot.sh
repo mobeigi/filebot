@@ -45,21 +45,13 @@ fi
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 
-
-# add PACKAGE_LIBRARY_PATH to LD_LIBRARY_PATH
-if [ ! -z "$LD_LIBRARY_PATH" ]; then
-	export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SYNO_LIBRARY_PATH:$PACKAGE_LIBRARY_PATH"
-else
-	export LD_LIBRARY_PATH="$SYNO_LIBRARY_PATH:$PACKAGE_LIBRARY_PATH"
-fi
-
 # choose extractor
-EXTRACTOR="ApacheVFS"					# use Apache Commons VFS2 with junrar plugin
-# EXTRACTOR="SevenZipExecutable"		# use the 7z executable
-# EXTRACTOR="SevenZipNativeBindings"	# use the lib7-Zip-JBinding.so native library
+EXTRACTOR="ApacheVFS"                   # use Apache Commons VFS2 with junrar plugin
+# EXTRACTOR="SevenZipExecutable"        # use the 7z executable
+# EXTRACTOR="SevenZipNativeBindings"    # use the lib7-Zip-JBinding.so native library
 
 # select application data folder
 APP_DATA="$APP_ROOT/data/$USER"
 
 # start filebot
-java -Djava.awt.headless=true -Dunixfs=false -DuseExtendedFileAttributes=true -DuseCreationDate=false -Dfile.encoding="UTF-8" -Dsun.jnu.encoding="UTF-8" -Djava.net.useSystemProxies=false -Djna.nosys=false -Djna.nounpack=true -Dapplication.deployment=spk -Dnet.filebot.Archive.extractor="$EXTRACTOR" -Dapplication.dir="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/temp" -Duser.home="$APP_DATA" -Djava.util.prefs.PreferencesFactory=net.filebot.util.prefs.FilePreferencesFactory -Dnet.filebot.util.prefs.file="$APP_DATA/prefs.properties" $JAVA_OPTS -jar "$APP_ROOT/FileBot.jar" "$@"
+java @{java.application.options} -Dapplication.deployment=spk -Djava.awt.headless=true -Dfile.encoding="UTF-8" -Dsun.jnu.encoding="UTF-8"  -Dnet.filebot.Archive.extractor="$EXTRACTOR" -Djna.library.path="$SYNO_LIBRARY_PATH:$PACKAGE_LIBRARY_PATH" -Djava.library.path="$SYNO_LIBRARY_PATH:$PACKAGE_LIBRARY_PATH" -Duser.home="$APP_DATA" -Dapplication.dir="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/tmp" -Djava.util.prefs.PreferencesFactory=net.filebot.util.prefs.FilePreferencesFactory -Dnet.filebot.util.prefs.file="$APP_DATA/prefs.properties" $JAVA_OPTS -classpath "$APP_ROOT/*" @{main.class} "$@"

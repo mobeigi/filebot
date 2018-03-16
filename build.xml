@@ -153,7 +153,6 @@
 			<manifest>
 				<attribute name="Build-Date" value="${tstamp.date}" />
 				<attribute name="Build-Revision" value="${revision}" />
-				<attribute name="Main-Class" value="${main.class}" />
 			</manifest>
 		</jar>
 	</target>

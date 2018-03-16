@@ -6,14 +6,7 @@ if [ -z "$HOME" ]; then
 	exit 1
 fi
 
-# add APP_ROOT to LD_LIBRARY_PATH
-if [ ! -z "$LD_LIBRARY_PATH" ]; then
-	export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$APP_ROOT"
-else
-	export LD_LIBRARY_PATH="$APP_ROOT"
-fi
-
 # select application data folder
 APP_DATA="$HOME/.filebot"
 
-java -Dunixfs=false -DuseGVFS=true -DuseExtendedFileAttributes=true -DuseCreationDate=false -Djava.net.useSystemProxies=true -Djna.nosys=false -Djna.nounpack=true -Dapplication.deployment=deb -Dnet.filebot.gio.GVFS="$XDG_RUNTIME_DIR/gvfs" -Dapplication.dir="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/temp" -Dnet.filebot.AcoustID.fpcalc="$APP_ROOT/fpcalc" $JAVA_OPTS -jar "$APP_ROOT/FileBot.jar" "$@"
+java @{java.application.options} -Dapplication.deployment=deb -DuseGVFS=true -Dnet.filebot.gio.GVFS="$XDG_RUNTIME_DIR/gvfs" -Dapplication.dir="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/tmp" -Djna.library.path="$APP_ROOT" -Djava.library.path="$APP_ROOT" -Dnet.filebot.AcoustID.fpcalc="$APP_ROOT/fpcalc" $JAVA_OPTS -classpath "$APP_ROOT/*" @{main.class} "$@"
