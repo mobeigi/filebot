@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.prefs.Preferences;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -120,6 +121,21 @@ public class Main {
 
 			// GUI mode => start user interface
 			SwingUtilities.invokeLater(() -> {
+				// restore preferences on start if empty (TODO: remove after a few releases)
+				try {
+					if (Preferences.userNodeForPackage(Main.class).keys().length == 0) {
+						File f = ApplicationFolder.AppData.resolve("preferences.backup.xml");
+						if (f.exists()) {
+							log.info("Restore user preferences: " + f);
+							Settings.restore(f);
+						} else {
+							log.info("No user preferences found: " + f);
+						}
+					}
+				} catch (Exception e) {
+					debug.log(Level.WARNING, "Failed to restore preferences", e);
+				}
+
 				startUserInterface(args);
 
 				// run background tasks
