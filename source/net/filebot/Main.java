@@ -194,6 +194,9 @@ public class Main {
 			HistorySpooler.getInstance().commit();
 			SupportDialog.maybeShow();
 
+			// backup preferences on exit
+			Settings.store(ApplicationFolder.AppData.resolve("preferences.backup.xml"));
+
 			System.exit(0);
 		}));
 

@@ -2,6 +2,13 @@ package net.filebot;
 
 import static net.filebot.Logging.*;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -246,6 +253,22 @@ public final class Settings {
 			prefs.clear();
 		} catch (BackingStoreException e) {
 			debug.warning(e.getMessage());
+		}
+	}
+
+	public static void store(File f) {
+		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
+			Preferences.userRoot().exportSubtree(out);
+		} catch (Exception e) {
+			debug.log(Level.SEVERE, e, e::toString);
+		}
+	}
+
+	public static void restore(File f) {
+		try (InputStream in = new BufferedInputStream(new FileInputStream(f))) {
+			Preferences.importPreferences(in);
+		} catch (Exception e) {
+			debug.log(Level.SEVERE, e, e::toString);
 		}
 	}
 
