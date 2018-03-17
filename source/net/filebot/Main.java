@@ -73,6 +73,9 @@ public class Main {
 				if (args.clearUserData()) {
 					log.info("Reset preferences");
 					Settings.forPackage(Main.class).clear();
+
+					// restore preferences on start if empty (TODO: remove after a few releases)
+					ApplicationFolder.AppData.resolve("preferences.backup.xml").delete();
 				}
 
 				// clear caches
@@ -210,7 +213,7 @@ public class Main {
 			HistorySpooler.getInstance().commit();
 			SupportDialog.maybeShow();
 
-			// backup preferences on exit
+			// restore preferences on start if empty (TODO: remove after a few releases)
 			Settings.store(ApplicationFolder.AppData.resolve("preferences.backup.xml"));
 
 			System.exit(0);
