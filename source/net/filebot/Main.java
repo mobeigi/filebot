@@ -129,10 +129,10 @@ public class Main {
 					if (Preferences.userNodeForPackage(Main.class).keys().length == 0) {
 						File f = ApplicationFolder.AppData.resolve("preferences.backup.xml");
 						if (f.exists()) {
-							log.info("Restore user preferences: " + f);
+							log.fine("Restore user preferences: " + f);
 							Settings.restore(f);
 						} else {
-							log.info("No user preferences found: " + f);
+							log.fine("No user preferences found: " + f);
 						}
 					}
 				} catch (Exception e) {
