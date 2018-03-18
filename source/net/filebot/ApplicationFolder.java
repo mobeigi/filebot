@@ -1,8 +1,13 @@
 package net.filebot;
 
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.LinkOption;
+import java.nio.file.Paths;
+import java.util.logging.Level;
 
 public enum ApplicationFolder {
 
@@ -15,10 +20,18 @@ public enum ApplicationFolder {
 
 	Cache(System.getProperty("application.cache", AppData.resolve("cache").getPath()));
 
-	private final File path;
+	private File path;
 
 	ApplicationFolder(String path) {
-		this.path = new File(path);
+		try {
+			// use canonical file path
+			this.path = Paths.get(path).toRealPath(LinkOption.NOFOLLOW_LINKS).toFile();
+		} catch (IOException e) {
+			debug.log(Level.WARNING, e, e::toString);
+
+			// default to file path as is
+			this.path = new File(path).getAbsoluteFile();
+		}
 	}
 
 	public File get() {
