@@ -293,8 +293,9 @@ public class TMDbClient implements MovieIdentificationService, ArtworkProvider {
 			String width = getString(it, "width");
 			String height = getString(it, "height");
 			Locale language = getStringValue(it, "iso_639_1", Locale::new);
+			Double rating = getStringValue(it, "vote_average", Double::parseDouble);
 
-			return new Artwork(Stream.of(category, String.join("x", width, height)), image, language, null);
+			return new Artwork(Stream.of(category, String.join("x", width, height)), image, language, rating);
 		}).sorted(Artwork.RATING_ORDER).collect(toList());
 	}
 

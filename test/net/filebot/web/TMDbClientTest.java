@@ -119,7 +119,8 @@ public class TMDbClientTest {
 	public void getArtwork() throws Exception {
 		Artwork a = db.getArtwork(16320, "backdrops", Locale.ROOT).get(0);
 		assertEquals("[backdrops, 1920x1080]", a.getTags().toString());
-		assertEquals("http://image.tmdb.org/t/p/original/mQPg3iZyztfzFNwrW40nCUtXy2l.jpg", a.getUrl().toString());
+		assertEquals("https://image.tmdb.org/t/p/original/mQPg3iZyztfzFNwrW40nCUtXy2l.jpg", a.getUrl().toString());
+		assertEquals(6.0, a.getRating(), 1.0);
 	}
 
 	@Test
@@ -130,7 +131,7 @@ public class TMDbClientTest {
 		assertEquals(null, p.getJob());
 		assertEquals(null, p.getDepartment());
 		assertEquals("0", p.getOrder().toString());
-		assertEquals("http://image.tmdb.org/t/p/original/B7VTVtnKyFk0AtYjEbqzBQlPec.jpg", p.getImage().toString());
+		assertEquals("https://image.tmdb.org/t/p/original/B7VTVtnKyFk0AtYjEbqzBQlPec.jpg", p.getImage().toString());
 	}
 
 	@Test
