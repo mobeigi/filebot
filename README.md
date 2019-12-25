@@ -1,9 +1,27 @@
 # FileBot
 
-The FileBot source code is available for your convenience:
+This is a fork of the official github FileBot source code on **23 Mar 2018**.  
+The repo has unfortunately since been taken offline. It appears like the developer [rednoah](https://github.com/rednoah) has decided to try and make money off this software which originally rose in popularity due to its open source nature.
 
-* You may view the source code and learn from it.
-* You may build FileBot for private use on unsupported platforms.
-* You may NOT use the source code to avoid paying for FileBot or help others to do so.
+rednoah has:
+* Added nagware to the original software to promote sales
+* Made it intentionally harder to build the software
+* Censored/removed posts on forums they moderate
+* Deceived the community who supported the software
+* Finally, removed the open source code from Github.
 
-Please respect the author that is kindly making the source code available under the [MODIFIED DON'T BE A DICK PUBLIC LICENSE](https://github.com/filebot/filebot/blob/master/LICENSE.md).
+Stop making absurd excuses like "there were no other contributors" which is a complete lie. Just say you want to make money, there is nothing wrong with that but you can't seem to admit it.
+
+# Original Fork Point
+If you are interested in the original fork point check out the [fork-point](../../tree/fork-point/) branch.
+
+# Building
+It is possible to build the source code as a standalone jar or as an self signed UWP app.
+
+# Binaries/Releases
+Check out the releases for some releases.
+
+# Licence
+The FileBot source code is available for your convenience.
+
+I will keep this repo under the same licence (which was modified for more greed) [MODIFIED DON'T BE A DICK PUBLIC LICENSE](../master/LICENSE.md).
