@@ -160,6 +160,11 @@
 
 	<target name="fatjar" depends="jar" description="Build executable jar">
 		<jar destfile="${path.fatjar}" filesetmanifest="merge" duplicate="fail" compress="no">
+			<!-- Manifest for fatjar so its executable-->
+			<manifest>
+				<attribute name="Main-Class" value="net.filebot.Main"/>
+			</manifest>
+
 			<!-- include main jar -->
 			<zipfileset src="${dir.dist}/lib/filebot.jar" />
 
@@ -607,10 +612,10 @@
 		</copy-replace>
 
 		<!-- fetch latest JRE -->
-		<exec executable="powershell" dir="${dir.cache}" failonerror="yes">
-			<env key="PROCESSOR_ARCHITECTURE" value="${arch.env}" />
-			<arg line="get-java" />
-		</exec>
+		<!--<exec executable="powershell" dir="${dir.cache}" failonerror="yes">-->
+			<!--<env key="PROCESSOR_ARCHITECTURE" value="${arch.env}" />-->
+			<!--<arg line="get-java" />-->
+		<!--</exec>-->
 		<untar src="${dir.cache}/jre-${jre.version}_windows-${arch.jre}_bin.tar.gz" dest="${dir.staging}/jre" compression="gzip">
 			<patternset>
 				<exclude name="**/dtplugin/**" />
@@ -635,7 +640,7 @@
 			<arg line="new /o /pr . /cf priconfig.xml /in ${microsoft.application.name}" />
 		</exec>
 		<exec executable="makeappx" dir="${dir.dist}" failonerror="yes">
-			<arg line="pack /v /o /d ${dir.staging} /p ${release}_r${revision}_${arch}.appx" />
+			<arg line="pack /v /o /d '${dir.staging}' /p ${release}_r${revision}_${arch}.appx" />
 		</exec>
 	</target>
 
@@ -670,7 +675,7 @@
 			<arg line="filebot.wix -out msi.wixobj" />
 		</exec>
 		<exec executable="light" dir="${dir.staging}" failonerror="true">
-			<arg line="msi.wixobj -sval -ext WixUIExtension -out ${dir.dist}/${release}_${arch}.msi" />
+			<arg line="msi.wixobj -sval -ext WixUIExtension -out '${dir.dist}/${release}_${arch}.msi'" />
 		</exec>
 	</target>
 
