@@ -1,6 +1,6 @@
 # FileBot
 
-This is a fork of the official github FileBot source code on **23 Mar 2018**.  
+This is a fork of the official FileBot source code on **23 Mar 2018** for version **4.8.0**.
 The repo has unfortunately since been taken offline. It appears like the developer [rednoah](https://github.com/rednoah) has decided to try and make money off this software which originally rose in popularity due to its open source nature.
 
 rednoah has:
