@@ -15,11 +15,16 @@ Stop making absurd excuses like "there were no other contributors" which is a co
 # Original Fork Point
 If you are interested in the original fork point check out the [fork-point](../../tree/fork-point/) branch.
 
+# Newer Fork
+Looks like another newer fork is available here: https://github.com/deleted-repo/filebot
+
 # Building
 It is possible to build the source code as a standalone jar or as an self signed UWP app.
 
 # Binaries/Releases
 Check out the releases for some releases.
+
+Also check out this repo more up to date sources/releases: https://github.com/barry-allen07/FB-Mod
 
 # Licence
 The FileBot source code is available for your convenience.
